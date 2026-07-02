@@ -1,0 +1,268 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* ============================================================
+   Spotlite Design System — SBI / YONO inspired
+   All color tokens use oklch. Hex equivalents in comments
+   reference the original SPOTLITE_UI_DESIGN.md spec.
+   ============================================================ */
+
+:root {
+  --radius: 1rem; /* 16px card radius */
+  --radius-pill: 999px;
+
+  /* Brand */
+  --brand-primary: oklch(0.31 0.16 273); /* #1F2A7A SBI indigo */
+  --brand-primary-hi: oklch(0.4 0.18 273);
+  --brand-secondary: oklch(0.37 0.18 312); /* #5E2A86 YONO purple */
+  --brand-on-brand: oklch(1 0 0);
+  --brand-gradient: linear-gradient(135deg, oklch(0.3 0.11 269) 0%, oklch(0.35 0.1 274) 100%);
+  --brand-gradient-vivid: linear-gradient(160deg, oklch(0.26 0.08 268) 0%, oklch(0.32 0.1 275) 100%);
+
+  /* Severity */
+  --severity-high: oklch(0.58 0.22 27);     /* #D32F2F */
+  --severity-moderate: oklch(0.78 0.16 70); /* #F59E0B */
+  --severity-low: oklch(0.58 0.21 263);     /* #2563EB */
+  --success: oklch(0.6 0.16 152);           /* #0F9D58 */
+  --danger: oklch(0.58 0.22 27);
+
+  /* Neutrals */
+  --bg: oklch(0.975 0.005 270);          /* #F5F6FA */
+  --surface: oklch(1 0 0);
+  --surface-alt: oklch(0.955 0.008 270); /* #EEF0F7 */
+  --text-primary: oklch(0.18 0.015 270); /* #15171C */
+  --text-secondary: oklch(0.48 0.02 270);/* #5B6075 */
+  --border-c: oklch(0.91 0.01 270);      /* #E2E5EE */
+
+  /* Elevation */
+  --shadow-e1: 0 1px 2px oklch(0.2 0.04 270 / 0.04), 0 4px 16px oklch(0.2 0.04 270 / 0.06);
+  --shadow-e2: 0 4px 12px oklch(0.2 0.04 270 / 0.08), 0 16px 40px oklch(0.2 0.04 270 / 0.12);
+  --shadow-brand: 0 8px 24px oklch(0.31 0.1 273 / 0.2);
+
+  /* shadcn variable bridge (so primitives keep working) */
+  --background: var(--bg);
+  --foreground: var(--text-primary);
+  --card: var(--surface);
+  --card-foreground: var(--text-primary);
+  --popover: var(--surface);
+  --popover-foreground: var(--text-primary);
+  --primary: var(--brand-primary);
+  --primary-foreground: var(--brand-on-brand);
+  --secondary: var(--surface-alt);
+  --secondary-foreground: var(--text-primary);
+  --muted: var(--surface-alt);
+  --muted-foreground: var(--text-secondary);
+  --accent: var(--surface-alt);
+  --accent-foreground: var(--text-primary);
+  --destructive: var(--severity-high);
+  --destructive-foreground: oklch(1 0 0);
+  --border: var(--border-c);
+  --input: var(--border-c);
+  --ring: var(--brand-primary);
+  --chart-1: var(--brand-primary);
+  --chart-2: var(--brand-secondary);
+  --chart-3: var(--severity-moderate);
+  --chart-4: var(--success);
+  --chart-5: var(--severity-low);
+  --sidebar: var(--surface);
+  --sidebar-foreground: var(--text-primary);
+  --sidebar-primary: var(--brand-primary);
+  --sidebar-primary-foreground: var(--brand-on-brand);
+  --sidebar-accent: var(--surface-alt);
+  --sidebar-accent-foreground: var(--text-primary);
+  --sidebar-border: var(--border-c);
+  --sidebar-ring: var(--brand-primary);
+}
+
+@theme inline {
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: var(--radius);
+  --radius-xl: 1.25rem;
+  --radius-2xl: 1.5rem;
+  --radius-pill: 999px;
+
+  --color-background: var(--bg);
+  --color-foreground: var(--text-primary);
+  --color-surface: var(--surface);
+  --color-surface-alt: var(--surface-alt);
+  --color-card: var(--surface);
+  --color-card-foreground: var(--text-primary);
+  --color-popover: var(--surface);
+  --color-popover-foreground: var(--text-primary);
+  --color-primary: var(--brand-primary);
+  --color-primary-foreground: var(--brand-on-brand);
+  --color-secondary: var(--surface-alt);
+  --color-secondary-foreground: var(--text-primary);
+  --color-muted: var(--surface-alt);
+  --color-muted-foreground: var(--text-secondary);
+  --color-accent: var(--surface-alt);
+  --color-accent-foreground: var(--text-primary);
+  --color-destructive: var(--severity-high);
+  --color-destructive-foreground: oklch(1 0 0);
+  --color-border: var(--border-c);
+  --color-input: var(--border-c);
+  --color-ring: var(--brand-primary);
+
+  --color-brand: var(--brand-primary);
+  --color-brand-hi: var(--brand-primary-hi);
+  --color-brand-secondary: var(--brand-secondary);
+  --color-on-brand: var(--brand-on-brand);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+
+  --color-severity-high: var(--severity-high);
+  --color-severity-moderate: var(--severity-moderate);
+  --color-severity-low: var(--severity-low);
+  --color-success: var(--success);
+  --color-danger: var(--danger);
+
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: "Sora", "Inter", ui-sans-serif, system-ui, sans-serif;
+
+  --shadow-e1: var(--shadow-e1);
+  --shadow-e2: var(--shadow-e2);
+  --shadow-brand: var(--shadow-brand);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  html,
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    letter-spacing: -0.01em;
+  }
+}
+
+@utility font-num {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+  font-weight: 600;
+}
+
+@utility bg-brand-gradient {
+  background-image: var(--brand-gradient);
+}
+
+@utility bg-brand-gradient-vivid {
+  background-image: var(--brand-gradient-vivid);
+}
+
+@utility shadow-e1 {
+  box-shadow: var(--shadow-e1);
+}
+
+@utility shadow-e2 {
+  box-shadow: var(--shadow-e2);
+}
+
+@utility shadow-brand {
+  box-shadow: var(--shadow-brand);
+}
+
+@utility card-spot {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-e1);
+}
+
+/* Restrained hero background for banking-style surfaces */
+@utility bg-mesh {
+  background-color: oklch(0.26 0.08 268);
+  background-image:
+    linear-gradient(160deg, oklch(0.27 0.08 268) 0%, oklch(0.32 0.1 275) 100%),
+    linear-gradient(120deg, oklch(1 0 0 / 0.06) 0%, transparent 45%);
+}
+
+/* Severity-tinted surfaces */
+@utility tint-high {
+  background-color: color-mix(in oklch, var(--severity-high) 8%, var(--surface));
+}
+@utility tint-moderate {
+  background-color: color-mix(in oklch, var(--severity-moderate) 10%, var(--surface));
+}
+@utility tint-low {
+  background-color: color-mix(in oklch, var(--severity-low) 8%, var(--surface));
+}
+@utility tint-success {
+  background-color: color-mix(in oklch, var(--success) 10%, var(--surface));
+}
+@utility tint-brand {
+  background-color: color-mix(in oklch, var(--brand-secondary) 8%, var(--surface));
+}
+
+@utility text-balance {
+  text-wrap: balance;
+}
+
+@utility pulse-dot {
+  animation: spotlite-pulse 1.6s ease-in-out infinite;
+}
+@utility agent-float {
+  animation: spotlite-float 3.4s ease-in-out infinite;
+}
+@utility shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+@keyframes spotlite-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); box-shadow: 0 0 0 0 oklch(0.5 0.2 320 / 0.5); }
+  50% { opacity: 0.85; transform: scale(0.94); box-shadow: 0 0 0 8px oklch(0.5 0.2 320 / 0); }
+}
+@keyframes spotlite-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+@keyframes spotlite-thinking {
+  0%, 80%, 100% { opacity: 0.2; transform: translateY(0); }
+  40% { opacity: 1; transform: translateY(-2px); }
+}
+@keyframes spotlite-shimmer {
+  100% { transform: translateX(100%); }
+}
+@keyframes spotlite-ring {
+  to { stroke-dashoffset: 0; }
+}
+
+.thinking-dot {
+  animation: spotlite-thinking 1.2s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
