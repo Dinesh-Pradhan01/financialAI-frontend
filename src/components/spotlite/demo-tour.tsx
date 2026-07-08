@@ -4,9 +4,10 @@ import { AnimatePresence, motion } from "framer-motion";
 import { ArrowLeft, ArrowRight, X, Sparkles, PlayCircle } from "lucide-react";
 import { useDemo } from "@/store/demo-store";
 import { tourSteps, agentByKey, type TourPhase } from "@/data/agentic";
+import { useAuth } from "@/contexts/AuthContext";
 
 const PHASES: TourPhase[] = ["Understand", "Reason", "Act", "Learn"];
-const ONBOARDING = ["/", "/login", "/consent", "/upload", "/processing"];
+const ONBOARDING = ["/", "/login", "/signup", "/verify-email", "/consent", "/upload", "/processing"];
 
 export function DemoTour() {
   const nav = useNavigate();
@@ -127,9 +128,18 @@ export function DemoTour() {
 
 export function IntroModal() {
   const { seenIntro, dismissIntro, startTour, tourStep } = useDemo();
+  const { user } = useAuth();
   const path = useRouterState({ select: (r) => r.location.pathname });
   const onAppRoute = !ONBOARDING.includes(path);
-  const show = !seenIntro && onAppRoute && tourStep < 0;
+
+  let isNewUser = false;
+  if (user && user.metadata.creationTime && user.metadata.lastSignInTime) {
+    const creationTime = new Date(user.metadata.creationTime).getTime();
+    const lastSignInTime = new Date(user.metadata.lastSignInTime).getTime();
+    isNewUser = Math.abs(lastSignInTime - creationTime) < 120000;
+  }
+
+  const show = !seenIntro && onAppRoute && tourStep < 0 && isNewUser;
 
   if (!show) return null;
 
