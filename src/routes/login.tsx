@@ -3,6 +3,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { Sparkles, Lock, Eye, EyeOff, Loader2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
 
 export const Route = createFileRoute("/login")({
   head: () => ({
@@ -98,7 +99,17 @@ function Login() {
           Log in to see your money.
         </p>
 
-        <form onSubmit={handleSubmit} className="mt-8 space-y-4">
+        <div className="mt-8">
+          <GoogleSignInButton />
+        </div>
+
+        <div className="relative mt-6 flex items-center py-2">
+          <div className="flex-grow border-t border-border"></div>
+          <span className="shrink-0 px-4 text-xs text-text-secondary uppercase">Or continue with email</span>
+          <div className="flex-grow border-t border-border"></div>
+        </div>
+
+        <form onSubmit={handleSubmit} className="mt-6 space-y-4">
           {/* Email */}
           <div className="space-y-1.5">
             <label htmlFor="login-email" className="block text-xs font-medium text-text-secondary">
