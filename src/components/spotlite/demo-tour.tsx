@@ -128,14 +128,14 @@ export function DemoTour() {
 
 export function IntroModal() {
   const { seenIntro, dismissIntro, startTour, tourStep } = useDemo();
-  const { user } = useAuth();
+  const { firebaseUser } = useAuth();
   const path = useRouterState({ select: (r) => r.location.pathname });
   const onAppRoute = !ONBOARDING.includes(path);
 
   let isNewUser = false;
-  if (user && user.metadata.creationTime && user.metadata.lastSignInTime) {
-    const creationTime = new Date(user.metadata.creationTime).getTime();
-    const lastSignInTime = new Date(user.metadata.lastSignInTime).getTime();
+  if (firebaseUser && firebaseUser.metadata.creationTime && firebaseUser.metadata.lastSignInTime) {
+    const creationTime = new Date(firebaseUser.metadata.creationTime).getTime();
+    const lastSignInTime = new Date(firebaseUser.metadata.lastSignInTime).getTime();
     isNewUser = Math.abs(lastSignInTime - creationTime) < 120000;
   }
 

@@ -6,7 +6,7 @@ import {
   useCallback,
   type ReactNode,
 } from "react";
-import { onAuthStateChanged, type User } from "firebase/auth";
+import { onAuthStateChanged, type User as FirebaseUser } from "firebase/auth";
 import { auth } from "../firebase/firebase";
 import {
   loginWithEmail,
@@ -16,14 +16,24 @@ import {
   resendVerification,
   getIdToken,
 } from "../firebase/auth";
+import { api } from "../lib/api";
 
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
 
+export interface BackendUser {
+  id: number;
+  email: string;
+  role: string;
+  email_verified: boolean;
+}
+
 interface AuthContextValue {
   /** The Firebase User object, or null when signed out. */
-  user: User | null;
+  firebaseUser: FirebaseUser | null;
+  /** The synchronized Backend User object, or null when signed out. */
+  user: BackendUser | null;
   /** True while the initial auth state is being resolved. */
   loading: boolean;
   /** Sign in with email + password. */
@@ -51,15 +61,37 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 // ---------------------------------------------------------------------------
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
+  const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
+  const [user, setUser] = useState<BackendUser | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Listen to Firebase auth state changes (login / logout / token refresh)
+  // Sync Firebase auth state with the backend
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
-      setUser(firebaseUser);
+    const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
+      setFirebaseUser(fbUser);
+      
+      if (fbUser) {
+        try {
+          // Call sync to ensure user exists in DB and get the secure session cookie
+          const backendUser = await api.post<BackendUser>(
+            "/api/auth/sync",
+            undefined,
+            { useFirebaseToken: true }
+          );
+          setUser(backendUser);
+        } catch (error) {
+          console.error("Failed to sync auth with backend:", error);
+          setUser(null);
+          // Optionally, sign out from Firebase if backend sync fails securely
+          // await logoutUser();
+        }
+      } else {
+        setUser(null);
+      }
+      
       setLoading(false);
     });
+    
     return unsubscribe;
   }, []);
 
@@ -67,7 +99,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = useCallback(async (email: string, password: string) => {
     await loginWithEmail(email, password);
-    // onAuthStateChanged will update `user` automatically
+    // onAuthStateChanged will handle the backend sync automatically
   }, []);
 
   const signup = useCallback(async (email: string, password: string) => {
@@ -75,6 +107,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const logout = useCallback(async () => {
+    try {
+      // First, revoke backend session
+      await api.post("/api/auth/logout", undefined, { useFirebaseToken: false });
+    } catch (e) {
+      console.warn("Backend logout failed:", e);
+    }
+    // Then clear Firebase auth state
     await logoutUser();
   }, []);
 
@@ -93,6 +132,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   return (
     <AuthContext.Provider
       value={{
+        firebaseUser,
         user,
         loading,
         login,

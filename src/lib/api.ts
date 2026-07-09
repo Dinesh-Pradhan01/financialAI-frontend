@@ -5,7 +5,7 @@ import { getIdToken } from "../firebase/auth";
 // ---------------------------------------------------------------------------
 
 const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
+  import.meta.env.VITE_API_URL ?? import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -14,8 +14,8 @@ const API_BASE_URL =
 interface FetchOptions extends Omit<RequestInit, "headers"> {
   /** Extra headers merged on top of defaults. */
   headers?: Record<string, string>;
-  /** Skip attaching the Authorization header (e.g. for public endpoints). */
-  noAuth?: boolean;
+  /** Add Authorization Bearer header. Only needed for /sync now. */
+  useFirebaseToken?: boolean;
 }
 
 // ---------------------------------------------------------------------------
@@ -25,7 +25,7 @@ interface FetchOptions extends Omit<RequestInit, "headers"> {
 /**
  * Authenticated fetch wrapper.
  *
- * - Automatically attaches `Authorization: Bearer <firebase_id_token>`
+ * - Automatically sends cookies with `credentials: "include"`
  * - Parses JSON responses
  * - Throws on non-2xx responses with the server error detail
  */
@@ -33,15 +33,15 @@ export async function fetchAPI<T = unknown>(
   path: string,
   options: FetchOptions = {},
 ): Promise<T> {
-  const { headers: extraHeaders = {}, noAuth = false, ...init } = options;
+  const { headers: extraHeaders = {}, useFirebaseToken = false, ...init } = options;
 
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
     ...extraHeaders,
   };
 
-  // Attach auth token unless explicitly skipped
-  if (!noAuth) {
+  // Only attach Firebase token when explicitly requested (e.g. for /sync)
+  if (useFirebaseToken) {
     const token = await getIdToken(/* forceRefresh */ false);
     if (token) {
       headers["Authorization"] = `Bearer ${token}`;
@@ -51,6 +51,7 @@ export async function fetchAPI<T = unknown>(
   const url = `${API_BASE_URL}${path}`;
 
   const response = await fetch(url, {
+    credentials: "include", // Essential for sending/receiving session cookies
     ...init,
     headers,
   });
