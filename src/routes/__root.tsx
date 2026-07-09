@@ -12,6 +12,7 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { DemoStateProvider } from "../store/demo-store";
+import { AuthProvider } from "../contexts/AuthContext";
 import { Toaster } from "../components/ui/sonner";
 import { SpotliteAgentDock } from "../components/spotlite/agent-dock";
 import { DemoTour, IntroModal } from "../components/spotlite/demo-tour";
@@ -132,13 +133,15 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <DemoStateProvider>
-        <Outlet />
-        <SpotliteAgentDock />
-        <IntroModal />
-        <DemoTour />
-        <Toaster richColors position="top-center" />
-      </DemoStateProvider>
+      <AuthProvider>
+        <DemoStateProvider>
+          <Outlet />
+          <SpotliteAgentDock />
+          <IntroModal />
+          <DemoTour />
+          <Toaster richColors position="top-center" />
+        </DemoStateProvider>
+      </AuthProvider>
     </QueryClientProvider>
   );
 }

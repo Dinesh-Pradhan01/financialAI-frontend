@@ -1,60 +1,63 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Sparkles, Lock, Eye, EyeOff, Loader2 } from "lucide-react";
+import { Sparkles, Lock, Eye, EyeOff, Loader2, Check, X } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 
-export const Route = createFileRoute("/login")({
+export const Route = createFileRoute("/signup")({
   head: () => ({
     meta: [
-      { title: "Log in · Spotlite" },
+      { title: "Sign up · Spotlite" },
       {
         name: "description",
-        content: "Log in to Spotlite, your agentic money companion.",
+        content: "Create your Spotlite account and start understanding your money.",
       },
     ],
   }),
-  component: Login,
+  component: Signup,
 });
 
-function Login() {
+// ---------- Password strength rules ----------
+const rules = [
+  { label: "At least 8 characters", test: (p: string) => p.length >= 8 },
+  { label: "One uppercase letter", test: (p: string) => /[A-Z]/.test(p) },
+  { label: "One lowercase letter", test: (p: string) => /[a-z]/.test(p) },
+  { label: "One number", test: (p: string) => /\d/.test(p) },
+] as const;
+
+function Signup() {
   const nav = useNavigate();
-  const { login } = useAuth();
+  const { signup } = useAuth();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirm, setConfirm] = useState("");
   const [showPwd, setShowPwd] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
+  const allRulesPass = rules.every((r) => r.test(password));
+  const passwordsMatch = password === confirm && confirm.length > 0;
+  const formValid = email.trim() && allRulesPass && passwordsMatch;
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!email.trim() || !password) return;
+    if (!formValid) return;
 
     setSubmitting(true);
     try {
-      await login(email.trim(), password);
-
-      // Check email verification — the auth listener will update user,
-      // but we can peek at currentUser synchronously after login resolves.
-      const { auth } = await import("@/firebase/firebase");
-      const currentUser = auth.currentUser;
-
-      if (currentUser && !currentUser.emailVerified) {
-        nav({ to: "/verify-email" });
-      } else {
-        nav({ to: "/home" });
-      }
+      await signup(email.trim(), password);
+      toast.success("Account created!", {
+        description: "Check your email to verify your address.",
+      });
+      nav({ to: "/verify-email" });
     } catch (err: unknown) {
       const msg =
-        err instanceof Error ? err.message : "Login failed. Please try again.";
+        err instanceof Error ? err.message : "Signup failed. Please try again.";
 
-      // Map Firebase error codes to user-friendly messages
-      if (msg.includes("auth/invalid-credential") || msg.includes("auth/wrong-password")) {
-        toast.error("Invalid email or password.");
-      } else if (msg.includes("auth/user-not-found")) {
-        toast.error("No account found with that email.");
-      } else if (msg.includes("auth/too-many-requests")) {
-        toast.error("Too many attempts. Please try again later.");
+      if (msg.includes("auth/email-already-in-use")) {
+        toast.error("An account with this email already exists.");
+      } else if (msg.includes("auth/weak-password")) {
+        toast.error("Password is too weak. Follow the requirements below.");
       } else {
         toast.error(msg);
       }
@@ -73,14 +76,14 @@ function Login() {
         </div>
         <div>
           <h2 className="font-display text-4xl font-bold leading-tight">
-            See the money
+            Your money,
             <br />
-            you're missing.
+            finally understood.
           </h2>
           <ul className="mt-8 space-y-3 text-sm opacity-90">
-            <li>• Bank-grade security</li>
-            <li>• You own your data</li>
-            <li>• DPDP Act 2023 compliant</li>
+            <li>• Cross-bank blind-spot detection</li>
+            <li>• AI coach that speaks first</li>
+            <li>• Free, forever for core features</li>
           </ul>
         </div>
         <p className="text-xs opacity-70">Powered by RBI Account Aggregator (Phase 2)</p>
@@ -93,19 +96,19 @@ function Login() {
           <span className="font-display text-lg font-bold">Spotlite</span>
         </div>
 
-        <h1 className="font-display text-3xl font-bold">Welcome back</h1>
+        <h1 className="font-display text-3xl font-bold">Create your account</h1>
         <p className="mt-1 text-text-secondary">
-          Log in to see your money.
+          Start finding the money you're missing.
         </p>
 
         <form onSubmit={handleSubmit} className="mt-8 space-y-4">
           {/* Email */}
           <div className="space-y-1.5">
-            <label htmlFor="login-email" className="block text-xs font-medium text-text-secondary">
+            <label htmlFor="signup-email" className="block text-xs font-medium text-text-secondary">
               Email address
             </label>
             <input
-              id="login-email"
+              id="signup-email"
               type="email"
               required
               autoComplete="email"
@@ -118,15 +121,15 @@ function Login() {
 
           {/* Password */}
           <div className="space-y-1.5">
-            <label htmlFor="login-password" className="block text-xs font-medium text-text-secondary">
+            <label htmlFor="signup-password" className="block text-xs font-medium text-text-secondary">
               Password
             </label>
             <div className="relative">
               <input
-                id="login-password"
+                id="signup-password"
                 type={showPwd ? "text" : "password"}
                 required
-                autoComplete="current-password"
+                autoComplete="new-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full rounded-pill border border-border bg-surface px-4 py-3 pr-12 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
@@ -141,58 +144,64 @@ function Login() {
                 {showPwd ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
             </div>
+
+            {/* Strength indicators */}
+            {password.length > 0 && (
+              <ul className="mt-2 space-y-1 text-xs">
+                {rules.map((r) => {
+                  const pass = r.test(password);
+                  return (
+                    <li
+                      key={r.label}
+                      className={`flex items-center gap-1.5 ${pass ? "text-success" : "text-text-secondary"}`}
+                    >
+                      {pass ? <Check className="h-3 w-3" /> : <X className="h-3 w-3" />}
+                      {r.label}
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
           </div>
 
-          {/* Forgot password */}
-          <div className="text-right">
-            <Link
-              to="/login"
-              onClick={async (e) => {
-                e.preventDefault();
-                if (!email.trim()) {
-                  toast.error("Enter your email first, then click Forgot password.");
-                  return;
-                }
-                try {
-                  const { resetPassword } = await import("@/contexts/AuthContext").then(
-                    (m) => {
-                      // We can't call hook here — use the raw function instead
-                      throw new Error("use-raw");
-                    },
-                  ).catch(async () => {
-                    const { resetUserPassword } = await import("@/firebase/auth");
-                    return { resetPassword: resetUserPassword };
-                  });
-                  await resetPassword(email.trim());
-                  toast.success("Password reset email sent.", {
-                    description: `Check ${email.trim()} for the reset link.`,
-                  });
-                } catch (err) {
-                  toast.error("Failed to send reset email. Please try again.");
-                }
-              }}
-              className="text-xs font-semibold text-brand hover:underline"
-            >
-              Forgot password?
-            </Link>
+          {/* Confirm Password */}
+          <div className="space-y-1.5">
+            <label htmlFor="signup-confirm" className="block text-xs font-medium text-text-secondary">
+              Confirm password
+            </label>
+            <input
+              id="signup-confirm"
+              type="password"
+              required
+              autoComplete="new-password"
+              value={confirm}
+              onChange={(e) => setConfirm(e.target.value)}
+              className="w-full rounded-pill border border-border bg-surface px-4 py-3 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
+              placeholder="••••••••"
+            />
+            {confirm.length > 0 && !passwordsMatch && (
+              <p className="flex items-center gap-1.5 text-xs text-destructive">
+                <X className="h-3 w-3" /> Passwords do not match
+              </p>
+            )}
           </div>
 
           {/* Submit */}
           <button
             type="submit"
-            disabled={submitting}
+            disabled={submitting || !formValid}
             className="flex w-full items-center justify-center gap-2 rounded-pill bg-brand-gradient py-3 text-sm font-semibold text-on-brand shadow-brand disabled:opacity-60"
           >
             {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
-            {submitting ? "Signing in…" : "Sign in"}
+            {submitting ? "Creating account…" : "Create account"}
           </button>
         </form>
 
-        {/* Signup link */}
+        {/* Login link */}
         <p className="mt-6 text-center text-sm text-text-secondary">
-          Don't have an account?{" "}
-          <Link to="/signup" className="font-semibold text-brand hover:underline">
-            Create one
+          Already have an account?{" "}
+          <Link to="/login" className="font-semibold text-brand hover:underline">
+            Sign in
           </Link>
         </p>
 

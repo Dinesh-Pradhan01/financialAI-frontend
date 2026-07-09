@@ -9,8 +9,10 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as VerifyEmailRouteImport } from './routes/verify-email'
 import { Route as UploadRouteImport } from './routes/upload'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as SignupRouteImport } from './routes/signup'
 import { Route as ProcessingRouteImport } from './routes/processing'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as ConsentRouteImport } from './routes/consent'
@@ -28,6 +30,11 @@ import { Route as AppSpotlightsIdRouteImport } from './routes/_app.spotlights.$i
 import { Route as AppSpendingCategoryRouteImport } from './routes/_app.spending.$category'
 import { Route as AppSpotlightsIdApplyRouteImport } from './routes/_app.spotlights.$id_.apply'
 
+const VerifyEmailRoute = VerifyEmailRouteImport.update({
+  id: '/verify-email',
+  path: '/verify-email',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const UploadRoute = UploadRouteImport.update({
   id: '/upload',
   path: '/upload',
@@ -36,6 +43,11 @@ const UploadRoute = UploadRouteImport.update({
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SignupRoute = SignupRouteImport.update({
+  id: '/signup',
+  path: '/signup',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProcessingRoute = ProcessingRouteImport.update({
@@ -123,8 +135,10 @@ export interface FileRoutesByFullPath {
   '/consent': typeof ConsentRoute
   '/login': typeof LoginRoute
   '/processing': typeof ProcessingRoute
+  '/signup': typeof SignupRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/upload': typeof UploadRoute
+  '/verify-email': typeof VerifyEmailRoute
   '/agents': typeof AppAgentsRoute
   '/coach': typeof AppCoachRoute
   '/home': typeof AppHomeRoute
@@ -142,8 +156,10 @@ export interface FileRoutesByTo {
   '/consent': typeof ConsentRoute
   '/login': typeof LoginRoute
   '/processing': typeof ProcessingRoute
+  '/signup': typeof SignupRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/upload': typeof UploadRoute
+  '/verify-email': typeof VerifyEmailRoute
   '/agents': typeof AppAgentsRoute
   '/coach': typeof AppCoachRoute
   '/home': typeof AppHomeRoute
@@ -163,8 +179,10 @@ export interface FileRoutesById {
   '/consent': typeof ConsentRoute
   '/login': typeof LoginRoute
   '/processing': typeof ProcessingRoute
+  '/signup': typeof SignupRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/upload': typeof UploadRoute
+  '/verify-email': typeof VerifyEmailRoute
   '/_app/agents': typeof AppAgentsRoute
   '/_app/coach': typeof AppCoachRoute
   '/_app/home': typeof AppHomeRoute
@@ -184,8 +202,10 @@ export interface FileRouteTypes {
     | '/consent'
     | '/login'
     | '/processing'
+    | '/signup'
     | '/sitemap.xml'
     | '/upload'
+    | '/verify-email'
     | '/agents'
     | '/coach'
     | '/home'
@@ -203,8 +223,10 @@ export interface FileRouteTypes {
     | '/consent'
     | '/login'
     | '/processing'
+    | '/signup'
     | '/sitemap.xml'
     | '/upload'
+    | '/verify-email'
     | '/agents'
     | '/coach'
     | '/home'
@@ -223,8 +245,10 @@ export interface FileRouteTypes {
     | '/consent'
     | '/login'
     | '/processing'
+    | '/signup'
     | '/sitemap.xml'
     | '/upload'
+    | '/verify-email'
     | '/_app/agents'
     | '/_app/coach'
     | '/_app/home'
@@ -244,12 +268,21 @@ export interface RootRouteChildren {
   ConsentRoute: typeof ConsentRoute
   LoginRoute: typeof LoginRoute
   ProcessingRoute: typeof ProcessingRoute
+  SignupRoute: typeof SignupRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   UploadRoute: typeof UploadRoute
+  VerifyEmailRoute: typeof VerifyEmailRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/verify-email': {
+      id: '/verify-email'
+      path: '/verify-email'
+      fullPath: '/verify-email'
+      preLoaderRoute: typeof VerifyEmailRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/upload': {
       id: '/upload'
       path: '/upload'
@@ -262,6 +295,13 @@ declare module '@tanstack/react-router' {
       path: '/sitemap.xml'
       fullPath: '/sitemap.xml'
       preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/signup': {
+      id: '/signup'
+      path: '/signup'
+      fullPath: '/signup'
+      preLoaderRoute: typeof SignupRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/processing': {
@@ -435,8 +475,10 @@ const rootRouteChildren: RootRouteChildren = {
   ConsentRoute: ConsentRoute,
   LoginRoute: LoginRoute,
   ProcessingRoute: ProcessingRoute,
+  SignupRoute: SignupRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   UploadRoute: UploadRoute,
+  VerifyEmailRoute: VerifyEmailRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
