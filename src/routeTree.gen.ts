@@ -14,6 +14,7 @@ import { Route as UploadRouteImport } from './routes/upload'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as ProcessingRouteImport } from './routes/processing'
+import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as ConsentRouteImport } from './routes/consent'
 import { Route as AppRouteImport } from './routes/_app'
@@ -53,6 +54,11 @@ const SignupRoute = SignupRouteImport.update({
 const ProcessingRoute = ProcessingRouteImport.update({
   id: '/processing',
   path: '/processing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OnboardingRoute = OnboardingRouteImport.update({
+  id: '/onboarding',
+  path: '/onboarding',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -134,6 +140,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/consent': typeof ConsentRoute
   '/login': typeof LoginRoute
+  '/onboarding': typeof OnboardingRoute
   '/processing': typeof ProcessingRoute
   '/signup': typeof SignupRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -155,6 +162,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/consent': typeof ConsentRoute
   '/login': typeof LoginRoute
+  '/onboarding': typeof OnboardingRoute
   '/processing': typeof ProcessingRoute
   '/signup': typeof SignupRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -178,6 +186,7 @@ export interface FileRoutesById {
   '/_app': typeof AppRouteWithChildren
   '/consent': typeof ConsentRoute
   '/login': typeof LoginRoute
+  '/onboarding': typeof OnboardingRoute
   '/processing': typeof ProcessingRoute
   '/signup': typeof SignupRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -201,6 +210,7 @@ export interface FileRouteTypes {
     | '/'
     | '/consent'
     | '/login'
+    | '/onboarding'
     | '/processing'
     | '/signup'
     | '/sitemap.xml'
@@ -222,6 +232,7 @@ export interface FileRouteTypes {
     | '/'
     | '/consent'
     | '/login'
+    | '/onboarding'
     | '/processing'
     | '/signup'
     | '/sitemap.xml'
@@ -244,6 +255,7 @@ export interface FileRouteTypes {
     | '/_app'
     | '/consent'
     | '/login'
+    | '/onboarding'
     | '/processing'
     | '/signup'
     | '/sitemap.xml'
@@ -267,6 +279,7 @@ export interface RootRouteChildren {
   AppRoute: typeof AppRouteWithChildren
   ConsentRoute: typeof ConsentRoute
   LoginRoute: typeof LoginRoute
+  OnboardingRoute: typeof OnboardingRoute
   ProcessingRoute: typeof ProcessingRoute
   SignupRoute: typeof SignupRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
@@ -309,6 +322,13 @@ declare module '@tanstack/react-router' {
       path: '/processing'
       fullPath: '/processing'
       preLoaderRoute: typeof ProcessingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/onboarding': {
+      id: '/onboarding'
+      path: '/onboarding'
+      fullPath: '/onboarding'
+      preLoaderRoute: typeof OnboardingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -474,6 +494,7 @@ const rootRouteChildren: RootRouteChildren = {
   AppRoute: AppRouteWithChildren,
   ConsentRoute: ConsentRoute,
   LoginRoute: LoginRoute,
+  OnboardingRoute: OnboardingRoute,
   ProcessingRoute: ProcessingRoute,
   SignupRoute: SignupRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,

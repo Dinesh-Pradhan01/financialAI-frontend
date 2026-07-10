@@ -27,6 +27,8 @@ export interface BackendUser {
   email: string;
   role: string;
   email_verified: boolean;
+  person_id?: string;
+  profile_completed?: boolean;
 }
 
 interface AuthContextValue {
@@ -48,6 +50,8 @@ interface AuthContextValue {
   resendVerificationEmail: () => Promise<void>;
   /** Get a fresh Firebase ID token (auto-refreshes). Returns null when signed out. */
   getToken: () => Promise<string | null>;
+  /** Fetch fresh backend user profile details. */
+  refreshUser: () => Promise<void>;
 }
 
 // ---------------------------------------------------------------------------
@@ -129,6 +133,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return getIdToken(/* forceRefresh */ false);
   }, []);
 
+  const refreshUser = useCallback(async () => {
+    try {
+      const backendUser = await api.get<BackendUser>("/api/auth/me");
+      setUser(backendUser);
+    } catch (error) {
+      console.error("Failed to refresh user:", error);
+    }
+  }, []);
+
   return (
     <AuthContext.Provider
       value={{
@@ -141,6 +154,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         resetPassword,
         resendVerificationEmail,
         getToken,
+        refreshUser,
       }}
     >
       {children}

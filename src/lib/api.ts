@@ -98,6 +98,37 @@ export const api = {
       body: data != null ? JSON.stringify(data) : undefined,
     }),
 
+  patch: <T = unknown>(path: string, data?: unknown, opts?: FetchOptions) =>
+    fetchAPI<T>(path, {
+      ...opts,
+      method: "PATCH",
+      body: data != null ? JSON.stringify(data) : undefined,
+    }),
+
   delete: <T = unknown>(path: string, opts?: FetchOptions) =>
     fetchAPI<T>(path, { ...opts, method: "DELETE" }),
+
+  /**
+   * Upload a file as multipart/form-data.
+   * Does NOT set Content-Type (browser sets it with boundary automatically).
+   */
+  upload: async <T = unknown>(path: string, formData: FormData): Promise<T> => {
+    const url = `${API_BASE_URL}${path}`;
+    const response = await fetch(url, {
+      method: "POST",
+      credentials: "include",
+      body: formData,
+    });
+
+    if (response.status === 204) return undefined as T;
+    const body = await response.json().catch(() => null);
+
+    if (!response.ok) {
+      const message = body?.detail ?? body?.message ?? `API error ${response.status}`;
+      const error = new Error(message) as Error & { status: number };
+      error.status = response.status;
+      throw error;
+    }
+    return body as T;
+  },
 };

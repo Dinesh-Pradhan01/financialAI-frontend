@@ -1,9 +1,22 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, redirect, isRedirect } from "@tanstack/react-router";
 import { useState, useCallback } from "react";
 import { toast } from "sonner";
 import { MailCheck, RefreshCw, Loader2, Sparkles } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { auth } from "@/firebase/firebase";
+
+function waitForAuth(): Promise<import("firebase/auth").User | null> {
+  return new Promise((resolve) => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      unsubscribe();
+      resolve(user);
+    });
+    setTimeout(() => {
+      unsubscribe();
+      resolve(null);
+    }, 2000);
+  });
+}
 
 export const Route = createFileRoute("/verify-email")({
   head: () => ({
@@ -15,6 +28,15 @@ export const Route = createFileRoute("/verify-email")({
       },
     ],
   }),
+  beforeLoad: async () => {
+    const fbUser = auth.currentUser ?? (await waitForAuth());
+    if (!fbUser) {
+      throw redirect({ to: "/login" });
+    }
+    if (fbUser.emailVerified) {
+      throw redirect({ to: "/onboarding" });
+    }
+  },
   component: VerifyEmail,
 });
 
@@ -67,7 +89,7 @@ function VerifyEmail() {
         if (currentUser.emailVerified) {
           toast.success("Email verified! Redirecting…");
           // Small delay so the user sees the success message
-          setTimeout(() => nav({ to: "/home" }), 800);
+          setTimeout(() => nav({ to: "/onboarding" }), 800);
           return;
         }
       }

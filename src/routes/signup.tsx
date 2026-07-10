@@ -1,8 +1,22 @@
-import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, Link, redirect, isRedirect } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Sparkles, Lock, Eye, EyeOff, Loader2, Check, X } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { auth } from "@/firebase/firebase";
+
+function waitForAuth(): Promise<import("firebase/auth").User | null> {
+  return new Promise((resolve) => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      unsubscribe();
+      resolve(user);
+    });
+    setTimeout(() => {
+      unsubscribe();
+      resolve(null);
+    }, 2000);
+  });
+}
 
 export const Route = createFileRoute("/signup")({
   head: () => ({
@@ -14,6 +28,26 @@ export const Route = createFileRoute("/signup")({
       },
     ],
   }),
+  beforeLoad: async () => {
+    const fbUser = auth.currentUser ?? (await waitForAuth());
+    if (fbUser) {
+      // User is already logged in, redirect them based on profile completion status
+      try {
+        const { api } = await import("@/lib/api");
+        const backendUser = await api.get<{ profile_completed: boolean }>("/api/auth/me");
+        if (backendUser.profile_completed) {
+          throw redirect({ to: "/home" });
+        } else {
+          throw redirect({ to: "/onboarding" });
+        }
+      } catch (err) {
+        if (isRedirect(err)) {
+          throw err;
+        }
+        console.error("Error checking profile completion in signup beforeLoad:", err);
+      }
+    }
+  },
   component: Signup,
 });
 
