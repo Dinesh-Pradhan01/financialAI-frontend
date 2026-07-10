@@ -1,22 +1,10 @@
-import { createFileRoute, useNavigate, Link, redirect, isRedirect } from "@tanstack/react-router";
-import { useState, useEffect, useRef } from "react";
+import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
+import { useState } from "react";
 import { toast } from "sonner";
 import { Sparkles, Lock, Eye, EyeOff, Loader2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { auth } from "@/firebase/firebase";
 
-function waitForAuth(): Promise<import("firebase/auth").User | null> {
-  return new Promise((resolve) => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
-      unsubscribe();
-      resolve(user);
-    });
-    setTimeout(() => {
-      unsubscribe();
-      resolve(null);
-    }, 2000);
-  });
-}
+
 
 export const Route = createFileRoute("/login")({
   head: () => ({
@@ -28,49 +16,15 @@ export const Route = createFileRoute("/login")({
       },
     ],
   }),
-  beforeLoad: async () => {
-    const fbUser = auth.currentUser ?? (await waitForAuth());
-    if (fbUser) {
-      // User is already logged in, redirect them based on profile completion status
-      try {
-        const { api } = await import("@/lib/api");
-        const backendUser = await api.get<{ profile_completed: boolean }>("/api/auth/me");
-        if (backendUser.profile_completed) {
-          throw redirect({ to: "/home" });
-        } else {
-          throw redirect({ to: "/onboarding" });
-        }
-      } catch (err) {
-        if (isRedirect(err)) {
-          throw err;
-        }
-        console.error("Error checking profile completion in login beforeLoad:", err);
-      }
-    }
-  },
+  // No beforeLoad redirect — always show the login form.
+  // Users must explicitly click "Sign in" to proceed.
+  // The _app layout guard handles protecting dashboard routes.
   component: Login,
 });
 
 function Login() {
   const nav = useNavigate();
-  const { login, user, loading } = useAuth();
-
-  // Track whether the user has actively submitted the login form.
-  // This prevents Firebase's persisted auth state from redirecting
-  // to /onboarding before the user completes sign-in.
-  const loginCompleted = useRef(false);
-
-  useEffect(() => {
-    if (!loading && user) {
-      if (user.profile_completed) {
-        // Already completed onboarding — always go to dashboard
-        nav({ to: "/home", replace: true });
-      } else if (loginCompleted.current) {
-        // User just actively logged in and hasn't completed onboarding
-        nav({ to: "/onboarding", replace: true });
-      }
-    }
-  }, [user, loading, nav]);
+  const { login, user, loading, refreshUser } = useAuth();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -83,24 +37,37 @@ function Login() {
 
     setSubmitting(true);
     try {
-      // Mark that the user has actively submitted the login form
-      loginCompleted.current = true;
-
       await login(email.trim(), password);
 
-      // Check email verification — the auth listener will update user,
-      // but we can peek at currentUser synchronously after login resolves.
+      // Check email verification
       const { auth } = await import("@/firebase/firebase");
       const currentUser = auth.currentUser;
 
       if (currentUser && !currentUser.emailVerified) {
-        loginCompleted.current = false; // reset so redirect logic doesn't fire
         nav({ to: "/verify-email" });
+        return;
       }
-      // If email is verified, the useEffect above will handle redirect
-      // once the AuthContext finishes syncing the backend user.
+
+      // Fetch fresh user profile to check profile_completed
+      // (the AuthContext sync may still be in progress, so we fetch directly)
+      const { api } = await import("@/lib/api");
+      try {
+        const backendUser = await api.get<{ profile_completed: boolean }>("/api/auth/me");
+        if (backendUser.profile_completed) {
+          nav({ to: "/home", replace: true });
+        } else {
+          nav({ to: "/onboarding", replace: true });
+        }
+      } catch {
+        // If /api/auth/me fails, try refreshing user from context
+        await refreshUser();
+        if (user?.profile_completed) {
+          nav({ to: "/home", replace: true });
+        } else {
+          nav({ to: "/onboarding", replace: true });
+        }
+      }
     } catch (err: unknown) {
-      loginCompleted.current = false; // reset on failure
       const msg =
         err instanceof Error ? err.message : "Login failed. Please try again.";
 

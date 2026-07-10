@@ -30,10 +30,10 @@ export const Route = createFileRoute("/_app")({
         throw err;
       }
       console.error("Error checking profile completion in beforeLoad:", err);
-      // If backend reports 401 (Unauthorized), redirect to login
-      if (err && typeof err === "object" && "status" in err && (err as any).status === 401) {
-        throw redirect({ to: "/login" });
-      }
+      // If we can't verify the user's auth status for any reason,
+      // always redirect to login. Never let the dashboard render
+      // without confirmed authentication.
+      throw redirect({ to: "/login" });
     }
   },
   component: AppLayout,
@@ -62,7 +62,12 @@ function AppLayout() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!loading && user && !user.profile_completed) {
+    if (!loading && !user) {
+      // Backup guard: if auth loading finished and there's no user,
+      // redirect to login. This covers edge cases where beforeLoad
+      // might be bypassed (e.g. client-side navigation race).
+      navigate({ to: "/login", replace: true });
+    } else if (!loading && user && !user.profile_completed) {
       navigate({ to: "/onboarding", replace: true });
     }
   }, [user, loading, navigate]);
