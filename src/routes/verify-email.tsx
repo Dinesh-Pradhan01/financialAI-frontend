@@ -42,7 +42,7 @@ export const Route = createFileRoute("/verify-email")({
 
 function VerifyEmail() {
   const nav = useNavigate();
-  const { user, resendVerificationEmail, logout } = useAuth();
+  const { user, resendVerificationEmail, logout, sync } = useAuth();
 
   const [resending, setResending] = useState(false);
   const [checking, setChecking] = useState(false);
@@ -87,7 +87,9 @@ function VerifyEmail() {
         await currentUser.getIdToken(true);
 
         if (currentUser.emailVerified) {
-          toast.success("Email verified! Redirecting…");
+          toast.success("Email verified! Syncing session…");
+          // Sync with backend and wait for it!
+          await sync();
           // Small delay so the user sees the success message
           setTimeout(() => nav({ to: "/onboarding" }), 800);
           return;
@@ -99,7 +101,7 @@ function VerifyEmail() {
     } finally {
       setChecking(false);
     }
-  }, [nav]);
+  }, [nav, sync]);
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-background px-6">

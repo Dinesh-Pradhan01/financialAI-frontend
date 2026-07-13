@@ -4,6 +4,7 @@ import {
   useEffect,
   useState,
   useCallback,
+  useRef,
   type ReactNode,
 } from "react";
 import { onAuthStateChanged, type User as FirebaseUser } from "firebase/auth";
@@ -52,6 +53,8 @@ interface AuthContextValue {
   getToken: () => Promise<string | null>;
   /** Fetch fresh backend user profile details. */
   refreshUser: () => Promise<void>;
+  /** Force sync of the Firebase user with the backend, returning the backend user. */
+  sync: () => Promise<BackendUser | null>;
 }
 
 // ---------------------------------------------------------------------------
@@ -69,6 +72,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<BackendUser | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // A ref to track the active sync promise to avoid concurrent redundant requests
+  const syncPromiseRef = useRef<Promise<BackendUser> | null>(null);
+
+  const syncUserWithBackend = useCallback(async (fbUser: FirebaseUser): Promise<BackendUser> => {
+    if (syncPromiseRef.current) {
+      return syncPromiseRef.current;
+    }
+
+    const promise = (async () => {
+      // Call sync to ensure user exists in DB and get the secure session cookie
+      const backendUser = await api.post<BackendUser>(
+        "/api/auth/sync",
+        undefined,
+        { useFirebaseToken: true }
+      );
+      setUser(backendUser);
+      return backendUser;
+    })();
+
+    syncPromiseRef.current = promise;
+
+    try {
+      return await promise;
+    } finally {
+      syncPromiseRef.current = null;
+    }
+  }, []);
+
   // Sync Firebase auth state with the backend
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
@@ -76,18 +107,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       
       if (fbUser) {
         try {
-          // Call sync to ensure user exists in DB and get the secure session cookie
-          const backendUser = await api.post<BackendUser>(
-            "/api/auth/sync",
-            undefined,
-            { useFirebaseToken: true }
-          );
-          setUser(backendUser);
+          await syncUserWithBackend(fbUser);
         } catch (error) {
           console.error("Failed to sync auth with backend:", error);
           setUser(null);
-          // Optionally, sign out from Firebase if backend sync fails securely
-          // await logoutUser();
         }
       } else {
         setUser(null);
@@ -97,14 +120,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
     
     return unsubscribe;
-  }, []);
+  }, [syncUserWithBackend]);
 
   // ---- Stable callbacks (memoised so downstream consumers don't re-render) ----
 
   const login = useCallback(async (email: string, password: string) => {
-    await loginWithEmail(email, password);
-    // onAuthStateChanged will handle the backend sync automatically
-  }, []);
+    const fbUser = await loginWithEmail(email, password);
+    // Explicitly await the sync to ensure the session cookie is set and user context is filled before login promise resolves
+    await syncUserWithBackend(fbUser);
+  }, [syncUserWithBackend]);
 
   const signup = useCallback(async (email: string, password: string) => {
     await signUpWithEmail(email, password);
@@ -142,6 +166,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  const sync = useCallback(async () => {
+    if (auth.currentUser) {
+      return await syncUserWithBackend(auth.currentUser);
+    }
+    return null;
+  }, [syncUserWithBackend]);
+
   return (
     <AuthContext.Provider
       value={{
@@ -155,6 +186,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         resendVerificationEmail,
         getToken,
         refreshUser,
+        sync,
       }}
     >
       {children}
