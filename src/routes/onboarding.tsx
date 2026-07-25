@@ -2,20 +2,24 @@ import { createFileRoute, useNavigate, redirect, isRedirect } from "@tanstack/re
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { Sparkles, Lock, Loader2, ArrowRight, ArrowLeft, Building2, User, MapPin } from "lucide-react";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth, getAuthSnapshot } from "@/contexts/AuthContext";
 import { api } from "@/lib/api";
 import { auth } from "@/firebase/firebase";
 
 function waitForAuth(): Promise<import("firebase/auth").User | null> {
+  if (auth.currentUser) return Promise.resolve(auth.currentUser);
+
   return new Promise((resolve) => {
+    let timer: ReturnType<typeof setTimeout>;
     const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (timer) clearTimeout(timer);
       unsubscribe();
       resolve(user);
     });
-    setTimeout(() => {
+    timer = setTimeout(() => {
       unsubscribe();
-      resolve(null);
-    }, 2000);
+      resolve(auth.currentUser);
+    }, 1000);
   });
 }
 
@@ -30,6 +34,20 @@ export const Route = createFileRoute("/onboarding")({
     ],
   }),
   beforeLoad: async () => {
+    // 1. Instant check from in-memory AuthSnapshot
+    const snapshot = getAuthSnapshot();
+
+    if (!snapshot.loading && snapshot.user) {
+      if (auth.currentUser && !auth.currentUser.emailVerified) {
+        throw redirect({ to: "/verify-email" });
+      }
+      if (snapshot.user.profile_completed) {
+        throw redirect({ to: "/home" });
+      }
+      return;
+    }
+
+    // 2. Fallback for initial load / hard refresh
     const fbUser = auth.currentUser ?? (await waitForAuth());
 
     if (!fbUser) {

@@ -3,11 +3,24 @@ import { useEffect } from "react";
 import { Loader2 } from "lucide-react";
 import { BottomTabBar, DesktopSidebar } from "@/components/spotlite/nav";
 import { auth } from "@/firebase/firebase";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth, getAuthSnapshot } from "@/contexts/AuthContext";
 
 export const Route = createFileRoute("/_app")({
   beforeLoad: async () => {
-    // Wait briefly for Firebase to initialise if auth.currentUser is still null
+    // 1. Instant check from in-memory AuthSnapshot (avoids redundant HTTP calls during route switches)
+    const snapshot = getAuthSnapshot();
+
+    if (!snapshot.loading && snapshot.user) {
+      if (auth.currentUser && !auth.currentUser.emailVerified) {
+        throw redirect({ to: "/verify-email" });
+      }
+      if (!snapshot.user.profile_completed) {
+        throw redirect({ to: "/onboarding" });
+      }
+      return;
+    }
+
+    // 2. Fallback for initial page load / hard refresh
     const fbUser = auth.currentUser ?? (await waitForAuth());
 
     if (!fbUser) {
@@ -30,9 +43,6 @@ export const Route = createFileRoute("/_app")({
         throw err;
       }
       console.error("Error checking profile completion in beforeLoad:", err);
-      // If we can't verify the user's auth status for any reason,
-      // always redirect to login. Never let the dashboard render
-      // without confirmed authentication.
       throw redirect({ to: "/login" });
     }
   },
@@ -40,20 +50,23 @@ export const Route = createFileRoute("/_app")({
 });
 
 /**
- * Firebase auth state may not be resolved synchronously (e.g. on hard refresh).
- * This waits up to 2 seconds for the onAuthStateChanged callback to fire.
+ * Firebase auth state may not be resolved synchronously on hard refresh.
+ * Resolves as soon as onAuthStateChanged fires or falls back after 1s.
  */
 function waitForAuth(): Promise<import("firebase/auth").User | null> {
+  if (auth.currentUser) return Promise.resolve(auth.currentUser);
+
   return new Promise((resolve) => {
+    let timer: ReturnType<typeof setTimeout>;
     const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (timer) clearTimeout(timer);
       unsubscribe();
       resolve(user);
     });
-    // Timeout fallback — treat as unauthenticated after 2s
-    setTimeout(() => {
+    timer = setTimeout(() => {
       unsubscribe();
-      resolve(null);
-    }, 2000);
+      resolve(auth.currentUser);
+    }, 1000);
   });
 }
 

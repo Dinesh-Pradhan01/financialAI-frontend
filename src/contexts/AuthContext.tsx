@@ -30,6 +30,23 @@ export interface BackendUser {
   email_verified: boolean;
   person_id?: string;
   profile_completed?: boolean;
+  full_name?: string;
+}
+
+export interface AuthSnapshot {
+  user: BackendUser | null;
+  firebaseUser: FirebaseUser | null;
+  loading: boolean;
+}
+
+let currentAuthSnapshot: AuthSnapshot = {
+  user: null,
+  firebaseUser: null,
+  loading: true,
+};
+
+export function getAuthSnapshot(): AuthSnapshot {
+  return currentAuthSnapshot;
 }
 
 interface AuthContextValue {
@@ -71,6 +88,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
   const [user, setUser] = useState<BackendUser | null>(null);
   const [loading, setLoading] = useState(true);
+
+  // Synchronize snapshot for sync getters
+  useEffect(() => {
+    currentAuthSnapshot = { user, firebaseUser, loading };
+  }, [user, firebaseUser, loading]);
 
   // A ref to track the active sync promise to avoid concurrent redundant requests
   const syncPromiseRef = useRef<Promise<BackendUser> | null>(null);

@@ -77,7 +77,12 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   );
 }
 
-export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
+import { getAuthSnapshot, type AuthSnapshot } from "../contexts/AuthContext";
+
+export const Route = createRootRouteWithContext<{
+  queryClient: QueryClient;
+  auth?: AuthSnapshot;
+}>()({
   head: () => ({
     meta: [
       { charSet: "utf-8" },

@@ -121,7 +121,7 @@ function Home() {
   }, [refreshDocs]);
 
   // Derived state
-  const userName = getFirstName(person?.full_name, user?.email);
+  const userName = getFirstName(person?.full_name ?? user?.full_name, user?.email);
   const greeting = getGreeting();
   const hasExtractedData = documents.some((d) => d.status === "COMPLETED");
   const personId = person?.id ?? user?.person_id;
