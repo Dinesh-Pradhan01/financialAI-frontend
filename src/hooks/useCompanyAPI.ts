@@ -60,6 +60,7 @@ export const useCompanyProfile = () => {
   return useQuery({
     queryKey: ["company", "profile"],
     queryFn: () => api.get<CompanyProfile>("/api/company/profile"),
+    staleTime: 5 * 60 * 1000,
   });
 };
 
@@ -67,6 +68,7 @@ export const useIndustryLeaders = () => {
   return useQuery({
     queryKey: ["company", "industry-leaders"],
     queryFn: () => api.get<IndustryLeader[]>("/api/company/industry-leaders"),
+    staleTime: 5 * 60 * 1000,
   });
 };
 
@@ -74,6 +76,7 @@ export const useCompanyRating = () => {
   return useQuery({
     queryKey: ["company", "rating"],
     queryFn: () => api.get<CompanyRating>("/api/company/rating"),
+    staleTime: 5 * 60 * 1000,
   });
 };
 
@@ -81,6 +84,7 @@ export const useCompanyNews = () => {
   return useQuery({
     queryKey: ["company", "news"],
     queryFn: () => api.get<CompanyNews[]>("/api/company/news"),
+    staleTime: 5 * 60 * 1000,
   });
 };
 
@@ -88,6 +92,9 @@ export const useCompanyAIView = () => {
   return useQuery({
     queryKey: ["company", "ai-view"],
     queryFn: () => api.post<AIViewResponse>("/api/company/ai-view"),
+    staleTime: Infinity,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
   });
 };
 
@@ -95,6 +102,7 @@ export const useCompanyDocuments = () => {
   return useQuery({
     queryKey: ["company", "documents"],
     queryFn: () => api.get<CompanyDocument[]>("/api/company/documents"),
+    staleTime: 5 * 60 * 1000,
   });
 };
 
