@@ -5,7 +5,7 @@ import { useDemo } from "@/store/demo-store";
 import { languages } from "@/data/agentic";
 
 const items = [
-  { to: "/home", label: "Home", icon: Home },
+  { to: "/home", label: "Business C360", icon: Home },
   { to: "/spending", label: "Spending", icon: BarChart3 },
   { to: "/spotlights", label: "Spotlights", icon: Zap },
   { to: "/coach", label: "Coach", icon: MessageCircle },

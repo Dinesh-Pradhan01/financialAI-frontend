@@ -1,10 +1,39 @@
 import { createFileRoute, useNavigate, redirect, isRedirect } from "@tanstack/react-router";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
-import { Sparkles, Lock, Loader2, ArrowRight, ArrowLeft, Building2, User, MapPin } from "lucide-react";
+import {
+  Sparkles,
+  Lock,
+  Loader2,
+  ArrowRight,
+  ArrowLeft,
+  Building2,
+  CheckCircle2,
+  Upload,
+  FileText,
+  Trash2,
+  Edit3,
+  ShieldCheck,
+  Building,
+  CreditCard,
+  FileCheck,
+  AlertCircle,
+} from "lucide-react";
 import { useAuth, getAuthSnapshot } from "@/contexts/AuthContext";
 import { api } from "@/lib/api";
 import { auth } from "@/firebase/firebase";
+import {
+  BUSINESS_CATEGORIES,
+  BUSINESS_TYPES,
+  BUSINESS_MODELS,
+  ACCOUNTING_SOFTWARES,
+  DIGITAL_PAYMENT_METHODS,
+  INDIAN_STATES,
+  MANDATORY_DOCUMENTS,
+  OPTIONAL_DOCUMENTS,
+  CATEGORY_RECOMMENDED_DOCUMENTS,
+  DocumentRequirement,
+} from "@/lib/businessOnboarding";
 
 function waitForAuth(): Promise<import("firebase/auth").User | null> {
   if (auth.currentUser) return Promise.resolve(auth.currentUser);
@@ -26,15 +55,14 @@ function waitForAuth(): Promise<import("firebase/auth").User | null> {
 export const Route = createFileRoute("/onboarding")({
   head: () => ({
     meta: [
-      { title: "Complete your profile · Spotlite" },
+      { title: "Business Onboarding · SpotLite" },
       {
         name: "description",
-        content: "Complete your personal profile and set up your financial workspace.",
+        content: "Set up your business profile and verify financial context for SpotLite Financial Intelligence.",
       },
     ],
   }),
   beforeLoad: async () => {
-    // 1. Instant check from in-memory AuthSnapshot
     const snapshot = getAuthSnapshot();
 
     if (!snapshot.loading && snapshot.user) {
@@ -47,7 +75,6 @@ export const Route = createFileRoute("/onboarding")({
       return;
     }
 
-    // 2. Fallback for initial load / hard refresh
     const fbUser = auth.currentUser ?? (await waitForAuth());
 
     if (!fbUser) {
@@ -58,7 +85,6 @@ export const Route = createFileRoute("/onboarding")({
       throw redirect({ to: "/verify-email" });
     }
 
-    // If profile is already completed, onboarding is done - send to dashboard
     try {
       const { api: apiInstance } = await import("@/lib/api");
       const backendUser = await apiInstance.get<{ profile_completed: boolean }>("/api/auth/me");
@@ -75,47 +101,394 @@ export const Route = createFileRoute("/onboarding")({
       }
     }
   },
-  component: Onboarding,
+  component: BusinessOnboarding,
 });
 
-function Onboarding() {
+interface UploadedDoc {
+  id: string;
+  document_type: string;
+  document_category: string;
+  filename: string;
+  original_name: string;
+  file_size_bytes: number;
+  upload_status: string;
+}
+
+function BusinessOnboarding() {
   const nav = useNavigate();
   const { user, loading, refreshUser } = useAuth();
 
-  // Step tracking (1: Profile, 2: Address, 3: Banking Info)
   const [step, setStep] = useState(1);
   const [submitting, setSubmitting] = useState(false);
+  const [savingDraft, setSavingDraft] = useState(false);
+  const [completionPct, setCompletionPct] = useState(0);
 
-  // Form states
-  const [fullName, setFullName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [dob, setDob] = useState("");
-  const [gender, setGender] = useState("");
-
-  const [address, setAddress] = useState("");
+  // STEP 1 — General Info
+  const [companyName, setCompanyName] = useState("");
+  const [businessCategory, setBusinessCategory] = useState<string>("Retail & E-commerce");
+  const [businessType, setBusinessType] = useState<string>("Private Limited");
+  const [cin, setCin] = useState("");
+  const [gstin, setGstin] = useState("");
+  const [businessPan, setBusinessPan] = useState("");
+  const [udyamNumber, setUdyamNumber] = useState("");
+  const [dateOfIncorporation, setDateOfIncorporation] = useState("");
+  const [registeredAddress, setRegisteredAddress] = useState("");
+  const [operationalAddress, setOperationalAddress] = useState("");
+  const [stateName, setStateName] = useState("Maharashtra");
   const [city, setCity] = useState("");
-  const [stateName, setStateName] = useState("");
   const [pincode, setPincode] = useState("");
+  const [website, setWebsite] = useState("");
+  const [officialEmail, setOfficialEmail] = useState("");
+  const [officialPhone, setOfficialPhone] = useState("");
 
-  const [panNumber, setPanNumber] = useState("");
-  const [occupation, setOccupation] = useState("");
-  const [bankCount, setBankCount] = useState("1");
+  // STEP 2 — Leadership Info
+  const [founderCeoName, setFounderCeoName] = useState("");
+  const [primaryContactPerson, setPrimaryContactPerson] = useState("");
+  const [designation, setDesignation] = useState("");
+  const [yearsInBusiness, setYearsInBusiness] = useState("1-3 years");
+  const [numberOfEmployees, setNumberOfEmployees] = useState("1-10");
+  const [numberOfBranches, setNumberOfBranches] = useState("1");
+  const [businessModel, setBusinessModel] = useState("B2B");
+  const [primaryProductService, setPrimaryProductService] = useState("");
+  const [businessDescription, setBusinessDescription] = useState("");
+
+  // STEP 3 — Financial Info
   const [primaryBank, setPrimaryBank] = useState("");
+  const [numberOfAccounts, setNumberOfAccounts] = useState("1");
+  const [hasBusinessLoan, setHasBusinessLoan] = useState<boolean | null>(false);
+  const [hasBusinessCreditCard, setHasBusinessCreditCard] = useState<boolean | null>(false);
+  const [accountingSoftware, setAccountingSoftware] = useState("Tally");
+  const [digitalPaymentMethods, setDigitalPaymentMethods] = useState<string[]>(["UPI", "Net Banking"]);
 
-  // Pre-fill full name if auth state changes and name isn't set yet
-  useEffect(() => {
-    if (user && !fullName) {
-      const display = user.email.split("@")[0];
-      setFullName(display.charAt(0).toUpperCase() + display.slice(1));
-    }
-  }, [user, fullName]);
+  // STEP 4 — Verification Documents
+  const [uploadedDocs, setUploadedDocs] = useState<UploadedDoc[]>([]);
+  const [uploadingDocType, setUploadingDocType] = useState<string | null>(null);
 
-  // Gatekeeping: Redirect to dashboard if profile is already completed
+  // Pre-fill email and contact person if logged in
   useEffect(() => {
-    if (!loading && user && user.profile_completed) {
-      nav({ to: "/home", replace: true });
+    if (user) {
+      if (!officialEmail && user.email) {
+        setOfficialEmail(user.email);
+      }
+      if (!primaryContactPerson && user.full_name) {
+        setPrimaryContactPerson(user.full_name);
+      }
     }
-  }, [user, loading, nav]);
+  }, [user]);
+
+  // Load existing onboarding draft from backend
+  useEffect(() => {
+    async function loadExistingOnboarding() {
+      try {
+        const res = await api.get<any>("/api/business/onboarding/me");
+        if (res) {
+          if (res.completion_percentage) setCompletionPct(res.completion_percentage);
+
+          if (res.general_info) {
+            const g = res.general_info;
+            if (g.company_name) setCompanyName(g.company_name);
+            if (g.business_category) setBusinessCategory(g.business_category);
+            if (g.business_type) setBusinessType(g.business_type);
+            if (g.cin) setCin(g.cin);
+            if (g.gstin) setGstin(g.gstin);
+            if (g.business_pan) setBusinessPan(g.business_pan);
+            if (g.udyam_number) setUdyamNumber(g.udyam_number);
+            if (g.date_of_incorporation) setDateOfIncorporation(g.date_of_incorporation.split("T")[0]);
+            if (g.registered_address) setRegisteredAddress(g.registered_address);
+            if (g.operational_address) setOperationalAddress(g.operational_address);
+            if (g.state) setStateName(g.state);
+            if (g.city) setCity(g.city);
+            if (g.pincode) setPincode(g.pincode);
+            if (g.website) setWebsite(g.website);
+            if (g.official_email) setOfficialEmail(g.official_email);
+            if (g.official_phone) setOfficialPhone(g.official_phone);
+          }
+
+          if (res.leadership_info) {
+            const b = res.leadership_info;
+            if (b.founder_ceo_name) setFounderCeoName(b.founder_ceo_name);
+            if (b.primary_contact_person) setPrimaryContactPerson(b.primary_contact_person);
+            if (b.designation) setDesignation(b.designation);
+            if (b.years_in_business) setYearsInBusiness(b.years_in_business);
+            if (b.number_of_employees) setNumberOfEmployees(b.number_of_employees);
+            if (b.number_of_branches) setNumberOfBranches(b.number_of_branches);
+            if (b.business_model) setBusinessModel(b.business_model);
+            if (b.primary_product_service) setPrimaryProductService(b.primary_product_service);
+            if (b.business_description) setBusinessDescription(b.business_description);
+          }
+
+          if (res.financial_info) {
+            const f = res.financial_info;
+            if (f.primary_bank) setPrimaryBank(f.primary_bank);
+            if (f.number_of_accounts) setNumberOfAccounts(String(f.number_of_accounts));
+            if (f.has_business_loan !== undefined) setHasBusinessLoan(f.has_business_loan);
+            if (f.has_business_credit_card !== undefined) setHasBusinessCreditCard(f.has_business_credit_card);
+            if (f.accounting_software) setAccountingSoftware(f.accounting_software);
+            if (f.digital_payment_methods) setDigitalPaymentMethods(f.digital_payment_methods);
+          }
+
+          if (res.documents) {
+            setUploadedDocs(res.documents);
+          }
+        }
+      } catch (err) {
+        console.log("No previous onboarding draft found or load error:", err);
+      }
+    }
+    loadExistingOnboarding();
+  }, []);
+
+  // Demo Data Filler for Development & Testing
+  const fillDemoData = () => {
+    // Step 1 - General Info
+    setCompanyName("Acme Financial Technologies Pvt Ltd");
+    setBusinessCategory("Technology & IT");
+    setBusinessType("Private Limited");
+    setCin("U72200MH2021PTC123456");
+    setGstin("27AAACB1234C1ZV");
+    setBusinessPan("ABCDE1234F");
+    setUdyamNumber("UDYAM-MH-01-0000000");
+    setDateOfIncorporation("2021-06-15");
+    setRegisteredAddress("101 Cyber Heights, BKC, Bandra East");
+    setOperationalAddress("Suite 502, Tech Park, Powai");
+    setStateName("Maharashtra");
+    setCity("Mumbai");
+    setPincode("400051");
+    setWebsite("https://acmefintech.example.com");
+    if (!officialEmail) setOfficialEmail(user?.email || "contact@acmefintech.com");
+    setOfficialPhone("9876543210");
+
+    // Step 2 - Leadership Info
+    setFounderCeoName("Vikramaditya Sharma");
+    if (!primaryContactPerson) setPrimaryContactPerson(user?.full_name || "Jane Doe");
+    setDesignation("Chief Financial Officer");
+    setYearsInBusiness("3-5 years");
+    setNumberOfEmployees("11-50");
+    setNumberOfBranches("3");
+    setBusinessModel("B2B");
+    setPrimaryProductService("Enterprise Financial AI Suite");
+    setBusinessDescription("Providing automated AI-driven financial analytics and cashflow forecasting for modern enterprise businesses.");
+
+    // Step 3 - Financial Info
+    setPrimaryBank("HDFC Bank");
+    setNumberOfAccounts("2");
+    setHasBusinessLoan(true);
+    setHasBusinessCreditCard(true);
+    setAccountingSoftware("Zoho Books");
+    setDigitalPaymentMethods(["UPI", "Net Banking", "NEFT", "RTGS"]);
+
+    toast.success("Loaded demo business details into onboarding form!");
+  };
+
+  // Validation Checks
+  const isGeneralInfoValid =
+    companyName.trim().length >= 2 &&
+    businessCategory &&
+    businessType &&
+    /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/i.test(businessPan.trim()) &&
+    registeredAddress.trim().length >= 5 &&
+    stateName &&
+    city.trim().length >= 2 &&
+    /^\d{6}$/.test(pincode.trim()) &&
+    officialEmail.trim().includes("@") &&
+    officialPhone.trim().length >= 10;
+
+  const isLeadershipInfoValid = primaryContactPerson.trim().length >= 2;
+
+  const isFinancialInfoValid = true; // Financial Info has optional fields with sensible defaults
+
+  // Step 1 mandatory document check
+  const isDocUploaded = (typeKey: string) => uploadedDocs.some((d) => d.document_type === typeKey);
+  const isDocsValid = isDocUploaded("business_pan") && isDocUploaded("registration_proof");
+
+
+  // Save Step 2 (was Step 1)
+  const saveStep1 = async () => {
+    if (!isGeneralInfoValid) {
+      toast.error("Please fill all required fields in General Info correctly.");
+      return false;
+    }
+    setSavingDraft(true);
+    try {
+      const res = await api.post<any>("/api/business/onboarding/step/1", {
+        company_name: companyName.trim(),
+        business_category: businessCategory,
+        business_type: businessType,
+        cin: cin.trim() || null,
+        gstin: gstin.trim() ? gstin.trim().toUpperCase() : null,
+        business_pan: businessPan.trim().toUpperCase(),
+        udyam_number: udyamNumber.trim() || null,
+        date_of_incorporation: dateOfIncorporation || null,
+        registered_address: registeredAddress.trim(),
+        operational_address: operationalAddress.trim() || null,
+        state: stateName,
+        city: city.trim(),
+        pincode: pincode.trim(),
+        website: website.trim() || null,
+        official_email: officialEmail.trim(),
+        official_phone: officialPhone.trim(),
+      });
+      if (res.completion_percentage) setCompletionPct(res.completion_percentage);
+      return true;
+    } catch (err: any) {
+      toast.error(err.message || "Failed to save General Info.");
+      return false;
+    } finally {
+      setSavingDraft(false);
+    }
+  };
+
+  // Save Step 3 (was Step 2)
+  const saveStep2 = async () => {
+    if (!isLeadershipInfoValid) {
+      toast.error("Please fill required contact person details.");
+      return false;
+    }
+    setSavingDraft(true);
+    try {
+      const res = await api.post<any>("/api/business/onboarding/step/2", {
+        founder_ceo_name: founderCeoName.trim() || null,
+        primary_contact_person: primaryContactPerson.trim(),
+        designation: designation.trim() || null,
+        years_in_business: yearsInBusiness,
+        number_of_employees: numberOfEmployees,
+        number_of_branches: numberOfBranches,
+        business_model: businessModel,
+        primary_product_service: primaryProductService.trim() || null,
+        business_description: businessDescription.trim() || null,
+      });
+      if (res.completion_percentage) setCompletionPct(res.completion_percentage);
+      return true;
+    } catch (err: any) {
+      toast.error(err.message || "Failed to save Leadership Info.");
+      return false;
+    } finally {
+      setSavingDraft(false);
+    }
+  };
+
+  // Save Step 4 (was Step 3)
+  const saveStep3 = async () => {
+    setSavingDraft(true);
+    try {
+      const res = await api.post<any>("/api/business/onboarding/step/3", {
+        primary_bank: primaryBank.trim() || null,
+        number_of_accounts: parseInt(numberOfAccounts, 10) || 1,
+        has_business_loan: hasBusinessLoan,
+        has_business_credit_card: hasBusinessCreditCard,
+        accounting_software: accountingSoftware,
+        digital_payment_methods: digitalPaymentMethods,
+      });
+      if (res.completion_percentage) setCompletionPct(res.completion_percentage);
+      return true;
+    } catch (err: any) {
+      toast.error(err.message || "Failed to save Financial Info.");
+      return false;
+    } finally {
+      setSavingDraft(false);
+    }
+  };
+
+  // Upload Document
+  const handleFileUpload = async (file: File, documentType: string, documentCategory: string) => {
+    if (!file) return;
+    setUploadingDocType(documentType);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("document_type", documentType);
+      formData.append("document_category", documentCategory);
+
+      const res = await api.upload<any>("/api/business/onboarding/documents/upload", formData);
+      if (res.documents) setUploadedDocs(res.documents);
+      if (res.completion_percentage) setCompletionPct(res.completion_percentage);
+      toast.success(`Uploaded ${file.name} successfully!`);
+    } catch (err: any) {
+      toast.error(err.message || "Failed to upload document.");
+    } finally {
+      setUploadingDocType(null);
+    }
+  };
+
+  // Delete Document
+  const handleDeleteDoc = async (docId: string) => {
+    try {
+      const res = await api.delete<any>(`/api/business/onboarding/documents/${docId}`);
+      if (res.documents) setUploadedDocs(res.documents);
+      if (res.completion_percentage) setCompletionPct(res.completion_percentage);
+      toast.success("Document removed.");
+    } catch (err: any) {
+      toast.error(err.message || "Failed to remove document.");
+    }
+  };
+
+  // Navigation handlers
+  const nextStep = async () => {
+    if (step === 1) {
+      if (!isDocsValid) {
+        toast.error("Please upload mandatory documents (Business PAN & Registration Proof) to proceed.");
+        return;
+      }
+      setSavingDraft(true);
+      try {
+        const res = await api.post<any>("/api/business/onboarding/step/extract-from-docs", {});
+        if (res.data) {
+           const d = res.data;
+           if (d.company_name) setCompanyName(d.company_name);
+           if (d.business_pan) setBusinessPan(d.business_pan);
+           if (d.cin) setCin(d.cin);
+           if (d.gstin) setGstin(d.gstin);
+           if (d.date_of_incorporation) setDateOfIncorporation(d.date_of_incorporation);
+           if (d.registered_address) setRegisteredAddress(d.registered_address);
+           if (d.city) setCity(d.city);
+           if (d.state) setStateName(d.state);
+           if (d.pincode) setPincode(d.pincode);
+           if (d.udyam_number) setUdyamNumber(d.udyam_number);
+           toast.success("AI auto-filled your business details!");
+        }
+      } catch (err) {
+        console.error("AI extraction error", err);
+      } finally {
+        setSavingDraft(false);
+        setStep(2);
+      }
+    } else if (step === 2) {
+      const ok = await saveStep1();
+      if (ok) setStep(3);
+    } else if (step === 3) {
+      const ok = await saveStep2();
+      if (ok) setStep(4);
+    } else if (step === 4) {
+      const ok = await saveStep3();
+      if (ok) setStep(5);
+    }
+  };
+
+  const prevStep = () => {
+    if (step > 1) setStep(step - 1);
+  };
+
+  // Complete Onboarding Final Submit
+  const handleFinalSubmit = async () => {
+    setSubmitting(true);
+    try {
+      await api.post("/api/business/onboarding/complete", {});
+      toast.success("SpotLite Business Onboarding Completed!");
+      await refreshUser();
+      nav({ to: "/home" });
+    } catch (err: any) {
+      toast.error(err.message || "Failed to complete onboarding.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  // Digital Payment Checkbox Toggle
+  const togglePaymentMethod = (method: string) => {
+    setDigitalPaymentMethods((prev) =>
+      prev.includes(method) ? prev.filter((m) => m !== method) : [...prev, method]
+    );
+  };
 
   if (loading) {
     return (
@@ -125,378 +498,1128 @@ function Onboarding() {
     );
   }
 
-  // Step 1 Validation
-  const isStep1Valid = fullName.trim().length >= 2 && phone.trim().length >= 10 && dob && gender;
+  const recommendedDocs = CATEGORY_RECOMMENDED_DOCUMENTS[businessCategory] || CATEGORY_RECOMMENDED_DOCUMENTS["Others"];
 
-  // Step 2 Validation
-  const isStep2Valid = address.trim().length >= 5 && city.trim().length >= 2 && stateName.trim().length >= 2 && /^\d{6}$/.test(pincode);
+  return (
+    <div className="grid min-h-screen lg:grid-cols-12 bg-background">
+      {/* ---- Left Hero Panel ---- */}
+      <div className="relative hidden lg:flex lg:col-span-4 flex-col justify-between bg-brand p-10 text-on-brand border-r border-border/20">
+        <div className="flex items-center gap-2.5">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/10 backdrop-blur-md border border-white/20">
+            <Sparkles className="h-5 w-5 text-white" />
+          </div>
+          <div>
+            <span className="font-display text-xl font-bold tracking-tight">SpotLite</span>
+            <span className="ml-2 rounded-full bg-white/20 px-2 py-0.5 text-[10px] font-semibold text-white">
+              BUSINESS
+            </span>
+          </div>
+        </div>
 
-  // Step 3 Validation
-  const isStep3Valid = occupation && bankCount && primaryBank.trim().length >= 2;
+        <div className="my-auto space-y-6">
+          <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-medium backdrop-blur-md">
+            <Building2 className="h-3.5 w-3.5" />
+            <span>Business Financial Intelligence</span>
+          </div>
+          <h2 className="font-display text-3xl font-extrabold leading-tight">
+            Build your company's financial profile.
+          </h2>
+          <p className="text-sm opacity-90 leading-relaxed">
+            SpotLite connects transaction feeds, verifies business identity, and prepares your financial workspace in 5 quick steps.
+          </p>
 
-  const nextStep = () => {
-    if (step === 1 && isStep1Valid) setStep(2);
-    else if (step === 2 && isStep2Valid) setStep(3);
-  };
+          {/* Dynamic completion gauge */}
+          <div className="rounded-2xl bg-white/10 p-4 backdrop-blur-md border border-white/15">
+            <div className="flex justify-between items-center text-xs font-semibold mb-2">
+              <span>Onboarding Completion</span>
+              <span>{completionPct}%</span>
+            </div>
+            <div className="h-2 w-full bg-white/20 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-white transition-all duration-500 ease-out"
+                style={{ width: `${completionPct}%` }}
+              />
+            </div>
+          </div>
+        </div>
 
-  const prevStep = () => {
-    if (step > 1) setStep(step - 1);
-  };
+        <div className="flex items-center justify-between text-xs opacity-75">
+          <span className="flex items-center gap-1">
+            <Lock className="h-3.5 w-3.5" /> AES-256 Encrypted Vault
+          </span>
+          <span>5-10 min setup</span>
+        </div>
+      </div>
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!isStep1Valid || !isStep2Valid || !isStep3Valid) {
-      toast.error("Please fill all required fields correctly.");
-      return;
+      {/* ---- Right Form Panel ---- */}
+      <div className="lg:col-span-8 flex flex-col justify-between px-6 py-8 md:px-12 lg:px-16 overflow-y-auto">
+        <div>
+          {/* Header Mobile / Top Nav */}
+          <div className="flex justify-between items-center mb-6">
+            <div className="flex items-center gap-2 lg:hidden">
+              <Sparkles className="h-5 w-5 text-brand" />
+              <span className="font-display text-lg font-bold">SpotLite Business</span>
+            </div>
+            <div className="flex items-center gap-3 ml-auto">
+              <button
+                type="button"
+                onClick={fillDemoData}
+                className="flex items-center gap-1.5 rounded-xl border border-brand/30 bg-brand/10 px-3.5 py-1.5 text-xs font-semibold text-brand hover:bg-brand/20 transition shadow-xs"
+                title="Pre-fill form with sample demo data for quick testing"
+              >
+                <Sparkles className="h-3.5 w-3.5 text-brand" />
+                Fill Demo Data
+              </button>
+              {savingDraft && (
+                <span className="flex items-center gap-1.5 text-xs text-text-secondary animate-pulse">
+                  <Loader2 className="h-3 w-3 animate-spin text-brand" /> Saving progress…
+                </span>
+              )}
+            </div>
+          </div>
+
+          {/* Stepper Header */}
+          <div className="mb-8">
+            <div className="flex justify-between items-center text-xs text-text-secondary font-medium mb-3">
+              <span className="font-mono text-brand font-semibold">STEP {step} OF 5</span>
+              <span className="font-semibold text-text-primary">
+                {step === 1 && "1. Business Verification"}
+                {step === 2 && "2. General Info"}
+                {step === 3 && "3. Leadership Info"}
+                {step === 4 && "4. Financial Info"}
+                {step === 5 && "5. Review & Complete"}
+              </span>
+            </div>
+
+            {/* Stepper Pills */}
+            <div className="grid grid-cols-5 gap-1.5 mb-2">
+              {[1, 2, 3, 4, 5].map((s) => (
+                <button
+                  key={s}
+                  type="button"
+                  onClick={() => {
+                    if (s < step) setStep(s);
+                  }}
+                  className={`h-2 rounded-full transition-all duration-300 ${
+                    s === step
+                      ? "bg-brand"
+                      : s < step
+                      ? "bg-brand/40"
+                      : "bg-border"
+                  }`}
+                  title={`Jump to Step ${s}`}
+                />
+              ))}
+            </div>
+          </div>
+
+          {/* ==================================================================== */}
+          {/* STEP 2: GENERAL INFORMATION (Was Step 1) */}
+          {/* ==================================================================== */}
+          {step === 2 && (
+            <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
+              <div>
+                <h1 className="font-display text-2xl md:text-3xl font-bold">General Info</h1>
+                <p className="text-sm text-text-secondary mt-1">
+                  Identify your business and create its legal profile.
+                </p>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-4">
+                {/* Company Name */}
+                <div className="md:col-span-2 space-y-1.5">
+                  <label className="block text-xs font-semibold text-text-secondary">
+                    Company Name <span className="text-brand">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={companyName}
+                    onChange={(e) => setCompanyName(e.target.value)}
+                    className="w-full rounded-xl border border-border bg-surface px-4 py-3 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
+                    placeholder="Acme Technologies Pvt Ltd"
+                  />
+                </div>
+
+                {/* Business Category */}
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-semibold text-text-secondary">
+                    Business Category <span className="text-brand">*</span>
+                  </label>
+                  <select
+                    value={businessCategory}
+                    onChange={(e) => setBusinessCategory(e.target.value)}
+                    className="w-full rounded-xl border border-border bg-surface px-4 py-3 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
+                  >
+                    {BUSINESS_CATEGORIES.map((cat) => (
+                      <option key={cat} value={cat}>
+                        {cat}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Business Type */}
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-semibold text-text-secondary">
+                    Business Type <span className="text-brand">*</span>
+                  </label>
+                  <select
+                    value={businessType}
+                    onChange={(e) => setBusinessType(e.target.value)}
+                    className="w-full rounded-xl border border-border bg-surface px-4 py-3 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
+                  >
+                    {BUSINESS_TYPES.map((bt) => (
+                      <option key={bt} value={bt}>
+                        {bt}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Business PAN */}
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-semibold text-text-secondary">
+                    Business PAN <span className="text-brand">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    maxLength={10}
+                    required
+                    value={businessPan}
+                    onChange={(e) => setBusinessPan(e.target.value.toUpperCase())}
+                    className="w-full rounded-xl border border-border bg-surface px-4 py-3 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20 uppercase tracking-widest font-mono"
+                    placeholder="ABCDE1234F"
+                  />
+                </div>
+
+                {/* GSTIN */}
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-semibold text-text-secondary flex justify-between">
+                    <span>GSTIN</span>
+                    <span className="font-normal text-text-secondary/70">Optional</span>
+                  </label>
+                  <input
+                    type="text"
+                    maxLength={15}
+                    value={gstin}
+                    onChange={(e) => setGstin(e.target.value.toUpperCase())}
+                    className="w-full rounded-xl border border-border bg-surface px-4 py-3 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20 uppercase font-mono"
+                    placeholder="27AAACB1234C1ZV"
+                  />
+                </div>
+
+                {/* CIN */}
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-semibold text-text-secondary flex justify-between">
+                    <span>CIN</span>
+                    <span className="font-normal text-text-secondary/70">Optional</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={cin}
+                    onChange={(e) => setCin(e.target.value)}
+                    className="w-full rounded-xl border border-border bg-surface px-4 py-3 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20 font-mono"
+                    placeholder="U72200MH2021PTC123456"
+                  />
+                </div>
+
+                {/* Udyam / MSME Number */}
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-semibold text-text-secondary flex justify-between">
+                    <span>Udyam / MSME Number</span>
+                    <span className="font-normal text-text-secondary/70">Optional</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={udyamNumber}
+                    onChange={(e) => setUdyamNumber(e.target.value)}
+                    className="w-full rounded-xl border border-border bg-surface px-4 py-3 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20 font-mono"
+                    placeholder="UDYAM-MH-01-0000000"
+                  />
+                </div>
+
+                {/* Date of Incorporation */}
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-semibold text-text-secondary flex justify-between">
+                    <span>Date of Incorporation</span>
+                    <span className="font-normal text-text-secondary/70">Optional</span>
+                  </label>
+                  <input
+                    type="date"
+                    value={dateOfIncorporation}
+                    onChange={(e) => setDateOfIncorporation(e.target.value)}
+                    className="w-full rounded-xl border border-border bg-surface px-4 py-3 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
+                  />
+                </div>
+
+                {/* Official Email */}
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-semibold text-text-secondary">
+                    Official Email <span className="text-brand">*</span>
+                  </label>
+                  <input
+                    type="email"
+                    required
+                    value={officialEmail}
+                    onChange={(e) => setOfficialEmail(e.target.value)}
+                    className="w-full rounded-xl border border-border bg-surface px-4 py-3 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
+                    placeholder="contact@acme.com"
+                  />
+                </div>
+
+                {/* Official Phone */}
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-semibold text-text-secondary">
+                    Official Phone <span className="text-brand">*</span>
+                  </label>
+                  <input
+                    type="tel"
+                    required
+                    value={officialPhone}
+                    onChange={(e) => setOfficialPhone(e.target.value)}
+                    className="w-full rounded-xl border border-border bg-surface px-4 py-3 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
+                    placeholder="+91 98765 43210"
+                  />
+                </div>
+
+                {/* Registered Address */}
+                <div className="md:col-span-2 space-y-1.5">
+                  <label className="block text-xs font-semibold text-text-secondary">
+                    Registered Address <span className="text-brand">*</span>
+                  </label>
+                  <textarea
+                    rows={2}
+                    required
+                    value={registeredAddress}
+                    onChange={(e) => setRegisteredAddress(e.target.value)}
+                    className="w-full rounded-xl border border-border bg-surface px-4 py-3 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20 resize-none"
+                    placeholder="Building No, Street, Landmark"
+                  />
+                </div>
+
+                {/* Operational Address */}
+                <div className="md:col-span-2 space-y-1.5">
+                  <label className="block text-xs font-semibold text-text-secondary flex justify-between">
+                    <span>Operational Address</span>
+                    <span className="font-normal text-text-secondary/70">Optional (If different from Registered)</span>
+                  </label>
+                  <textarea
+                    rows={2}
+                    value={operationalAddress}
+                    onChange={(e) => setOperationalAddress(e.target.value)}
+                    className="w-full rounded-xl border border-border bg-surface px-4 py-3 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20 resize-none"
+                    placeholder="Warehouse / Branch / Factory Address"
+                  />
+                </div>
+
+                {/* State */}
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-semibold text-text-secondary">
+                    State <span className="text-brand">*</span>
+                  </label>
+                  <select
+                    value={stateName}
+                    onChange={(e) => setStateName(e.target.value)}
+                    className="w-full rounded-xl border border-border bg-surface px-4 py-3 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
+                  >
+                    {INDIAN_STATES.map((st) => (
+                      <option key={st} value={st}>
+                        {st}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* City */}
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-semibold text-text-secondary">
+                    City <span className="text-brand">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={city}
+                    onChange={(e) => setCity(e.target.value)}
+                    className="w-full rounded-xl border border-border bg-surface px-4 py-3 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
+                    placeholder="Mumbai"
+                  />
+                </div>
+
+                {/* PIN Code */}
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-semibold text-text-secondary">
+                    PIN Code <span className="text-brand">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    maxLength={6}
+                    required
+                    value={pincode}
+                    onChange={(e) => setPincode(e.target.value.replace(/\D/g, ""))}
+                    className="w-full rounded-xl border border-border bg-surface px-4 py-3 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20 font-mono"
+                    placeholder="400001"
+                  />
+                </div>
+
+                {/* Website */}
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-semibold text-text-secondary flex justify-between">
+                    <span>Website</span>
+                    <span className="font-normal text-text-secondary/70">Optional</span>
+                  </label>
+                  <input
+                    type="url"
+                    value={website}
+                    onChange={(e) => setWebsite(e.target.value)}
+                    className="w-full rounded-xl border border-border bg-surface px-4 py-3 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
+                    placeholder="https://www.acme.com"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ==================================================================== */}
+          {/* STEP 3: BUSINESS INFORMATION (Was Step 2) */}
+          {/* ==================================================================== */}
+          {step === 3 && (
+            <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
+              <div>
+                <h1 className="font-display text-2xl md:text-3xl font-bold">Leadership Info</h1>
+                <p className="text-sm text-text-secondary mt-1">
+                  Understand your company's operating profile and scale.
+                </p>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-4">
+                {/* Primary Contact Person */}
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-semibold text-text-secondary">
+                    Primary Contact Person <span className="text-brand">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={primaryContactPerson}
+                    onChange={(e) => setPrimaryContactPerson(e.target.value)}
+                    className="w-full rounded-xl border border-border bg-surface px-4 py-3 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
+                    placeholder="Jane Doe"
+                  />
+                </div>
+
+                {/* Founder / CEO Name */}
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-semibold text-text-secondary flex justify-between">
+                    <span>Founder / CEO Name</span>
+                    <span className="font-normal text-text-secondary/70">Optional</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={founderCeoName}
+                    onChange={(e) => setFounderCeoName(e.target.value)}
+                    className="w-full rounded-xl border border-border bg-surface px-4 py-3 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
+                    placeholder="John Smith"
+                  />
+                </div>
+
+                {/* Designation */}
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-semibold text-text-secondary flex justify-between">
+                    <span>Designation</span>
+                    <span className="font-normal text-text-secondary/70">Optional</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={designation}
+                    onChange={(e) => setDesignation(e.target.value)}
+                    className="w-full rounded-xl border border-border bg-surface px-4 py-3 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
+                    placeholder="Managing Director / CFO"
+                  />
+                </div>
+
+                {/* Business Model */}
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-semibold text-text-secondary flex justify-between">
+                    <span>Business Model</span>
+                    <span className="font-normal text-text-secondary/70">Optional</span>
+                  </label>
+                  <select
+                    value={businessModel}
+                    onChange={(e) => setBusinessModel(e.target.value)}
+                    className="w-full rounded-xl border border-border bg-surface px-4 py-3 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
+                  >
+                    {BUSINESS_MODELS.map((bm) => (
+                      <option key={bm} value={bm}>
+                        {bm}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Years in Business */}
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-semibold text-text-secondary flex justify-between">
+                    <span>Years in Business</span>
+                    <span className="font-normal text-text-secondary/70">Optional</span>
+                  </label>
+                  <select
+                    value={yearsInBusiness}
+                    onChange={(e) => setYearsInBusiness(e.target.value)}
+                    className="w-full rounded-xl border border-border bg-surface px-4 py-3 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
+                  >
+                    <option value="Less than 1 year">Less than 1 year</option>
+                    <option value="1-3 years">1 - 3 years</option>
+                    <option value="3-5 years">3 - 5 years</option>
+                    <option value="5+ years">5+ years</option>
+                  </select>
+                </div>
+
+                {/* Number of Employees */}
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-semibold text-text-secondary flex justify-between">
+                    <span>Number of Employees</span>
+                    <span className="font-normal text-text-secondary/70">Optional</span>
+                  </label>
+                  <select
+                    value={numberOfEmployees}
+                    onChange={(e) => setNumberOfEmployees(e.target.value)}
+                    className="w-full rounded-xl border border-border bg-surface px-4 py-3 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
+                  >
+                    <option value="1-10">1 - 10 employees</option>
+                    <option value="11-50">11 - 50 employees</option>
+                    <option value="51-200">51 - 200 employees</option>
+                    <option value="200+">200+ employees</option>
+                  </select>
+                </div>
+
+                {/* Number of Branches */}
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-semibold text-text-secondary flex justify-between">
+                    <span>Number of Branches / Outlets</span>
+                    <span className="font-normal text-text-secondary/70">Optional</span>
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    value={numberOfBranches}
+                    onChange={(e) => setNumberOfBranches(e.target.value)}
+                    className="w-full rounded-xl border border-border bg-surface px-4 py-3 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
+                    placeholder="1"
+                  />
+                </div>
+
+                {/* Primary Product / Service */}
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-semibold text-text-secondary flex justify-between">
+                    <span>Primary Product / Service</span>
+                    <span className="font-normal text-text-secondary/70">Optional</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={primaryProductService}
+                    onChange={(e) => setPrimaryProductService(e.target.value)}
+                    className="w-full rounded-xl border border-border bg-surface px-4 py-3 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
+                    placeholder="e.g. B2B SaaS Software"
+                  />
+                </div>
+
+                {/* Business Description */}
+                <div className="md:col-span-2 space-y-1.5">
+                  <label className="block text-xs font-semibold text-text-secondary flex justify-between">
+                    <span>Business Description</span>
+                    <span className="font-normal text-text-secondary/70">Optional</span>
+                  </label>
+                  <textarea
+                    rows={3}
+                    value={businessDescription}
+                    onChange={(e) => setBusinessDescription(e.target.value)}
+                    className="w-full rounded-xl border border-border bg-surface px-4 py-3 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20 resize-none"
+                    placeholder="Briefly describe what your business does..."
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ==================================================================== */}
+          {/* STEP 4: FINANCIAL INFORMATION (Was Step 3) */}
+          {/* ==================================================================== */}
+          {step === 4 && (
+            <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
+              <div>
+                <h1 className="font-display text-2xl md:text-3xl font-bold">Financial Info</h1>
+                <p className="text-sm text-text-secondary mt-1">
+                  Collect banking and payment software context. (Sensitive turnover and revenue data will be generated dynamically through transaction feeds later).
+                </p>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-4">
+                {/* Primary Bank */}
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-semibold text-text-secondary flex justify-between">
+                    <span>Primary Bank</span>
+                    <span className="font-normal text-text-secondary/70">Optional</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={primaryBank}
+                    onChange={(e) => setPrimaryBank(e.target.value)}
+                    className="w-full rounded-xl border border-border bg-surface px-4 py-3 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
+                    placeholder="HDFC Bank / ICICI Bank / SBI"
+                  />
+                </div>
+
+                {/* Number of Business Accounts */}
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-semibold text-text-secondary flex justify-between">
+                    <span>Number of Business Accounts</span>
+                    <span className="font-normal text-text-secondary/70">Optional</span>
+                  </label>
+                  <select
+                    value={numberOfAccounts}
+                    onChange={(e) => setNumberOfAccounts(e.target.value)}
+                    className="w-full rounded-xl border border-border bg-surface px-4 py-3 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
+                  >
+                    <option value="1">1 Account</option>
+                    <option value="2">2 Accounts</option>
+                    <option value="3">3 Accounts</option>
+                    <option value="4">4 Accounts</option>
+                    <option value="5">5+ Accounts</option>
+                  </select>
+                </div>
+
+                {/* Existing Business Loan */}
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-semibold text-text-secondary">
+                    Existing Business Loan?
+                  </label>
+                  <div className="flex gap-4 pt-1">
+                    <label className="flex items-center gap-2 cursor-pointer text-sm">
+                      <input
+                        type="radio"
+                        name="businessLoan"
+                        checked={hasBusinessLoan === true}
+                        onChange={() => setHasBusinessLoan(true)}
+                        className="text-brand focus:ring-brand"
+                      />
+                      Yes
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer text-sm">
+                      <input
+                        type="radio"
+                        name="businessLoan"
+                        checked={hasBusinessLoan === false}
+                        onChange={() => setHasBusinessLoan(false)}
+                        className="text-brand focus:ring-brand"
+                      />
+                      No
+                    </label>
+                  </div>
+                </div>
+
+                {/* Existing Business Credit Card */}
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-semibold text-text-secondary">
+                    Existing Business Credit Card?
+                  </label>
+                  <div className="flex gap-4 pt-1">
+                    <label className="flex items-center gap-2 cursor-pointer text-sm">
+                      <input
+                        type="radio"
+                        name="businessCreditCard"
+                        checked={hasBusinessCreditCard === true}
+                        onChange={() => setHasBusinessCreditCard(true)}
+                        className="text-brand focus:ring-brand"
+                      />
+                      Yes
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer text-sm">
+                      <input
+                        type="radio"
+                        name="businessCreditCard"
+                        checked={hasBusinessCreditCard === false}
+                        onChange={() => setHasBusinessCreditCard(false)}
+                        className="text-brand focus:ring-brand"
+                      />
+                      No
+                    </label>
+                  </div>
+                </div>
+
+                {/* Accounting Software */}
+                <div className="md:col-span-2 space-y-1.5">
+                  <label className="block text-xs font-semibold text-text-secondary">
+                    Accounting Software Used
+                  </label>
+                  <select
+                    value={accountingSoftware}
+                    onChange={(e) => setAccountingSoftware(e.target.value)}
+                    className="w-full rounded-xl border border-border bg-surface px-4 py-3 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
+                  >
+                    {ACCOUNTING_SOFTWARES.map((sw) => (
+                      <option key={sw} value={sw}>
+                        {sw}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Digital Payment Methods */}
+                <div className="md:col-span-2 space-y-2">
+                  <label className="block text-xs font-semibold text-text-secondary">
+                    Digital Payment Methods Accepted
+                  </label>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                    {DIGITAL_PAYMENT_METHODS.map((pm) => {
+                      const checked = digitalPaymentMethods.includes(pm);
+                      return (
+                        <button
+                          key={pm}
+                          type="button"
+                          onClick={() => togglePaymentMethod(pm)}
+                          className={`flex items-center gap-2.5 rounded-xl border p-3 text-xs font-medium text-left transition-all ${
+                            checked
+                              ? "border-brand bg-brand/5 text-brand"
+                              : "border-border bg-surface hover:border-brand/40"
+                          }`}
+                        >
+                          <div
+                            className={`h-4 w-4 rounded border flex items-center justify-center transition-colors ${
+                              checked ? "bg-brand border-brand text-white" : "border-border"
+                            }`}
+                          >
+                            {checked && <CheckCircle2 className="h-3 w-3" />}
+                          </div>
+                          <span>{pm}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ==================================================================== */}
+          {/* STEP 1: BUSINESS VERIFICATION (Was Step 4) */}
+          {/* ==================================================================== */}
+          {step === 1 && (
+            <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
+              <div>
+                <h1 className="font-display text-2xl md:text-3xl font-bold">Business Verification</h1>
+                <p className="text-sm text-text-secondary mt-1">
+                  Lightweight KYC verification for business identity.
+                </p>
+              </div>
+
+              {/* Mandatory Documents Section */}
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 text-sm font-bold text-text-primary">
+                  <ShieldCheck className="h-4 w-4 text-brand" />
+                  <span>Mandatory Documents</span>
+                </div>
+                <div className="grid gap-3">
+                  {MANDATORY_DOCUMENTS.map((docReq) => (
+                    <DocumentUploadCard
+                      key={docReq.typeKey}
+                      req={docReq}
+                      uploadedDocs={uploadedDocs}
+                      uploadingDocType={uploadingDocType}
+                      onUpload={(file) => handleFileUpload(file, docReq.typeKey, "mandatory")}
+                      onDelete={handleDeleteDoc}
+                    />
+                  ))}
+                </div>
+              </div>
+
+
+            </div>
+          )}
+
+          {/* ==================================================================== */}
+          {/* STEP 5: REVIEW & COMPLETE */}
+          {/* ==================================================================== */}
+          {step === 5 && (
+            <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
+              <div>
+                <h1 className="font-display text-2xl md:text-3xl font-bold">Review & Complete</h1>
+                <p className="text-sm text-text-secondary mt-1">
+                  Review your company profile before final activation.
+                </p>
+              </div>
+
+              {/* Completion Banner */}
+              <div className="rounded-2xl bg-brand/10 p-5 border border-brand/20 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-brand text-white font-bold text-lg font-mono">
+                    {completionPct}%
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-sm text-text-primary">Onboarding Readiness</h3>
+                    <p className="text-xs text-text-secondary">All required business verification details captured.</p>
+                  </div>
+                </div>
+                <span className="rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-600 flex items-center gap-1.5">
+                  <CheckCircle2 className="h-3.5 w-3.5" /> Ready for AI Analysis
+                </span>
+              </div>
+
+              <div className="space-y-4">
+                {/* General Info Summary Card */}
+                <div className="rounded-2xl border border-border bg-surface p-5 space-y-3">
+                  <div className="flex justify-between items-center border-b border-border pb-3">
+                    <h3 className="font-bold text-sm flex items-center gap-2">
+                      <Building2 className="h-4 w-4 text-brand" /> Company Details
+                    </h3>
+                    <button
+                      type="button"
+                      onClick={() => setStep(2)}
+                      className="text-xs font-medium text-brand hover:underline flex items-center gap-1"
+                    >
+                      <Edit3 className="h-3 w-3" /> Edit
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
+                    <div>
+                      <span className="text-text-secondary block">Company Name</span>
+                      <span className="font-semibold text-text-primary">{companyName}</span>
+                    </div>
+                    <div>
+                      <span className="text-text-secondary block">Category</span>
+                      <span className="font-semibold text-text-primary">{businessCategory}</span>
+                    </div>
+                    <div>
+                      <span className="text-text-secondary block">Type</span>
+                      <span className="font-semibold text-text-primary">{businessType}</span>
+                    </div>
+                    <div>
+                      <span className="text-text-secondary block">Business PAN</span>
+                      <span className="font-mono font-semibold text-text-primary">{businessPan}</span>
+                    </div>
+                    <div>
+                      <span className="text-text-secondary block">Official Email</span>
+                      <span className="font-semibold text-text-primary">{officialEmail}</span>
+                    </div>
+                    <div>
+                      <span className="text-text-secondary block">City & State</span>
+                      <span className="font-semibold text-text-primary">{city}, {stateName}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Leadership Info Summary Card */}
+                <div className="rounded-2xl border border-border bg-surface p-5 space-y-3">
+                  <div className="flex justify-between items-center border-b border-border pb-3">
+                    <h3 className="font-bold text-sm flex items-center gap-2">
+                      <Building className="h-4 w-4 text-brand" /> Business Profile
+                    </h3>
+                    <button
+                      type="button"
+                      onClick={() => setStep(3)}
+                      className="text-xs font-medium text-brand hover:underline flex items-center gap-1"
+                    >
+                      <Edit3 className="h-3 w-3" /> Edit
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
+                    <div>
+                      <span className="text-text-secondary block">Contact Person</span>
+                      <span className="font-semibold text-text-primary">{primaryContactPerson}</span>
+                    </div>
+                    <div>
+                      <span className="text-text-secondary block">Business Model</span>
+                      <span className="font-semibold text-text-primary">{businessModel}</span>
+                    </div>
+                    <div>
+                      <span className="text-text-secondary block">Years in Business</span>
+                      <span className="font-semibold text-text-primary">{yearsInBusiness}</span>
+                    </div>
+                    <div>
+                      <span className="text-text-secondary block">Employees</span>
+                      <span className="font-semibold text-text-primary">{numberOfEmployees}</span>
+                    </div>
+                    <div>
+                      <span className="text-text-secondary block">Branches</span>
+                      <span className="font-semibold text-text-primary">{numberOfBranches}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Financial Info Summary Card */}
+                <div className="rounded-2xl border border-border bg-surface p-5 space-y-3">
+                  <div className="flex justify-between items-center border-b border-border pb-3">
+                    <h3 className="font-bold text-sm flex items-center gap-2">
+                      <CreditCard className="h-4 w-4 text-brand" /> Banking & Payments
+                    </h3>
+                    <button
+                      type="button"
+                      onClick={() => setStep(4)}
+                      className="text-xs font-medium text-brand hover:underline flex items-center gap-1"
+                    >
+                      <Edit3 className="h-3 w-3" /> Edit
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
+                    <div>
+                      <span className="text-text-secondary block">Primary Bank</span>
+                      <span className="font-semibold text-text-primary">{primaryBank || "Not specified"}</span>
+                    </div>
+                    <div>
+                      <span className="text-text-secondary block">Accounting Software</span>
+                      <span className="font-semibold text-text-primary">{accountingSoftware}</span>
+                    </div>
+                    <div>
+                      <span className="text-text-secondary block">Payment Methods</span>
+                      <span className="font-semibold text-text-primary">
+                        {digitalPaymentMethods.length ? digitalPaymentMethods.join(", ") : "None"}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Optional Documents Section */}
+                <div className="space-y-3 pt-2">
+                  <div className="flex items-center justify-between text-sm font-bold text-text-primary">
+                    <div className="flex items-center gap-2">
+                      <FileText className="h-4 w-4 text-text-secondary" />
+                      <span>Optional Documents</span>
+                    </div>
+                    <span className="text-xs font-normal text-text-secondary">Can be skipped</span>
+                  </div>
+                  <div className="grid gap-3">
+                    {OPTIONAL_DOCUMENTS.map((docReq) => (
+                      <DocumentUploadCard
+                        key={docReq.typeKey}
+                        req={docReq}
+                        uploadedDocs={uploadedDocs}
+                        uploadingDocType={uploadingDocType}
+                        onUpload={(file) => handleFileUpload(file, docReq.typeKey, "optional")}
+                        onDelete={handleDeleteDoc}
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                {/* Recommended Documents Section (Based on selected Category) */}
+                <div className="space-y-3 pt-2">
+                  <div className="flex items-center justify-between text-sm font-bold text-text-primary">
+                    <div className="flex items-center gap-2">
+                      <Building className="h-4 w-4 text-brand" />
+                      <span>Recommended Documents ({businessCategory})</span>
+                    </div>
+                    <span className="text-xs font-normal text-brand font-medium">Industry Specific</span>
+                  </div>
+                  <div className="grid gap-3">
+                    {recommendedDocs.map((docReq) => (
+                      <DocumentUploadCard
+                        key={docReq.typeKey}
+                        req={docReq}
+                        uploadedDocs={uploadedDocs}
+                        uploadingDocType={uploadingDocType}
+                        onUpload={(file) => handleFileUpload(file, docReq.typeKey, "recommended")}
+                        onDelete={handleDeleteDoc}
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                {/* Uploaded Documents Summary Card */}
+                <div className="rounded-2xl border border-border bg-surface p-5 space-y-3">
+                  <div className="flex justify-between items-center border-b border-border pb-3">
+                    <h3 className="font-bold text-sm flex items-center gap-2">
+                      <FileCheck className="h-4 w-4 text-brand" /> Uploaded Verification Documents ({uploadedDocs.length})
+                    </h3>
+                    <button
+                      type="button"
+                      onClick={() => setStep(1)}
+                      className="text-xs font-medium text-brand hover:underline flex items-center gap-1"
+                    >
+                      <Edit3 className="h-3 w-3" /> Edit
+                    </button>
+                  </div>
+                  {uploadedDocs.length === 0 ? (
+                    <p className="text-xs text-text-secondary">No documents uploaded yet.</p>
+                  ) : (
+                    <div className="space-y-2">
+                      {uploadedDocs.map((doc) => (
+                        <div
+                          key={doc.id}
+                          className="flex items-center justify-between rounded-xl border border-border bg-surface-alt p-3 text-xs"
+                        >
+                          <div className="flex items-center gap-2.5">
+                            <FileText className="h-4 w-4 text-brand" />
+                            <div>
+                              <span className="font-semibold text-text-primary block">{doc.original_name}</span>
+                              <span className="text-[10px] text-text-secondary capitalize">
+                                {doc.document_type.replace(/_/g, " ")} • {(doc.file_size_bytes / 1024).toFixed(0)} KB
+                              </span>
+                            </div>
+                          </div>
+                          <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold text-emerald-600">
+                            Uploaded
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Bottom Nav Action Bar */}
+        <div className="mt-8 pt-4 border-t border-border flex gap-3">
+          {step > 1 && (
+            <button
+              type="button"
+              onClick={prevStep}
+              disabled={submitting}
+              className="flex items-center justify-center gap-2 rounded-xl border border-border bg-surface px-5 py-3 text-sm font-semibold text-text-primary hover:bg-surface-alt transition"
+            >
+              <ArrowLeft className="h-4 w-4" /> Back
+            </button>
+          )}
+
+          {step < 5 ? (
+            <button
+              type="button"
+              onClick={nextStep}
+              disabled={savingDraft || (step === 2 && !isGeneralInfoValid)}
+              className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-brand py-3 px-6 text-sm font-semibold text-white shadow-brand hover:opacity-95 transition disabled:opacity-60 ml-auto"
+            >
+              {savingDraft ? <Loader2 className="h-4 w-4 animate-spin" /> : "Save & Continue"}
+              {!savingDraft && <ArrowRight className="h-4 w-4" />}
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={handleFinalSubmit}
+              disabled={submitting}
+              className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-brand-gradient py-3.5 px-6 text-sm font-bold text-on-brand shadow-brand hover:opacity-95 transition disabled:opacity-60 ml-auto"
+            >
+              {submitting ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" /> Completing Onboarding…
+                </>
+              ) : (
+                <>
+                  Complete Onboarding <CheckCircle2 className="h-4 w-4" />
+                </>
+              )}
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+interface DocumentUploadCardProps {
+  req: DocumentRequirement;
+  uploadedDocs: UploadedDoc[];
+  uploadingDocType: string | null;
+  onUpload: (file: File) => void;
+  onDelete: (docId: string) => void;
+}
+
+function DocumentUploadCard({ req, uploadedDocs, uploadingDocType, onUpload, onDelete }: DocumentUploadCardProps) {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const existingDoc = uploadedDocs.find((d) => d.document_type === req.typeKey);
+  const isUploading = uploadingDocType === req.typeKey;
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      onUpload(e.target.files[0]);
     }
+  };
 
-    setSubmitting(true);
-    try {
-      // PAN Number regex validation (optional but if entered, must be valid PAN format)
-      if (panNumber.trim() && !/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/i.test(panNumber.trim())) {
-        toast.error("Invalid PAN format. Example: ABCDE1234F");
-        setSubmitting(false);
-        return;
-      }
-
-      // Format birthdate to ISO datetime
-      const isoDob = new Date(dob).toISOString();
-
-      await api.patch("/api/persons/me", {
-        full_name: fullName.trim(),
-        phone: phone.trim(),
-        date_of_birth: isoDob,
-        gender,
-        address: address.trim(),
-        city: city.trim(),
-        state: stateName.trim(),
-        pincode: pincode.trim(),
-        pan_number: panNumber.trim() ? panNumber.trim().toUpperCase() : null,
-        occupation,
-        bank_count: parseInt(bankCount, 10),
-        primary_bank: primaryBank.trim(),
-      });
-
-      toast.success("Profile updated successfully!");
-
-      // Update the AuthContext user object so it reflects profile_completed: true
-      await refreshUser();
-
-      // Redirect to home
-      nav({ to: "/home" });
-    } catch (err: any) {
-      toast.error(err.message || "Failed to complete profile onboarding. Please try again.");
-    } finally {
-      setSubmitting(false);
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      onUpload(e.dataTransfer.files[0]);
     }
   };
 
   return (
-    <div className="grid min-h-screen md:grid-cols-2 bg-background">
-      {/* ---- Left hero panel (desktop) ---- */}
-      <div className="relative hidden flex-col justify-between bg-brand p-10 text-on-brand md:flex">
-        <div className="flex items-center gap-2">
-          <Sparkles className="h-5 w-5" />
-          <span className="font-display text-xl font-bold">Spotlite</span>
-        </div>
-        <div>
-          <h2 className="font-display text-4xl font-bold leading-tight">
-            Let's personalize
-            <br />
-            your experience.
-          </h2>
-          <p className="mt-4 text-sm opacity-90 max-w-sm">
-            We use this information to configure your dashboard, verify financial details (like PAN/Tax queries), and customize AI insights to your occupation and lifestyle.
-          </p>
-          <ul className="mt-8 space-y-3 text-sm opacity-90">
-            <li className="flex items-center gap-2">
-              <User className="h-4 w-4" /> Personal Profile
-            </li>
-            <li className="flex items-center gap-2">
-              <MapPin className="h-4 w-4" /> Billing & Locality
-            </li>
-            <li className="flex items-center gap-2">
-              <Building2 className="h-4 w-4" /> Banking & Accounts
-            </li>
-          </ul>
-        </div>
-        <p className="text-xs opacity-70">Secured with AES-256 bit encryption at rest</p>
-      </div>
-
-      {/* ---- Right form panel ---- */}
-      <div className="flex flex-col justify-center px-6 py-12 md:px-16 overflow-y-auto">
-        <div className="md:hidden mb-8 flex items-center gap-2 text-brand">
-          <Sparkles className="h-5 w-5" />
-          <span className="font-display text-lg font-bold">Spotlite</span>
-        </div>
-
-        {/* Progress Bar */}
-        <div className="mb-8">
-          <div className="flex justify-between items-center text-xs text-text-secondary font-medium mb-2">
-            <span>STEP {step} OF 3</span>
-            <span>{step === 1 ? "Personal Profile" : step === 2 ? "Contact & Address" : "Financial & Banking"}</span>
+    <div
+      onDragOver={(e) => e.preventDefault()}
+      onDrop={handleDrop}
+      className={`rounded-2xl border p-4 transition-all ${
+        existingDoc
+          ? "border-emerald-500/30 bg-emerald-500/5"
+          : "border-border bg-surface hover:border-brand/40"
+      }`}
+    >
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="flex items-start gap-3">
+          <div
+            className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl font-bold text-sm ${
+              existingDoc
+                ? "bg-emerald-500/10 text-emerald-600"
+                : "bg-brand/10 text-brand"
+            }`}
+          >
+            {existingDoc ? <CheckCircle2 className="h-5 w-5" /> : <FileText className="h-5 w-5" />}
           </div>
-          <div className="h-1.5 w-full bg-border rounded-full overflow-hidden">
-            <div
-              className="h-full bg-brand-gradient transition-all duration-300 ease-out"
-              style={{ width: `${(step / 3) * 100}%` }}
-            />
-          </div>
-        </div>
-
-        <form onSubmit={step === 3 ? handleSubmit : (e) => e.preventDefault()} className="space-y-5">
-          {/* STEP 1: PERSONAL INFORMATION */}
-          {step === 1 && (
-            <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
-              <div>
-                <h1 className="font-display text-3xl font-bold">About You</h1>
-                <p className="text-sm text-text-secondary mt-1">First, let's get to know you.</p>
-              </div>
-
-              {/* Full Name */}
-              <div className="space-y-1.5">
-                <label className="block text-xs font-medium text-text-secondary">Full Name</label>
-                <input
-                  type="text"
-                  required
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  className="w-full rounded-pill border border-border bg-surface px-4 py-3 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
-                  placeholder="John Doe"
-                />
-              </div>
-
-              {/* Phone */}
-              <div className="space-y-1.5">
-                <label className="block text-xs font-medium text-text-secondary">Phone Number</label>
-                <input
-                  type="tel"
-                  required
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  className="w-full rounded-pill border border-border bg-surface px-4 py-3 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
-                  placeholder="+91 98765 43210"
-                />
-              </div>
-
-              {/* Date of Birth */}
-              <div className="space-y-1.5">
-                <label className="block text-xs font-medium text-text-secondary">Date of Birth</label>
-                <input
-                  type="date"
-                  required
-                  value={dob}
-                  onChange={(e) => setDob(e.target.value)}
-                  className="w-full rounded-pill border border-border bg-surface px-4 py-3 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
-                />
-              </div>
-
-              {/* Gender */}
-              <div className="space-y-1.5">
-                <label className="block text-xs font-medium text-text-secondary">Gender</label>
-                <select
-                  required
-                  value={gender}
-                  onChange={(e) => setGender(e.target.value)}
-                  className="w-full rounded-pill border border-border bg-surface px-4 py-3 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20 appearance-none"
-                >
-                  <option value="">Select Gender</option>
-                  <option value="Male">Male</option>
-                  <option value="Female">Female</option>
-                  <option value="Other">Other</option>
-                  <option value="Prefer not to say">Prefer not to say</option>
-                </select>
-              </div>
-
-              <button
-                type="button"
-                onClick={nextStep}
-                disabled={!isStep1Valid}
-                className="flex w-full items-center justify-center gap-2 rounded-pill bg-brand-gradient py-3 text-sm font-semibold text-on-brand shadow-brand disabled:opacity-60 mt-6"
+          <div>
+            <div className="flex items-center gap-2">
+              <h4 className="font-bold text-sm text-text-primary">{req.label}</h4>
+              <span
+                className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${
+                  existingDoc
+                    ? "bg-emerald-500/20 text-emerald-700"
+                    : req.isOptional
+                    ? "bg-secondary text-text-secondary"
+                    : "bg-brand/10 text-brand"
+                }`}
               >
-                Continue <ArrowRight className="h-4 w-4" />
-              </button>
+                {existingDoc ? "Uploaded" : req.isOptional ? "Optional" : "Required"}
+              </span>
             </div>
+            <p className="text-xs text-text-secondary mt-0.5">{req.why}</p>
+            {existingDoc && (
+              <span className="text-[11px] font-mono text-emerald-600 mt-1 block">
+                {existingDoc.original_name} • {(existingDoc.file_size_bytes / 1024).toFixed(0)} KB
+              </span>
+            )}
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 self-end sm:self-center">
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileChange}
+            className="hidden"
+            accept=".pdf,.png,.jpg,.jpeg"
+          />
+
+          {existingDoc ? (
+            <button
+              type="button"
+              onClick={() => onDelete(existingDoc.id)}
+              className="flex items-center gap-1 rounded-xl border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-100 transition"
+            >
+              <Trash2 className="h-3.5 w-3.5" /> Remove
+            </button>
+          ) : (
+            <button
+              type="button"
+              disabled={isUploading}
+              onClick={() => fileInputRef.current?.click()}
+              className="flex items-center gap-1.5 rounded-xl bg-surface-alt border border-border px-4 py-2 text-xs font-semibold text-text-primary hover:bg-surface transition disabled:opacity-60 shadow-xs"
+            >
+              {isUploading ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin text-brand" />
+              ) : (
+                <Upload className="h-3.5 w-3.5 text-brand" />
+              )}
+              {isUploading ? "Uploading..." : "Upload File"}
+            </button>
           )}
-
-          {/* STEP 2: ADDRESS */}
-          {step === 2 && (
-            <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
-              <div>
-                <h1 className="font-display text-3xl font-bold">Where do you live?</h1>
-                <p className="text-sm text-text-secondary mt-1">This helps us customize regional and local features.</p>
-              </div>
-
-              {/* Address */}
-              <div className="space-y-1.5">
-                <label className="block text-xs font-medium text-text-secondary">Street Address</label>
-                <input
-                  type="text"
-                  required
-                  value={address}
-                  onChange={(e) => setAddress(e.target.value)}
-                  className="w-full rounded-pill border border-border bg-surface px-4 py-3 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
-                  placeholder="Flat 101, Park Street"
-                />
-              </div>
-
-              {/* City */}
-              <div className="space-y-1.5">
-                <label className="block text-xs font-medium text-text-secondary">City</label>
-                <input
-                  type="text"
-                  required
-                  value={city}
-                  onChange={(e) => setCity(e.target.value)}
-                  className="w-full rounded-pill border border-border bg-surface px-4 py-3 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
-                  placeholder="Mumbai"
-                />
-              </div>
-
-              {/* State */}
-              <div className="space-y-1.5">
-                <label className="block text-xs font-medium text-text-secondary">State</label>
-                <input
-                  type="text"
-                  required
-                  value={stateName}
-                  onChange={(e) => setStateName(e.target.value)}
-                  className="w-full rounded-pill border border-border bg-surface px-4 py-3 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
-                  placeholder="Maharashtra"
-                />
-              </div>
-
-              {/* Pincode */}
-              <div className="space-y-1.5">
-                <label className="block text-xs font-medium text-text-secondary">Pincode (6 Digits)</label>
-                <input
-                  type="text"
-                  required
-                  maxLength={6}
-                  value={pincode}
-                  onChange={(e) => setPincode(e.target.value.replace(/\D/g, ""))}
-                  className="w-full rounded-pill border border-border bg-surface px-4 py-3 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
-                  placeholder="400001"
-                />
-              </div>
-
-              <div className="flex gap-3 mt-6">
-                <button
-                  type="button"
-                  onClick={prevStep}
-                  className="flex flex-1 items-center justify-center gap-2 rounded-pill border border-border bg-surface py-3 text-sm font-semibold text-text-primary hover:bg-surface-alt"
-                >
-                  <ArrowLeft className="h-4 w-4" /> Back
-                </button>
-                <button
-                  type="button"
-                  onClick={nextStep}
-                  disabled={!isStep2Valid}
-                  className="flex flex-1 items-center justify-center gap-2 rounded-pill bg-brand-gradient py-3 text-sm font-semibold text-on-brand shadow-brand disabled:opacity-60"
-                >
-                  Continue <ArrowRight className="h-4 w-4" />
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* STEP 3: FINANCIAL & BANKING */}
-          {step === 3 && (
-            <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
-              <div>
-                <h1 className="font-display text-3xl font-bold">Financial Background</h1>
-                <p className="text-sm text-text-secondary mt-1">Tell us about your finance setup to isolate workspace recommendations.</p>
-              </div>
-
-              {/* Occupation */}
-              <div className="space-y-1.5">
-                <label className="block text-xs font-medium text-text-secondary">Occupation</label>
-                <select
-                  required
-                  value={occupation}
-                  onChange={(e) => setOccupation(e.target.value)}
-                  className="w-full rounded-pill border border-border bg-surface px-4 py-3 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20 appearance-none"
-                >
-                  <option value="">Select Occupation</option>
-                  <option value="Salaried Employee">Salaried Employee</option>
-                  <option value="Self-Employed / Business">Self-Employed / Business</option>
-                  <option value="Freelancer">Freelancer</option>
-                  <option value="Student">Student</option>
-                  <option value="Retired">Retired</option>
-                  <option value="Homemaker">Homemaker</option>
-                </select>
-              </div>
-
-              {/* How many bank accounts */}
-              <div className="space-y-1.5">
-                <label className="block text-xs font-medium text-text-secondary">How many bank accounts do you hold?</label>
-                <select
-                  required
-                  value={bankCount}
-                  onChange={(e) => setBankCount(e.target.value)}
-                  className="w-full rounded-pill border border-border bg-surface px-4 py-3 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20 appearance-none"
-                >
-                  <option value="1">1 Account</option>
-                  <option value="2">2 Accounts</option>
-                  <option value="3">3 Accounts</option>
-                  <option value="4">4 Accounts</option>
-                  <option value="5">5+ Accounts</option>
-                </select>
-              </div>
-
-              {/* Primary Bank */}
-              <div className="space-y-1.5">
-                <label className="block text-xs font-medium text-text-secondary">What is your primary bank?</label>
-                <input
-                  type="text"
-                  required
-                  value={primaryBank}
-                  onChange={(e) => setPrimaryBank(e.target.value)}
-                  className="w-full rounded-pill border border-border bg-surface px-4 py-3 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
-                  placeholder="e.g. State Bank of India"
-                />
-              </div>
-
-              {/* PAN Number (Optional) */}
-              <div className="space-y-1.5">
-                <div className="flex justify-between">
-                  <label className="block text-xs font-medium text-text-secondary">PAN Card Number (Optional)</label>
-                  <span className="text-xs text-text-secondary font-light">Optional</span>
-                </div>
-                <input
-                  type="text"
-                  maxLength={10}
-                  value={panNumber}
-                  onChange={(e) => setPanNumber(e.target.value.toUpperCase())}
-                  className="w-full rounded-pill border border-border bg-surface px-4 py-3 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
-                  placeholder="ABCDE1234F"
-                />
-              </div>
-
-              <div className="flex gap-3 mt-6">
-                <button
-                  type="button"
-                  onClick={prevStep}
-                  className="flex flex-1 items-center justify-center gap-2 rounded-pill border border-border bg-surface py-3 text-sm font-semibold text-text-primary hover:bg-surface-alt"
-                >
-                  <ArrowLeft className="h-4 w-4" /> Back
-                </button>
-                <button
-                  type="submit"
-                  disabled={submitting || !isStep3Valid}
-                  className="flex flex-1 items-center justify-center gap-2 rounded-pill bg-brand-gradient py-3 text-sm font-semibold text-on-brand shadow-brand disabled:opacity-60"
-                >
-                  {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
-                  {submitting ? "Saving Info…" : "Complete Setup"}
-                </button>
-              </div>
-            </div>
-          )}
-        </form>
-
-        <p className="mt-8 flex items-center justify-center gap-1.5 text-xs text-text-secondary">
-          <Lock className="h-3 w-3" /> Data is stored in secure, compliance-ready sandbox.
-        </p>
+        </div>
       </div>
     </div>
   );

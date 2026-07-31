@@ -4,7 +4,14 @@ import { routeTree } from "./routeTree.gen";
 import { getAuthSnapshot } from "./contexts/AuthContext";
 
 export const getRouter = () => {
-  const queryClient = new QueryClient();
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        staleTime: 5 * 60 * 1000, // 5 minutes
+        refetchOnWindowFocus: false,
+      },
+    },
+  });
 
   const router = createRouter({
     routeTree,

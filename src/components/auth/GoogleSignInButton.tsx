@@ -21,6 +21,7 @@ export function GoogleSignInButton() {
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: "include",
         body: JSON.stringify({ token: idToken }),
       });
 
@@ -30,9 +31,24 @@ export function GoogleSignInButton() {
       
       const data = await response.json();
       console.log("Google Sign-In successful:", data);
-      
-      // Navigate to home after successful login
-      navigate({ to: "/home" }); 
+
+      // Now sync via AuthContext to ensure session cookie + backend user state are both set
+      const { api } = await import("@/lib/api");
+      try {
+        const backendUser = await api.post<{ profile_completed?: boolean }>(
+          "/api/auth/sync",
+          undefined,
+          { useFirebaseToken: true }
+        );
+        if (backendUser?.profile_completed) {
+          navigate({ to: "/home", replace: true });
+        } else {
+          navigate({ to: "/onboarding", replace: true });
+        }
+      } catch {
+        // Fallback: /sync failed, try navigating based on /google response
+        navigate({ to: "/onboarding", replace: true });
+      }
     } catch (err: any) {
       console.error("Google Sign-In error:", err);
       if (err.code === "auth/popup-closed-by-user") {
