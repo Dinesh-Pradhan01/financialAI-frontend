@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { signInWithPopup } from "firebase/auth";
 import { auth, googleProvider } from "@/firebase/firebase";
 import { Button } from "@/components/ui/button";
@@ -8,8 +8,11 @@ export function GoogleSignInButton() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
+  const signingInRef = useRef(false);
 
   const handleGoogleSignIn = async () => {
+    if (signingInRef.current) return;
+    signingInRef.current = true;
     setLoading(true);
     setError(null);
     try {
@@ -58,11 +61,16 @@ export function GoogleSignInButton() {
       console.error("Google Sign-In error:", err);
       if (err.code === "auth/popup-closed-by-user") {
         setError("Sign-in popup was closed before completion.");
+      } else if (err.code === "auth/cancelled-popup-request") {
+        setError("Sign-in request was cancelled. Please wait a moment and try again.");
+      } else if (err.code === "auth/network-request-failed") {
+        setError("Network connection error. Check your internet connection or ad blocker settings.");
       } else {
         setError(err.message || "An error occurred during sign in.");
       }
     } finally {
       setLoading(false);
+      signingInRef.current = false;
     }
   };
 

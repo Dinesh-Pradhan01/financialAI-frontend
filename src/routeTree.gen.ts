@@ -24,6 +24,7 @@ import { Route as AppSpotlightsRouteImport } from './routes/_app.spotlights'
 import { Route as AppSpendingRouteImport } from './routes/_app.spending'
 import { Route as AppSettingsRouteImport } from './routes/_app.settings'
 import { Route as AppProfileRouteImport } from './routes/_app.profile'
+import { Route as AppIndustryRouteImport } from './routes/_app.industry'
 import { Route as AppHomeRouteImport } from './routes/_app.home'
 import { Route as AppCoachRouteImport } from './routes/_app.coach'
 import { Route as AppAgentsRouteImport } from './routes/_app.agents'
@@ -105,6 +106,11 @@ const AppProfileRoute = AppProfileRouteImport.update({
   path: '/profile',
   getParentRoute: () => AppRoute,
 } as any)
+const AppIndustryRoute = AppIndustryRouteImport.update({
+  id: '/industry',
+  path: '/industry',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppHomeRoute = AppHomeRouteImport.update({
   id: '/home',
   path: '/home',
@@ -149,6 +155,7 @@ export interface FileRoutesByFullPath {
   '/agents': typeof AppAgentsRoute
   '/coach': typeof AppCoachRoute
   '/home': typeof AppHomeRoute
+  '/industry': typeof AppIndustryRoute
   '/profile': typeof AppProfileRoute
   '/settings': typeof AppSettingsRoute
   '/spending': typeof AppSpendingRouteWithChildren
@@ -171,6 +178,7 @@ export interface FileRoutesByTo {
   '/agents': typeof AppAgentsRoute
   '/coach': typeof AppCoachRoute
   '/home': typeof AppHomeRoute
+  '/industry': typeof AppIndustryRoute
   '/profile': typeof AppProfileRoute
   '/settings': typeof AppSettingsRoute
   '/spending': typeof AppSpendingRouteWithChildren
@@ -195,6 +203,7 @@ export interface FileRoutesById {
   '/_app/agents': typeof AppAgentsRoute
   '/_app/coach': typeof AppCoachRoute
   '/_app/home': typeof AppHomeRoute
+  '/_app/industry': typeof AppIndustryRoute
   '/_app/profile': typeof AppProfileRoute
   '/_app/settings': typeof AppSettingsRoute
   '/_app/spending': typeof AppSpendingRouteWithChildren
@@ -219,6 +228,7 @@ export interface FileRouteTypes {
     | '/agents'
     | '/coach'
     | '/home'
+    | '/industry'
     | '/profile'
     | '/settings'
     | '/spending'
@@ -241,6 +251,7 @@ export interface FileRouteTypes {
     | '/agents'
     | '/coach'
     | '/home'
+    | '/industry'
     | '/profile'
     | '/settings'
     | '/spending'
@@ -264,6 +275,7 @@ export interface FileRouteTypes {
     | '/_app/agents'
     | '/_app/coach'
     | '/_app/home'
+    | '/_app/industry'
     | '/_app/profile'
     | '/_app/settings'
     | '/_app/spending'
@@ -394,6 +406,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppProfileRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/industry': {
+      id: '/_app/industry'
+      path: '/industry'
+      fullPath: '/industry'
+      preLoaderRoute: typeof AppIndustryRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/home': {
       id: '/_app/home'
       path: '/home'
@@ -469,6 +488,7 @@ interface AppRouteChildren {
   AppAgentsRoute: typeof AppAgentsRoute
   AppCoachRoute: typeof AppCoachRoute
   AppHomeRoute: typeof AppHomeRoute
+  AppIndustryRoute: typeof AppIndustryRoute
   AppProfileRoute: typeof AppProfileRoute
   AppSettingsRoute: typeof AppSettingsRoute
   AppSpendingRoute: typeof AppSpendingRouteWithChildren
@@ -480,6 +500,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppAgentsRoute: AppAgentsRoute,
   AppCoachRoute: AppCoachRoute,
   AppHomeRoute: AppHomeRoute,
+  AppIndustryRoute: AppIndustryRoute,
   AppProfileRoute: AppProfileRoute,
   AppSettingsRoute: AppSettingsRoute,
   AppSpendingRoute: AppSpendingRouteWithChildren,

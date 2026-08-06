@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Home, BarChart3, Zap, MessageCircle, User, Settings, Sparkles } from "lucide-react";
+import { Home, BarChart3, Zap, MessageCircle, User, Settings, Sparkles, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useDemo } from "@/store/demo-store";
 import { languages } from "@/data/agentic";
@@ -7,6 +7,7 @@ import { languages } from "@/data/agentic";
 const items = [
   { to: "/home", label: "Business C360", icon: Home },
   { to: "/spending", label: "Spending", icon: BarChart3 },
+  { to: "/industry", label: "Industry", icon: TrendingUp },
   { to: "/spotlights", label: "Spotlights", icon: Zap },
   { to: "/coach", label: "Coach", icon: MessageCircle },
   { to: "/profile", label: "Profile", icon: User },
@@ -22,7 +23,7 @@ export function BottomTabBar() {
   const { highPriorityCount } = useDemo();
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-40 border-t border-border bg-surface/95 backdrop-blur md:hidden">
-      <ul className="grid grid-cols-5">
+      <ul className="grid grid-cols-6">
         {items.map((it) => {
           const Icon = it.icon;
           const active = isActive(it.to);
