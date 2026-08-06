@@ -40,12 +40,17 @@ export function GoogleSignInButton() {
           undefined,
           { useFirebaseToken: true }
         );
+        console.log("[GoogleSignIn] sync response:", JSON.stringify(backendUser));
+        console.log("[GoogleSignIn] profile_completed value:", backendUser?.profile_completed, "type:", typeof backendUser?.profile_completed);
         if (backendUser?.profile_completed) {
+          console.log("[GoogleSignIn] → navigating to /home");
           navigate({ to: "/home", replace: true });
         } else {
+          console.log("[GoogleSignIn] → navigating to /onboarding");
           navigate({ to: "/onboarding", replace: true });
         }
-      } catch {
+      } catch (syncErr) {
+        console.error("[GoogleSignIn] sync failed, fallback to /onboarding:", syncErr);
         // Fallback: /sync failed, try navigating based on /google response
         navigate({ to: "/onboarding", replace: true });
       }

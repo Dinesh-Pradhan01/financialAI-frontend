@@ -9,25 +9,32 @@ export const Route = createFileRoute("/_app")({
   beforeLoad: async () => {
     // 1. Instant check from in-memory AuthSnapshot (avoids redundant HTTP calls during route switches)
     const snapshot = getAuthSnapshot();
+    console.log("[_app beforeLoad] snapshot:", { loading: snapshot.loading, hasUser: !!snapshot.user, profile_completed: snapshot.user?.profile_completed });
 
     if (!snapshot.loading && snapshot.user) {
       if (auth.currentUser && !auth.currentUser.emailVerified) {
+        console.log("[_app beforeLoad] → redirect to /verify-email (snapshot path)");
         throw redirect({ to: "/verify-email" });
       }
       if (!snapshot.user.profile_completed) {
+        console.log("[_app beforeLoad] → redirect to /onboarding (snapshot path, profile_completed=false)");
         throw redirect({ to: "/onboarding" });
       }
+      console.log("[_app beforeLoad] → ALLOW (snapshot path, profile_completed=true)");
       return;
     }
 
     // 2. Fallback for initial page load / hard refresh
     const fbUser = auth.currentUser ?? (await waitForAuth());
+    console.log("[_app beforeLoad] waitForAuth result:", fbUser?.email ?? "null");
 
     if (!fbUser) {
+      console.log("[_app beforeLoad] → redirect to /login (no firebase user)");
       throw redirect({ to: "/login" });
     }
 
     if (!fbUser.emailVerified) {
+      console.log("[_app beforeLoad] → redirect to /verify-email (fallback path)");
       throw redirect({ to: "/verify-email" });
     }
 
@@ -35,14 +42,18 @@ export const Route = createFileRoute("/_app")({
     try {
       const { api } = await import("@/lib/api");
       const backendUser = await api.get<{ profile_completed: boolean }>("/api/auth/me");
+      console.log("[_app beforeLoad] /api/auth/me response:", { profile_completed: backendUser.profile_completed });
       if (!backendUser.profile_completed) {
+        console.log("[_app beforeLoad] → redirect to /onboarding (me endpoint, profile_completed=false)");
         throw redirect({ to: "/onboarding" });
       }
+      console.log("[_app beforeLoad] → ALLOW (me endpoint, profile_completed=true)");
     } catch (err) {
       if (isRedirect(err)) {
         throw err;
       }
-      console.error("Error checking profile completion in beforeLoad:", err);
+      console.error("[_app beforeLoad] Error checking profile completion:", err);
+      console.log("[_app beforeLoad] → redirect to /login (error fallback)");
       throw redirect({ to: "/login" });
     }
   },
