@@ -19,6 +19,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as ConsentRouteImport } from './routes/consent'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AcceptInviteTokenRouteImport } from './routes/accept-invite.$token'
 import { Route as AppWrappedRouteImport } from './routes/_app.wrapped'
 import { Route as AppSpotlightsRouteImport } from './routes/_app.spotlights'
 import { Route as AppSpendingRouteImport } from './routes/_app.spending'
@@ -78,6 +79,11 @@ const AppRoute = AppRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AcceptInviteTokenRoute = AcceptInviteTokenRouteImport.update({
+  id: '/accept-invite/$token',
+  path: '/accept-invite/$token',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AppWrappedRoute = AppWrappedRouteImport.update({
@@ -154,6 +160,7 @@ export interface FileRoutesByFullPath {
   '/spending': typeof AppSpendingRouteWithChildren
   '/spotlights': typeof AppSpotlightsRouteWithChildren
   '/wrapped': typeof AppWrappedRoute
+  '/accept-invite/$token': typeof AcceptInviteTokenRoute
   '/spending/$category': typeof AppSpendingCategoryRoute
   '/spotlights/$id': typeof AppSpotlightsIdRoute
   '/spotlights/$id/apply': typeof AppSpotlightsIdApplyRoute
@@ -176,6 +183,7 @@ export interface FileRoutesByTo {
   '/spending': typeof AppSpendingRouteWithChildren
   '/spotlights': typeof AppSpotlightsRouteWithChildren
   '/wrapped': typeof AppWrappedRoute
+  '/accept-invite/$token': typeof AcceptInviteTokenRoute
   '/spending/$category': typeof AppSpendingCategoryRoute
   '/spotlights/$id': typeof AppSpotlightsIdRoute
   '/spotlights/$id/apply': typeof AppSpotlightsIdApplyRoute
@@ -200,6 +208,7 @@ export interface FileRoutesById {
   '/_app/spending': typeof AppSpendingRouteWithChildren
   '/_app/spotlights': typeof AppSpotlightsRouteWithChildren
   '/_app/wrapped': typeof AppWrappedRoute
+  '/accept-invite/$token': typeof AcceptInviteTokenRoute
   '/_app/spending/$category': typeof AppSpendingCategoryRoute
   '/_app/spotlights/$id': typeof AppSpotlightsIdRoute
   '/_app/spotlights/$id_/apply': typeof AppSpotlightsIdApplyRoute
@@ -224,6 +233,7 @@ export interface FileRouteTypes {
     | '/spending'
     | '/spotlights'
     | '/wrapped'
+    | '/accept-invite/$token'
     | '/spending/$category'
     | '/spotlights/$id'
     | '/spotlights/$id/apply'
@@ -246,6 +256,7 @@ export interface FileRouteTypes {
     | '/spending'
     | '/spotlights'
     | '/wrapped'
+    | '/accept-invite/$token'
     | '/spending/$category'
     | '/spotlights/$id'
     | '/spotlights/$id/apply'
@@ -269,6 +280,7 @@ export interface FileRouteTypes {
     | '/_app/spending'
     | '/_app/spotlights'
     | '/_app/wrapped'
+    | '/accept-invite/$token'
     | '/_app/spending/$category'
     | '/_app/spotlights/$id'
     | '/_app/spotlights/$id_/apply'
@@ -285,6 +297,7 @@ export interface RootRouteChildren {
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   UploadRoute: typeof UploadRoute
   VerifyEmailRoute: typeof VerifyEmailRoute
+  AcceptInviteTokenRoute: typeof AcceptInviteTokenRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -357,6 +370,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/accept-invite/$token': {
+      id: '/accept-invite/$token'
+      path: '/accept-invite/$token'
+      fullPath: '/accept-invite/$token'
+      preLoaderRoute: typeof AcceptInviteTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_app/wrapped': {
@@ -500,6 +520,7 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   UploadRoute: UploadRoute,
   VerifyEmailRoute: VerifyEmailRoute,
+  AcceptInviteTokenRoute: AcceptInviteTokenRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
