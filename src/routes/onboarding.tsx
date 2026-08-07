@@ -142,15 +142,26 @@ function BusinessOnboarding() {
   const [officialEmail, setOfficialEmail] = useState("");
   const [officialPhone, setOfficialPhone] = useState("");
 
-  // STEP 3 — Team Members
+  // STEP 2 — Leadership & Organization
   const [ceoName, setCeoName] = useState("");
-  const [ceoAdditionalInfo, setCeoAdditionalInfo] = useState("");
+  const [ceoEmail, setCeoEmail] = useState("");
+  const [ceoPhone, setCeoPhone] = useState("");
+  const [ceoDesignation, setCeoDesignation] = useState("");
   const [cfoName, setCfoName] = useState("");
   const [cfoEmail, setCfoEmail] = useState("");
-  const [cfoAdditionalInfo, setCfoAdditionalInfo] = useState("");
+  const [cfoPhone, setCfoPhone] = useState("");
+  const [cfoDesignation, setCfoDesignation] = useState("");
+  const [inviteCfo, setInviteCfo] = useState(false);
   const [hrName, setHrName] = useState("");
   const [hrEmail, setHrEmail] = useState("");
-  const [hrAdditionalInfo, setHrAdditionalInfo] = useState("");
+  const [hrPhone, setHrPhone] = useState("");
+  const [hrDesignation, setHrDesignation] = useState("");
+  const [inviteHr, setInviteHr] = useState(false);
+  const [numberOfEmployees, setNumberOfEmployees] = useState("");
+  const [numberOfBranches, setNumberOfBranches] = useState("");
+  const [businessModel, setBusinessModel] = useState("");
+  const [primaryProductService, setPrimaryProductService] = useState("");
+  const [businessDescription, setBusinessDescription] = useState("");
   const [teamInvites, setTeamInvites] = useState<any[]>([]);
 
   // STEP 3 — Financial Info
@@ -205,15 +216,24 @@ function BusinessOnboarding() {
           if (res.leadership_info) {
             const l = res.leadership_info;
             if (l.founder_ceo_name) setCeoName(l.founder_ceo_name);
-            if (l.business_description) setCeoAdditionalInfo(l.business_description);
-          }
-
-          if (res.team_invites) {
-            setTeamInvites(res.team_invites);
-            const cfo = res.team_invites.find((i: any) => i.role === 'cfo');
-            const hr = res.team_invites.find((i: any) => i.role === 'hr');
-            if (cfo) { setCfoName(cfo.full_name); setCfoEmail(cfo.email); setCfoAdditionalInfo(cfo.additional_info || ""); }
-            if (hr) { setHrName(hr.full_name); setHrEmail(hr.email); setHrAdditionalInfo(hr.additional_info || ""); }
+            if (l.founder_ceo_email) setCeoEmail(l.founder_ceo_email);
+            if (l.founder_ceo_phone) setCeoPhone(l.founder_ceo_phone);
+            if (l.founder_ceo_designation) setCeoDesignation(l.founder_ceo_designation);
+            if (l.cfo_name) setCfoName(l.cfo_name);
+            if (l.cfo_email) setCfoEmail(l.cfo_email);
+            if (l.cfo_phone) setCfoPhone(l.cfo_phone);
+            if (l.cfo_designation) setCfoDesignation(l.cfo_designation);
+            if (l.invite_cfo) setInviteCfo(l.invite_cfo);
+            if (l.hr_name) setHrName(l.hr_name);
+            if (l.hr_email) setHrEmail(l.hr_email);
+            if (l.hr_phone) setHrPhone(l.hr_phone);
+            if (l.hr_designation) setHrDesignation(l.hr_designation);
+            if (l.invite_hr) setInviteHr(l.invite_hr);
+            if (l.number_of_employees) setNumberOfEmployees(l.number_of_employees);
+            if (l.number_of_branches) setNumberOfBranches(l.number_of_branches);
+            if (l.business_model) setBusinessModel(l.business_model);
+            if (l.primary_product_service) setPrimaryProductService(l.primary_product_service);
+            if (l.business_description) setBusinessDescription(l.business_description);
           }
 
           if (res.financial_info) {
@@ -258,11 +278,25 @@ function BusinessOnboarding() {
     setOfficialPhone("9876543210");
 
     // Step 2 - Leadership Info
-    // Step 2 - Team Members
+    setCeoName("Rajesh Kumar");
+    setCeoEmail("ceo@acmefintech.com");
+    setCeoPhone("9876543210");
+    setCeoDesignation("CEO / Founder");
     setCfoName("Vikramaditya Sharma");
     setCfoEmail("cfo@acmefintech.com");
+    setCfoPhone("9876543211");
+    setCfoDesignation("Chief Financial Officer");
+    setInviteCfo(true);
     setHrName("Jane Doe");
     setHrEmail("hr@acmefintech.com");
+    setHrPhone("9876543212");
+    setHrDesignation("Head of HR");
+    setInviteHr(true);
+    setNumberOfEmployees("51-200");
+    setNumberOfBranches("3");
+    setBusinessModel("B2B");
+    setPrimaryProductService("Financial Analytics Software");
+    setBusinessDescription("A leading fintech company providing AI-powered financial analytics solutions.");
 
     // Step 3 - Financial Info
     setPrimaryBank("HDFC Bank");
@@ -288,7 +322,7 @@ function BusinessOnboarding() {
     officialEmail.trim().includes("@") &&
     officialPhone.trim().length >= 10;
 
-  const isTeamInfoValid = cfoName.trim().length > 0 && cfoEmail.trim().includes("@") && hrName.trim().length > 0 && hrEmail.trim().includes("@");
+  const isTeamInfoValid = ceoName.trim().length > 0;
 
   const isFinancialInfoValid = true; // Financial Info has optional fields with sensible defaults
 
@@ -335,26 +369,37 @@ function BusinessOnboarding() {
 
   const saveStep2 = async () => {
     if (!isTeamInfoValid) {
-      toast.error("Please provide valid name and email for both CFO and HR.");
+      toast.error("Please provide the CEO / Founder name.");
       return false;
     }
     setSavingDraft(true);
     try {
       const res = await api.post<any>("/api/business/onboarding/step/2", {
-        ceo_name: ceoName.trim() || null,
-        ceo_additional_info: ceoAdditionalInfo.trim() || null,
-        cfo_name: cfoName.trim(),
-        cfo_email: cfoEmail.trim(),
-        cfo_additional_info: cfoAdditionalInfo.trim() || null,
-        hr_name: hrName.trim(),
-        hr_email: hrEmail.trim(),
-        hr_additional_info: hrAdditionalInfo.trim() || null
+        founder_ceo_name: ceoName.trim() || null,
+        founder_ceo_email: ceoEmail.trim() || null,
+        founder_ceo_phone: ceoPhone.trim() || null,
+        founder_ceo_designation: ceoDesignation.trim() || null,
+        number_of_employees: numberOfEmployees || null,
+        number_of_branches: numberOfBranches.trim() || null,
+        business_model: businessModel || null,
+        primary_product_service: primaryProductService.trim() || null,
+        business_description: businessDescription.trim() || null,
+        cfo_name: cfoName.trim() || null,
+        cfo_email: cfoEmail.trim() || null,
+        cfo_phone: cfoPhone.trim() || null,
+        cfo_designation: cfoDesignation.trim() || null,
+        invite_cfo: inviteCfo,
+        hr_name: hrName.trim() || null,
+        hr_email: hrEmail.trim() || null,
+        hr_phone: hrPhone.trim() || null,
+        hr_designation: hrDesignation.trim() || null,
+        invite_hr: inviteHr,
       });
       if (res.completion_percentage) setCompletionPct(res.completion_percentage);
       if (res.team_invites) setTeamInvites(res.team_invites);
       return true;
     } catch (err: any) {
-      toast.error(err.message || "Failed to save Team Members.");
+      toast.error(err.message || "Failed to save Leadership Info.");
       return false;
     } finally {
       setSavingDraft(false);
@@ -875,12 +920,12 @@ function BusinessOnboarding() {
           )}
 
           {/* ==================================================================== */}
-          {/* STEP 3: LEADERSHIP & TEAM */}
+          {/* STEP 3: LEADERSHIP & ORGANIZATION */}
           {/* ==================================================================== */}
           {step === 3 && (
             <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
               <div>
-                <h1 className="font-display text-2xl md:text-3xl font-bold">Leadership & Team</h1>
+                <h1 className="font-display text-2xl md:text-3xl font-bold">Leadership & Organization</h1>
                 <p className="text-sm text-text-secondary mt-1">
                   Add details about your leadership and invite your CFO and HR to collaborate on SpotLite.
                 </p>
@@ -895,49 +940,8 @@ function BusinessOnboarding() {
                         <Building2 className="h-4 w-4" />
                       </div>
                       <div>
-                        <h3 className="font-bold text-sm">1. CEO / Founder Details</h3>
+                        <h3 className="font-bold text-sm">CEO / Founder Details</h3>
                         <p className="text-[10px] text-text-secondary">Primary leadership information</p>
-                      </div>
-                    </div>
-                    <div className="space-y-1.5 pt-2">
-                      <label className="block text-xs font-semibold text-text-secondary flex justify-between">
-                        <span>Full Name</span>
-                        <span className="font-normal text-text-secondary/70">Optional</span>
-                      </label>
-                      <input
-                        type="text"
-                        value={ceoName}
-                        onChange={(e) => setCeoName(e.target.value)}
-                        className="w-full rounded-xl border border-border bg-surface px-4 py-2 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
-                        placeholder="John Doe"
-                      />
-                    </div>
-                    <div className="space-y-1.5">
-                      <label className="block text-xs font-semibold text-text-secondary flex justify-between">
-                        <span>Additional Information / Notes</span>
-                        <span className="font-normal text-text-secondary/70">Optional</span>
-                      </label>
-                      <textarea
-                        rows={3}
-                        value={ceoAdditionalInfo}
-                        onChange={(e) => setCeoAdditionalInfo(e.target.value)}
-                        className="w-full rounded-xl border border-border bg-surface px-4 py-2 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20 resize-none"
-                        placeholder="Any additional details..."
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* CFO Card */}
-                <div className="space-y-4 animate-in fade-in zoom-in-95 duration-200 delay-75">
-                  <div className="space-y-3 rounded-2xl border border-border bg-surface p-5 shadow-sm">
-                    <div className="flex items-center gap-2 border-b border-border pb-3">
-                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand/10 text-brand">
-                        <Lock className="h-4 w-4" />
-                      </div>
-                      <div>
-                        <h3 className="font-bold text-sm">2. Chief Financial Officer (CFO)</h3>
-                        <p className="text-[10px] text-text-secondary">Full access to Customer 360 & Statements</p>
                       </div>
                     </div>
                     <div className="grid md:grid-cols-2 gap-4 pt-2">
@@ -948,6 +952,86 @@ function BusinessOnboarding() {
                         <input
                           type="text"
                           required
+                          value={ceoName}
+                          onChange={(e) => setCeoName(e.target.value)}
+                          className="w-full rounded-xl border border-border bg-surface px-4 py-2 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
+                          placeholder="John Doe"
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <label className="block text-xs font-semibold text-text-secondary flex justify-between">
+                          <span>Email</span>
+                          <span className="font-normal text-text-secondary/70">Optional</span>
+                        </label>
+                        <input
+                          type="email"
+                          value={ceoEmail}
+                          onChange={(e) => setCeoEmail(e.target.value)}
+                          className="w-full rounded-xl border border-border bg-surface px-4 py-2 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
+                          placeholder="ceo@company.com"
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <label className="block text-xs font-semibold text-text-secondary flex justify-between">
+                          <span>Phone</span>
+                          <span className="font-normal text-text-secondary/70">Optional</span>
+                        </label>
+                        <input
+                          type="tel"
+                          value={ceoPhone}
+                          onChange={(e) => setCeoPhone(e.target.value)}
+                          className="w-full rounded-xl border border-border bg-surface px-4 py-2 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
+                          placeholder="+91 98765 43210"
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <label className="block text-xs font-semibold text-text-secondary flex justify-between">
+                          <span>Designation</span>
+                          <span className="font-normal text-text-secondary/70">Optional</span>
+                        </label>
+                        <input
+                          type="text"
+                          value={ceoDesignation}
+                          onChange={(e) => setCeoDesignation(e.target.value)}
+                          className="w-full rounded-xl border border-border bg-surface px-4 py-2 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
+                          placeholder="CEO / Founder / Managing Director"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* CFO Card */}
+                <div className="space-y-4 animate-in fade-in zoom-in-95 duration-200 delay-75">
+                  <div className="space-y-3 rounded-2xl border border-border bg-surface p-5 shadow-sm">
+                    <div className="flex items-center justify-between border-b border-border pb-3">
+                      <div className="flex items-center gap-2">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand/10 text-brand">
+                          <Lock className="h-4 w-4" />
+                        </div>
+                        <div>
+                          <h3 className="font-bold text-sm">Chief Financial Officer (CFO)</h3>
+                          <p className="text-[10px] text-text-secondary">Full access to Customer 360 & Statements</p>
+                        </div>
+                      </div>
+                      <label className="flex items-center gap-2 cursor-pointer select-none">
+                        <input
+                          type="checkbox"
+                          checked={inviteCfo}
+                          onChange={(e) => setInviteCfo(e.target.checked)}
+                          className="h-4 w-4 rounded border-border text-brand focus:ring-brand/30 accent-brand"
+                        />
+                        <span className="text-xs font-semibold text-text-secondary">Invite to SpotLite</span>
+                      </label>
+                    </div>
+                    <div className="grid md:grid-cols-2 gap-4 pt-2">
+                      <div className="space-y-1.5">
+                        <label className="block text-xs font-semibold text-text-secondary flex justify-between">
+                          <span>Full Name</span>
+                          <span className="font-normal text-text-secondary/70">Optional</span>
+                        </label>
+                        <input
+                          type="text"
                           value={cfoName}
                           onChange={(e) => setCfoName(e.target.value)}
                           className="w-full rounded-xl border border-border bg-surface px-4 py-2 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
@@ -955,35 +1039,48 @@ function BusinessOnboarding() {
                         />
                       </div>
                       <div className="space-y-1.5">
-                        <label className="block text-xs font-semibold text-text-secondary">
-                          Email Address <span className="text-brand">*</span>
+                        <label className="block text-xs font-semibold text-text-secondary flex justify-between">
+                          <span>Email Address</span>
+                          <span className="font-normal text-text-secondary/70">Optional</span>
                         </label>
                         <input
                           type="email"
-                          required
                           value={cfoEmail}
                           onChange={(e) => setCfoEmail(e.target.value)}
                           className="w-full rounded-xl border border-border bg-surface px-4 py-2 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
                           placeholder="cfo@company.com"
                         />
                       </div>
-                    </div>
-                    <div className="space-y-1.5">
-                      <label className="block text-xs font-semibold text-text-secondary flex justify-between">
-                        <span>Additional Information / Notes</span>
-                        <span className="font-normal text-text-secondary/70">Optional</span>
-                      </label>
-                      <textarea
-                        rows={2}
-                        value={cfoAdditionalInfo}
-                        onChange={(e) => setCfoAdditionalInfo(e.target.value)}
-                        className="w-full rounded-xl border border-border bg-surface px-4 py-2 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20 resize-none"
-                        placeholder="Roles, permissions details, etc."
-                      />
+                      <div className="space-y-1.5">
+                        <label className="block text-xs font-semibold text-text-secondary flex justify-between">
+                          <span>Phone</span>
+                          <span className="font-normal text-text-secondary/70">Optional</span>
+                        </label>
+                        <input
+                          type="tel"
+                          value={cfoPhone}
+                          onChange={(e) => setCfoPhone(e.target.value)}
+                          className="w-full rounded-xl border border-border bg-surface px-4 py-2 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
+                          placeholder="+91 98765 43211"
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <label className="block text-xs font-semibold text-text-secondary flex justify-between">
+                          <span>Designation</span>
+                          <span className="font-normal text-text-secondary/70">Optional</span>
+                        </label>
+                        <input
+                          type="text"
+                          value={cfoDesignation}
+                          onChange={(e) => setCfoDesignation(e.target.value)}
+                          className="w-full rounded-xl border border-border bg-surface px-4 py-2 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
+                          placeholder="Chief Financial Officer"
+                        />
+                      </div>
                     </div>
                     {teamInvites.find(i => i.role === 'cfo') && (
                       <div className="pt-2 text-xs">
-                        Status: <span className="font-semibold capitalize text-brand">{teamInvites.find(i => i.role === 'cfo').status}</span>
+                        Invite Status: <span className="font-semibold capitalize text-brand">{teamInvites.find(i => i.role === 'cfo').status}</span>
                       </div>
                     )}
                   </div>
@@ -992,23 +1089,34 @@ function BusinessOnboarding() {
                 {/* HR Card */}
                 <div className="space-y-4 animate-in fade-in zoom-in-95 duration-200 delay-150">
                   <div className="space-y-3 rounded-2xl border border-border bg-surface p-5 shadow-sm">
-                    <div className="flex items-center gap-2 border-b border-border pb-3">
-                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand/10 text-brand">
-                        <ShieldCheck className="h-4 w-4" />
+                    <div className="flex items-center justify-between border-b border-border pb-3">
+                      <div className="flex items-center gap-2">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand/10 text-brand">
+                          <ShieldCheck className="h-4 w-4" />
+                        </div>
+                        <div>
+                          <h3 className="font-bold text-sm">Human Resources (HR)</h3>
+                          <p className="text-[10px] text-text-secondary">Uploads employee & vendor lists</p>
+                        </div>
                       </div>
-                      <div>
-                        <h3 className="font-bold text-sm">3. Human Resources (HR)</h3>
-                        <p className="text-[10px] text-text-secondary">Uploads employee & vendor lists</p>
-                      </div>
+                      <label className="flex items-center gap-2 cursor-pointer select-none">
+                        <input
+                          type="checkbox"
+                          checked={inviteHr}
+                          onChange={(e) => setInviteHr(e.target.checked)}
+                          className="h-4 w-4 rounded border-border text-brand focus:ring-brand/30 accent-brand"
+                        />
+                        <span className="text-xs font-semibold text-text-secondary">Invite to SpotLite</span>
+                      </label>
                     </div>
                     <div className="grid md:grid-cols-2 gap-4 pt-2">
                       <div className="space-y-1.5">
-                        <label className="block text-xs font-semibold text-text-secondary">
-                          Full Name <span className="text-brand">*</span>
+                        <label className="block text-xs font-semibold text-text-secondary flex justify-between">
+                          <span>Full Name</span>
+                          <span className="font-normal text-text-secondary/70">Optional</span>
                         </label>
                         <input
                           type="text"
-                          required
                           value={hrName}
                           onChange={(e) => setHrName(e.target.value)}
                           className="w-full rounded-xl border border-border bg-surface px-4 py-2 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
@@ -1016,37 +1124,141 @@ function BusinessOnboarding() {
                         />
                       </div>
                       <div className="space-y-1.5">
-                        <label className="block text-xs font-semibold text-text-secondary">
-                          Email Address <span className="text-brand">*</span>
+                        <label className="block text-xs font-semibold text-text-secondary flex justify-between">
+                          <span>Email Address</span>
+                          <span className="font-normal text-text-secondary/70">Optional</span>
                         </label>
                         <input
                           type="email"
-                          required
                           value={hrEmail}
                           onChange={(e) => setHrEmail(e.target.value)}
                           className="w-full rounded-xl border border-border bg-surface px-4 py-2 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
                           placeholder="hr@company.com"
                         />
                       </div>
-                    </div>
-                    <div className="space-y-1.5">
-                      <label className="block text-xs font-semibold text-text-secondary flex justify-between">
-                        <span>Additional Information / Notes</span>
-                        <span className="font-normal text-text-secondary/70">Optional</span>
-                      </label>
-                      <textarea
-                        rows={2}
-                        value={hrAdditionalInfo}
-                        onChange={(e) => setHrAdditionalInfo(e.target.value)}
-                        className="w-full rounded-xl border border-border bg-surface px-4 py-2 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20 resize-none"
-                        placeholder="Roles, permissions details, etc."
-                      />
+                      <div className="space-y-1.5">
+                        <label className="block text-xs font-semibold text-text-secondary flex justify-between">
+                          <span>Phone</span>
+                          <span className="font-normal text-text-secondary/70">Optional</span>
+                        </label>
+                        <input
+                          type="tel"
+                          value={hrPhone}
+                          onChange={(e) => setHrPhone(e.target.value)}
+                          className="w-full rounded-xl border border-border bg-surface px-4 py-2 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
+                          placeholder="+91 98765 43212"
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <label className="block text-xs font-semibold text-text-secondary flex justify-between">
+                          <span>Designation</span>
+                          <span className="font-normal text-text-secondary/70">Optional</span>
+                        </label>
+                        <input
+                          type="text"
+                          value={hrDesignation}
+                          onChange={(e) => setHrDesignation(e.target.value)}
+                          className="w-full rounded-xl border border-border bg-surface px-4 py-2 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
+                          placeholder="Head of HR"
+                        />
+                      </div>
                     </div>
                     {teamInvites.find(i => i.role === 'hr') && (
                       <div className="pt-2 text-xs">
-                        Status: <span className="font-semibold capitalize text-brand">{teamInvites.find(i => i.role === 'hr').status}</span>
+                        Invite Status: <span className="font-semibold capitalize text-brand">{teamInvites.find(i => i.role === 'hr').status}</span>
                       </div>
                     )}
+                  </div>
+                </div>
+
+                {/* Organization Details Card */}
+                <div className="space-y-4 animate-in fade-in zoom-in-95 duration-200 delay-200">
+                  <div className="space-y-3 rounded-2xl border border-border bg-surface p-5 shadow-sm">
+                    <div className="flex items-center gap-2 border-b border-border pb-3">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand/10 text-brand">
+                        <Building className="h-4 w-4" />
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-sm">Organization Details</h3>
+                        <p className="text-[10px] text-text-secondary">Business operational profile</p>
+                      </div>
+                    </div>
+                    <div className="grid md:grid-cols-2 gap-4 pt-2">
+                      <div className="space-y-1.5">
+                        <label className="block text-xs font-semibold text-text-secondary flex justify-between">
+                          <span>Number of Employees</span>
+                          <span className="font-normal text-text-secondary/70">Optional</span>
+                        </label>
+                        <select
+                          value={numberOfEmployees}
+                          onChange={(e) => setNumberOfEmployees(e.target.value)}
+                          className="w-full rounded-xl border border-border bg-surface px-4 py-2 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
+                        >
+                          <option value="">Select range</option>
+                          <option value="1-10">1–10</option>
+                          <option value="11-50">11–50</option>
+                          <option value="51-200">51–200</option>
+                          <option value="201-500">201–500</option>
+                          <option value="501-1000">501–1,000</option>
+                          <option value="1001+">1,001+</option>
+                        </select>
+                      </div>
+                      <div className="space-y-1.5">
+                        <label className="block text-xs font-semibold text-text-secondary flex justify-between">
+                          <span>Number of Branches</span>
+                          <span className="font-normal text-text-secondary/70">Optional</span>
+                        </label>
+                        <input
+                          type="text"
+                          value={numberOfBranches}
+                          onChange={(e) => setNumberOfBranches(e.target.value)}
+                          className="w-full rounded-xl border border-border bg-surface px-4 py-2 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
+                          placeholder="e.g. 3"
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <label className="block text-xs font-semibold text-text-secondary flex justify-between">
+                          <span>Business Model</span>
+                          <span className="font-normal text-text-secondary/70">Optional</span>
+                        </label>
+                        <select
+                          value={businessModel}
+                          onChange={(e) => setBusinessModel(e.target.value)}
+                          className="w-full rounded-xl border border-border bg-surface px-4 py-2 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
+                        >
+                          <option value="">Select model</option>
+                          {BUSINESS_MODELS.map((m) => (
+                            <option key={m} value={m}>{m}</option>
+                          ))}
+                        </select>
+                      </div>
+                      <div className="space-y-1.5">
+                        <label className="block text-xs font-semibold text-text-secondary flex justify-between">
+                          <span>Primary Product / Service</span>
+                          <span className="font-normal text-text-secondary/70">Optional</span>
+                        </label>
+                        <input
+                          type="text"
+                          value={primaryProductService}
+                          onChange={(e) => setPrimaryProductService(e.target.value)}
+                          className="w-full rounded-xl border border-border bg-surface px-4 py-2 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
+                          placeholder="e.g. Financial Analytics Software"
+                        />
+                      </div>
+                      <div className="md:col-span-2 space-y-1.5">
+                        <label className="block text-xs font-semibold text-text-secondary flex justify-between">
+                          <span>Business Description</span>
+                          <span className="font-normal text-text-secondary/70">Optional</span>
+                        </label>
+                        <textarea
+                          rows={3}
+                          value={businessDescription}
+                          onChange={(e) => setBusinessDescription(e.target.value)}
+                          className="w-full rounded-xl border border-border bg-surface px-4 py-2 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20 resize-none"
+                          placeholder="Brief description of what your business does..."
+                        />
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1319,11 +1531,11 @@ function BusinessOnboarding() {
                   </div>
                 </div>
 
-                {/* Team Members Summary Card */}
+                {/* Leadership & Organization Summary Card */}
                 <div className="rounded-2xl border border-border bg-surface p-5 space-y-3">
                   <div className="flex justify-between items-center border-b border-border pb-3">
                     <h3 className="font-bold text-sm flex items-center gap-2">
-                      <Building className="h-4 w-4 text-brand" /> Team Members
+                      <Building className="h-4 w-4 text-brand" /> Leadership & Organization
                     </h3>
                     <button
                       type="button"
@@ -1338,26 +1550,65 @@ function BusinessOnboarding() {
                       <div className="rounded-xl border border-border/50 p-3 bg-surface-alt">
                         <span className="text-brand font-bold block mb-1">CEO / Founder</span>
                         <span className="font-semibold text-text-primary block">{ceoName}</span>
-                        {ceoAdditionalInfo && <span className="text-text-secondary block mt-1 line-clamp-2" title={ceoAdditionalInfo}>{ceoAdditionalInfo}</span>}
+                        {ceoEmail && <span className="text-text-secondary block">{ceoEmail}</span>}
+                        {ceoDesignation && <span className="text-text-secondary block">{ceoDesignation}</span>}
                       </div>
                     )}
-                    <div className="rounded-xl border border-border/50 p-3 bg-surface-alt">
-                      <span className="text-brand font-bold block mb-1">CFO</span>
-                      <span className="font-semibold text-text-primary block">{cfoName}</span>
-                      <span className="text-text-secondary block">{cfoEmail}</span>
-                      <span className="mt-2 inline-block rounded-full bg-brand/10 px-2 py-0.5 text-[10px] font-semibold text-brand capitalize">
-                        {teamInvites.find(i => i.role === 'cfo')?.status || 'Pending Save'}
-                      </span>
-                    </div>
-                    <div className="rounded-xl border border-border/50 p-3 bg-surface-alt">
-                      <span className="text-brand font-bold block mb-1">HR</span>
-                      <span className="font-semibold text-text-primary block">{hrName}</span>
-                      <span className="text-text-secondary block">{hrEmail}</span>
-                      <span className="mt-2 inline-block rounded-full bg-brand/10 px-2 py-0.5 text-[10px] font-semibold text-brand capitalize">
-                        {teamInvites.find(i => i.role === 'hr')?.status || 'Pending Save'}
-                      </span>
-                    </div>
+                    {cfoName && (
+                      <div className="rounded-xl border border-border/50 p-3 bg-surface-alt">
+                        <span className="text-brand font-bold block mb-1">CFO</span>
+                        <span className="font-semibold text-text-primary block">{cfoName}</span>
+                        {cfoEmail && <span className="text-text-secondary block">{cfoEmail}</span>}
+                        {cfoDesignation && <span className="text-text-secondary block">{cfoDesignation}</span>}
+                        {inviteCfo && (
+                          <span className="mt-2 inline-block rounded-full bg-brand/10 px-2 py-0.5 text-[10px] font-semibold text-brand capitalize">
+                            {teamInvites.find(i => i.role === 'cfo')?.status || 'Invite Pending'}
+                          </span>
+                        )}
+                      </div>
+                    )}
+                    {hrName && (
+                      <div className="rounded-xl border border-border/50 p-3 bg-surface-alt">
+                        <span className="text-brand font-bold block mb-1">HR</span>
+                        <span className="font-semibold text-text-primary block">{hrName}</span>
+                        {hrEmail && <span className="text-text-secondary block">{hrEmail}</span>}
+                        {hrDesignation && <span className="text-text-secondary block">{hrDesignation}</span>}
+                        {inviteHr && (
+                          <span className="mt-2 inline-block rounded-full bg-brand/10 px-2 py-0.5 text-[10px] font-semibold text-brand capitalize">
+                            {teamInvites.find(i => i.role === 'hr')?.status || 'Invite Pending'}
+                          </span>
+                        )}
+                      </div>
+                    )}
                   </div>
+                  {(numberOfEmployees || businessModel || primaryProductService) && (
+                    <div className="border-t border-border pt-3 grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
+                      {numberOfEmployees && (
+                        <div>
+                          <span className="text-text-secondary block">Employees</span>
+                          <span className="font-semibold">{numberOfEmployees}</span>
+                        </div>
+                      )}
+                      {numberOfBranches && (
+                        <div>
+                          <span className="text-text-secondary block">Branches</span>
+                          <span className="font-semibold">{numberOfBranches}</span>
+                        </div>
+                      )}
+                      {businessModel && (
+                        <div>
+                          <span className="text-text-secondary block">Business Model</span>
+                          <span className="font-semibold">{businessModel}</span>
+                        </div>
+                      )}
+                      {primaryProductService && (
+                        <div className="col-span-2 sm:col-span-3">
+                          <span className="text-text-secondary block">Primary Product/Service</span>
+                          <span className="font-semibold">{primaryProductService}</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 {/* Financial Info Summary Card */}
