@@ -3,11 +3,13 @@ import { signInWithPopup } from "firebase/auth";
 import { auth, googleProvider } from "@/firebase/firebase";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "@tanstack/react-router";
+import { useAuth } from "@/contexts/AuthContext";
 
 export function GoogleSignInButton() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
+  const { sync } = useAuth();
   const signingInRef = useRef(false);
 
   const handleGoogleSignIn = async () => {
@@ -36,13 +38,8 @@ export function GoogleSignInButton() {
       console.log("Google Sign-In successful:", data);
 
       // Now sync via AuthContext to ensure session cookie + backend user state are both set
-      const { api } = await import("@/lib/api");
       try {
-        const backendUser = await api.post<{ profile_completed?: boolean }>(
-          "/api/auth/sync",
-          undefined,
-          { useFirebaseToken: true }
-        );
+        const backendUser = await sync();
         console.log("[GoogleSignIn] sync response:", JSON.stringify(backendUser));
         console.log("[GoogleSignIn] profile_completed value:", backendUser?.profile_completed, "type:", typeof backendUser?.profile_completed);
         if (backendUser?.profile_completed) {
