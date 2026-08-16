@@ -1,11 +1,12 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Globe, Bell, MessageCircle, Lock, Download, Trash2, ShieldCheck } from "lucide-react";
+import { Globe, Bell, MessageCircle, Lock, Download, Trash2, ShieldCheck, UserPlus } from "lucide-react";
 import { toast } from "sonner";
 import { Switch } from "@/components/ui/switch";
 import { languages, channels } from "@/data/agentic";
 import { useDemo } from "@/store/demo-store";
+import { InviteModal } from "@/components/spotlite/invite-modal";
 
 export const Route = createFileRoute("/_app/settings")({
   head: () => ({
@@ -32,6 +33,7 @@ function Settings() {
     resetAll,
   } = useDemo();
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [inviteModalOpen, setInviteModalOpen] = useState(false);
 
   return (
     <div className="mx-auto max-w-2xl px-5 py-6 md:px-10">
@@ -74,6 +76,22 @@ function Settings() {
           }}
         />
       </section>
+
+      <h2 className="mt-8 flex items-center gap-2 font-display text-base font-semibold">
+        <UserPlus className="h-4 w-4 text-brand" /> Executive Team & Roles
+      </h2>
+      <section className="card-spot mt-3 p-4">
+        <p className="text-xs text-text-secondary mb-3">
+          As CEO/Admin, manually invite your CFO or HR team members. Invited executives receive a shared 24-hour verification link to setup their credentials.
+        </p>
+        <button
+          onClick={() => setInviteModalOpen(true)}
+          className="flex items-center gap-2 rounded-xl bg-brand px-4 py-2.5 text-xs font-semibold text-white shadow-brand hover:opacity-90 transition"
+        >
+          <UserPlus className="h-4 w-4" /> Invite CFO / HR
+        </button>
+      </section>
+      <InviteModal isOpen={inviteModalOpen} onClose={() => setInviteModalOpen(false)} />
 
       <h2 className="mt-8 flex items-center gap-2 font-display text-base font-semibold">
         <ShieldCheck className="h-4 w-4 text-success" /> Trust Center

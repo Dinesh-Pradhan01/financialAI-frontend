@@ -124,7 +124,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       syncPromiseRef.current = null;
     }
   }, []);
-
   // Sync Firebase auth state with the backend
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {

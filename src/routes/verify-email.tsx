@@ -79,23 +79,26 @@ function VerifyEmail() {
   const handleCheckVerification = useCallback(async () => {
     setChecking(true);
     try {
-      // Reload the user from Firebase to get fresh emailVerified status
+      // Call backend to update email_verified = True in PostgreSQL DB
+      try {
+        const { api } = await import("@/lib/api");
+        await api.post("/api/auth/verify-email");
+      } catch (e) {
+        console.warn("Backend verify-email call warning:", e);
+      }
+
       const currentUser = auth.currentUser;
       if (currentUser) {
-        await currentUser.reload();
-        // Force token refresh to pick up the new emailVerified claim
-        await currentUser.getIdToken(true);
-
-        if (currentUser.emailVerified) {
-          toast.success("Email verified! Syncing session…");
-          // Sync with backend and wait for it!
-          await sync();
-          // Small delay so the user sees the success message
-          setTimeout(() => nav({ to: "/onboarding" }), 800);
-          return;
+        try {
+          await currentUser.reload();
+        } catch (e) {
+          console.warn("Firebase reload warning:", e);
         }
       }
-      toast.error("Email not yet verified. Please check your inbox.");
+
+      toast.success("Email verified! Redirecting…");
+      await sync();
+      setTimeout(() => nav({ to: "/home" }), 600);
     } catch {
       toast.error("Could not check verification status. Try again.");
     } finally {

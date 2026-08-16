@@ -19,6 +19,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as ConsentRouteImport } from './routes/consent'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AcceptInviteIndexRouteImport } from './routes/accept-invite.index'
 import { Route as AcceptInviteTokenRouteImport } from './routes/accept-invite.$token'
 import { Route as AppWrappedRouteImport } from './routes/_app.wrapped'
 import { Route as AppSpotlightsRouteImport } from './routes/_app.spotlights'
@@ -79,6 +80,11 @@ const AppRoute = AppRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AcceptInviteIndexRoute = AcceptInviteIndexRouteImport.update({
+  id: '/accept-invite/',
+  path: '/accept-invite/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AcceptInviteTokenRoute = AcceptInviteTokenRouteImport.update({
@@ -161,6 +167,7 @@ export interface FileRoutesByFullPath {
   '/spotlights': typeof AppSpotlightsRouteWithChildren
   '/wrapped': typeof AppWrappedRoute
   '/accept-invite/$token': typeof AcceptInviteTokenRoute
+  '/accept-invite/': typeof AcceptInviteIndexRoute
   '/spending/$category': typeof AppSpendingCategoryRoute
   '/spotlights/$id': typeof AppSpotlightsIdRoute
   '/spotlights/$id/apply': typeof AppSpotlightsIdApplyRoute
@@ -184,6 +191,7 @@ export interface FileRoutesByTo {
   '/spotlights': typeof AppSpotlightsRouteWithChildren
   '/wrapped': typeof AppWrappedRoute
   '/accept-invite/$token': typeof AcceptInviteTokenRoute
+  '/accept-invite': typeof AcceptInviteIndexRoute
   '/spending/$category': typeof AppSpendingCategoryRoute
   '/spotlights/$id': typeof AppSpotlightsIdRoute
   '/spotlights/$id/apply': typeof AppSpotlightsIdApplyRoute
@@ -209,6 +217,7 @@ export interface FileRoutesById {
   '/_app/spotlights': typeof AppSpotlightsRouteWithChildren
   '/_app/wrapped': typeof AppWrappedRoute
   '/accept-invite/$token': typeof AcceptInviteTokenRoute
+  '/accept-invite/': typeof AcceptInviteIndexRoute
   '/_app/spending/$category': typeof AppSpendingCategoryRoute
   '/_app/spotlights/$id': typeof AppSpotlightsIdRoute
   '/_app/spotlights/$id_/apply': typeof AppSpotlightsIdApplyRoute
@@ -234,6 +243,7 @@ export interface FileRouteTypes {
     | '/spotlights'
     | '/wrapped'
     | '/accept-invite/$token'
+    | '/accept-invite/'
     | '/spending/$category'
     | '/spotlights/$id'
     | '/spotlights/$id/apply'
@@ -257,6 +267,7 @@ export interface FileRouteTypes {
     | '/spotlights'
     | '/wrapped'
     | '/accept-invite/$token'
+    | '/accept-invite'
     | '/spending/$category'
     | '/spotlights/$id'
     | '/spotlights/$id/apply'
@@ -281,6 +292,7 @@ export interface FileRouteTypes {
     | '/_app/spotlights'
     | '/_app/wrapped'
     | '/accept-invite/$token'
+    | '/accept-invite/'
     | '/_app/spending/$category'
     | '/_app/spotlights/$id'
     | '/_app/spotlights/$id_/apply'
@@ -298,6 +310,7 @@ export interface RootRouteChildren {
   UploadRoute: typeof UploadRoute
   VerifyEmailRoute: typeof VerifyEmailRoute
   AcceptInviteTokenRoute: typeof AcceptInviteTokenRoute
+  AcceptInviteIndexRoute: typeof AcceptInviteIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -370,6 +383,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/accept-invite/': {
+      id: '/accept-invite/'
+      path: '/accept-invite'
+      fullPath: '/accept-invite/'
+      preLoaderRoute: typeof AcceptInviteIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/accept-invite/$token': {
@@ -521,6 +541,7 @@ const rootRouteChildren: RootRouteChildren = {
   UploadRoute: UploadRoute,
   VerifyEmailRoute: VerifyEmailRoute,
   AcceptInviteTokenRoute: AcceptInviteTokenRoute,
+  AcceptInviteIndexRoute: AcceptInviteIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
