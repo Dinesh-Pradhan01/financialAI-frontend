@@ -29,7 +29,7 @@ export const Route = createFileRoute("/login")({
       if (snapshot.user.email_verified) {
         throw redirect({ to: "/home" });
       } else {
-        throw redirect({ to: "/verify-email" });
+        throw redirect({ to: "/signup" });
       }
     }
   },
@@ -51,7 +51,7 @@ function Login() {
       if (user.email_verified) {
         nav({ to: "/home", replace: true });
       } else {
-        nav({ to: "/verify-email", replace: true });
+        nav({ to: "/signup", replace: true });
       }
     }
   }, [user, loading, nav]);
@@ -80,7 +80,7 @@ function Login() {
       }
 
       if (currentUser && !currentUser.emailVerified) {
-        nav({ to: "/verify-email" });
+        nav({ to: "/signup" });
         return;
       }
 
