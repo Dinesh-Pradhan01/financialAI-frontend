@@ -1,8 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { ArrowLeft } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
-import { api } from "@/lib/api";
-import { ExtractionHub, DocumentInfo } from "@/components/spotlite/extraction-hub";
+import { useStatements } from "@/hooks/useStatements";
+import { ExtractionHub } from "@/components/spotlite/extraction-hub";
 
 export const Route = createFileRoute("/upload")({
   head: () => ({
@@ -15,12 +14,7 @@ export const Route = createFileRoute("/upload")({
 });
 
 function UploadPage() {
-  const nav = useNavigate();
-
-  const { data: documents = [], refetch } = useQuery({
-    queryKey: ["statements"],
-    queryFn: () => api.get<DocumentInfo[]>("/api/statements"),
-  });
+  const { data: documents = [], refetch } = useStatements();
 
   return (
     <div className="mx-auto min-h-screen max-w-5xl px-6 py-8">

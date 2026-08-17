@@ -7,7 +7,8 @@ import { cn } from "@/lib/utils";
 import { IconChip } from "@/lib/icons";
 import { ConfidenceMeter } from "@/components/spotlite/agent-narration";
 import { evidenceBase } from "@/data/agentic";
-import { useDemo } from "@/store/demo-store";
+import { useAppSelector } from "@/store";
+import { selectIsApplied } from "@/store/selectors";
 
 const sevMap: Record<Severity, { dot: string; label: string; text: string }> = {
   high: { dot: "bg-severity-high", label: "High", text: "text-severity-high" },
@@ -48,8 +49,7 @@ function MiniSeries({ series }: { series: { label: string; value: number }[] }) 
  * severity dot, and reasoning tucked behind a "Why?" disclosure.
  */
 export function SpotlightCard({ spotlight }: { spotlight: Spotlight }) {
-  const { isApplied } = useDemo();
-  const applied = isApplied(spotlight.id);
+  const applied = useAppSelector(selectIsApplied(spotlight.id));
   const [open, setOpen] = useState(false);
   const confidence =
     spotlight.confidence ??

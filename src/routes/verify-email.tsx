@@ -1,40 +1,33 @@
-import { createFileRoute, useNavigate, redirect, isRedirect } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, redirect } from "@tanstack/react-router";
 import { useState, useCallback } from "react";
 import { toast } from "sonner";
-import { MailCheck, RefreshCw, Loader2, Sparkles } from "lucide-react";
+import { MailCheck, RefreshCw, Loader2, Zap, AlertCircle } from "lucide-react";
+import { motion } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
 import { auth } from "@/firebase/firebase";
-
-function waitForAuth(): Promise<import("firebase/auth").User | null> {
-  return new Promise((resolve) => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
-      unsubscribe();
-      resolve(user);
-    });
-    setTimeout(() => {
-      unsubscribe();
-      resolve(null);
-    }, 2000);
-  });
-}
+import { waitForAuth } from "@/firebase/auth";
+import { SpotliteLoader } from "@/components/ui/SpotliteLoader";
 
 export const Route = createFileRoute("/verify-email")({
   head: () => ({
     meta: [
-      { title: "Verify your email · Spotlite" },
+      { title: "Verify your email · SpotLite Intelligence" },
       {
         name: "description",
-        content: "Please verify your email to start using Spotlite.",
+        content: "Please verify your email to start using SpotLite.",
       },
     ],
   }),
   beforeLoad: async () => {
+    if (typeof window === "undefined") return;
+
     const fbUser = auth.currentUser ?? (await waitForAuth());
     if (!fbUser) {
       throw redirect({ to: "/login" });
     }
+    // If already verified, move to home
     if (fbUser.emailVerified) {
-      throw redirect({ to: "/onboarding" });
+      throw redirect({ to: "/home" });
     }
   },
   component: VerifyEmail,
@@ -42,11 +35,14 @@ export const Route = createFileRoute("/verify-email")({
 
 function VerifyEmail() {
   const nav = useNavigate();
-  const { user, resendVerificationEmail, logout, sync } = useAuth();
+  const { user, firebaseUser, loading, resendVerificationEmail, logout, sync } = useAuth();
 
   const [resending, setResending] = useState(false);
   const [checking, setChecking] = useState(false);
   const [cooldown, setCooldown] = useState(0);
+  const [loggingOut, setLoggingOut] = useState(false);
+
+  const displayEmail = user?.email || firebaseUser?.email || auth.currentUser?.email || "your email";
 
   // ---- Resend with cooldown ----
   const handleResend = useCallback(async () => {
@@ -55,7 +51,7 @@ function VerifyEmail() {
     try {
       await resendVerificationEmail();
       toast.success("Verification email sent!", {
-        description: `Check ${user?.email ?? "your inbox"}.`,
+        description: `Check ${displayEmail} for the activation link.`,
       });
       // Start 60-second cooldown
       setCooldown(60);
@@ -68,18 +64,36 @@ function VerifyEmail() {
           return prev - 1;
         });
       }, 1000);
-    } catch {
-      toast.error("Failed to send email. Please try again.");
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Failed to send email. Please try again.";
+      toast.error(msg);
     } finally {
       setResending(false);
     }
-  }, [cooldown, resendVerificationEmail, user?.email]);
+  }, [cooldown, resendVerificationEmail, displayEmail]);
 
   // ---- Check verification status ----
   const handleCheckVerification = useCallback(async () => {
     setChecking(true);
     try {
-      // Call backend to update email_verified = True in PostgreSQL DB
+      const currentUser = auth.currentUser;
+      if (!currentUser) {
+        toast.error("No active session found. Please log in again.");
+        nav({ to: "/login" });
+        return;
+      }
+
+      // 1. Reload the Firebase user to get the latest emailVerified status from Firebase servers
+      await currentUser.reload();
+
+      if (!currentUser.emailVerified) {
+        toast.error("Email not verified yet", {
+          description: "Please check your inbox, click the verification link in the email, and then click this button again.",
+        });
+        return;
+      }
+
+      // 2. User has verified email in Firebase! Inform backend to update DB record
       try {
         const { api } = await import("@/lib/api");
         await api.post("/api/auth/verify-email");
@@ -87,89 +101,123 @@ function VerifyEmail() {
         console.warn("Backend verify-email call warning:", e);
       }
 
-      const currentUser = auth.currentUser;
-      if (currentUser) {
-        try {
-          await currentUser.reload();
-        } catch (e) {
-          console.warn("Firebase reload warning:", e);
-        }
-      }
-
-      toast.success("Email verified! Redirecting…");
+      // 3. Resync backend session
       await sync();
-      setTimeout(() => nav({ to: "/home" }), 600);
-    } catch {
-      toast.error("Could not check verification status. Try again.");
+
+      toast.success("Email verified successfully! Welcome to SpotLite.");
+      nav({ to: "/home", replace: true });
+    } catch (error) {
+      console.error("Verification check failed:", error);
+      toast.error("Could not check verification status. Please try again.");
     } finally {
       setChecking(false);
     }
   }, [nav, sync]);
 
+  if (loading) {
+    return <SpotliteLoader message="Verifying status…" subMessage="SpotLite Intelligence" />;
+  }
+
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-background px-6">
-      <div className="w-full max-w-md text-center">
-        {/* Icon */}
-        <div className="mx-auto mb-6 inline-flex h-20 w-20 items-center justify-center rounded-2xl bg-brand/10">
-          <MailCheck className="h-10 w-10 text-brand" />
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95, y: 15 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: "easeOut" }}
+        className="w-full max-w-md text-center"
+      >
+        {/* Brand Header */}
+        <div className="mb-8 flex items-center justify-center gap-2">
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-white shadow-md shadow-primary/25">
+            <Zap size={20} className="fill-current text-white" />
+          </div>
+          <div className="flex flex-col text-left">
+            <span className="text-xl font-extrabold tracking-tight text-foreground">
+              Spot<span className="text-primary">Lite</span>
+            </span>
+            <span className="text-[9px] font-semibold uppercase tracking-widest text-muted-foreground -mt-1">
+              Intelligence
+            </span>
+          </div>
         </div>
 
-        <h1 className="font-display text-3xl font-bold">Check your email</h1>
+        {/* Animated Icon */}
+        <motion.div
+          initial={{ scale: 0.8 }}
+          animate={{ scale: [1, 1.05, 1] }}
+          transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
+          className="mx-auto mb-6 inline-flex h-20 w-20 items-center justify-center rounded-2xl bg-primary/10 text-primary"
+        >
+          <MailCheck className="h-10 w-10" />
+        </motion.div>
 
-        <p className="mt-3 text-text-secondary">
+        <h1 className="font-display text-3xl font-bold tracking-tight text-foreground">
+          Verify your email
+        </h1>
+
+        <p className="mt-3 text-text-secondary text-sm leading-relaxed">
           We sent a verification link to{" "}
-          <span className="font-semibold text-foreground">{user?.email ?? "your email"}</span>.
+          <span className="font-semibold text-foreground">{displayEmail}</span>.
           <br />
-          Click the link in the email, then come back here.
+          Click the link in your email to activate your fintech account, then return here.
         </p>
 
         {/* Action buttons */}
         <div className="mt-8 space-y-3">
           {/* I've verified — check status */}
-          <button
+          <motion.button
+            whileTap={{ scale: 0.985 }}
             onClick={handleCheckVerification}
             disabled={checking}
-            className="flex w-full items-center justify-center gap-2 rounded-pill bg-brand-gradient py-3 text-sm font-semibold text-on-brand shadow-brand disabled:opacity-60"
+            className="flex w-full items-center justify-center gap-2 rounded-pill bg-brand-gradient py-3.5 text-sm font-bold text-on-brand shadow-brand hover:opacity-95 transition-opacity disabled:opacity-60 cursor-pointer"
           >
             {checking ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
               <RefreshCw className="h-4 w-4" />
             )}
-            {checking ? "Checking…" : "I've verified my email"}
-          </button>
+            {checking ? "Verifying with server…" : "I've verified my email"}
+          </motion.button>
 
           {/* Resend */}
-          <button
+          <motion.button
+            whileTap={{ scale: 0.985 }}
             onClick={handleResend}
             disabled={resending || cooldown > 0}
-            className="flex w-full items-center justify-center gap-2 rounded-pill border border-border bg-surface py-3 text-sm font-semibold text-brand transition hover:bg-surface-alt disabled:opacity-60"
+            className="flex w-full items-center justify-center gap-2 rounded-pill border border-border bg-surface py-3 text-sm font-semibold text-text-primary transition hover:bg-surface-alt disabled:opacity-60 cursor-pointer shadow-xs"
           >
             {resending && <Loader2 className="h-4 w-4 animate-spin" />}
             {cooldown > 0
               ? `Resend in ${cooldown}s`
               : resending
-                ? "Sending…"
+                ? "Sending link…"
                 : "Resend verification email"}
-          </button>
+          </motion.button>
 
           {/* Sign out and use a different account */}
           <button
+            disabled={loggingOut}
             onClick={async () => {
-              await logout();
-              nav({ to: "/login" });
+              if (loggingOut) return;
+              setLoggingOut(true);
+              try {
+                await logout();
+                nav({ to: "/login" });
+              } finally {
+                setLoggingOut(false);
+              }
             }}
-            className="mt-2 text-xs text-text-secondary hover:text-text-primary hover:underline"
+            className="mt-2 inline-flex items-center justify-center gap-1.5 text-xs text-text-secondary hover:text-text-primary hover:underline cursor-pointer disabled:opacity-60"
           >
-            Use a different account
+            {loggingOut && <Loader2 className="h-3 w-3 animate-spin" />}
+            {loggingOut ? "Signing out…" : "Use a different account"}
           </button>
         </div>
 
-        <div className="mt-8 flex items-center justify-center gap-2 text-xs text-text-secondary">
-          <Sparkles className="h-3.5 w-3.5 text-brand" />
-          <span>Spotlite — your money, finally understood.</span>
-        </div>
-      </div>
+        <p className="mt-8 text-xs text-text-secondary">
+          SpotLite · Unified Enterprise & Financial Intelligence
+        </p>
+      </motion.div>
     </div>
   );
 }

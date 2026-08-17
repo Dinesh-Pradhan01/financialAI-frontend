@@ -1,36 +1,64 @@
-import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { createFileRoute, useNavigate, Link, redirect } from "@tanstack/react-router";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
-import { Sparkles, Lock, Eye, EyeOff, Loader2 } from "lucide-react";
-import { useAuth } from "@/contexts/AuthContext";
+import { Zap, Lock, Eye, EyeOff, Loader2 } from "lucide-react";
+import { motion } from "framer-motion";
+import { useAuth, getAuthSnapshot } from "@/contexts/AuthContext";
+import { auth } from "@/firebase/firebase";
+import { waitForAuth } from "@/firebase/auth";
 import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
+import { AuthHeroPanel } from "@/components/auth/AuthHeroPanel";
 
-
+import { SpotliteLoader } from "@/components/ui/SpotliteLoader";
 
 export const Route = createFileRoute("/login")({
   head: () => ({
     meta: [
-      { title: "Log in · Spotlite" },
+      { title: "Log in · SpotLite Intelligence" },
       {
         name: "description",
-        content: "Log in to Spotlite, your agentic money companion.",
+        content: "Log in to SpotLite, unified workforce risk and financial intelligence.",
       },
     ],
   }),
-  // No beforeLoad redirect — always show the login form.
-  // Users must explicitly click "Sign in" to proceed.
-  // The _app layout guard handles protecting dashboard routes.
+  beforeLoad: async () => {
+    if (typeof window === "undefined") return;
+
+    const snapshot = getAuthSnapshot();
+    if (!snapshot.loading && snapshot.user) {
+      if (snapshot.user.email_verified) {
+        throw redirect({ to: "/home" });
+      } else {
+        throw redirect({ to: "/verify-email" });
+      }
+    }
+  },
   component: Login,
 });
 
 function Login() {
   const nav = useNavigate();
-  const { login, user, loading, refreshUser } = useAuth();
+  const { user, loading, login, resetPassword } = useAuth();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPwd, setShowPwd] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+
+  // If user is already authenticated/synced, navigate away from login
+  useEffect(() => {
+    if (!loading && user) {
+      if (user.email_verified) {
+        nav({ to: "/home", replace: true });
+      } else {
+        nav({ to: "/verify-email", replace: true });
+      }
+    }
+  }, [user, loading, nav]);
+
+  if (loading) {
+    return <SpotliteLoader message="Verifying session…" subMessage="SpotLite Intelligence" />;
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -43,36 +71,25 @@ function Login() {
       // Check email verification
       const { auth } = await import("@/firebase/firebase");
       const currentUser = auth.currentUser;
+      if (currentUser) {
+        try {
+          await currentUser.reload();
+        } catch {
+          // ignore reload error
+        }
+      }
 
       if (currentUser && !currentUser.emailVerified) {
         nav({ to: "/verify-email" });
         return;
       }
 
-      // Fetch fresh user profile to check profile_completed
-      // (the AuthContext sync may still be in progress, so we fetch directly)
-      const { api } = await import("@/lib/api");
-      try {
-        const backendUser = await api.get<{ profile_completed: boolean }>("/api/auth/me");
-        if (backendUser.profile_completed) {
-          nav({ to: "/home", replace: true });
-        } else {
-          nav({ to: "/onboarding", replace: true });
-        }
-      } catch {
-        // If /api/auth/me fails, try refreshing user from context
-        await refreshUser();
-        if (user?.profile_completed) {
-          nav({ to: "/home", replace: true });
-        } else {
-          nav({ to: "/onboarding", replace: true });
-        }
-      }
+      // Deferred onboarding: go straight to dashboard home
+      nav({ to: "/home", replace: true });
     } catch (err: unknown) {
       const msg =
         err instanceof Error ? err.message : "Login failed. Please try again.";
 
-      // Map Firebase error codes to user-friendly messages
       if (msg.includes("auth/invalid-credential") || msg.includes("auth/wrong-password")) {
         toast.error("Invalid email or password.");
       } else if (msg.includes("auth/user-not-found")) {
@@ -87,152 +104,154 @@ function Login() {
     }
   }
 
+  async function handleForgotPassword(e: React.MouseEvent) {
+    e.preventDefault();
+    if (!email.trim()) {
+      toast.error("Please enter your email address first, then click 'Forgot password?'.");
+      return;
+    }
+    try {
+      await resetPassword(email.trim());
+      toast.success("Password reset link sent.", {
+        description: `Check ${email.trim()} for password reset instructions.`,
+      });
+    } catch {
+      toast.error("Failed to send reset email. Please try again.");
+    }
+  }
+
   return (
-    <div className="grid min-h-screen md:grid-cols-2">
-      {/* ---- Left hero panel (desktop) ---- */}
-      <div className="relative hidden flex-col justify-between bg-brand p-10 text-on-brand md:flex">
-        <div className="flex items-center gap-2">
-          <Sparkles className="h-5 w-5" />
-          <span className="font-display text-xl font-bold">Spotlite</span>
-        </div>
-        <div>
-          <h2 className="font-display text-4xl font-bold leading-tight">
-            See the money
-            <br />
-            you're missing.
-          </h2>
-          <ul className="mt-8 space-y-3 text-sm opacity-90">
-            <li>• Bank-grade security</li>
-            <li>• You own your data</li>
-            <li>• DPDP Act 2023 compliant</li>
-          </ul>
-        </div>
-        <p className="text-xs opacity-70">Powered by RBI Account Aggregator (Phase 2)</p>
-      </div>
+    <div className="grid min-h-screen md:grid-cols-2 bg-background">
+      {/* ---- Left hero panel (desktop) - Stable anchor across auth pages ---- */}
+      <AuthHeroPanel />
 
       {/* ---- Right form panel ---- */}
-      <div className="flex flex-col justify-center px-6 py-12 md:px-16">
-        <div className="md:hidden mb-8 flex items-center gap-2 text-brand">
-          <Sparkles className="h-5 w-5" />
-          <span className="font-display text-lg font-bold">Spotlite</span>
-        </div>
+      <div className="flex flex-col justify-center px-6 py-12 sm:px-12 md:px-16 lg:px-20">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.18, ease: "easeOut" }}
+          className="mx-auto w-full max-w-md"
+        >
+          {/* Mobile Brand Header */}
+          <Link to="/" className="md:hidden mb-8 flex items-center gap-2.5 w-fit">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-white shadow-md shadow-primary/25">
+              <Zap size={18} className="fill-current text-white" />
+            </div>
+            <div className="flex flex-col">
+              <span className="text-lg font-extrabold tracking-tight text-foreground">
+                Spot<span className="text-primary">Lite</span>
+              </span>
+              <span className="text-[9px] font-semibold uppercase tracking-widest text-muted-foreground -mt-1">
+                Intelligence
+              </span>
+            </div>
+          </Link>
 
-        <h1 className="font-display text-3xl font-bold">Welcome back</h1>
-        <p className="mt-1 text-text-secondary">
-          Log in to see your money.
-        </p>
-
-        <div className="mt-8">
-          <GoogleSignInButton />
-        </div>
-
-        <div className="relative mt-6 flex items-center py-2">
-          <div className="flex-grow border-t border-border"></div>
-          <span className="shrink-0 px-4 text-xs text-text-secondary uppercase">Or continue with email</span>
-          <div className="flex-grow border-t border-border"></div>
-        </div>
-
-        <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-          {/* Email */}
-          <div className="space-y-1.5">
-            <label htmlFor="login-email" className="block text-xs font-medium text-text-secondary">
-              Email address
-            </label>
-            <input
-              id="login-email"
-              type="email"
-              required
-              autoComplete="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-pill border border-border bg-surface px-4 py-3 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
-              placeholder="you@example.com"
-            />
+          <div>
+            <h1 className="font-display text-3xl font-bold tracking-tight text-foreground">
+              Welcome back
+            </h1>
+            <p className="mt-2 text-sm text-text-secondary">
+              Sign in to access your executive intelligence portal.
+            </p>
           </div>
 
-          {/* Password */}
-          <div className="space-y-1.5">
-            <label htmlFor="login-password" className="block text-xs font-medium text-text-secondary">
-              Password
-            </label>
-            <div className="relative">
+          <div className="mt-8">
+            <GoogleSignInButton />
+          </div>
+
+          <div className="relative mt-6 flex items-center py-2">
+            <div className="flex-grow border-t border-border"></div>
+            <span className="shrink-0 px-4 text-xs font-semibold text-text-secondary uppercase tracking-wider">
+              Or continue with email
+            </span>
+            <div className="flex-grow border-t border-border"></div>
+          </div>
+
+          <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+            {/* Email */}
+            <div className="space-y-1.5">
+              <label htmlFor="login-email" className="block text-xs font-semibold text-text-secondary">
+                Work Email address
+              </label>
               <input
-                id="login-password"
-                type={showPwd ? "text" : "password"}
+                id="login-email"
+                type="email"
                 required
-                autoComplete="current-password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full rounded-pill border border-border bg-surface px-4 py-3 pr-12 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
-                placeholder="••••••••"
+                autoComplete="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full rounded-pill border border-border bg-surface px-4 py-3 text-sm text-foreground outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20 shadow-xs"
+                placeholder="name@company.com"
               />
+            </div>
+
+            {/* Password */}
+            <div className="space-y-1.5">
+              <label htmlFor="login-password" className="block text-xs font-semibold text-text-secondary">
+                Password
+              </label>
+              <div className="relative">
+                <input
+                  id="login-password"
+                  type={showPwd ? "text" : "password"}
+                  required
+                  autoComplete="current-password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full rounded-pill border border-border bg-surface px-4 py-3 pr-12 text-sm text-foreground outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20 shadow-xs"
+                  placeholder="••••••••"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPwd((v) => !v)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-text-secondary hover:text-text-primary cursor-pointer transition-colors"
+                  aria-label={showPwd ? "Hide password" : "Show password"}
+                >
+                  {showPwd ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+            </div>
+
+            {/* Forgot password */}
+            <div className="flex justify-end">
               <button
                 type="button"
-                onClick={() => setShowPwd((v) => !v)}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-text-secondary hover:text-text-primary"
-                aria-label={showPwd ? "Hide password" : "Show password"}
+                onClick={handleForgotPassword}
+                className="text-xs font-semibold text-brand hover:underline cursor-pointer transition-colors"
               >
-                {showPwd ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                Forgot password?
               </button>
             </div>
-          </div>
 
-          {/* Forgot password */}
-          <div className="text-right">
-            <Link
-              to="/login"
-              onClick={async (e) => {
-                e.preventDefault();
-                if (!email.trim()) {
-                  toast.error("Enter your email first, then click Forgot password.");
-                  return;
-                }
-                try {
-                  const { resetPassword } = await import("@/contexts/AuthContext").then(
-                    (m) => {
-                      // We can't call hook here — use the raw function instead
-                      throw new Error("use-raw");
-                    },
-                  ).catch(async () => {
-                    const { resetUserPassword } = await import("@/firebase/auth");
-                    return { resetPassword: resetUserPassword };
-                  });
-                  await resetPassword(email.trim());
-                  toast.success("Password reset email sent.", {
-                    description: `Check ${email.trim()} for the reset link.`,
-                  });
-                } catch (err) {
-                  toast.error("Failed to send reset email. Please try again.");
-                }
-              }}
-              className="text-xs font-semibold text-brand hover:underline"
+            {/* Submit */}
+            <button
+              type="submit"
+              disabled={submitting}
+              className="flex w-full items-center justify-center gap-2 rounded-pill bg-brand-gradient py-3 text-sm font-bold text-on-brand shadow-brand hover:opacity-95 active:scale-[0.99] transition-all disabled:opacity-60 cursor-pointer"
             >
-              Forgot password?
+              {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
+              {submitting ? "Signing in…" : "Sign in"}
+            </button>
+          </form>
+
+          {/* Signup link */}
+          <p className="mt-8 text-center text-sm text-text-secondary">
+            Don't have an account?{" "}
+            <Link
+              to="/signup"
+              preload="intent"
+              className="font-semibold text-brand hover:underline"
+            >
+              Create an account
             </Link>
-          </div>
+          </p>
 
-          {/* Submit */}
-          <button
-            type="submit"
-            disabled={submitting}
-            className="flex w-full items-center justify-center gap-2 rounded-pill bg-brand-gradient py-3 text-sm font-semibold text-on-brand shadow-brand disabled:opacity-60"
-          >
-            {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
-            {submitting ? "Signing in…" : "Sign in"}
-          </button>
-        </form>
-
-        {/* Signup link */}
-        <p className="mt-6 text-center text-sm text-text-secondary">
-          Don't have an account?{" "}
-          <Link to="/signup" className="font-semibold text-brand hover:underline">
-            Create one
-          </Link>
-        </p>
-
-        <p className="mt-4 flex items-center justify-center gap-1.5 text-xs text-text-secondary">
-          <Lock className="h-3 w-3" /> 256-bit encrypted
-        </p>
+          <p className="mt-6 flex items-center justify-center gap-1.5 text-xs text-text-secondary">
+            <Lock className="h-3 w-3" /> End-to-end 256-bit encrypted session
+          </p>
+        </motion.div>
       </div>
     </div>
   );

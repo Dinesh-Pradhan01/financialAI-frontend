@@ -2,7 +2,10 @@ import { useEffect, useState } from "react";
 import { useNavigate, useRouterState } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "framer-motion";
 import { Sparkles, X, Send, PlayCircle, Activity } from "lucide-react";
-import { useDemo } from "@/store/demo-store";
+import { useAppDispatch, useAppSelector } from "@/store";
+import { selectTourStep } from "@/store/selectors";
+import { startTour } from "@/store/slices/tourSlice";
+import { addMessage } from "@/store/slices/coachSlice";
 import { answerForQuestion } from "@/data/rohan";
 
 const HIDDEN_ROUTES = ["/", "/login", "/consent", "/upload", "/processing"];
@@ -16,7 +19,8 @@ const statuses = [
 
 export function SpotliteAgentDock() {
   const nav = useNavigate();
-  const { startTour, tourStep, setConversation } = useDemo();
+  const dispatch = useAppDispatch();
+  const tourStep = useAppSelector(selectTourStep);
   const path = useRouterState({ select: (r) => r.location.pathname });
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState("");
@@ -32,11 +36,8 @@ export function SpotliteAgentDock() {
 
   function ask(question: string) {
     if (!question.trim()) return;
-    setConversation((prev) => [
-      ...prev,
-      { who: "user", text: question },
-      { who: "bot", answer: answerForQuestion(question) },
-    ]);
+    dispatch(addMessage({ who: "user", text: question }));
+    dispatch(addMessage({ who: "bot", answer: answerForQuestion(question) }));
     setQ("");
     setOpen(false);
     nav({ to: "/coach" });
@@ -104,7 +105,7 @@ export function SpotliteAgentDock() {
               <button
                 onClick={() => {
                   setOpen(false);
-                  startTour();
+                  dispatch(startTour());
                 }}
                 className="flex w-full items-center justify-center gap-2 rounded-pill bg-brand-gradient py-2.5 text-sm font-semibold text-on-brand shadow-brand"
               >

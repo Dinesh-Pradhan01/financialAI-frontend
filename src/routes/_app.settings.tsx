@@ -1,12 +1,19 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Globe, Bell, MessageCircle, Lock, Download, Trash2, ShieldCheck, UserPlus } from "lucide-react";
+import { Globe, Bell, MessageCircle, Lock, Download, Trash2, ShieldCheck, UserPlus, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Switch } from "@/components/ui/switch";
 import { languages, channels } from "@/data/agentic";
-import { useDemo } from "@/store/demo-store";
+import { useAppDispatch, useAppSelector } from "@/store";
+import { selectLanguage, selectChannel, selectNotificationsOn } from "@/store/selectors";
+import { setLanguage, setChannel, setNotificationsOn, resetPreferences } from "@/store/slices/preferencesSlice";
+import { resetSpotlights } from "@/store/slices/spotlightsSlice";
+import { resetNotifications } from "@/store/slices/notificationsSlice";
+import { clearConversation } from "@/store/slices/coachSlice";
+import { resetTour, dismissIntro } from "@/store/slices/tourSlice";
 import { InviteModal } from "@/components/spotlite/invite-modal";
+import { useAuth } from "@/contexts/AuthContext";
 
 export const Route = createFileRoute("/_app/settings")({
   head: () => ({
@@ -23,17 +30,38 @@ export const Route = createFileRoute("/_app/settings")({
 
 function Settings() {
   const nav = useNavigate();
-  const {
-    language,
-    setLanguage,
-    channel,
-    setChannel,
-    notificationsOn,
-    setNotificationsOn,
-    resetAll,
-  } = useDemo();
+  const dispatch = useAppDispatch();
+  const { user, logout } = useAuth();
+  const language = useAppSelector(selectLanguage);
+  const channel = useAppSelector(selectChannel);
+  const notificationsOn = useAppSelector(selectNotificationsOn);
+
+  const resetAll = () => {
+    dispatch(resetSpotlights());
+    dispatch(resetPreferences());
+    dispatch(resetNotifications());
+    dispatch(clearConversation());
+    dispatch(resetTour());
+    dispatch(dismissIntro());
+  };
+
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [inviteModalOpen, setInviteModalOpen] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
+
+  const handleLogout = async () => {
+    if (loggingOut) return;
+    setLoggingOut(true);
+    try {
+      await logout();
+      toast.success("Logged out successfully.");
+      nav({ to: "/login", replace: true });
+    } catch {
+      toast.error("Logout failed. Please try again.");
+    } finally {
+      setLoggingOut(false);
+    }
+  };
 
   return (
     <div className="mx-auto max-w-2xl px-5 py-6 md:px-10">
@@ -47,7 +75,7 @@ function Settings() {
           value={language}
           options={languages.map((l) => ({ value: l.code, label: l.label }))}
           onChange={(v) => {
-            setLanguage(v);
+            dispatch(setLanguage(v));
             toast.success("Language updated", {
               description: languages.find((l) => l.code === v)?.label,
             });
@@ -60,7 +88,7 @@ function Settings() {
           <Switch
             checked={notificationsOn}
             onCheckedChange={(v) => {
-              setNotificationsOn(v);
+              dispatch(setNotificationsOn(v));
               toast(v ? "Notifications on" : "Notifications off");
             }}
           />
@@ -71,7 +99,7 @@ function Settings() {
           value={channel}
           options={channels.map((c) => ({ value: c, label: c }))}
           onChange={(v) => {
-            setChannel(v);
+            dispatch(setChannel(v));
             toast.success("Channel updated", { description: `We'll reach you on ${v}` });
           }}
         />
@@ -128,9 +156,15 @@ function Settings() {
       </p>
 
       <div className="mt-8 text-center">
-        <Link to="/" className="text-sm font-medium text-text-secondary underline">
-          Log out
-        </Link>
+        <button
+          type="button"
+          onClick={handleLogout}
+          disabled={loggingOut}
+          className="inline-flex items-center justify-center gap-2 text-sm font-semibold text-destructive hover:underline cursor-pointer disabled:opacity-60"
+        >
+          {loggingOut && <Loader2 className="h-4 w-4 animate-spin" />}
+          {loggingOut ? "Signing out of SpotLite…" : "Sign out of SpotLite"}
+        </button>
       </div>
 
       {confirmDelete && (

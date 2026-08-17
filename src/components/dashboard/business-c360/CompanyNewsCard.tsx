@@ -1,66 +1,99 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useCompanyNews } from '@/hooks/useCompanyAPI';
-import { Newspaper, ExternalLink, RefreshCw } from 'lucide-react';
+import { useCompanyNews, isSetupRequiredError } from '@/hooks/useCompanyAPI';
+import { Newspaper, ExternalLink, RefreshCw, AlertCircle, Sparkles, ArrowRight } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Link } from '@tanstack/react-router';
 
-export const CompanyNewsCard = () => {
-  const { data, isLoading, isError, refetch, isFetching } = useCompanyNews();
+interface Props {
+  hasProfile?: boolean;
+}
+
+export const CompanyNewsCard = ({ hasProfile = true }: Props) => {
+  const { data, isLoading, isError, error, refetch, isFetching } = useCompanyNews({
+    enabled: hasProfile,
+  });
 
   return (
-    <Card className="h-[450px] flex flex-col border-none shadow-lg bg-card">
-      <CardHeader>
-        <CardTitle className="flex items-center justify-between text-xl">
+    <Card className="h-[450px] flex flex-col border border-border/70 shadow-sm bg-card">
+      <CardHeader className="pb-3">
+        <CardTitle className="flex items-center justify-between text-lg font-bold tracking-tight">
           <div className="flex items-center gap-2">
-            <Newspaper className="w-5 h-5 text-indigo-500" />
+            <Newspaper className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
             Company News
           </div>
-          <button 
-            onClick={() => refetch()} 
-            className="p-1 rounded-md hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
-            title="Refresh News"
-          >
-            <RefreshCw className={`w-4 h-4 ${isFetching ? 'animate-spin' : ''}`} />
-          </button>
+          {hasProfile && !isLoading && (
+            <button 
+              onClick={() => refetch()} 
+              disabled={isFetching}
+              className="p-1 rounded-md hover:bg-muted transition-colors text-muted-foreground hover:text-foreground cursor-pointer"
+              title="Refresh News"
+            >
+              <RefreshCw className={`w-4 h-4 ${isFetching ? 'animate-spin' : ''}`} />
+            </button>
+          )}
         </CardTitle>
       </CardHeader>
-      <CardContent className="flex-1 overflow-hidden p-0 px-6 pb-6">
-        {isLoading || isFetching ? (
-          <div className="space-y-4 pt-4">
+      <CardContent className="flex-1 overflow-hidden p-0 px-6 pb-6 flex flex-col justify-between">
+        {isLoading || (hasProfile && isFetching && !data) ? (
+          <div className="space-y-4 pt-3">
             <Skeleton className="h-24 w-full rounded-xl" />
             <Skeleton className="h-24 w-full rounded-xl" />
+          </div>
+        ) : !hasProfile || (isError && isSetupRequiredError(error)) ? (
+          /* State: Setup Required (Expected empty state) */
+          <div className="flex flex-col items-center justify-center p-6 text-center space-y-4 h-full my-auto">
+            <div className="w-14 h-14 rounded-2xl bg-indigo-500/10 text-indigo-600 flex items-center justify-center">
+              <Newspaper className="w-7 h-7" />
+            </div>
+            <div className="space-y-1.5 max-w-xs">
+              <h3 className="font-bold text-base text-foreground">Curated Industry News</h3>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                Market trends and relevant company news will be aggregated automatically once your industry is configured.
+              </p>
+            </div>
+            <Link to="/onboarding">
+              <Button size="sm" variant="outline" className="rounded-pill text-xs font-semibold gap-1.5 cursor-pointer mt-1">
+                Complete Setup <ArrowRight className="w-3.5 h-3.5" />
+              </Button>
+            </Link>
           </div>
         ) : isError || !data ? (
-          <div className="flex flex-col items-center justify-center p-6 text-center space-y-4 h-full">
-            <Newspaper className="w-12 h-12 text-red-400" />
-            <div className="space-y-1">
-              <h3 className="font-medium">Failed to load news</h3>
-              <p className="text-sm text-muted-foreground">We couldn't fetch the latest company news.</p>
+          /* State: Genuine API failure */
+          <div className="flex flex-col items-center justify-center p-6 text-center space-y-3.5 h-full my-auto">
+            <div className="w-12 h-12 rounded-xl bg-destructive/10 text-destructive flex items-center justify-center">
+              <AlertCircle className="w-6 h-6" />
             </div>
-            <button onClick={() => refetch()} className="text-sm text-blue-500 hover:underline">
+            <div className="space-y-1">
+              <h3 className="font-semibold text-sm text-foreground">Could not load news</h3>
+              <p className="text-xs text-muted-foreground">Server error while fetching news feeds.</p>
+            </div>
+            <Button size="sm" variant="outline" onClick={() => refetch()} className="cursor-pointer">
               Try again
-            </button>
+            </Button>
           </div>
         ) : (
-          <div className="space-y-4 h-full overflow-y-auto pr-2 pt-4 custom-scrollbar">
+          /* State: Ready */
+          <div className="space-y-3 h-full overflow-y-auto pr-1 pt-2 custom-scrollbar">
             {data.length === 0 ? (
-              <div className="text-center p-6 text-muted-foreground text-sm">
+              <div className="text-center p-6 text-muted-foreground text-xs my-auto">
                 No recent news found for this company or industry.
               </div>
             ) : (
               data.map((news) => (
-                <div key={news.id} className="group p-4 rounded-xl border bg-card hover:bg-muted/30 transition-colors cursor-pointer">
-                  <div className="flex items-center justify-between mb-2">
-                    <Badge variant="outline" className="text-xs font-normal">
+                <div key={news.id} className="group p-3.5 rounded-xl border border-border/50 bg-card hover:bg-muted/30 transition-colors">
+                  <div className="flex items-center justify-between mb-1.5">
+                    <Badge variant="outline" className="text-[10px] font-normal px-2 py-0">
                       {news.source}
                     </Badge>
-                    <span className="text-xs text-muted-foreground">{news.date}</span>
+                    <span className="text-[10px] text-muted-foreground">{news.date}</span>
                   </div>
-                  <h4 className="font-semibold text-sm mb-2 group-hover:text-blue-500 transition-colors line-clamp-2">
+                  <h4 className="font-semibold text-xs mb-1.5 group-hover:text-primary transition-colors line-clamp-2">
                     {news.headline}
                   </h4>
-                  <p className="text-xs text-muted-foreground line-clamp-2">
+                  <p className="text-[11px] text-muted-foreground line-clamp-2 leading-relaxed">
                     {news.summary}
                   </p>
                 </div>

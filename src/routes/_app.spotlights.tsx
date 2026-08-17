@@ -6,7 +6,8 @@ import { AgentNarration } from "@/components/spotlite/agent-narration";
 import { BlindSpotMeter } from "@/components/spotlite/blind-spot-meter";
 import { ExplainTip } from "@/components/spotlite/explain-tip";
 import { explainers } from "@/data/agentic";
-import { useDemo } from "@/store/demo-store";
+import { useAppSelector } from "@/store";
+import { selectMoneyFound, selectApplied } from "@/store/selectors";
 
 export const Route = createFileRoute("/_app/spotlights")({
   head: () => ({
@@ -28,7 +29,8 @@ const sections: { key: SpotlightBucket; title: string; caption: string }[] = [
 ];
 
 function Spotlights() {
-  const { moneyFound, applied } = useDemo();
+  const moneyFound = useAppSelector(selectMoneyFound);
+  const applied = useAppSelector(selectApplied);
 
   return (
     <div className="px-5 py-6 md:px-10">

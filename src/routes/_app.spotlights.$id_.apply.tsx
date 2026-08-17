@@ -7,7 +7,8 @@ import { formatINR } from "@/lib/format";
 import { IconChip } from "@/lib/icons";
 import { AgentBadge } from "@/components/spotlite/agent-narration";
 import { Confetti } from "@/components/spotlite/confetti";
-import { useDemo } from "@/store/demo-store";
+import { useAppDispatch } from "@/store";
+import { applyTrigger } from "@/store/slices/spotlightsSlice";
 
 export const Route = createFileRoute("/_app/spotlights/$id_/apply")({
   head: () => ({
@@ -205,7 +206,7 @@ function configFor(id: string): ApplyConfig {
 
 function Apply() {
   const { id } = Route.useParams();
-  const { applyTrigger } = useDemo();
+  const dispatch = useAppDispatch();
   const t = spotlightById(id);
   const cfg = useMemo(() => configFor(id), [id]);
   const [vals, setVals] = useState<Record<string, number>>(() =>
@@ -219,7 +220,7 @@ function Apply() {
   const ref = `SPL-${t.id.toUpperCase()}-${String(Math.floor(Math.random() * 9000) + 1000)}`;
 
   function confirm() {
-    applyTrigger(t!.id);
+    dispatch(applyTrigger(t!.id));
     setDone(true);
     toast.success(`${t!.recommendation.product} started`, {
       description: "The Interaction Agent will keep you posted. Wellness score updated.",

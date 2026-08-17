@@ -4,7 +4,9 @@ import { formatINR } from "@/lib/format";
 import { IconChip } from "@/lib/icons";
 import { AgentNarration } from "@/components/spotlite/agent-narration";
 import { ExplainTip } from "@/components/spotlite/explain-tip";
-import { useDemo } from "@/store/demo-store";
+import { useAppDispatch, useAppSelector } from "@/store";
+import { selectTimeframe } from "@/store/selectors";
+import { setTimeframe } from "@/store/slices/preferencesSlice";
 import { timeframeFactors, explainers } from "@/data/agentic";
 import { cn } from "@/lib/utils";
 
@@ -33,7 +35,8 @@ export const Route = createFileRoute("/_app/spending")({
 const TIMEFRAMES = ["3M", "6M", "12M"];
 
 function Spending() {
-  const { timeframe, setTimeframe } = useDemo();
+  const dispatch = useAppDispatch();
+  const timeframe = useAppSelector(selectTimeframe);
   const factor = timeframeFactors[timeframe] ?? 1;
   const cats = rohan.categories.map((c) => ({ ...c, amount: Math.round(c.amount * factor) }));
   const total = cats.reduce((sum, c) => sum + c.amount, 0);
@@ -48,7 +51,7 @@ function Spending() {
           {TIMEFRAMES.map((tf) => (
             <button
               key={tf}
-              onClick={() => setTimeframe(tf)}
+              onClick={() => dispatch(setTimeframe(tf))}
               className={cn(
                 "rounded-pill px-3 py-1 text-xs font-semibold transition",
                 timeframe === tf ? "bg-brand text-on-brand shadow-e1" : "text-text-secondary",

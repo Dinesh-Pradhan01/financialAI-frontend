@@ -1,8 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { UserPlus, Mail, Shield, Check, Copy, X, Loader2, Sparkles, Clock } from "lucide-react";
 import { toast } from "sonner";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
+import { queryKeys } from "@/lib/queryKeys";
 
 interface InviteModalProps {
   isOpen: boolean;
@@ -13,47 +15,23 @@ export function InviteModal({ isOpen, onClose }: InviteModalProps) {
   const [email, setEmail] = useState("");
   const [fullName, setFullName] = useState("");
   const [role, setRole] = useState<"cfo" | "hr">("cfo");
-  const [submitting, setSubmitting] = useState(false);
   const [lastInviteLink, setLastInviteLink] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
-  
-  const [invites, setInvites] = useState<any[]>([]);
-  const [loadingInvites, setLoadingInvites] = useState(false);
 
-  const fetchInvites = async () => {
-    setLoadingInvites(true);
-    try {
-      const res = await api.get<any[]>("/api/auth/invites");
-      setInvites(res || []);
-    } catch (e) {
-      console.error("Failed to load invites:", e);
-    } finally {
-      setLoadingInvites(false);
-    }
-  };
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    if (isOpen) {
-      fetchInvites();
-      setLastInviteLink(null);
-    }
-  }, [isOpen]);
+  const { data: invites = [], isLoading: loadingInvites } = useQuery({
+    queryKey: queryKeys.auth.invites(),
+    queryFn: () => api.get<any[]>("/api/auth/invites"),
+    enabled: isOpen,
+    staleTime: 60 * 1000,
+  });
 
-  const handleSendInvite = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email) return;
-
-    setSubmitting(true);
-    setLastInviteLink(null);
-
-    try {
-      const res = await api.post<any>("/api/auth/invite", {
-        email,
-        role,
-        full_name: fullName,
-      });
-
-      toast.success(`Invitation sent to ${email} as ${role.toUpperCase()}`);
+  const sendInviteMutation = useMutation({
+    mutationFn: (payload: { email: string; role: string; full_name: string }) =>
+      api.post<any>("/api/auth/invite", payload),
+    onSuccess: (res, vars) => {
+      toast.success(`Invitation sent to ${vars.email} as ${vars.role.toUpperCase()}`);
       if (res.invite_link) {
         setLastInviteLink(res.invite_link);
       } else if (res.invite_token) {
@@ -61,14 +39,23 @@ export function InviteModal({ isOpen, onClose }: InviteModalProps) {
       }
       setEmail("");
       setFullName("");
-      fetchInvites();
-    } catch (err: any) {
+      queryClient.invalidateQueries({ queryKey: queryKeys.auth.invites() });
+    },
+    onError: (err: any) => {
       console.error(err);
       toast.error(err.message || "Failed to send invitation");
-    } finally {
-      setSubmitting(false);
-    }
+    },
+  });
+
+  const handleSendInvite = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) return;
+
+    setLastInviteLink(null);
+    sendInviteMutation.mutate({ email, role, full_name: fullName });
   };
+
+  const submitting = sendInviteMutation.isPending;
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);

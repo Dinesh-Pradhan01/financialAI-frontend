@@ -2,17 +2,21 @@ import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Bell } from "lucide-react";
 import { agentByKey } from "@/data/agentic";
-import { useDemo } from "@/store/demo-store";
+import { useAppDispatch, useAppSelector } from "@/store";
+import { selectNotifications, selectNotificationsRead } from "@/store/selectors";
+import { markNotificationsRead } from "@/store/slices/notificationsSlice";
 
 export function NotificationsBell() {
-  const { notifications, notificationsRead, markNotificationsRead } = useDemo();
+  const dispatch = useAppDispatch();
+  const notifications = useAppSelector(selectNotifications);
+  const notificationsRead = useAppSelector(selectNotificationsRead);
   const [open, setOpen] = useState(false);
   const unread = notificationsRead ? 0 : notifications.length;
 
   function toggle() {
     setOpen((o) => {
       const next = !o;
-      if (next) markNotificationsRead();
+      if (next) dispatch(markNotificationsRead());
       return next;
     });
   }

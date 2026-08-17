@@ -1,12 +1,47 @@
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
+  signInWithPopup,
   signOut,
   sendPasswordResetEmail,
   sendEmailVerification,
   type User,
 } from "firebase/auth";
-import { auth } from "./firebase";
+import { auth, googleProvider } from "./firebase";
+
+/**
+ * Wait for Firebase Auth persistence to restore credentials from IndexedDB.
+ * Uses the official auth.authStateReady() API when available.
+ */
+export async function waitForAuth(): Promise<User | null> {
+  if (typeof auth.authStateReady === "function") {
+    await auth.authStateReady();
+    return auth.currentUser;
+  }
+  if (auth.currentUser) return auth.currentUser;
+
+  return new Promise((resolve) => {
+    let timer: ReturnType<typeof setTimeout>;
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (timer) clearTimeout(timer);
+      unsubscribe();
+      resolve(user);
+    });
+    timer = setTimeout(() => {
+      unsubscribe();
+      resolve(auth.currentUser);
+    }, 4000);
+  });
+}
+
+/**
+ * Sign in with Google Popup.
+ * Returns the Firebase User object.
+ */
+export async function signInWithGoogle(): Promise<User> {
+  const credential = await signInWithPopup(auth, googleProvider);
+  return credential.user;
+}
 
 /**
  * Create a new user with email/password and immediately send a verification email.
@@ -58,7 +93,7 @@ export async function resetUserPassword(email: string): Promise<void> {
  * Throws if no user is signed in.
  */
 export async function resendVerification(): Promise<void> {
-  const user = auth.currentUser;
+  const user = auth.currentUser ?? (await waitForAuth());
   if (!user) {
     throw new Error("No authenticated user to send verification email to.");
   }
@@ -73,6 +108,9 @@ export async function resendVerification(): Promise<void> {
 export async function getIdToken(
   forceRefresh = false,
 ): Promise<string | null> {
+  if (typeof auth.authStateReady === "function") {
+    await auth.authStateReady();
+  }
   const user = auth.currentUser;
   if (!user) return null;
   return user.getIdToken(forceRefresh);

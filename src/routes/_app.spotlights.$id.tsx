@@ -8,7 +8,9 @@ import { SeverityBadge } from "@/components/spotlite/spotlight-card";
 import { IconChip, channelKey } from "@/lib/icons";
 import { AgentBadge, ConfidenceMeter, AgentNarration } from "@/components/spotlite/agent-narration";
 import { FinancialFuture } from "@/components/spotlite/financial-future";
-import { useDemo } from "@/store/demo-store";
+import { useAppDispatch, useAppSelector } from "@/store";
+import { selectIsApplied } from "@/store/selectors";
+import { snoozeTrigger } from "@/store/slices/spotlightsSlice";
 
 export const Route = createFileRoute("/_app/spotlights/$id")({
   head: () => ({
@@ -26,7 +28,8 @@ export const Route = createFileRoute("/_app/spotlights/$id")({
 function SpotlightDetail() {
   const { id } = Route.useParams();
   const nav = useNavigate();
-  const { isApplied, snoozeTrigger } = useDemo();
+  const dispatch = useAppDispatch();
+  const applied = useAppSelector(selectIsApplied(id));
   const t = spotlightById(id);
   if (!t)
     return (
@@ -38,12 +41,11 @@ function SpotlightDetail() {
       </div>
     );
 
-  const applied = isApplied(t.id);
   const isLoss = t.amountLabel === "lost" || t.amountLabel === "missed";
   const confidence = t.confidence ?? 80;
 
   function snooze() {
-    snoozeTrigger(t!.id);
+    dispatch(snoozeTrigger(t!.id));
     toast("Snoozed", {
       description: `The Learning Agent noted this. We'll resurface ${t!.product} later.`,
     });

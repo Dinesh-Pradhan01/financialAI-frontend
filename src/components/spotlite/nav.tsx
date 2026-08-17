@@ -1,8 +1,10 @@
 import { useState } from "react";
-import { Link, useRouterState } from "@tanstack/react-router";
-import { Home, BarChart3, Zap, MessageCircle, User, Settings, Sparkles, UserPlus } from "lucide-react";
+import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
+import { Home, BarChart3, Zap, MessageCircle, User, Settings, Sparkles, UserPlus, LogOut, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { useDemo } from "@/store/demo-store";
+import { useAppSelector } from "@/store";
+import { selectHighPriorityCount, selectLanguage } from "@/store/selectors";
 import { languages } from "@/data/agentic";
 import { useAuth } from "@/contexts/AuthContext";
 import { InviteModal } from "./invite-modal";
@@ -22,7 +24,7 @@ function useActive() {
 
 export function BottomTabBar() {
   const isActive = useActive();
-  const { highPriorityCount } = useDemo();
+  const highPriorityCount = useAppSelector(selectHighPriorityCount);
   const { user } = useAuth();
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const isCeoOrAdmin = !user?.role || user.role === "ceo" || user.role === "admin" || user.role === "user";
@@ -66,20 +68,44 @@ export function BottomTabBar() {
 }
 
 export function DesktopSidebar() {
+  const nav = useNavigate();
   const isActive = useActive();
-  const { highPriorityCount, language } = useDemo();
-  const { user } = useAuth();
+  const highPriorityCount = useAppSelector(selectHighPriorityCount);
+  const language = useAppSelector(selectLanguage);
+  const { user, logout } = useAuth();
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
   const isCeoOrAdmin = !user?.role || user.role === "ceo" || user.role === "admin" || user.role === "user";
+
+  const handleLogout = async () => {
+    if (loggingOut) return;
+    setLoggingOut(true);
+    try {
+      await logout();
+      toast.success("Logged out successfully.");
+      nav({ to: "/login", replace: true });
+    } catch {
+      toast.error("Logout failed. Please try again.");
+    } finally {
+      setLoggingOut(false);
+    }
+  };
 
   return (
     <>
       <aside className="sticky top-0 hidden h-screen w-60 shrink-0 flex-col border-r border-border bg-surface px-4 py-6 md:flex">
-        <Link to="/home" className="mb-6 flex items-center gap-2 px-2">
-          <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-brand-gradient text-on-brand">
-            <Sparkles className="h-4 w-4" />
-          </span>
-          <span className="font-display text-lg font-bold tracking-tight">Spotlite</span>
+        <Link to="/home" className="mb-6 flex items-center gap-2.5 px-2">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-white shadow-sm">
+            <Zap size={18} className="fill-current text-white" />
+          </div>
+          <div className="flex flex-col">
+            <span className="font-display text-lg font-bold tracking-tight text-foreground">
+              Spot<span className="text-primary">Lite</span>
+            </span>
+            <span className="text-[9px] font-bold uppercase tracking-widest text-text-tertiary -mt-1">
+              Intelligence
+            </span>
+          </div>
         </Link>
         <ul className="space-y-1">
           {items.map((it) => {
@@ -114,7 +140,7 @@ export function DesktopSidebar() {
           <div className="mt-4">
             <button
               onClick={() => setIsInviteModalOpen(true)}
-              className="w-full flex items-center justify-center gap-2 rounded-xl bg-brand/10 hover:bg-brand/20 text-brand py-2.5 px-3 text-xs font-bold transition border border-brand/20 shadow-sm group"
+              className="w-full flex items-center justify-center gap-2 rounded-xl bg-brand/10 hover:bg-brand/20 text-brand py-2.5 px-3 text-xs font-bold transition border border-brand/20 shadow-sm group cursor-pointer"
             >
               <UserPlus className="h-4 w-4 transition-transform group-hover:scale-110" />
               Invite HR / CFO
@@ -135,13 +161,48 @@ export function DesktopSidebar() {
           <Settings className="h-4 w-4" />
           Settings
         </Link>
-        <div className="mt-auto pt-4 text-xs text-text-secondary">
-          <p>{languages.find((l) => l.code === language)?.label ?? "English"}</p>
-          <p className="mt-1">Trust Center · DPDP-ready</p>
-        </div>
+
+        {/* User Profile Card & Logout */}
+        {user && (
+          <div className="mt-auto pt-4 border-t border-border space-y-3">
+            <div className="flex items-center justify-between gap-2 p-2 rounded-xl bg-surface-alt border border-border/50">
+              <div className="flex items-center gap-2 min-w-0">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-brand text-white font-bold text-xs uppercase shadow-xs">
+                  {user.full_name ? user.full_name[0] : user.email[0]}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-xs font-semibold text-text-primary">
+                    {user.full_name || user.email.split("@")[0]}
+                  </p>
+                  <span className="inline-block rounded-full bg-brand/10 px-1.5 py-0.2 text-[9px] font-bold text-brand uppercase tracking-wider">
+                    {user.role}
+                  </span>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={handleLogout}
+                disabled={loggingOut}
+                title={loggingOut ? "Signing out…" : "Log out"}
+                className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-text-secondary hover:bg-destructive/10 hover:text-destructive transition cursor-pointer disabled:opacity-50"
+              >
+                {loggingOut ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin text-destructive" />
+                ) : (
+                  <LogOut className="h-3.5 w-3.5" />
+                )}
+              </button>
+            </div>
+            <div className="px-1 text-[11px] text-text-secondary">
+              <p>{languages.find((l) => l.code === language)?.label ?? "English"}</p>
+              <p className="mt-0.5 text-[10px] text-text-secondary/70">Trust Center · DPDP-ready</p>
+            </div>
+          </div>
+        )}
       </aside>
 
       <InviteModal isOpen={isInviteModalOpen} onClose={() => setIsInviteModalOpen(false)} />
     </>
   );
 }
+

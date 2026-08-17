@@ -1,42 +1,65 @@
+import { useCallback, type ReactNode } from "react";
+import { useAppDispatch, useAppSelector } from "./index";
 import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-  type ReactNode,
-} from "react";
-import { rohan } from "@/data/rohan";
-import { seedNotifications, type NotificationItem } from "@/data/agentic";
+  selectApplied,
+  selectSnoozed,
+  selectLanguage,
+  selectChannel,
+  selectNotificationsOn,
+  selectTimeframe,
+  selectNotifications,
+  selectNotificationsRead,
+  selectConversation,
+  selectSeenIntro,
+  selectTourStep,
+  selectMoneyFound,
+  selectWellness,
+  selectHighPriorityCount,
+} from "./selectors";
+import {
+  applyTrigger as applyTriggerAction,
+  snoozeTrigger as snoozeTriggerAction,
+  resetSpotlights,
+} from "./slices/spotlightsSlice";
+import {
+  setLanguage as setLanguageAction,
+  setChannel as setChannelAction,
+  setNotificationsOn as setNotificationsOnAction,
+  setTimeframe as setTimeframeAction,
+  resetPreferences,
+} from "./slices/preferencesSlice";
+import {
+  markNotificationsRead as markNotificationsReadAction,
+  resetNotifications,
+} from "./slices/notificationsSlice";
+import {
+  setConversation as setConversationAction,
+  clearConversation,
+  type CoachMsg,
+} from "./slices/coachSlice";
+import {
+  dismissIntro as dismissIntroAction,
+  startTour as startTourAction,
+  setTourStep as setTourStepAction,
+  endTour as endTourAction,
+  resetTour,
+} from "./slices/tourSlice";
+import type { NotificationItem } from "@/data/agentic";
 
-// Spotlights whose rupee value rolls up into the headline "money found" number.
-// Keeps the hero figure at ₹1,17,000 to match the blueprint.
-const FOUND_IDS = ["fd", "travel-card", "home-loan"];
-const BASE_WELLNESS = 81;
+export type { CoachMsg, NotificationItem };
 
-export interface CoachMsg {
-  who: "user" | "bot";
-  text?: string;
-  // CoachAnswer is structurally typed where consumed; keep loose here.
-  answer?: unknown;
-}
-
-interface DemoState {
+export interface DemoContextValue {
   applied: string[];
   snoozed: string[];
-  language: string; // code
+  language: string;
   channel: string;
   notificationsOn: boolean;
-  timeframe: string; // "3M" | "6M" | "12M"
+  timeframe: string;
   notifications: NotificationItem[];
   notificationsRead: boolean;
   conversation: CoachMsg[];
   seenIntro: boolean;
-  tourStep: number; // -1 = inactive
-}
-
-interface DemoContextValue extends DemoState {
+  tourStep: number;
   moneyFound: number;
   wellness: number;
   highPriorityCount: number;
@@ -56,99 +79,92 @@ interface DemoContextValue extends DemoState {
   resetAll: () => void;
 }
 
-const defaultState: DemoState = {
-  applied: [],
-  snoozed: [],
-  language: "en",
-  channel: "WhatsApp",
-  notificationsOn: true,
-  timeframe: "12M",
-  notifications: seedNotifications,
-  notificationsRead: false,
-  conversation: [],
-  seenIntro: false,
-  tourStep: -1,
-};
-
-const STORAGE_KEY = "spotlite-demo";
-
-const DemoContext = createContext<DemoContextValue | null>(null);
-
-function loadInitial(): DemoState {
-  if (typeof window === "undefined") return defaultState;
-  try {
-    const raw = window.sessionStorage.getItem(STORAGE_KEY);
-    if (!raw) return defaultState;
-    return { ...defaultState, ...JSON.parse(raw) };
-  } catch {
-    return defaultState;
-  }
-}
-
-export function DemoStateProvider({ children }: { children: ReactNode }) {
-  // Render defaults on the server and the first client paint to avoid hydration
-  // mismatch, then hydrate from sessionStorage on mount.
-  const [state, setState] = useState<DemoState>(defaultState);
-  const [hydrated, setHydrated] = useState(false);
-
-  useEffect(() => {
-    setState(loadInitial());
-    setHydrated(true);
-  }, []);
-
-  useEffect(() => {
-    if (!hydrated || typeof window === "undefined") return;
-    try {
-      window.sessionStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    } catch {
-      /* ignore quota / privacy errors */
-    }
-  }, [state, hydrated]);
-
-  const patch = useCallback((p: Partial<DemoState>) => setState((s) => ({ ...s, ...p })), []);
-
-  const value = useMemo<DemoContextValue>(() => {
-    const moneyFound = rohan.spotlights
-      .filter((t) => FOUND_IDS.includes(t.id) && !state.applied.includes(t.id))
-      .reduce((sum, t) => sum + Math.abs(t.amount), 0);
-
-    const wellness = Math.min(92, BASE_WELLNESS + state.applied.length * 2);
-
-    const highPriorityCount = rohan.spotlights.filter(
-      (t) =>
-        t.severity === "high" && !state.applied.includes(t.id) && !state.snoozed.includes(t.id),
-    ).length;
-
-    return {
-      ...state,
-      moneyFound,
-      wellness,
-      highPriorityCount,
-      isApplied: (id) => state.applied.includes(id),
-      applyTrigger: (id) =>
-        setState((s) => (s.applied.includes(id) ? s : { ...s, applied: [...s.applied, id] })),
-      snoozeTrigger: (id) =>
-        setState((s) => (s.snoozed.includes(id) ? s : { ...s, snoozed: [...s.snoozed, id] })),
-      setLanguage: (code) => patch({ language: code }),
-      setChannel: (c) => patch({ channel: c }),
-      setNotificationsOn: (v) => patch({ notificationsOn: v }),
-      setTimeframe: (t) => patch({ timeframe: t }),
-      markNotificationsRead: () => patch({ notificationsRead: true }),
-      setConversation: (updater) =>
-        setState((s) => ({ ...s, conversation: updater(s.conversation) })),
-      dismissIntro: () => patch({ seenIntro: true }),
-      startTour: () => patch({ tourStep: 0, seenIntro: true }),
-      setTourStep: (n) => patch({ tourStep: n }),
-      endTour: () => patch({ tourStep: -1 }),
-      resetAll: () => setState({ ...defaultState, seenIntro: true }),
-    };
-  }, [state, patch]);
-
-  return <DemoContext.Provider value={value}>{children}</DemoContext.Provider>;
-}
-
+/**
+ * Hook backed directly by the Redux Toolkit store.
+ */
 export function useDemo(): DemoContextValue {
-  const ctx = useContext(DemoContext);
-  if (!ctx) throw new Error("useDemo must be used within DemoStateProvider");
-  return ctx;
+  const dispatch = useAppDispatch();
+
+  const applied = useAppSelector(selectApplied);
+  const snoozed = useAppSelector(selectSnoozed);
+  const language = useAppSelector(selectLanguage);
+  const channel = useAppSelector(selectChannel);
+  const notificationsOn = useAppSelector(selectNotificationsOn);
+  const timeframe = useAppSelector(selectTimeframe);
+  const notifications = useAppSelector(selectNotifications);
+  const notificationsRead = useAppSelector(selectNotificationsRead);
+  const conversation = useAppSelector(selectConversation);
+  const seenIntro = useAppSelector(selectSeenIntro);
+  const tourStep = useAppSelector(selectTourStep);
+  const moneyFound = useAppSelector(selectMoneyFound);
+  const wellness = useAppSelector(selectWellness);
+  const highPriorityCount = useAppSelector(selectHighPriorityCount);
+
+  const isApplied = useCallback((id: string) => applied.includes(id), [applied]);
+  const applyTrigger = useCallback((id: string) => dispatch(applyTriggerAction(id)), [dispatch]);
+  const snoozeTrigger = useCallback((id: string) => dispatch(snoozeTriggerAction(id)), [dispatch]);
+  const setLanguage = useCallback((code: string) => dispatch(setLanguageAction(code)), [dispatch]);
+  const setChannel = useCallback((c: string) => dispatch(setChannelAction(c)), [dispatch]);
+  const setNotificationsOn = useCallback((v: boolean) => dispatch(setNotificationsOnAction(v)), [dispatch]);
+  const setTimeframe = useCallback((t: string) => dispatch(setTimeframeAction(t)), [dispatch]);
+  const markNotificationsRead = useCallback(() => dispatch(markNotificationsReadAction()), [dispatch]);
+
+  const setConversation = useCallback(
+    (updater: (prev: CoachMsg[]) => CoachMsg[]) => {
+      dispatch(setConversationAction(updater(conversation)));
+    },
+    [dispatch, conversation]
+  );
+
+  const dismissIntro = useCallback(() => dispatch(dismissIntroAction()), [dispatch]);
+  const startTour = useCallback(() => dispatch(startTourAction()), [dispatch]);
+  const setTourStep = useCallback((n: number) => dispatch(setTourStepAction(n)), [dispatch]);
+  const endTour = useCallback(() => dispatch(endTourAction()), [dispatch]);
+
+  const resetAll = useCallback(() => {
+    dispatch(resetSpotlights());
+    dispatch(resetPreferences());
+    dispatch(resetNotifications());
+    dispatch(clearConversation());
+    dispatch(resetTour());
+    dispatch(dismissIntroAction());
+  }, [dispatch]);
+
+  return {
+    applied,
+    snoozed,
+    language,
+    channel,
+    notificationsOn,
+    timeframe,
+    notifications,
+    notificationsRead,
+    conversation,
+    seenIntro,
+    tourStep,
+    moneyFound,
+    wellness,
+    highPriorityCount,
+    isApplied,
+    applyTrigger,
+    snoozeTrigger,
+    setLanguage,
+    setChannel,
+    setNotificationsOn,
+    setTimeframe,
+    markNotificationsRead,
+    setConversation,
+    dismissIntro,
+    startTour,
+    setTourStep,
+    endTour,
+    resetAll,
+  };
+}
+
+/**
+ * Pass-through wrapper for legacy provider references.
+ */
+export function DemoStateProvider({ children }: { children: ReactNode }) {
+  return <>{children}</>;
 }

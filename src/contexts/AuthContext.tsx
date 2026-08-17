@@ -11,11 +11,13 @@ import { onAuthStateChanged, type User as FirebaseUser } from "firebase/auth";
 import { auth } from "../firebase/firebase";
 import {
   loginWithEmail,
+  signInWithGoogle,
   signUpWithEmail,
   logoutUser,
   resetUserPassword,
   resendVerification,
   getIdToken,
+  waitForAuth,
 } from "../firebase/auth";
 import { api } from "../lib/api";
 
@@ -29,6 +31,7 @@ export interface BackendUser {
   role: string;
   email_verified: boolean;
   person_id?: string;
+  business_id?: string;
   profile_completed?: boolean;
   full_name?: string;
 }
@@ -58,6 +61,8 @@ interface AuthContextValue {
   loading: boolean;
   /** Sign in with email + password. */
   login: (email: string, password: string) => Promise<void>;
+  /** Sign in with Google Popup. */
+  loginWithGoogle: () => Promise<BackendUser>;
   /** Create account + send verification email. */
   signup: (email: string, password: string) => Promise<void>;
   /** Sign out and clear in-memory state. */
@@ -99,20 +104,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const syncUserWithBackend = useCallback(async (fbUser: FirebaseUser): Promise<BackendUser> => {
     if (syncPromiseRef.current) {
-      console.log("[AuthContext] syncUserWithBackend: reusing existing promise");
       return syncPromiseRef.current;
     }
 
     const promise = (async () => {
-      // Call sync to ensure user exists in DB and get the secure session cookie
-      console.log("[AuthContext] syncUserWithBackend: calling /api/auth/sync...");
+      // Get fresh token directly from the resolved Firebase user object
+      const token = await fbUser.getIdToken();
       const backendUser = await api.post<BackendUser>(
         "/api/auth/sync",
         undefined,
-        { useFirebaseToken: true }
+        {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+          useFirebaseToken: false,
+        }
       );
-      console.log("[AuthContext] syncUserWithBackend: sync response profile_completed =", backendUser.profile_completed);
       setUser(backendUser);
+      setFirebaseUser(fbUser);
+      currentAuthSnapshot = { user: backendUser, firebaseUser: fbUser, loading: false };
       return backendUser;
     })();
 
@@ -124,52 +132,98 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       syncPromiseRef.current = null;
     }
   }, []);
-  // Sync Firebase auth state with the backend
+
+  // ---------------------------------------------------------------------------
+  // Two-Phase Auth Initialization:
+  // Phase 1: Wait for Firebase IndexedDB restoration via authStateReady().
+  // Phase 2: If user exists, sync backend user BEFORE releasing loading state.
+  // Phase 3: Subscribe onAuthStateChanged for subsequent runtime events only.
+  // ---------------------------------------------------------------------------
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
-      console.log("[AuthContext] onAuthStateChanged fired, fbUser:", fbUser?.email ?? "null");
-      setFirebaseUser(fbUser);
-      
-      if (fbUser) {
-        try {
-          const bu = await syncUserWithBackend(fbUser);
-          console.log("[AuthContext] onAuthStateChanged: sync done, profile_completed =", bu.profile_completed);
-        } catch (error) {
-          console.error("Failed to sync auth with backend:", error);
-          setUser(null);
+    let isMounted = true;
+
+    async function initializeAuth() {
+      try {
+        if (typeof auth.authStateReady === "function") {
+          await auth.authStateReady();
         }
-      } else {
-        setUser(null);
+
+        const fbUser = auth.currentUser;
+        if (!isMounted) return;
+
+        if (fbUser) {
+          setFirebaseUser(fbUser);
+          try {
+            await syncUserWithBackend(fbUser);
+          } catch (syncErr) {
+            console.error("Backend auth sync failed during init:", syncErr);
+            if (isMounted) {
+              setUser(null);
+            }
+          }
+        } else {
+          setFirebaseUser(null);
+          setUser(null);
+          currentAuthSnapshot = { user: null, firebaseUser: null, loading: false };
+        }
+      } catch (err) {
+        console.error("Error during authStateReady initialization:", err);
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
       }
-      
-      console.log("[AuthContext] onAuthStateChanged: setting loading = false");
-      setLoading(false);
+    }
+
+    initializeAuth();
+
+    // Runtime listener for explicit user actions (login, logout, token changes)
+    const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
+      if (!isMounted) return;
+
+      // If user logs out at runtime
+      if (!fbUser) {
+        setFirebaseUser(null);
+        setUser(null);
+        currentAuthSnapshot = { user: null, firebaseUser: null, loading: false };
+      }
     });
-    
-    return unsubscribe;
+
+    return () => {
+      isMounted = false;
+      unsubscribe();
+    };
   }, [syncUserWithBackend]);
 
-  // ---- Stable callbacks (memoised so downstream consumers don't re-render) ----
+  // ---- Stable callbacks ----
 
   const login = useCallback(async (email: string, password: string) => {
     const fbUser = await loginWithEmail(email, password);
-    // Explicitly await the sync to ensure the session cookie is set and user context is filled before login promise resolves
+    setFirebaseUser(fbUser);
     await syncUserWithBackend(fbUser);
   }, [syncUserWithBackend]);
 
+  const loginWithGoogle = useCallback(async () => {
+    const fbUser = await signInWithGoogle();
+    setFirebaseUser(fbUser);
+    return await syncUserWithBackend(fbUser);
+  }, [syncUserWithBackend]);
+
   const signup = useCallback(async (email: string, password: string) => {
-    await signUpWithEmail(email, password);
+    const fbUser = await signUpWithEmail(email, password);
+    setFirebaseUser(fbUser);
   }, []);
 
   const logout = useCallback(async () => {
     try {
-      // First, revoke backend session
       await api.post("/api/auth/logout", undefined, { useFirebaseToken: false });
     } catch (e) {
       console.warn("Backend logout failed:", e);
     }
-    // Then clear Firebase auth state
     await logoutUser();
+    setUser(null);
+    setFirebaseUser(null);
+    currentAuthSnapshot = { user: null, firebaseUser: null, loading: false };
   }, []);
 
   const resetPassword = useCallback(async (email: string) => {
@@ -188,14 +242,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const backendUser = await api.get<BackendUser>("/api/auth/me");
       setUser(backendUser);
+      currentAuthSnapshot = { user: backendUser, firebaseUser: auth.currentUser, loading: false };
     } catch (error) {
       console.error("Failed to refresh user:", error);
     }
   }, []);
 
   const sync = useCallback(async () => {
-    if (auth.currentUser) {
-      return await syncUserWithBackend(auth.currentUser);
+    const fbUser = auth.currentUser ?? (await waitForAuth());
+    if (fbUser) {
+      return await syncUserWithBackend(fbUser);
     }
     return null;
   }, [syncUserWithBackend]);
@@ -207,6 +263,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         user,
         loading,
         login,
+        loginWithGoogle,
         signup,
         logout,
         resetPassword,

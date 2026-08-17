@@ -1,25 +1,38 @@
-import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { createFileRoute, useNavigate, Link, redirect } from "@tanstack/react-router";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
-import { Sparkles, Lock, Eye, EyeOff, Loader2, Check, X } from "lucide-react";
-import { useAuth } from "@/contexts/AuthContext";
+import { Zap, Lock, Eye, EyeOff, Loader2, Check, X } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useAuth, getAuthSnapshot } from "@/contexts/AuthContext";
+import { auth } from "@/firebase/firebase";
+import { waitForAuth } from "@/firebase/auth";
 import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
+import { AuthHeroPanel } from "@/components/auth/AuthHeroPanel";
 
-
+import { SpotliteLoader } from "@/components/ui/SpotliteLoader";
 
 export const Route = createFileRoute("/signup")({
   head: () => ({
     meta: [
-      { title: "Sign up · Spotlite" },
+      { title: "Sign up · SpotLite Intelligence" },
       {
         name: "description",
-        content: "Create your Spotlite account and start understanding your money.",
+        content: "Create your SpotLite account for unified workforce risk and financial intelligence.",
       },
     ],
   }),
-  // No beforeLoad redirect — always show the signup form.
-  // Users must explicitly create an account to proceed.
-  // The _app layout guard handles protecting dashboard routes.
+  beforeLoad: async () => {
+    if (typeof window === "undefined") return;
+
+    const snapshot = getAuthSnapshot();
+    if (!snapshot.loading && snapshot.user) {
+      if (snapshot.user.email_verified) {
+        throw redirect({ to: "/home" });
+      } else {
+        throw redirect({ to: "/verify-email" });
+      }
+    }
+  },
   component: Signup,
 });
 
@@ -33,13 +46,28 @@ const rules = [
 
 function Signup() {
   const nav = useNavigate();
-  const { signup } = useAuth();
+  const { user, loading, signup } = useAuth();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [showPwd, setShowPwd] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+
+  // If user is already authenticated/synced, navigate away from signup
+  useEffect(() => {
+    if (!loading && user) {
+      if (user.email_verified) {
+        nav({ to: "/home", replace: true });
+      } else {
+        nav({ to: "/verify-email", replace: true });
+      }
+    }
+  }, [user, loading, nav]);
+
+  if (loading) {
+    return <SpotliteLoader message="Verifying session…" subMessage="SpotLite Intelligence" />;
+  }
 
   const allRulesPass = rules.every((r) => r.test(password));
   const passwordsMatch = password === confirm && confirm.length > 0;
@@ -52,8 +80,8 @@ function Signup() {
     setSubmitting(true);
     try {
       await signup(email.trim(), password);
-      toast.success("Account created!", {
-        description: "Check your email to verify your address.",
+      toast.success("Account created successfully!", {
+        description: "Check your email for the verification link to activate your account.",
       });
       nav({ to: "/verify-email" });
     } catch (err: unknown) {
@@ -73,157 +101,187 @@ function Signup() {
   }
 
   return (
-    <div className="grid min-h-screen md:grid-cols-2">
-      {/* ---- Left hero panel (desktop) ---- */}
-      <div className="relative hidden flex-col justify-between bg-brand p-10 text-on-brand md:flex">
-        <div className="flex items-center gap-2">
-          <Sparkles className="h-5 w-5" />
-          <span className="font-display text-xl font-bold">Spotlite</span>
-        </div>
-        <div>
-          <h2 className="font-display text-4xl font-bold leading-tight">
-            Your money,
-            <br />
-            finally understood.
-          </h2>
-          <ul className="mt-8 space-y-3 text-sm opacity-90">
-            <li>• Cross-bank blind-spot detection</li>
-            <li>• AI coach that speaks first</li>
-            <li>• Free, forever for core features</li>
-          </ul>
-        </div>
-        <p className="text-xs opacity-70">Powered by RBI Account Aggregator (Phase 2)</p>
-      </div>
+    <div className="grid min-h-screen md:grid-cols-2 bg-background">
+      {/* ---- Left hero panel (desktop) - Stable anchor across auth pages ---- */}
+      <AuthHeroPanel />
 
       {/* ---- Right form panel ---- */}
-      <div className="flex flex-col justify-center px-6 py-12 md:px-16">
-        <div className="md:hidden mb-8 flex items-center gap-2 text-brand">
-          <Sparkles className="h-5 w-5" />
-          <span className="font-display text-lg font-bold">Spotlite</span>
-        </div>
+      <div className="flex flex-col justify-center px-6 py-12 sm:px-12 md:px-16 lg:px-20">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.18, ease: "easeOut" }}
+          className="mx-auto w-full max-w-md"
+        >
+          {/* Mobile Brand Header */}
+          <Link to="/" className="md:hidden mb-8 flex items-center gap-2.5 w-fit">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-white shadow-md shadow-primary/25">
+              <Zap size={18} className="fill-current text-white" />
+            </div>
+            <div className="flex flex-col">
+              <span className="text-lg font-extrabold tracking-tight text-foreground">
+                Spot<span className="text-primary">Lite</span>
+              </span>
+              <span className="text-[9px] font-semibold uppercase tracking-widest text-muted-foreground -mt-1">
+                Intelligence
+              </span>
+            </div>
+          </Link>
 
-        <h1 className="font-display text-3xl font-bold">Create your account</h1>
-        <p className="mt-1 text-text-secondary">
-          Start finding the money you're missing.
-        </p>
-
-        <div className="mt-8">
-          <GoogleSignInButton />
-        </div>
-
-        <div className="relative mt-6 flex items-center py-2">
-          <div className="flex-grow border-t border-border"></div>
-          <span className="shrink-0 px-4 text-xs text-text-secondary uppercase">Or continue with email</span>
-          <div className="flex-grow border-t border-border"></div>
-        </div>
-
-        <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-          {/* Email */}
-          <div className="space-y-1.5">
-            <label htmlFor="signup-email" className="block text-xs font-medium text-text-secondary">
-              Email address
-            </label>
-            <input
-              id="signup-email"
-              type="email"
-              required
-              autoComplete="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-pill border border-border bg-surface px-4 py-3 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
-              placeholder="you@example.com"
-            />
+          <div>
+            <h1 className="font-display text-3xl font-bold tracking-tight text-foreground">
+              Create your account
+            </h1>
+            <p className="mt-2 text-sm text-text-secondary">
+              Get started with enterprise workforce and financial intelligence.
+            </p>
           </div>
 
-          {/* Password */}
-          <div className="space-y-1.5">
-            <label htmlFor="signup-password" className="block text-xs font-medium text-text-secondary">
-              Password
-            </label>
-            <div className="relative">
+          <div className="mt-8">
+            <GoogleSignInButton />
+          </div>
+
+          <div className="relative mt-6 flex items-center py-2">
+            <div className="flex-grow border-t border-border"></div>
+            <span className="shrink-0 px-4 text-xs font-semibold text-text-secondary uppercase tracking-wider">
+              Or register with email
+            </span>
+            <div className="flex-grow border-t border-border"></div>
+          </div>
+
+          <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+            {/* Email */}
+            <div className="space-y-1.5">
+              <label htmlFor="signup-email" className="block text-xs font-semibold text-text-secondary">
+                Work Email address
+              </label>
               <input
-                id="signup-password"
-                type={showPwd ? "text" : "password"}
+                id="signup-email"
+                type="email"
                 required
-                autoComplete="new-password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full rounded-pill border border-border bg-surface px-4 py-3 pr-12 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
-                placeholder="••••••••"
+                autoComplete="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full rounded-pill border border-border bg-surface px-4 py-3 text-sm text-foreground outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20 shadow-xs"
+                placeholder="name@company.com"
               />
-              <button
-                type="button"
-                onClick={() => setShowPwd((v) => !v)}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-text-secondary hover:text-text-primary"
-                aria-label={showPwd ? "Hide password" : "Show password"}
-              >
-                {showPwd ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-              </button>
             </div>
 
-            {/* Strength indicators */}
-            {password.length > 0 && (
-              <ul className="mt-2 space-y-1 text-xs">
-                {rules.map((r) => {
-                  const pass = r.test(password);
-                  return (
-                    <li
-                      key={r.label}
-                      className={`flex items-center gap-1.5 ${pass ? "text-success" : "text-text-secondary"}`}
-                    >
-                      {pass ? <Check className="h-3 w-3" /> : <X className="h-3 w-3" />}
-                      {r.label}
-                    </li>
-                  );
-                })}
-              </ul>
-            )}
-          </div>
+            {/* Password */}
+            <div className="space-y-1.5">
+              <label htmlFor="signup-password" className="block text-xs font-semibold text-text-secondary">
+                Password
+              </label>
+              <div className="relative">
+                <input
+                  id="signup-password"
+                  type={showPwd ? "text" : "password"}
+                  required
+                  autoComplete="new-password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full rounded-pill border border-border bg-surface px-4 py-3 pr-12 text-sm text-foreground outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20 shadow-xs"
+                  placeholder="••••••••"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPwd((v) => !v)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-text-secondary hover:text-text-primary cursor-pointer transition-colors"
+                  aria-label={showPwd ? "Hide password" : "Show password"}
+                >
+                  {showPwd ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
 
-          {/* Confirm Password */}
-          <div className="space-y-1.5">
-            <label htmlFor="signup-confirm" className="block text-xs font-medium text-text-secondary">
-              Confirm password
-            </label>
-            <input
-              id="signup-confirm"
-              type="password"
-              required
-              autoComplete="new-password"
-              value={confirm}
-              onChange={(e) => setConfirm(e.target.value)}
-              className="w-full rounded-pill border border-border bg-surface px-4 py-3 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
-              placeholder="••••••••"
-            />
-            {confirm.length > 0 && !passwordsMatch && (
-              <p className="flex items-center gap-1.5 text-xs text-destructive">
-                <X className="h-3 w-3" /> Passwords do not match
-              </p>
-            )}
-          </div>
+              {/* Password strength rules */}
+              <AnimatePresence>
+                {password.length > 0 && (
+                  <motion.ul
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    transition={{ duration: 0.15 }}
+                    className="mt-2.5 grid grid-cols-2 gap-1.5 text-xs overflow-hidden"
+                  >
+                    {rules.map((r) => {
+                      const pass = r.test(password);
+                      return (
+                        <li
+                          key={r.label}
+                          className={`flex items-center gap-1.5 font-medium transition-colors ${
+                            pass ? "text-success" : "text-text-secondary"
+                          }`}
+                        >
+                          {pass ? (
+                            <Check className="h-3.5 w-3.5 text-success shrink-0" />
+                          ) : (
+                            <X className="h-3.5 w-3.5 text-text-secondary/60 shrink-0" />
+                          )}
+                          <span>{r.label}</span>
+                        </li>
+                      );
+                    })}
+                  </motion.ul>
+                )}
+              </AnimatePresence>
+            </div>
 
-          {/* Submit */}
-          <button
-            type="submit"
-            disabled={submitting || !formValid}
-            className="flex w-full items-center justify-center gap-2 rounded-pill bg-brand-gradient py-3 text-sm font-semibold text-on-brand shadow-brand disabled:opacity-60"
-          >
-            {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
-            {submitting ? "Creating account…" : "Create account"}
-          </button>
-        </form>
+            {/* Confirm Password */}
+            <div className="space-y-1.5">
+              <label htmlFor="signup-confirm" className="block text-xs font-semibold text-text-secondary">
+                Confirm Password
+              </label>
+              <input
+                id="signup-confirm"
+                type="password"
+                required
+                autoComplete="new-password"
+                value={confirm}
+                onChange={(e) => setConfirm(e.target.value)}
+                className="w-full rounded-pill border border-border bg-surface px-4 py-3 text-sm text-foreground outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20 shadow-xs"
+                placeholder="••••••••"
+              />
+              <AnimatePresence>
+                {confirm.length > 0 && !passwordsMatch && (
+                  <motion.p
+                    initial={{ opacity: 0, y: -4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -4 }}
+                    className="flex items-center gap-1.5 text-xs text-destructive font-medium mt-1"
+                  >
+                    <X className="h-3.5 w-3.5" /> Passwords do not match
+                  </motion.p>
+                )}
+              </AnimatePresence>
+            </div>
 
-        {/* Login link */}
-        <p className="mt-6 text-center text-sm text-text-secondary">
-          Already have an account?{" "}
-          <Link to="/login" className="font-semibold text-brand hover:underline">
-            Sign in
-          </Link>
-        </p>
+            {/* Submit */}
+            <button
+              type="submit"
+              disabled={submitting || !formValid}
+              className="flex w-full items-center justify-center gap-2 rounded-pill bg-brand-gradient py-3 text-sm font-bold text-on-brand shadow-brand hover:opacity-95 active:scale-[0.99] transition-all disabled:opacity-60 cursor-pointer mt-2"
+            >
+              {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
+              {submitting ? "Creating account…" : "Create Account"}
+            </button>
+          </form>
 
-        <p className="mt-4 flex items-center justify-center gap-1.5 text-xs text-text-secondary">
-          <Lock className="h-3 w-3" /> 256-bit encrypted
-        </p>
+          {/* Login link */}
+          <p className="mt-8 text-center text-sm text-text-secondary">
+            Already have an account?{" "}
+            <Link
+              to="/login"
+              preload="intent"
+              className="font-semibold text-brand hover:underline"
+            >
+              Sign in
+            </Link>
+          </p>
+
+          <p className="mt-6 flex items-center justify-center gap-1.5 text-xs text-text-secondary">
+            <Lock className="h-3 w-3" /> End-to-end 256-bit encrypted session
+          </p>
+        </motion.div>
       </div>
     </div>
   );

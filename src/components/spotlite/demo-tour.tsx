@@ -2,7 +2,9 @@ import { useEffect } from "react";
 import { useNavigate, useRouterState } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowLeft, ArrowRight, X, Sparkles, PlayCircle } from "lucide-react";
-import { useDemo } from "@/store/demo-store";
+import { useAppDispatch, useAppSelector } from "@/store";
+import { selectTourStep, selectSeenIntro } from "@/store/selectors";
+import { dismissIntro, startTour, setTourStep, endTour } from "@/store/slices/tourSlice";
 import { tourSteps, agentByKey, type TourPhase } from "@/data/agentic";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -11,7 +13,8 @@ const ONBOARDING = ["/", "/login", "/signup", "/verify-email", "/consent", "/upl
 
 export function DemoTour() {
   const nav = useNavigate();
-  const { tourStep, setTourStep, endTour } = useDemo();
+  const dispatch = useAppDispatch();
+  const tourStep = useAppSelector(selectTourStep);
   const active = tourStep >= 0 && tourStep < tourSteps.length;
   const step = active ? tourSteps[tourStep] : null;
 
@@ -61,7 +64,7 @@ export function DemoTour() {
                 </div>
               </div>
               <button
-                onClick={endTour}
+                onClick={() => dispatch(endTour())}
                 aria-label="Close tour"
                 className="rounded-full p-1 hover:bg-white/15"
               >
@@ -98,21 +101,21 @@ export function DemoTour() {
               </span>
               <div className="flex items-center gap-2">
                 <button
-                  onClick={endTour}
+                  onClick={() => dispatch(endTour())}
                   className="rounded-pill px-3 py-2 text-xs font-medium text-text-secondary hover:bg-surface-alt"
                 >
                   Skip
                 </button>
                 {!isFirst && (
                   <button
-                    onClick={() => setTourStep(tourStep - 1)}
+                    onClick={() => dispatch(setTourStep(tourStep - 1))}
                     className="inline-flex items-center gap-1 rounded-pill border border-border px-3 py-2 text-xs font-medium hover:bg-surface-alt"
                   >
                     <ArrowLeft className="h-3.5 w-3.5" /> Back
                   </button>
                 )}
                 <button
-                  onClick={() => (isLast ? endTour() : setTourStep(tourStep + 1))}
+                  onClick={() => (isLast ? dispatch(endTour()) : dispatch(setTourStep(tourStep + 1)))}
                   className="inline-flex items-center gap-1 rounded-pill bg-brand-gradient px-4 py-2 text-xs font-semibold text-on-brand shadow-brand"
                 >
                   {isLast ? "Finish" : "Next"} <ArrowRight className="h-3.5 w-3.5" />
@@ -127,7 +130,9 @@ export function DemoTour() {
 }
 
 export function IntroModal() {
-  const { seenIntro, dismissIntro, startTour, tourStep } = useDemo();
+  const dispatch = useAppDispatch();
+  const seenIntro = useAppSelector(selectSeenIntro);
+  const tourStep = useAppSelector(selectTourStep);
   const { firebaseUser } = useAuth();
   const path = useRouterState({ select: (r) => r.location.pathname });
   const onAppRoute = !ONBOARDING.includes(path);
@@ -145,7 +150,7 @@ export function IntroModal() {
 
   return (
     <div className="fixed inset-0 z-[55] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/45 backdrop-blur-sm" onClick={dismissIntro} />
+      <div className="absolute inset-0 bg-black/45 backdrop-blur-sm" onClick={() => dispatch(dismissIntro())} />
       <motion.div
         initial={{ opacity: 0, scale: 0.95, y: 12 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -167,13 +172,13 @@ export function IntroModal() {
           </p>
           <div className="flex flex-col gap-2 pt-2">
             <button
-              onClick={startTour}
+              onClick={() => dispatch(startTour())}
               className="inline-flex items-center justify-center gap-2 rounded-pill bg-brand-gradient py-3 text-sm font-semibold text-on-brand shadow-brand"
             >
               <PlayCircle className="h-4 w-4" /> Take the 60-sec guided tour
             </button>
             <button
-              onClick={dismissIntro}
+              onClick={() => dispatch(dismissIntro())}
               className="rounded-pill border border-border py-3 text-sm font-semibold hover:bg-surface-alt"
             >
               Explore on my own

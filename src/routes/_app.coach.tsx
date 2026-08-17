@@ -3,7 +3,9 @@ import { useEffect, useRef, useState } from "react";
 import { Send, Sparkles, Trash2 } from "lucide-react";
 import { answerForQuestion, coachSuggestions, type CoachAnswer } from "@/data/rohan";
 import { CoachAnswerCard } from "@/components/spotlite/coach-answer";
-import { useDemo } from "@/store/demo-store";
+import { useAppDispatch, useAppSelector } from "@/store";
+import { selectConversation } from "@/store/selectors";
+import { addMessage, clearConversation } from "@/store/slices/coachSlice";
 
 export const Route = createFileRoute("/_app/coach")({
   head: () => ({
@@ -26,7 +28,8 @@ const thinkingSteps = [
 ];
 
 function Coach() {
-  const { conversation, setConversation } = useDemo();
+  const dispatch = useAppDispatch();
+  const conversation = useAppSelector(selectConversation);
   const [input, setInput] = useState("");
   const [thinking, setThinking] = useState(false);
   const [stepIdx, setStepIdx] = useState(0);
@@ -46,11 +49,11 @@ function Coach() {
   function send(q: string) {
     if (!q.trim() || thinking) return;
     const answer = answerForQuestion(q);
-    setConversation((m) => [...m, { who: "user", text: q }]);
+    dispatch(addMessage({ who: "user", text: q }));
     setInput("");
     setThinking(true);
     window.setTimeout(() => {
-      setConversation((m) => [...m, { who: "bot", answer }]);
+      dispatch(addMessage({ who: "bot", answer }));
       setThinking(false);
     }, 1200);
   }
@@ -71,7 +74,7 @@ function Coach() {
         </div>
         {conversation.length > 0 && (
           <button
-            onClick={() => setConversation(() => [])}
+            onClick={() => dispatch(clearConversation())}
             className="inline-flex items-center gap-1 rounded-pill border border-border px-3 py-1.5 text-xs text-text-secondary hover:bg-surface-alt"
           >
             <Trash2 className="h-3.5 w-3.5" /> Clear
