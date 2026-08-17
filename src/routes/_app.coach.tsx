@@ -6,6 +6,7 @@ import { CoachAnswerCard } from "@/components/spotlite/coach-answer";
 import { useAppDispatch, useAppSelector } from "@/store";
 import { selectConversation } from "@/store/selectors";
 import { addMessage, clearConversation } from "@/store/slices/coachSlice";
+import { useAuth } from "@/contexts/AuthContext";
 
 export const Route = createFileRoute("/_app/coach")({
   head: () => ({
@@ -28,12 +29,19 @@ const thinkingSteps = [
 ];
 
 function Coach() {
+  const { user } = useAuth();
   const dispatch = useAppDispatch();
   const conversation = useAppSelector(selectConversation);
   const [input, setInput] = useState("");
   const [thinking, setThinking] = useState(false);
   const [stepIdx, setStepIdx] = useState(0);
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  const firstName = user?.full_name
+    ? user.full_name.split(" ")[0]
+    : user?.email
+      ? user.email.split("@")[0]
+      : "there";
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
@@ -85,7 +93,7 @@ function Coach() {
       <div ref={scrollRef} className="mt-4 flex-1 overflow-y-auto">
         {empty ? (
           <div className="mx-auto max-w-md py-8 text-center">
-            <p className="text-text-secondary">Hi Rohan, ask me anything about your money.</p>
+            <p className="text-text-secondary">Hi {firstName}, ask me anything about your money.</p>
             <p className="mt-3 text-xs font-medium uppercase tracking-wider text-text-secondary">
               Try
             </p>

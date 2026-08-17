@@ -58,7 +58,7 @@ export function Step3Leadership({ state }: Props) {
                 required
                 value={state.ceoName}
                 onChange={(e) => state.setCeoName(e.target.value)}
-                placeholder="Rajesh Kumar"
+                placeholder="e.g. Rajesh Kumar"
               />
 
               <FormField
@@ -67,7 +67,7 @@ export function Step3Leadership({ state }: Props) {
                 type="email"
                 value={state.ceoEmail}
                 onChange={(e) => state.setCeoEmail(e.target.value)}
-                placeholder="ceo@company.com"
+                placeholder="e.g. ceo@company.com"
               />
 
               <FormField
@@ -84,7 +84,7 @@ export function Step3Leadership({ state }: Props) {
                 optional
                 value={state.ceoDesignation}
                 onChange={(e) => state.setCeoDesignation(e.target.value)}
-                placeholder="CEO / Managing Director"
+                placeholder="e.g. CEO / Managing Director"
               />
             </div>
           </div>
@@ -125,7 +125,7 @@ export function Step3Leadership({ state }: Props) {
                 optional
                 value={state.cfoName}
                 onChange={(e) => state.setCfoName(e.target.value)}
-                placeholder="Vikramaditya Sharma"
+                placeholder="e.g. Vikramaditya Sharma"
               />
 
               <FormField
@@ -134,7 +134,7 @@ export function Step3Leadership({ state }: Props) {
                 type="email"
                 value={state.cfoEmail}
                 onChange={(e) => state.setCfoEmail(e.target.value)}
-                placeholder="cfo@company.com"
+                placeholder="e.g. cfo@company.com"
               />
 
               <FormField
@@ -201,7 +201,7 @@ export function Step3Leadership({ state }: Props) {
                 optional
                 value={state.hrName}
                 onChange={(e) => state.setHrName(e.target.value)}
-                placeholder="Jane Doe"
+                placeholder="e.g. Jane Doe"
               />
 
               <FormField
@@ -210,7 +210,7 @@ export function Step3Leadership({ state }: Props) {
                 type="email"
                 value={state.hrEmail}
                 onChange={(e) => state.setHrEmail(e.target.value)}
-                placeholder="hr@company.com"
+                placeholder="e.g. hr@company.com"
               />
 
               <FormField

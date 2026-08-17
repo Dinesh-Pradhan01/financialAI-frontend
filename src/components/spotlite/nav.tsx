@@ -73,6 +73,7 @@ export function DesktopSidebar() {
   const highPriorityCount = useAppSelector(selectHighPriorityCount);
   const language = useAppSelector(selectLanguage);
   const { user, logout } = useAuth();
+  console.log("user", user);
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
   const isCeoOrAdmin = !user?.role || user.role === "ceo" || user.role === "admin" || user.role === "user";
@@ -168,7 +169,9 @@ export function DesktopSidebar() {
             <div className="flex items-center justify-between gap-2 p-2 rounded-xl bg-surface-alt border border-border/50">
               <div className="flex items-center gap-2 min-w-0">
                 <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-brand text-white font-bold text-xs uppercase shadow-xs">
-                  {user.full_name ? user.full_name[0] : user.email[0]}
+                  {user.full_name
+                    ? user.full_name.split(" ").filter(Boolean).map((n) => n[0]).join("").slice(0, 2).toUpperCase()
+                    : user.email.slice(0, 2).toUpperCase()}
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-xs font-semibold text-text-primary">

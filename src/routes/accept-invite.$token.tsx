@@ -1,13 +1,18 @@
 import { createFileRoute, useNavigate, useParams, Link } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
-import { Loader2, Sparkles, Building2, Lock, ArrowRight, AlertCircle, ShieldCheck } from "lucide-react";
-import { useAuth, getAuthSnapshot } from "@/contexts/AuthContext";
-import { api } from "@/lib/api";
 import {
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword
-} from "firebase/auth";
+  Loader2,
+  Sparkles,
+  Building2,
+  Lock,
+  ArrowRight,
+  AlertCircle,
+  ShieldCheck,
+} from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { api } from "@/lib/api";
+import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "@/firebase/firebase";
 
 export const Route = createFileRoute("/accept-invite/$token")({
@@ -17,12 +22,12 @@ export const Route = createFileRoute("/accept-invite/$token")({
 function AcceptInvitePage() {
   const { token } = Route.useParams();
   const nav = useNavigate();
-  const { user: authUser, refreshUser } = useAuth();
-  
+  const { refreshUser, sync } = useAuth();
+
   const [loading, setLoading] = useState(true);
   const [inviteData, setInviteData] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
-  
+
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -53,17 +58,21 @@ function AcceptInvitePage() {
 
   const handleFillDemoData = () => {
     if (!inviteData) return;
-    const defaultName = inviteData.full_name || (inviteData.role === "cfo" ? "Alex Morgan (CFO)" : "Jordan Taylor (HR)");
+    const defaultName =
+      inviteData.full_name ||
+      (inviteData.role === "cfo" ? "Alex Morgan (CFO)" : "Jordan Taylor (HR)");
     setFullName(defaultName);
     setPassword("Password123!");
     setConfirmPassword("Password123!");
-    toast.success("Demo credentials populated!", { description: "Click 'Join Workspace' to complete setup." });
+    toast.success("Demo credentials populated!", {
+      description: "Click 'Join Workspace' to complete setup.",
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!inviteData) return;
-    
+
     if (password !== confirmPassword) {
       toast.error("Passwords do not match");
       return;
@@ -74,21 +83,37 @@ function AcceptInvitePage() {
     }
 
     setProcessing(true);
-    
+
     try {
-      // Call dedicated auth password setup endpoint
+      // 1. Sign out any existing session to prevent previous user session bleed
+      try {
+        await auth.signOut();
+      } catch {
+        // ignore sign out error
+      }
+
+      // 2. Call dedicated auth password setup endpoint
       await api.post("/api/auth/invite/accept-with-password", {
         token,
         password,
         email,
-        full_name: fullName,
+        full_name: fullName.trim(),
       });
-      
-      await refreshUser();
-      
-      toast.success(`Account created as ${inviteData.role?.toUpperCase()}! Verification email sent.`);
+
+      // 3. Sign in to Firebase with the newly created credentials
+      await signInWithEmailAndPassword(auth, email, password);
+
+      // 4. Sync new user profile into AuthContext
+      if (sync) {
+        await sync();
+      } else {
+        await refreshUser();
+      }
+
+      toast.success(
+        `Account created as ${inviteData.role?.toUpperCase()}! Verification email sent.`,
+      );
       nav({ to: "/verify-email" });
-      
     } catch (err: any) {
       console.error(err);
       toast.error(err.message || "Failed to accept invite");
@@ -135,17 +160,19 @@ function AcceptInvitePage() {
             <span className="font-display text-2xl font-bold tracking-tight">SpotLite</span>
           </div>
         </div>
-        
+
         <div className="relative z-10 my-auto space-y-6 max-w-md">
           <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-medium backdrop-blur-md border border-white/15">
             <Building2 className="h-3.5 w-3.5" />
             <span>Workspace Invitation</span>
           </div>
           <h2 className="font-display text-4xl font-bold leading-tight">
-            You've been invited to join <span className="text-emerald-400">{inviteData.company_name}</span>
+            You've been invited to join{" "}
+            <span className="text-emerald-400">{inviteData.company_name}</span>
           </h2>
           <p className="text-white/80 leading-relaxed text-lg">
-            Join your team on SpotLite to manage financial intelligence, vendor lists, and customer profiles securely.
+            Join your team on SpotLite to manage financial intelligence, vendor lists, and customer
+            profiles securely.
           </p>
           <div className="rounded-2xl bg-white/10 p-5 border border-white/10 backdrop-blur-md">
             <div className="flex items-center gap-3 mb-2">
@@ -153,7 +180,7 @@ function AcceptInvitePage() {
               <h3 className="font-bold text-white uppercase text-sm">Designated Executive Role</h3>
             </div>
             <p className="text-xl font-bold capitalize text-white">
-              {inviteData.role === 'cfo' ? 'Chief Financial Officer (CFO)' : 'Human Resources (HR)'}
+              {inviteData.role === "cfo" ? "Chief Financial Officer (CFO)" : "Human Resources (HR)"}
             </p>
           </div>
         </div>
@@ -175,7 +202,8 @@ function AcceptInvitePage() {
             <div>
               <h1 className="font-display text-2xl font-bold tracking-tight">Executive Setup</h1>
               <p className="text-xs text-text-secondary mt-1">
-                Enter your details to join <strong className="text-text-primary">{inviteData.company_name}</strong>
+                Enter your details to join{" "}
+                <strong className="text-text-primary">{inviteData.company_name}</strong>
               </p>
             </div>
             {/* Fill Demo Data Button */}
@@ -193,16 +221,21 @@ function AcceptInvitePage() {
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Designated Role (Read Only) */}
             <div className="space-y-1">
-              <label className="block text-xs font-semibold text-text-secondary">Assigned Role (Set by CEO)</label>
+              <label className="block text-xs font-semibold text-text-secondary">
+                Assigned Role (Set by CEO)
+              </label>
               <div className="flex items-center gap-2 rounded-xl border border-brand/30 bg-brand/5 px-4 py-2.5 text-sm font-bold text-brand">
                 <ShieldCheck className="h-4 w-4" />
-                <span className="uppercase">{inviteData.role}</span> &bull; {inviteData.role === 'cfo' ? 'Chief Financial Officer' : 'Human Resources Manager'}
+                <span className="uppercase">{inviteData.role}</span> &bull;{" "}
+                {inviteData.role === "cfo" ? "Chief Financial Officer" : "Human Resources Manager"}
               </div>
             </div>
 
             {/* Email */}
             <div className="space-y-1">
-              <label className="block text-xs font-semibold text-text-secondary">Email Address</label>
+              <label className="block text-xs font-semibold text-text-secondary">
+                Email Address
+              </label>
               <input
                 type="email"
                 required
@@ -227,7 +260,9 @@ function AcceptInvitePage() {
 
             {/* Password */}
             <div className="space-y-1">
-              <label className="block text-xs font-semibold text-text-secondary">Create Password</label>
+              <label className="block text-xs font-semibold text-text-secondary">
+                Create Password
+              </label>
               <div className="relative">
                 <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-text-secondary/60" />
                 <input
@@ -244,7 +279,9 @@ function AcceptInvitePage() {
 
             {/* Confirm Password */}
             <div className="space-y-1">
-              <label className="block text-xs font-semibold text-text-secondary">Confirm Password</label>
+              <label className="block text-xs font-semibold text-text-secondary">
+                Confirm Password
+              </label>
               <div className="relative">
                 <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-text-secondary/60" />
                 <input
@@ -270,7 +307,8 @@ function AcceptInvitePage() {
                 </>
               ) : (
                 <>
-                  Join Workspace <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                  Join Workspace{" "}
+                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                 </>
               )}
             </button>

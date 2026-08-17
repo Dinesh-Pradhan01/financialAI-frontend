@@ -114,12 +114,24 @@ function BusinessOnboarding() {
   const [uploadingDocType, setUploadingDocType] = useState<string | null>(null);
   const [deletingDocId, setDeletingDocId] = useState<string | null>(null);
 
-  // Pre-fill email and contact person if logged in
+  // Pre-fill email and contact person according to user role if logged in
   useEffect(() => {
-    if (user && !officialEmail && user.email) {
-      setOfficialEmail(user.email);
+    if (user) {
+      if (!officialEmail && user.email) {
+        setOfficialEmail(user.email);
+      }
+      if (user.role === "cfo") {
+        if (!cfoName && user.full_name) setCfoName(user.full_name);
+        if (!cfoEmail && user.email) setCfoEmail(user.email);
+      } else if (user.role === "hr") {
+        if (!hrName && user.full_name) setHrName(user.full_name);
+        if (!hrEmail && user.email) setHrEmail(user.email);
+      } else {
+        if (!ceoName && user.full_name) setCeoName(user.full_name);
+        if (!ceoEmail && user.email) setCeoEmail(user.email);
+      }
     }
-  }, [user, officialEmail]);
+  }, [user, officialEmail, cfoName, cfoEmail, hrName, hrEmail, ceoName, ceoEmail]);
 
   // Load existing onboarding draft from backend
   useEffect(() => {
@@ -222,21 +234,53 @@ function BusinessOnboarding() {
     if (!officialEmail) setOfficialEmail(user?.email || "contact@acmefintech.com");
     setOfficialPhone("9876543210");
 
-    // Step 3 - Leadership Info
-    setCeoName("Rajesh Kumar");
-    setCeoEmail("ceo@acmefintech.com");
-    setCeoPhone("9876543210");
-    setCeoDesignation("CEO / Founder");
-    setCfoName("Vikramaditya Sharma");
-    setCfoEmail("cfo@acmefintech.com");
-    setCfoPhone("9876543211");
-    setCfoDesignation("Chief Financial Officer");
-    setInviteCfo(true);
-    setHrName("Jane Doe");
-    setHrEmail("hr@acmefintech.com");
-    setHrPhone("9876543212");
-    setHrDesignation("Head of HR");
-    setInviteHr(true);
+    // Step 3 - Leadership Info (respect current authenticated user role & name)
+    if (user?.role === "cfo") {
+      setCeoName("Rajesh Kumar");
+      setCeoEmail("ceo@acmefintech.com");
+      setCeoPhone("9876543210");
+      setCeoDesignation("CEO / Founder");
+      setCfoName(user?.full_name || "Alex Morgan");
+      setCfoEmail(user?.email || "cfo@acmefintech.com");
+      setCfoPhone("9876543211");
+      setCfoDesignation("Chief Financial Officer");
+      setInviteCfo(false);
+      setHrName("Jane Doe");
+      setHrEmail("hr@acmefintech.com");
+      setHrPhone("9876543212");
+      setHrDesignation("Head of HR");
+      setInviteHr(true);
+    } else if (user?.role === "hr") {
+      setCeoName("Rajesh Kumar");
+      setCeoEmail("ceo@acmefintech.com");
+      setCeoPhone("9876543210");
+      setCeoDesignation("CEO / Founder");
+      setCfoName("Vikramaditya Sharma");
+      setCfoEmail("cfo@acmefintech.com");
+      setCfoPhone("9876543211");
+      setCfoDesignation("Chief Financial Officer");
+      setInviteCfo(true);
+      setHrName(user?.full_name || "Jordan Taylor");
+      setHrEmail(user?.email || "hr@acmefintech.com");
+      setHrPhone("9876543212");
+      setHrDesignation("Head of HR");
+      setInviteHr(false);
+    } else {
+      setCeoName(user?.full_name || "Rajesh Kumar");
+      setCeoEmail(user?.email || "ceo@acmefintech.com");
+      setCeoPhone("9876543210");
+      setCeoDesignation("CEO / Founder");
+      setCfoName("Vikramaditya Sharma");
+      setCfoEmail("cfo@acmefintech.com");
+      setCfoPhone("9876543211");
+      setCfoDesignation("Chief Financial Officer");
+      setInviteCfo(true);
+      setHrName("Jane Doe");
+      setHrEmail("hr@acmefintech.com");
+      setHrPhone("9876543212");
+      setHrDesignation("Head of HR");
+      setInviteHr(true);
+    }
     setNumberOfEmployees("51-200");
     setNumberOfBranches("3");
     setBusinessModel("B2B");

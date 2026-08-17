@@ -10,6 +10,7 @@ import { RelationshipHealth } from "@/components/spotlite/relationship-health";
 import { ExplainTip } from "@/components/spotlite/explain-tip";
 import { IconChip } from "@/lib/icons";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/contexts/AuthContext";
 
 export const Route = createFileRoute("/_app/profile")({
   head: () => ({
@@ -53,26 +54,36 @@ function Insight({ children }: { children: React.ReactNode }) {
 }
 
 function Profile() {
+  const { user } = useAuth();
   const id = rohan.identity;
   const nw = rohan.netWorth;
   const assetTotal = nw.assets.reduce((s, a) => s + a.amount, 0);
+
+  const displayName = user?.full_name || (user?.email ? user.email.split("@")[0] : rohan.name);
+  const displayEmail = user?.email || id.email;
+  const initials = (user?.full_name
+    ? user.full_name.split(" ").filter(Boolean).map((n) => n[0]).join("").slice(0, 2)
+    : displayName.slice(0, 2)
+  ).toUpperCase();
 
   return (
     <div className="px-5 py-6 md:px-10">
       {/* Identity header */}
       <header className="card-spot flex flex-col gap-4 p-5 sm:flex-row sm:items-center">
         <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-brand-gradient text-2xl font-bold text-on-brand">
-          {rohan.name
-            .split(" ")
-            .map((n) => n[0])
-            .join("")}
+          {initials}
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-            <h1 className="font-display text-2xl font-bold">{rohan.name}</h1>
+            <h1 className="font-display text-2xl font-bold">{displayName}</h1>
             <span className="inline-flex items-center gap-1 rounded-pill bg-success/12 px-2 py-0.5 text-[11px] font-semibold text-success">
               <ShieldCheck className="h-3 w-3" /> KYC {id.kyc}
             </span>
+            {user?.role && (
+              <span className="inline-block rounded-pill bg-brand/10 px-2 py-0.5 text-[11px] font-bold text-brand uppercase tracking-wider">
+                {user.role}
+              </span>
+            )}
           </div>
           <p className="text-sm text-text-secondary">
             {rohan.city} · {rohan.age} · {rohan.gender} · {rohan.occupation}
@@ -143,7 +154,7 @@ function Profile() {
           <Fact label="Risk profile" value={id.riskProfile} />
           <Fact label="PAN" value={id.pan} />
           <Fact label="Mobile" value={id.mobile} />
-          <Fact label="Email" value={id.email} />
+          <Fact label="Email" value={displayEmail} />
           <Fact label="Customer since" value={id.memberSince} />
         </div>
       </section>
