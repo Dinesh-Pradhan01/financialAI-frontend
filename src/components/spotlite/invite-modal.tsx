@@ -210,7 +210,7 @@ export function InviteModal({ isOpen, onClose }: InviteModalProps) {
                 <div className="flex items-center gap-2 text-xs font-bold text-emerald-600">
                   <Sparkles className="h-4 w-4" /> Invitation Link Ready (Valid for 24 hours)
                 </div>
-                <div className="flex items-center gap-2">
+                {/* <div className="flex items-center gap-2">
                   <input
                     type="text"
                     readOnly
@@ -224,7 +224,7 @@ export function InviteModal({ isOpen, onClose }: InviteModalProps) {
                     {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
                     {copied ? "Copied" : "Copy"}
                   </button>
-                </div>
+                </div> */}
               </div>
             )}
 
