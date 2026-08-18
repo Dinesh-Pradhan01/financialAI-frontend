@@ -53,7 +53,7 @@ export const FormField = React.forwardRef<HTMLInputElement, FormFieldProps>(
             )}
           </label>
           {optional && (
-            <span className="text-[11px] font-normal text-text-tertiary">
+            <span className="text-[0.6875rem] font-normal text-text-tertiary">
               Optional
             </span>
           )}
@@ -94,12 +94,12 @@ export const FormField = React.forwardRef<HTMLInputElement, FormFieldProps>(
         </div>
 
         {error ? (
-          <p className="text-[11px] font-medium text-destructive flex items-center gap-1 mt-1">
+          <p className="text-[0.6875rem] font-medium text-destructive flex items-center gap-1 mt-1">
             <AlertCircle className="h-3 w-3 shrink-0" />
             <span>{error}</span>
           </p>
         ) : helperText ? (
-          <p className="text-[11px] text-text-secondary mt-1">{helperText}</p>
+          <p className="text-[0.6875rem] text-text-secondary mt-1">{helperText}</p>
         ) : null}
       </div>
     );
@@ -135,7 +135,7 @@ export const FormTextarea = React.forwardRef<
           )}
         </label>
         {optional && (
-          <span className="text-[11px] font-normal text-text-tertiary">
+          <span className="text-[0.6875rem] font-normal text-text-tertiary">
             Optional
           </span>
         )}
@@ -160,12 +160,12 @@ export const FormTextarea = React.forwardRef<
       </div>
 
       {error ? (
-        <p className="text-[11px] font-medium text-destructive flex items-center gap-1 mt-1">
+        <p className="text-[0.6875rem] font-medium text-destructive flex items-center gap-1 mt-1">
           <AlertCircle className="h-3 w-3 shrink-0" />
           <span>{error}</span>
         </p>
       ) : helperText ? (
-        <p className="text-[11px] text-text-secondary mt-1">{helperText}</p>
+        <p className="text-[0.6875rem] text-text-secondary mt-1">{helperText}</p>
       ) : null}
     </div>
   );
@@ -218,7 +218,7 @@ export function FormSelect({
           )}
         </label>
         {optional && (
-          <span className="text-[11px] font-normal text-text-tertiary">
+          <span className="text-[0.6875rem] font-normal text-text-tertiary">
             Optional
           </span>
         )}
@@ -230,7 +230,7 @@ export function FormSelect({
         disabled={disabled}
       >
         <SelectTrigger
-          className={`h-[42px] rounded-xl border bg-surface px-3.5 py-2.5 text-sm text-foreground outline-none transition-all duration-150 shadow-xs
+          className={`h-[2.625rem] rounded-xl border bg-surface px-3.5 py-2.5 text-sm text-foreground outline-none transition-all duration-150 shadow-xs
             ${
               error
                 ? "border-destructive focus:ring-destructive/15"
@@ -253,12 +253,12 @@ export function FormSelect({
       </Select>
 
       {error ? (
-        <p className="text-[11px] font-medium text-destructive flex items-center gap-1 mt-1">
+        <p className="text-[0.6875rem] font-medium text-destructive flex items-center gap-1 mt-1">
           <AlertCircle className="h-3 w-3 shrink-0" />
           <span>{error}</span>
         </p>
       ) : helperText ? (
-        <p className="text-[11px] text-text-secondary mt-1">{helperText}</p>
+        <p className="text-[0.6875rem] text-text-secondary mt-1">{helperText}</p>
       ) : null}
     </div>
   );

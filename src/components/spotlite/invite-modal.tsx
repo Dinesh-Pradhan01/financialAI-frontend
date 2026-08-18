@@ -123,7 +123,7 @@ export function InviteModal({ isOpen, onClose }: InviteModalProps) {
                       <span className="font-bold text-sm text-text-primary">CFO</span>
                       <Shield className={`h-4 w-4 ${role === "cfo" ? "text-brand" : "text-text-secondary"}`} />
                     </div>
-                    <span className="text-[11px] text-text-secondary">Chief Financial Officer</span>
+                    <span className="text-[0.6875rem] text-text-secondary">Chief Financial Officer</span>
                   </button>
 
                   <button
@@ -139,7 +139,7 @@ export function InviteModal({ isOpen, onClose }: InviteModalProps) {
                       <span className="font-bold text-sm text-text-primary">HR</span>
                       <Shield className={`h-4 w-4 ${role === "hr" ? "text-brand" : "text-text-secondary"}`} />
                     </div>
-                    <span className="text-[11px] text-text-secondary">Human Resources</span>
+                    <span className="text-[0.6875rem] text-text-secondary">Human Resources</span>
                   </button>
                 </div>
               </div>
@@ -242,7 +242,7 @@ export function InviteModal({ isOpen, onClose }: InviteModalProps) {
                       </div>
                       <div className="flex items-center gap-2">
                         <span
-                          className={`px-2 py-0.5 rounded-full text-[10px] font-bold capitalize ${
+                          className={`px-2 py-0.5 rounded-full text-[0.625rem] font-bold capitalize ${
                             inv.status === "accepted"
                               ? "bg-emerald-500/10 text-emerald-600 border border-emerald-500/20"
                               : inv.status === "expired"

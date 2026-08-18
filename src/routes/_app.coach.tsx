@@ -77,7 +77,7 @@ function Coach() {
           </span>
           <div className="leading-tight">
             <h1 className="font-display text-xl font-bold">Ask Spotlite</h1>
-            <p className="text-[11px] text-text-secondary">Reasoning over your real numbers</p>
+            <p className="text-[0.6875rem] text-text-secondary">Reasoning over your real numbers</p>
           </div>
         </div>
         {conversation.length > 0 && (

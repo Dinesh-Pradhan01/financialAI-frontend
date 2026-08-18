@@ -9,79 +9,61 @@ interface LandingHeaderProps {
 
 export function LandingHeader({ mobileOpen, setMobileOpen }: LandingHeaderProps) {
   return (
-    <>
-      {/* Top Banner Notice */}
-      <div className="border-b border-blue-100 bg-gradient-to-r from-blue-900 via-primary to-blue-800 px-4 py-2 text-center text-xs font-semibold text-white">
-        <div className="mx-auto flex max-w-6xl items-center justify-center gap-2">
-          <span className="flex h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-          <span>
-            New Feature: Instant Financial Copilot & Live Anomaly Radar 2.0
-          </span>
-          <a
-            href="#modules"
-            className="hidden items-center gap-1 font-bold underline underline-offset-2 hover:text-blue-100 sm:inline-flex"
-          >
-            Learn more <ArrowRight size={12} />
-          </a>
-        </div>
-      </div>
-
-      {/* Main Header */}
-      <header className="sticky top-0 z-50 border-b border-border/80 bg-white/95 backdrop-blur-md">
-        <div className="mx-auto flex h-14 lg:h-15 max-w-6xl items-center justify-between px-4 sm:px-6 lg:px-8">
-          <a href="#" className="flex items-center gap-2 group">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-white shadow-md shadow-primary/25 transition-transform group-hover:scale-105">
-              <Zap size={18} className="fill-current text-white" />
-            </div>
-            <div className="flex flex-col">
-              <span className="text-lg font-extrabold tracking-tight text-foreground">
-                Spot<span className="text-primary">Lite</span>
-              </span>
-              <span className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground -mt-1">
-                Intelligence
-              </span>
-            </div>
-          </a>
-
-          {/* Desktop Nav */}
-          <nav className="hidden items-center gap-7 lg:flex">
-            {NAV_LINKS.map((link) => (
-              <a
-                key={link.name}
-                href={link.href}
-                className="text-sm font-semibold text-muted-foreground transition-colors hover:text-foreground hover:text-primary"
-              >
-                {link.name}
-              </a>
-            ))}
-          </nav>
-
-          {/* Header Action Buttons */}
-          <div className="hidden items-center gap-3 sm:flex">
-            <Link
-              to="/login"
-              className="text-sm font-semibold text-muted-foreground px-3 py-2 transition-colors hover:text-foreground"
-            >
-              Sign In
-            </Link>
-            <Link
-              to="/signup"
-              className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-bold text-white shadow-sm shadow-primary/30 transition-all hover:bg-primary-hover hover:shadow-md hover:shadow-primary/40 active:scale-[0.98]"
-            >
-              Book a Live Demo
-              <ArrowRight size={15} />
-            </Link>
+    <header className="sticky top-0 z-50 w-full border-b border-border/80 bg-white/95 backdrop-blur-md">
+      <div className="mx-auto flex h-16 lg:h-18 max-w-7xl 2xl:max-w-[90rem] items-center justify-between px-4 sm:px-6 lg:px-8 2xl:px-12">
+        <a href="#" className="flex items-center gap-2.5 group shrink-0">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-white shadow-md shadow-primary/25 transition-transform group-hover:scale-105">
+            <Zap size={20} className="fill-current text-white" />
           </div>
+          <div className="flex flex-col">
+            <span className="text-xl font-extrabold tracking-tight text-foreground">
+              Spot<span className="text-primary">Lite</span>
+            </span>
+            <span className="text-[0.625rem] font-bold uppercase tracking-widest text-muted-foreground -mt-1">
+              Intelligence
+            </span>
+          </div>
+        </a>
 
-          {/* Mobile Menu Button */}
-          <button
-            className="flex h-10 w-10 items-center justify-center rounded-lg border border-border text-foreground hover:bg-muted lg:hidden"
-            onClick={() => setMobileOpen((v) => !v)}
-            aria-label="Toggle navigation"
+        {/* Desktop Nav */}
+        <nav className="hidden items-center gap-6 xl:gap-8 lg:flex">
+          {NAV_LINKS.map((link) => (
+            <a
+              key={link.name}
+              href={link.href}
+              className="text-sm lg:text-base font-semibold text-muted-foreground transition-colors hover:text-foreground hover:text-primary"
+            >
+              {link.name}
+            </a>
+          ))}
+        </nav>
+
+        {/* Header Action Buttons */}
+        <div className="hidden items-center gap-3 sm:gap-4 sm:flex shrink-0">
+          <Link
+            to="/login"
+            className="text-sm lg:text-base font-semibold text-muted-foreground px-3 py-2 transition-colors hover:text-foreground"
           >
-            {mobileOpen ? <X size={20} /> : <Menu size={20} />}
-          </button>
+            Sign In
+          </Link>
+          <Link
+            to="/signup"
+            className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm lg:text-base font-bold text-white shadow-sm shadow-primary/30 transition-all hover:bg-primary-hover hover:shadow-md hover:shadow-primary/40 active:scale-[0.98]"
+          >
+            Book a Live Demo
+            <ArrowRight size={16} />
+          </Link>
         </div>
+
+        {/* Mobile Menu Button */}
+        <button
+          className="flex h-10 w-10 items-center justify-center rounded-lg border border-border text-foreground hover:bg-muted lg:hidden"
+          onClick={() => setMobileOpen((v) => !v)}
+          aria-label="Toggle navigation"
+        >
+          {mobileOpen ? <X size={20} /> : <Menu size={20} />}
+        </button>
+      </div>
 
         {/* Mobile Navigation Drawer */}
         {mobileOpen && (
@@ -117,6 +99,5 @@ export function LandingHeader({ mobileOpen, setMobileOpen }: LandingHeaderProps)
           </div>
         )}
       </header>
-    </>
   );
 }

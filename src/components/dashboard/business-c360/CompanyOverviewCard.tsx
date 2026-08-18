@@ -1,11 +1,22 @@
-import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
-import { useCompanyProfile, isSetupRequiredError } from '@/hooks/useCompanyAPI';
-import { Building2, Mail, Phone, MapPin, Globe, CreditCard, ArrowRight, Sparkles, AlertCircle, RefreshCw } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Link } from '@tanstack/react-router';
+import React from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useCompanyProfile, isSetupRequiredError } from "@/hooks/useCompanyAPI";
+import {
+  Building2,
+  Mail,
+  Phone,
+  MapPin,
+  Globe,
+  CreditCard,
+  ArrowRight,
+  Sparkles,
+  AlertCircle,
+  RefreshCw,
+} from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Link } from "@tanstack/react-router";
 
 export const CompanyOverviewCard = () => {
   const { data, isLoading, isError, error, refetch, isFetching } = useCompanyProfile();
@@ -52,7 +63,7 @@ export const CompanyOverviewCard = () => {
             disabled={isFetching}
             className="shrink-0 flex items-center gap-2 cursor-pointer"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${isFetching ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`w-3.5 h-3.5 ${isFetching ? "animate-spin" : ""}`} />
             Try again
           </Button>
         </CardContent>
@@ -77,7 +88,8 @@ export const CompanyOverviewCard = () => {
               </div>
               <h3 className="text-xl font-bold text-foreground">Complete Company Profile</h3>
               <p className="text-sm text-muted-foreground max-w-lg">
-                Enter your company registration details, industry, and PAN/GST to generate your Business C360 intelligence scorecard.
+                Enter your company registration details, industry, and PAN/GST to generate your
+                Business C360 intelligence scorecard.
               </p>
             </div>
           </div>
@@ -96,7 +108,7 @@ export const CompanyOverviewCard = () => {
   // State: Ready / Data populated
   return (
     <Card className="h-full overflow-hidden border border-border/70 shadow-sm bg-card relative group">
-      <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+      <div className="absolute inset-0 bg-linear-to-r from-blue-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
       <CardHeader className="pb-4">
         <div className="flex items-start justify-between">
           <div>
@@ -105,7 +117,9 @@ export const CompanyOverviewCard = () => {
               {data.company_name}
             </CardTitle>
             <div className="flex flex-wrap gap-2">
-              <Badge variant="secondary" className="bg-primary/10 text-primary hover:bg-primary/20">{data.industry}</Badge>
+              <Badge variant="secondary" className="bg-primary/10 text-primary hover:bg-primary/20">
+                {data.industry}
+              </Badge>
               <Badge variant="outline">{data.business_type}</Badge>
             </div>
           </div>
@@ -113,19 +127,21 @@ export const CompanyOverviewCard = () => {
       </CardHeader>
       <CardContent>
         {data.summary && (
-          <p className="text-sm text-muted-foreground mb-6 leading-relaxed">
-            {data.summary}
-          </p>
+          <p className="text-sm text-muted-foreground mb-6 leading-relaxed">{data.summary}</p>
         )}
-        
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
           <div className="flex items-start gap-3">
             <div className="p-2 bg-primary/10 rounded-lg shrink-0">
               <CreditCard className="w-4 h-4 text-primary" />
             </div>
             <div>
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">PAN / GST</p>
-              <p className="text-sm font-medium">{data.pan} {data.gst ? ` / ${data.gst}` : ''}</p>
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                PAN / GST
+              </p>
+              <p className="text-sm font-medium">
+                {data.pan} {data.gst ? ` / ${data.gst}` : ""}
+              </p>
             </div>
           </div>
 
@@ -134,8 +150,12 @@ export const CompanyOverviewCard = () => {
               <MapPin className="w-4 h-4 text-primary" />
             </div>
             <div>
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Registered Address</p>
-              <p className="text-sm font-medium line-clamp-2" title={data.registered_address}>{data.registered_address}</p>
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                Registered Address
+              </p>
+              <p className="text-sm font-medium line-clamp-2" title={data.registered_address}>
+                {data.registered_address}
+              </p>
             </div>
           </div>
 
@@ -144,7 +164,9 @@ export const CompanyOverviewCard = () => {
               <Mail className="w-4 h-4 text-primary" />
             </div>
             <div>
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Contact Email</p>
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                Contact Email
+              </p>
               <p className="text-sm font-medium">{data.email}</p>
             </div>
           </div>
@@ -154,7 +176,9 @@ export const CompanyOverviewCard = () => {
               <Phone className="w-4 h-4 text-primary" />
             </div>
             <div>
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Phone</p>
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                Phone
+              </p>
               <p className="text-sm font-medium">{data.phone}</p>
             </div>
           </div>
@@ -165,8 +189,15 @@ export const CompanyOverviewCard = () => {
                 <Globe className="w-4 h-4 text-primary" />
               </div>
               <div>
-                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Website</p>
-                <a href={data.website.startsWith('http') ? data.website : `https://${data.website}`} target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-primary hover:underline">
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                  Website
+                </p>
+                <a
+                  href={data.website.startsWith("http") ? data.website : `https://${data.website}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm font-medium text-primary hover:underline"
+                >
                   {data.website}
                 </a>
               </div>

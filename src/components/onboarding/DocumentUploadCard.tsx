@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react";
-import { CheckCircle2, FileText, Loader2, Trash2, Upload, CloudArrowUp } from "lucide-react";
+import { CheckCircle2, FileText, Loader2, Trash2, Upload } from "lucide-react";
 import { DocumentRequirement } from "@/lib/businessOnboarding";
 import { UploadedDoc } from "./types";
 

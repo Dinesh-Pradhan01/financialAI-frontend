@@ -107,11 +107,11 @@ function AcceptInvitePage() {
       if (sync) {
         await sync();
       } else {
-        await refreshUser();
+        await refreshUser();``
       }
 
       toast.success(
-        `Account created as ${inviteData.role?.toUpperCase()}! Verification email sent.`,
+        `Account created as ${inviteData.role?.toUpperCase()}!`,
       );
       nav({ to: "/verify-email" });
     } catch (err: any) {

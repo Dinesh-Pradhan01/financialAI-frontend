@@ -65,7 +65,7 @@ export function SpotliteLoader({
           <span className="font-display text-2xl font-black tracking-tight text-foreground">
             Spot<span className="text-brand">Lite</span>
           </span>
-          <span className="rounded-full bg-brand/10 border border-brand/20 px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest text-brand">
+          <span className="rounded-full bg-brand/10 border border-brand/20 px-2 py-0.5 text-[0.5625rem] font-bold uppercase tracking-widest text-brand">
             Intelligence
           </span>
         </div>
@@ -82,7 +82,7 @@ export function SpotliteLoader({
             repeat: Infinity,
             ease: "easeInOut",
           }}
-          className="h-full w-24 rounded-full bg-gradient-to-r from-transparent via-brand to-transparent"
+          className="h-full w-24 rounded-full bg-linear-to-r from-transparent via-brand to-transparent"
         />
       </div>
 
@@ -95,7 +95,7 @@ export function SpotliteLoader({
         {message}
       </motion.p>
       {subMessage && (
-        <p className="text-[11px] text-text-secondary mt-1 font-medium flex items-center gap-1">
+        <p className="text-[0.6875rem] text-text-secondary mt-1 font-medium flex items-center gap-1">
           <ShieldCheck className="h-3 w-3 text-brand" />
           {subMessage}
         </p>

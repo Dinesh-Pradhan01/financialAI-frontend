@@ -172,7 +172,7 @@ function BalanceTrend({ values }: { values: number[] }) {
             >
               <span
                 className={cn(
-                  "mb-1 font-num text-[10px] text-text-secondary transition-opacity",
+                  "mb-1 font-num text-[0.625rem] text-text-secondary transition-opacity",
                   isLast ? "opacity-100" : "opacity-0 group-hover:opacity-100",
                 )}
               >
@@ -189,7 +189,7 @@ function BalanceTrend({ values }: { values: number[] }) {
           );
         })}
       </div>
-      <div className="mt-2 flex justify-between font-num text-[10px] text-text-secondary">
+      <div className="mt-2 flex justify-between font-num text-[0.625rem] text-text-secondary">
         <span>{formatINR(values[0] * 1000, { compact: true })}</span>
         <span>{formatINR(values[last] * 1000, { compact: true })} now</span>
       </div>

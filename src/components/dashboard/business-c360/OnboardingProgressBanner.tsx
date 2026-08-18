@@ -18,7 +18,7 @@ export function OnboardingProgressBanner() {
   const currentStep = onboardingData?.current_step ?? 1;
 
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-brand/30 bg-gradient-to-r from-brand/10 via-surface to-brand/5 p-5 shadow-xs">
+    <div className="relative overflow-hidden rounded-2xl border border-brand/30 bg-linear-to-r from-brand/10 via-surface to-brand/5 p-5 shadow-xs">
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5">
         {/* Left Info */}
         <div className="flex items-start gap-4">
@@ -30,15 +30,14 @@ export function OnboardingProgressBanner() {
               <span className="inline-flex items-center gap-1.5 rounded-full bg-brand/15 px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider text-brand">
                 <Sparkles className="h-3 w-3 text-brand" /> Setup in Progress
               </span>
-              <span className="text-xs text-text-secondary">
-                Step {currentStep} of 5
-              </span>
+              <span className="text-xs text-text-secondary">Step {currentStep} of 5</span>
             </div>
             <h2 className="text-base sm:text-lg font-bold tracking-tight text-foreground">
               Finish your Business Profile for Full AI Intelligence
             </h2>
             <p className="text-xs text-text-secondary max-w-2xl leading-relaxed">
-              Complete your leadership structure, banking context, and verification documents to unlock real-time financial health scoring and peer benchmarking.
+              Complete your leadership structure, banking context, and verification documents to
+              unlock real-time financial health scoring and peer benchmarking.
             </p>
           </div>
         </div>
