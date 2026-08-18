@@ -54,11 +54,14 @@ export const CompanyNewsCard = ({ hasProfile = true }: Props) => {
                 Market trends and relevant company news will be aggregated automatically once your industry is configured.
               </p>
             </div>
-            <Link to="/onboarding">
-              <Button size="sm" variant="outline" className="rounded-pill text-xs font-semibold gap-1.5 cursor-pointer mt-1">
-                Complete Setup <ArrowRight className="w-3.5 h-3.5" />
-              </Button>
-            </Link>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => window.dispatchEvent(new CustomEvent("open-onboarding"))}
+              className="rounded-pill text-xs font-semibold gap-1.5 cursor-pointer mt-1"
+            >
+              Complete Setup <ArrowRight className="w-3.5 h-3.5" />
+            </Button>
           </div>
         ) : isError || !data ? (
           /* State: Genuine API failure */

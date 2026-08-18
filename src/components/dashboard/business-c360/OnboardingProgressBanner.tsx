@@ -5,7 +5,11 @@ import { Button } from "@/components/ui/button";
 import { useOnboardingStatus } from "@/hooks/useCompanyAPI";
 import { useAuth } from "@/contexts/AuthContext";
 
-export function OnboardingProgressBanner() {
+interface OnboardingProgressBannerProps {
+  onOpenOnboarding?: () => void;
+}
+
+export function OnboardingProgressBanner({ onOpenOnboarding }: OnboardingProgressBannerProps) {
   const { user } = useAuth();
   const { data: onboardingData } = useOnboardingStatus();
 
@@ -16,6 +20,14 @@ export function OnboardingProgressBanner() {
 
   const completionPct = onboardingData?.completion_percentage ?? 0;
   const currentStep = onboardingData?.current_step ?? 1;
+
+  const handleOpen = () => {
+    if (onOpenOnboarding) {
+      onOpenOnboarding();
+    } else {
+      window.dispatchEvent(new CustomEvent("open-onboarding"));
+    }
+  };
 
   return (
     <div className="relative overflow-hidden rounded-2xl border border-brand/30 bg-linear-to-r from-brand/10 via-surface to-brand/5 p-5 shadow-xs">
@@ -57,12 +69,13 @@ export function OnboardingProgressBanner() {
             </div>
           </div>
 
-          <Link to="/onboarding" className="shrink-0">
-            <Button className="w-full sm:w-auto bg-brand hover:opacity-90 text-white font-semibold flex items-center justify-center gap-2 cursor-pointer shadow-brand px-5 py-2.5 rounded-xl text-xs">
-              <span>Resume Onboarding</span>
-              <ArrowRight className="h-3.5 w-3.5" />
-            </Button>
-          </Link>
+          <Button
+            onClick={handleOpen}
+            className="w-full sm:w-auto bg-brand hover:opacity-90 text-white font-semibold flex items-center justify-center gap-2 cursor-pointer shadow-brand px-5 py-2.5 rounded-xl text-xs shrink-0"
+          >
+            <span>Resume Onboarding</span>
+            <ArrowRight className="h-3.5 w-3.5" />
+          </Button>
         </div>
       </div>
     </div>

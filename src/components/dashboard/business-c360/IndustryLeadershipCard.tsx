@@ -54,11 +54,14 @@ export const IndustryLeadershipCard = ({ hasProfile = true }: Props) => {
                 </p>
               </div>
             </div>
-            <Link to="/onboarding" className="shrink-0">
-              <Button variant="outline" size="sm" className="rounded-pill text-xs font-semibold gap-1.5 cursor-pointer">
-                Complete Profile <ArrowRight className="w-3.5 h-3.5" />
-              </Button>
-            </Link>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => window.dispatchEvent(new CustomEvent("open-onboarding"))}
+              className="rounded-pill text-xs font-semibold gap-1.5 cursor-pointer shrink-0"
+            >
+              Complete Profile <ArrowRight className="w-3.5 h-3.5" />
+            </Button>
           </div>
         </CardContent>
       </Card>

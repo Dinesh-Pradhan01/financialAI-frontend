@@ -45,6 +45,8 @@ function Login() {
   const [showPwd, setShowPwd] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
+  const isFormValid = email.trim().length > 0 && password.length > 0;
+
   // If user is already authenticated/synced, navigate away from login
   useEffect(() => {
     if (!loading && user) {
@@ -121,12 +123,9 @@ function Login() {
   }
 
   return (
-    <div className="grid min-h-screen md:grid-cols-2 bg-background">
-      {/* ---- Left hero panel (desktop) - Stable anchor across auth pages ---- */}
-      <AuthHeroPanel />
-
-      {/* ---- Right form panel ---- */}
-      <div className="flex flex-col justify-center px-6 py-12 sm:px-12 md:px-16 lg:px-20">
+    <div className="relative grid min-h-screen md:grid-cols-2 bg-white overflow-hidden">
+      {/* ---- Left form panel ---- */}
+      <div className="relative z-10 flex flex-col justify-center px-6 py-12 sm:px-12 md:px-16 lg:px-20 bg-white">
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -142,7 +141,7 @@ function Login() {
               <span className="text-lg font-extrabold tracking-tight text-foreground">
                 Spot<span className="text-primary">Lite</span>
               </span>
-              <span className="text-[9px] font-semibold uppercase tracking-widest text-muted-foreground -mt-1">
+              <span className="text-[0.5625rem] font-semibold uppercase tracking-widest text-muted-foreground -mt-1">
                 Intelligence
               </span>
             </div>
@@ -228,8 +227,8 @@ function Login() {
             {/* Submit */}
             <button
               type="submit"
-              disabled={submitting}
-              className="flex w-full items-center justify-center gap-2 rounded-pill bg-brand-gradient py-3 text-sm font-bold text-on-brand shadow-brand hover:opacity-95 active:scale-[0.99] transition-all disabled:opacity-60 cursor-pointer"
+              disabled={submitting || !isFormValid}
+              className="flex w-full items-center justify-center gap-2 rounded-pill bg-brand-gradient py-3 text-sm font-bold text-on-brand shadow-brand hover:opacity-95 active:scale-[0.99] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none cursor-pointer"
             >
               {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
               {submitting ? "Signing in…" : "Sign in"}
@@ -253,6 +252,9 @@ function Login() {
           </p>
         </motion.div>
       </div>
+
+      {/* ---- Right hero panel (desktop) with dark blue and sine curve divider ---- */}
+      <AuthHeroPanel />
     </div>
   );
 }

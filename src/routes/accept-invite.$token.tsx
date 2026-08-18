@@ -1,23 +1,47 @@
-import { createFileRoute, useNavigate, useParams, Link } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import {
+  Zap,
+  Lock,
+  Eye,
+  EyeOff,
   Loader2,
   Sparkles,
-  Building2,
-  Lock,
-  ArrowRight,
-  AlertCircle,
   ShieldCheck,
+  Building2,
+  AlertCircle,
+  Check,
+  X as XIcon,
 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
 import { api } from "@/lib/api";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "@/firebase/firebase";
+import { AuthHeroPanel } from "@/components/auth/AuthHeroPanel";
+import { SpotliteLoader } from "@/components/ui/SpotliteLoader";
 
 export const Route = createFileRoute("/accept-invite/$token")({
+  head: () => ({
+    meta: [
+      { title: "Accept Workspace Invitation · SpotLite" },
+      {
+        name: "description",
+        content: "Set up your executive account to join your company workspace on SpotLite Intelligence.",
+      },
+    ],
+  }),
   component: AcceptInvitePage,
 });
+
+// ---------- Password strength rules ----------
+const rules = [
+  { label: "At least 8 characters", test: (p: string) => p.length >= 8 },
+  { label: "One uppercase letter", test: (p: string) => /[A-Z]/.test(p) },
+  { label: "One lowercase letter", test: (p: string) => /[a-z]/.test(p) },
+  { label: "One number", test: (p: string) => /\d/.test(p) },
+] as const;
 
 function AcceptInvitePage() {
   const { token } = Route.useParams();
@@ -32,6 +56,8 @@ function AcceptInvitePage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPwd, setShowPwd] = useState(false);
+  const [showConfirmPwd, setShowConfirmPwd] = useState(false);
   const [processing, setProcessing] = useState(false);
 
   useEffect(() => {
@@ -68,6 +94,14 @@ function AcceptInvitePage() {
       description: "Click 'Join Workspace' to complete setup.",
     });
   };
+
+  const allRulesPassed = rules.every((r) => r.test(password));
+  const passwordsMatch = confirmPassword.length > 0 && password === confirmPassword;
+  const isFormValid =
+    fullName.trim().length >= 2 &&
+    email.trim().includes("@") &&
+    allRulesPassed &&
+    passwordsMatch;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -107,7 +141,7 @@ function AcceptInvitePage() {
       if (sync) {
         await sync();
       } else {
-        await refreshUser();``
+        await refreshUser();
       }
 
       toast.success(
@@ -124,9 +158,10 @@ function AcceptInvitePage() {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
-        <Loader2 className="h-8 w-8 animate-spin text-brand" />
-      </div>
+      <SpotliteLoader
+        message="Verifying workspace invitation…"
+        subMessage="SpotLite Intelligence"
+      />
     );
   }
 
@@ -147,174 +182,233 @@ function AcceptInvitePage() {
     );
   }
 
+  const roleLabel =
+    inviteData.role === "cfo"
+      ? "Chief Financial Officer (CFO)"
+      : inviteData.role === "hr"
+      ? "Human Resources (HR)"
+      : inviteData.role?.toUpperCase() || "Executive";
+
   return (
-    <div className="grid min-h-screen lg:grid-cols-2 bg-background">
-      {/* Left panel - Info */}
-      <div className="hidden lg:flex flex-col justify-between bg-brand p-12 text-on-brand relative overflow-hidden">
-        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
-        <div className="relative z-10 flex items-center gap-2.5">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10 backdrop-blur-md border border-white/20">
-            <Sparkles className="h-5 w-5 text-white" />
-          </div>
-          <div>
-            <span className="font-display text-2xl font-bold tracking-tight">SpotLite</span>
-          </div>
-        </div>
-
-        <div className="relative z-10 my-auto space-y-6 max-w-md">
-          <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-medium backdrop-blur-md border border-white/15">
-            <Building2 className="h-3.5 w-3.5" />
-            <span>Workspace Invitation</span>
-          </div>
-          <h2 className="font-display text-4xl font-bold leading-tight">
-            You've been invited to join{" "}
-            <span className="text-emerald-400">{inviteData.company_name}</span>
-          </h2>
-          <p className="text-white/80 leading-relaxed text-lg">
-            Join your team on SpotLite to manage financial intelligence, vendor lists, and customer
-            profiles securely.
-          </p>
-          <div className="rounded-2xl bg-white/10 p-5 border border-white/10 backdrop-blur-md">
-            <div className="flex items-center gap-3 mb-2">
-              <ShieldCheck className="h-5 w-5 text-emerald-400" />
-              <h3 className="font-bold text-white uppercase text-sm">Designated Executive Role</h3>
+    <div className="relative grid min-h-screen md:grid-cols-2 bg-white overflow-hidden">
+      {/* ---- Left form panel ---- */}
+      <div className="relative z-10 flex flex-col justify-center px-6 py-12 sm:px-12 md:px-16 lg:px-20 bg-white">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.18, ease: "easeOut" }}
+          className="mx-auto w-full max-w-md"
+        >
+          {/* Mobile Brand Header */}
+          <Link to="/" className="md:hidden mb-6 flex items-center gap-2.5 w-fit">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-white shadow-md shadow-primary/25">
+              <Zap size={18} className="fill-current text-white" />
             </div>
-            <p className="text-xl font-bold capitalize text-white">
-              {inviteData.role === "cfo" ? "Chief Financial Officer (CFO)" : "Human Resources (HR)"}
-            </p>
-          </div>
-        </div>
+            <div className="flex flex-col">
+              <span className="text-lg font-extrabold tracking-tight text-foreground">
+                Spot<span className="text-primary">Lite</span>
+              </span>
+              <span className="text-[0.5625rem] font-semibold uppercase tracking-widest text-muted-foreground -mt-1">
+                Intelligence
+              </span>
+            </div>
+          </Link>
 
-        <div className="relative z-10 text-xs font-medium text-white/60">
-          Secure, Encrypted Access &bull; Bank-grade security
-        </div>
-      </div>
-
-      {/* Right panel - Form */}
-      <div className="flex items-center justify-center p-6 md:p-12">
-        <div className="w-full max-w-md space-y-6">
-          <div className="lg:hidden flex items-center gap-2 justify-center mb-6">
-            <Sparkles className="h-6 w-6 text-brand" />
-            <span className="font-display text-xl font-bold">SpotLite</span>
-          </div>
-
-          <div className="flex items-center justify-between">
+          {/* Heading and Demo Button */}
+          <div className="flex items-start justify-between gap-3">
             <div>
-              <h1 className="font-display text-2xl font-bold tracking-tight">Executive Setup</h1>
-              <p className="text-xs text-text-secondary mt-1">
-                Enter your details to join{" "}
-                <strong className="text-text-primary">{inviteData.company_name}</strong>
+              <div className="inline-flex items-center gap-1.5 rounded-full bg-brand/10 border border-brand/20 px-2.5 py-0.5 text-[11px] font-bold text-brand mb-2">
+                <Building2 className="h-3 w-3" /> Workspace Invite
+              </div>
+              <h1 className="font-display text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
+                Join your workspace
+              </h1>
+              <p className="mt-1 text-xs sm:text-sm text-text-secondary">
+                Invited to join <strong className="text-text-primary">{inviteData.company_name}</strong>
               </p>
             </div>
-            {/* Fill Demo Data Button */}
+
             <button
               type="button"
               onClick={handleFillDemoData}
-              className="flex items-center gap-1.5 rounded-pill bg-brand/10 hover:bg-brand/20 border border-brand/30 px-3 py-1.5 text-xs font-bold text-brand transition shadow-sm"
+              className="flex items-center gap-1.5 rounded-pill bg-brand/10 hover:bg-brand/20 border border-brand/30 px-3 py-1.5 text-xs font-bold text-brand transition shadow-xs cursor-pointer shrink-0 mt-1"
               title="Auto-fill with sample test data"
             >
               <Sparkles className="h-3.5 w-3.5" />
-              Fill Demo Data
+              Demo Data
             </button>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Designated Role (Read Only) */}
-            <div className="space-y-1">
-              <label className="block text-xs font-semibold text-text-secondary">
-                Assigned Role (Set by CEO)
-              </label>
-              <div className="flex items-center gap-2 rounded-xl border border-brand/30 bg-brand/5 px-4 py-2.5 text-sm font-bold text-brand">
-                <ShieldCheck className="h-4 w-4" />
-                <span className="uppercase">{inviteData.role}</span> &bull;{" "}
-                {inviteData.role === "cfo" ? "Chief Financial Officer" : "Human Resources Manager"}
-              </div>
+          {/* Role Pill Card */}
+          <div className="mt-5 rounded-2xl border border-brand/25 bg-linear-to-r from-brand/10 via-brand/5 to-transparent p-3.5 flex items-center gap-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand text-white shrink-0">
+              <ShieldCheck className="h-5 w-5" />
             </div>
+            <div>
+              <span className="block text-[10px] font-bold uppercase tracking-wider text-brand">
+                Designated Executive Role
+              </span>
+              <span className="text-xs sm:text-sm font-bold text-foreground">
+                {roleLabel}
+              </span>
+            </div>
+          </div>
 
-            {/* Email */}
-            <div className="space-y-1">
-              <label className="block text-xs font-semibold text-text-secondary">
-                Email Address
+          <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+            {/* Work Email */}
+            <div className="space-y-1.5">
+              <label htmlFor="invite-email" className="block text-xs font-semibold text-text-secondary">
+                Work Email address
               </label>
               <input
+                id="invite-email"
                 type="email"
                 required
+                autoComplete="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full rounded-xl border border-border bg-surface px-4 py-2.5 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
+                className="w-full rounded-pill border border-border bg-surface px-4 py-3 text-sm text-foreground outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20 shadow-xs"
+                placeholder="name@company.com"
               />
             </div>
 
             {/* Full Name */}
-            <div className="space-y-1">
-              <label className="block text-xs font-semibold text-text-secondary">Full Name</label>
+            <div className="space-y-1.5">
+              <label htmlFor="invite-name" className="block text-xs font-semibold text-text-secondary">
+                Full Name
+              </label>
               <input
+                id="invite-name"
                 type="text"
                 required
+                autoComplete="name"
                 placeholder="e.g. Alex Morgan"
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
-                className="w-full rounded-xl border border-border bg-surface px-4 py-2.5 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
+                className="w-full rounded-pill border border-border bg-surface px-4 py-3 text-sm text-foreground outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20 shadow-xs"
               />
             </div>
 
-            {/* Password */}
-            <div className="space-y-1">
-              <label className="block text-xs font-semibold text-text-secondary">
+            {/* Create Password */}
+            <div className="space-y-1.5">
+              <label htmlFor="invite-password" className="block text-xs font-semibold text-text-secondary">
                 Create Password
               </label>
               <div className="relative">
-                <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-text-secondary/60" />
                 <input
-                  type="password"
+                  id="invite-password"
+                  type={showPwd ? "text" : "password"}
                   required
+                  autoComplete="new-password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full rounded-xl border border-border bg-surface pl-10 pr-4 py-2.5 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
+                  className="w-full rounded-pill border border-border bg-surface px-4 py-3 pr-12 text-sm text-foreground outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20 shadow-xs"
                   placeholder="••••••••"
-                  minLength={8}
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPwd((v) => !v)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-text-secondary hover:text-text-primary cursor-pointer transition-colors"
+                  aria-label={showPwd ? "Hide password" : "Show password"}
+                >
+                  {showPwd ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
               </div>
+
+              {/* Password strength checklist */}
+              <AnimatePresence>
+                {password.length > 0 && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="grid grid-cols-2 gap-1.5 pt-2 overflow-hidden"
+                  >
+                    {rules.map((rule) => {
+                      const passed = rule.test(password);
+                      return (
+                        <div
+                          key={rule.label}
+                          className={`flex items-center gap-1.5 text-xs transition-colors ${
+                            passed ? "text-success font-medium" : "text-text-secondary/60"
+                          }`}
+                        >
+                          {passed ? (
+                            <Check className="h-3.5 w-3.5 shrink-0" />
+                          ) : (
+                            <XIcon className="h-3.5 w-3.5 shrink-0" />
+                          )}
+                          <span>{rule.label}</span>
+                        </div>
+                      );
+                    })}
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
 
             {/* Confirm Password */}
-            <div className="space-y-1">
-              <label className="block text-xs font-semibold text-text-secondary">
+            <div className="space-y-1.5">
+              <label htmlFor="invite-confirm" className="block text-xs font-semibold text-text-secondary">
                 Confirm Password
               </label>
               <div className="relative">
-                <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-text-secondary/60" />
                 <input
-                  type="password"
+                  id="invite-confirm"
+                  type={showConfirmPwd ? "text" : "password"}
                   required
+                  autoComplete="new-password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="w-full rounded-xl border border-border bg-surface pl-10 pr-4 py-2.5 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
+                  className="w-full rounded-pill border border-border bg-surface px-4 py-3 pr-12 text-sm text-foreground outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20 shadow-xs"
                   placeholder="••••••••"
-                  minLength={8}
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPwd((v) => !v)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-text-secondary hover:text-text-primary cursor-pointer transition-colors"
+                  aria-label={showConfirmPwd ? "Hide password" : "Show password"}
+                >
+                  {showConfirmPwd ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
               </div>
+
+              {confirmPassword.length > 0 && !passwordsMatch && (
+                <p className="text-xs text-destructive pt-1">Passwords do not match.</p>
+              )}
             </div>
 
+            {/* Submit Button */}
             <button
               type="submit"
-              disabled={processing}
-              className="group flex w-full items-center justify-center gap-2 rounded-xl bg-brand py-3 text-sm font-semibold text-white shadow-brand hover:opacity-90 transition disabled:opacity-70 mt-2"
+              disabled={processing || !isFormValid}
+              className="flex w-full items-center justify-center gap-2 rounded-pill bg-brand-gradient py-3 text-sm font-bold text-on-brand shadow-brand hover:opacity-95 active:scale-[0.99] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none cursor-pointer mt-2"
             >
-              {processing ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" /> Creating Account...
-                </>
-              ) : (
-                <>
-                  Join Workspace{" "}
-                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                </>
-              )}
+              {processing && <Loader2 className="h-4 w-4 animate-spin" />}
+              {processing ? "Joining Workspace…" : "Join Workspace"}
             </button>
           </form>
-        </div>
+
+          {/* Login fallback link */}
+          <p className="mt-8 text-center text-sm text-text-secondary">
+            Already have an account?{" "}
+            <Link
+              to="/login"
+              preload="intent"
+              className="font-semibold text-brand hover:underline"
+            >
+              Sign in
+            </Link>
+          </p>
+
+          <p className="mt-6 flex items-center justify-center gap-1.5 text-xs text-text-secondary">
+            <Lock className="h-3 w-3" /> End-to-end 256-bit encrypted session
+          </p>
+        </motion.div>
       </div>
+
+      {/* ---- Right hero panel (desktop) with dark blue and sine curve divider ---- */}
+      <AuthHeroPanel role={inviteData?.role} companyName={inviteData?.company_name} />
     </div>
   );
 }

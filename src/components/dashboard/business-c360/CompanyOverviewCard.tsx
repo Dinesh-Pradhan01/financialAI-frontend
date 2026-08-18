@@ -94,11 +94,12 @@ export const CompanyOverviewCard = () => {
             </div>
           </div>
           <div className="flex items-center gap-3 shrink-0">
-            <Link to="/onboarding">
-              <Button className="bg-brand-gradient hover:opacity-95 text-white font-semibold flex items-center gap-2 cursor-pointer shadow-brand px-5 py-2.5 rounded-pill">
-                Complete Setup <ArrowRight className="w-4 h-4" />
-              </Button>
-            </Link>
+            <Button
+              onClick={() => window.dispatchEvent(new CustomEvent("open-onboarding"))}
+              className="bg-brand-gradient hover:opacity-95 text-white font-semibold flex items-center gap-2 cursor-pointer shadow-brand px-5 py-2.5 rounded-pill"
+            >
+              Complete Setup <ArrowRight className="w-4 h-4" />
+            </Button>
           </div>
         </CardContent>
       </Card>

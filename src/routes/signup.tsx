@@ -101,12 +101,9 @@ function Signup() {
   }
 
   return (
-    <div className="grid min-h-screen md:grid-cols-2 bg-background">
-      {/* ---- Left hero panel (desktop) - Stable anchor across auth pages ---- */}
-      <AuthHeroPanel />
-
-      {/* ---- Right form panel ---- */}
-      <div className="flex flex-col justify-center px-6 py-12 sm:px-12 md:px-16 lg:px-20">
+    <div className="relative grid min-h-screen md:grid-cols-2 bg-white overflow-hidden">
+      {/* ---- Left form panel ---- */}
+      <div className="relative z-10 flex flex-col justify-center px-6 py-12 sm:px-12 md:px-16 lg:px-20 bg-white">
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -122,7 +119,7 @@ function Signup() {
               <span className="text-lg font-extrabold tracking-tight text-foreground">
                 Spot<span className="text-primary">Lite</span>
               </span>
-              <span className="text-[9px] font-semibold uppercase tracking-widest text-muted-foreground -mt-1">
+              <span className="text-[0.5625rem] font-semibold uppercase tracking-widest text-muted-foreground -mt-1">
                 Intelligence
               </span>
             </div>
@@ -283,6 +280,9 @@ function Signup() {
           </p>
         </motion.div>
       </div>
+
+      {/* ---- Right hero panel (desktop) with dark blue and sine curve divider ---- */}
+      <AuthHeroPanel />
     </div>
   );
 }

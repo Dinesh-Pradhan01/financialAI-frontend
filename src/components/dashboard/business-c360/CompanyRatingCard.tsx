@@ -72,11 +72,14 @@ export const CompanyRatingCard = ({ hasProfile = true }: Props) => {
                 Complete your company profile and upload verification documents to compute your Business C360 score.
               </p>
             </div>
-            <Link to="/onboarding">
-              <Button size="sm" variant="outline" className="rounded-pill text-xs font-semibold gap-1.5 cursor-pointer mt-1">
-                Complete Setup <ArrowRight className="w-3.5 h-3.5" />
-              </Button>
-            </Link>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => window.dispatchEvent(new CustomEvent("open-onboarding"))}
+              className="rounded-pill text-xs font-semibold gap-1.5 cursor-pointer mt-1"
+            >
+              Complete Setup <ArrowRight className="w-3.5 h-3.5" />
+            </Button>
           </div>
         ) : isError || !data ? (
           /* State: Genuine API failure */
