@@ -1,9 +1,9 @@
 import { createFileRoute, Outlet, redirect, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
-import { BottomTabBar, DesktopSidebar } from "@/components/spotlite/nav";
-import { auth } from "@/firebase/firebase";
-import { useAuth, getAuthSnapshot } from "@/contexts/AuthContext";
-import { SpotliteLoader } from "@/components/ui/SpotliteLoader";
+import { BottomTabBar, DesktopSidebar } from "@/shared/components/shell/nav";
+import { auth } from "@/shared/firebase/firebase";
+import { useAuth, getAuthSnapshot } from "@/shared/contexts/AuthContext";
+import { SpotliteLoader } from "@/shared/components/ui/SpotliteLoader";
 
 export const Route = createFileRoute("/_app")({
   beforeLoad: async () => {

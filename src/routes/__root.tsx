@@ -10,14 +10,14 @@ import {
 import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
-import { reportLovableError } from "../lib/lovable-error-reporting";
+import { reportLovableError } from "@/shared/lib/lovable-error-reporting";
 import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
-import { store, persistor } from "../store";
-import { AuthProvider } from "../contexts/AuthContext";
-import { Toaster } from "../components/ui/sonner";
-import { SpotliteAgentDock } from "../components/spotlite/agent-dock";
-import { DemoTour, IntroModal } from "../components/spotlite/demo-tour";
+import { store, persistor } from "@/shared/store";
+import { AuthProvider } from "@/shared/contexts/AuthContext";
+import { Toaster } from "@/shared/components/ui/sonner";
+import { SpotliteAgentDock } from "@/shared/components/shell/agent-dock";
+import { DemoTour, IntroModal } from "@/shared/components/shell/demo-tour";
 
 function NotFoundComponent() {
   return (
@@ -79,7 +79,7 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   );
 }
 
-import { getAuthSnapshot, type AuthSnapshot } from "../contexts/AuthContext";
+import { getAuthSnapshot, type AuthSnapshot } from "@/shared/contexts/AuthContext";
 
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient;
