@@ -142,10 +142,14 @@ export const api = {
    * Upload a file as multipart/form-data.
    * Does NOT set Content-Type (browser sets it with boundary automatically).
    */
-  upload: async <T = unknown>(path: string, formData: FormData): Promise<T> => {
+  upload: async <T = unknown>(
+    path: string,
+    formData: FormData,
+    method: "POST" | "PUT" = "POST"
+  ): Promise<T> => {
     const url = `${API_BASE_URL}${path}`;
     const response = await fetch(url, {
-      method: "POST",
+      method,
       credentials: "include",
       body: formData,
     });

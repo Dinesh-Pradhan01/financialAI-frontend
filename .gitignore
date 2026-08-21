@@ -18,6 +18,8 @@ dist-ssr
 .env
 .env.*
 
+src/routeTree.gen.ts
+
 # Wrangler / Cloudflare
 .wrangler/
 .dev.vars

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Home, BarChart3, Zap, MessageCircle, User, Settings, Sparkles, UserPlus, LogOut, Loader2, TrendingUp } from "lucide-react";
+import { Home, BarChart3, Zap, MessageCircle, User, Settings, Sparkles, UserPlus, LogOut, Loader2, TrendingUp, FolderLock } from "lucide-react";
 import { cn } from "@/shared/lib/utils";
 import { useAppSelector } from "@/shared/store";
 import { selectHighPriorityCount, selectLanguage } from "@/shared/store/selectors";
@@ -14,6 +14,7 @@ const items = [
   { to: "/spending", label: "Spending", icon: BarChart3 },
   { to: "/industry", label: "Industry", icon: TrendingUp },
   { to: "/spotlights", label: "Spotlights", icon: Zap },
+  { to: "/documents", label: "Documents", icon: FolderLock },
   { to: "/coach", label: "Coach", icon: MessageCircle },
   { to: "/profile", label: "Profile", icon: User },
 ] as const;
