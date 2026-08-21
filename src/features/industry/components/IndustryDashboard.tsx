@@ -1,13 +1,13 @@
-import { useState, useRef, useMemo } from "react";
+import { useMemo, useEffect } from "react";
 import { useSearch, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { sectorQueryOptions, top5StocksQueryOptions, basicIndustriesQueryOptions } from "@/shared/hooks/useIndustryAPI";
 import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/shared/components/ui/card";
+  sectorQueryOptions,
+  top5StocksQueryOptions,
+  basicIndustriesQueryOptions,
+} from "@/features/industry/hooks/useIndustryAPI";
+import { SpotliteLoader } from "@/shared/components/ui/SpotliteLoader";
+import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import {
   Select,
   SelectContent,
@@ -38,11 +38,29 @@ import {
   ResponsiveContainer,
   CartesianGrid,
 } from "recharts";
-import { TrendingUp, TrendingDown, Building2, Users, ArrowUpRight, Download, SlidersHorizontal } from "lucide-react";
+import {
+  TrendingUp,
+  TrendingDown,
+  Building2,
+  Users,
+  ArrowUpRight,
+  Download,
+  SlidersHorizontal,
+  Loader2,
+} from "lucide-react";
 import { cn } from "@/shared/lib/utils";
 import { formatINR } from "@/shared/lib/format";
 
-const TREEMAP_COLORS = ["#1E2A7A", "#6D28D9", "#8B5CF6", "#A78BFA", "#EC4899", "#F43F5E", "#0EA5E9", "#10B981"];
+const TREEMAP_COLORS = [
+  "#1E2A7A",
+  "#6D28D9",
+  "#8B5CF6",
+  "#A78BFA",
+  "#EC4899",
+  "#F43F5E",
+  "#0EA5E9",
+  "#10B981",
+];
 const STOCK_COLORS = ["#1E2A7A", "#8B5CF6", "#10B981", "#F59E0B", "#EF4444"];
 
 // Custom Treemap Cell Renderer
@@ -51,14 +69,15 @@ const CustomTreemapContent = (props: any) => {
   if (width <= 0 || height <= 0) return null;
   const color = TREEMAP_COLORS[(index || 0) % TREEMAP_COLORS.length];
   const textColor = "#FFFFFF";
-  
+
   // Dynamically calculate font size and name truncation based on cell width
   const nameFontSize = Math.min(13, Math.max(9, Math.floor(width / 10)));
   const capFontSize = nameFontSize - 1.5;
   const maxChars = Math.max(5, Math.floor(width / (nameFontSize * 0.6)));
-  
+
   const safeName = name || "";
-  const displayName = safeName.length > maxChars ? `${safeName.substring(0, maxChars - 2)}..` : safeName;
+  const displayName =
+    safeName.length > maxChars ? `${safeName.substring(0, maxChars - 2)}..` : safeName;
   const capVal = market_cap_cr || 0;
 
   return (
@@ -88,14 +107,14 @@ const CustomTreemapContent = (props: any) => {
           stroke="none"
           style={{
             fontFamily: "Inter, sans-serif",
-            pointerEvents: "none"
+            pointerEvents: "none",
           }}
         >
           {displayName}
-          <tspan 
-            x={x + width / 2} 
-            dy={nameFontSize + 2} 
-            fontSize={capFontSize} 
+          <tspan
+            x={x + width / 2}
+            dy={nameFontSize + 2}
+            fontSize={capFontSize}
             fontWeight="500"
             fill="rgba(255,255,255,0.9)"
             stroke="none"
@@ -115,14 +134,29 @@ const BubbleTooltip = ({ active, payload }: any) => {
     return (
       <div className="bg-background border border-border/80 p-3 rounded-lg shadow-lg text-xs space-y-1 font-sans">
         <p className="font-bold text-text-primary">{data.name}</p>
-        <p><span className="text-text-secondary font-medium">Total Revenue:</span> ₹{data.revenue.toFixed(1)}Cr</p>
-        <p><span className="text-text-secondary font-medium">Employees:</span> {data.employeeCount.toLocaleString()}</p>
-        <p><span className="text-text-secondary font-medium">Rev / Employee:</span> {formatINR(data.revenuePerEmployee, { compact: true })}</p>
+        <p>
+          <span className="text-text-secondary font-medium">Total Revenue:</span> ₹
+          {data.revenue.toFixed(1)}Cr
+        </p>
+        <p>
+          <span className="text-text-secondary font-medium">Employees:</span>{" "}
+          {data.employeeCount.toLocaleString()}
+        </p>
+        <p>
+          <span className="text-text-secondary font-medium">Rev / Employee:</span>{" "}
+          {formatINR(data.revenuePerEmployee, { compact: true })}
+        </p>
         {data.expRatio !== undefined && (
-          <p><span className="text-text-secondary font-medium">Exp / Rev Ratio:</span> {data.expRatio.toFixed(1)}%</p>
+          <p>
+            <span className="text-text-secondary font-medium">Exp / Rev Ratio:</span>{" "}
+            {data.expRatio.toFixed(1)}%
+          </p>
         )}
         {data.profitMargin !== undefined && (
-          <p><span className="text-text-secondary font-medium">Profit Margin:</span> {data.profitMargin.toFixed(1)}%</p>
+          <p>
+            <span className="text-text-secondary font-medium">Profit Margin:</span>{" "}
+            {data.profitMargin.toFixed(1)}%
+          </p>
         )}
       </div>
     );
@@ -133,17 +167,45 @@ const BubbleTooltip = ({ active, payload }: any) => {
 export function IndustryDashboard() {
   const navigate = useNavigate();
   const search = useSearch({ from: "/_app/industry" });
-  const sectorName = search?.sector_name || "Diversified FMCG";
 
-  const { data: basicIndustries = [] } = useQuery(basicIndustriesQueryOptions());
-  const { data: sectorData } = useQuery(sectorQueryOptions(sectorName));
-  const { data: stockData } = useQuery(top5StocksQueryOptions(sectorName));
+  const savedSector = typeof window !== "undefined" ? localStorage.getItem("spotlite_selected_sector") : null;
+  const sectorName = search?.sector_name || savedSector || "Diversified FMCG";
+
+  useEffect(() => {
+    if (!search?.sector_name && savedSector) {
+      navigate({
+        to: "/industry",
+        search: { sector_name: savedSector },
+        replace: true,
+      });
+    }
+  }, [search?.sector_name, savedSector, navigate]);
+
+  const { data: basicIndustries = [], isLoading: isBasicLoading } = useQuery(basicIndustriesQueryOptions());
+  const {
+    data: sectorData,
+    isLoading: isSectorLoading,
+    isFetching: isSectorFetching,
+  } = useQuery(sectorQueryOptions(sectorName));
+  const {
+    data: stockData,
+    isLoading: isStockLoading,
+    isFetching: isStockFetching,
+  } = useQuery(top5StocksQueryOptions(sectorName));
 
   const handleSectorChange = (value: string) => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("spotlite_selected_sector", value);
+    }
     navigate({
+      to: "/industry",
       search: { sector_name: value },
+      replace: true,
     });
   };
+
+  const isInitialLoading = !sectorData && (isSectorLoading || isStockLoading);
+  const isUpdating = isSectorFetching || isStockFetching;
 
   // Safe destructuring of API response data
   const companies = sectorData?.companies || [];
@@ -154,66 +216,79 @@ export function IndustryDashboard() {
 
   // Dynamic metrics calculation for KPIs (Your MSME vs. Peer Average)
   const msme_fin = msme?.quarterly_financials || [];
-  
+
   // 1. Revenue Growth QoQ average
-  const avgMsmeRevGrowth = msmeGrowth && msmeGrowth.length > 0
-    ? msmeGrowth.reduce((sum, item) => sum + item.revenue_growth, 0) / msmeGrowth.length
-    : 0;
-  const avgPeerRevGrowth = peerGrowth && peerGrowth.length > 0
-    ? peerGrowth.reduce((sum, item) => sum + item.revenue_growth, 0) / peerGrowth.length
-    : 0;
+  const avgMsmeRevGrowth =
+    msmeGrowth && msmeGrowth.length > 0
+      ? msmeGrowth.reduce((sum, item) => sum + item.revenue_growth, 0) / msmeGrowth.length
+      : 0;
+  const avgPeerRevGrowth =
+    peerGrowth && peerGrowth.length > 0
+      ? peerGrowth.reduce((sum, item) => sum + item.revenue_growth, 0) / peerGrowth.length
+      : 0;
 
   // 2. Profit Growth QoQ average
-  const avgMsmeProfitGrowth = msmeGrowth && msmeGrowth.length > 0
-    ? msmeGrowth.reduce((sum, item) => sum + item.profit_growth, 0) / msmeGrowth.length
-    : 0;
-  const avgPeerProfitGrowth = peerGrowth && peerGrowth.length > 0
-    ? peerGrowth.reduce((sum, item) => sum + item.profit_growth, 0) / peerGrowth.length
-    : 0;
+  const avgMsmeProfitGrowth =
+    msmeGrowth && msmeGrowth.length > 0
+      ? msmeGrowth.reduce((sum, item) => sum + item.profit_growth, 0) / msmeGrowth.length
+      : 0;
+  const avgPeerProfitGrowth =
+    peerGrowth && peerGrowth.length > 0
+      ? peerGrowth.reduce((sum, item) => sum + item.profit_growth, 0) / peerGrowth.length
+      : 0;
 
   // 3. Expenditure Growth QoQ average
-  const avgMsmeExpGrowth = msmeGrowth && msmeGrowth.length > 0
-    ? msmeGrowth.reduce((sum, item) => sum + item.expenditure_growth, 0) / msmeGrowth.length
-    : 0;
-  const avgPeerExpGrowth = peerGrowth && peerGrowth.length > 0
-    ? peerGrowth.reduce((sum, item) => sum + item.expenditure_growth, 0) / peerGrowth.length
-    : 0;
+  const avgMsmeExpGrowth =
+    msmeGrowth && msmeGrowth.length > 0
+      ? msmeGrowth.reduce((sum, item) => sum + item.expenditure_growth, 0) / msmeGrowth.length
+      : 0;
+  const avgPeerExpGrowth =
+    peerGrowth && peerGrowth.length > 0
+      ? peerGrowth.reduce((sum, item) => sum + item.expenditure_growth, 0) / peerGrowth.length
+      : 0;
 
   // 4. Revenue per Employee
   const msmeRevPerEmp = msme?.revenue_per_employee || 0;
-  const peerRevPerEmpList = companies.map(c => c.revenue_per_employee).filter(v => v > 0);
-  const avgPeerRevPerEmp = peerRevPerEmpList.length > 0
-    ? peerRevPerEmpList.reduce((sum, v) => sum + v, 0) / peerRevPerEmpList.length
-    : 0;
+  const peerRevPerEmpList = companies.map((c) => c.revenue_per_employee).filter((v) => v > 0);
+  const avgPeerRevPerEmp =
+    peerRevPerEmpList.length > 0
+      ? peerRevPerEmpList.reduce((sum, v) => sum + v, 0) / peerRevPerEmpList.length
+      : 0;
 
   // 5. Exp/Rev Ratio
   const msmeTotalRev = msme_fin.reduce((sum, q) => sum + q.revenue, 0);
   const msmeTotalExp = msme_fin.reduce((sum, q) => sum + q.expenditure, 0);
   const msmeExpRevRatio = msmeTotalRev > 0 ? (msmeTotalExp / msmeTotalRev) * 100 : 0;
 
-  const peerExpRevRatioList = companies.map(c => {
-    const q_fin = c.quarterly_financials || [];
-    const rev = q_fin.reduce((sum, q) => sum + q.revenue, 0);
-    const exp = q_fin.reduce((sum, q) => sum + q.expenditure, 0);
-    return rev > 0 ? (exp / rev) * 100 : 0;
-  }).filter(v => v > 0);
-  const avgPeerExpRevRatio = peerExpRevRatioList.length > 0
-    ? peerExpRevRatioList.reduce((sum, v) => sum + v, 0) / peerExpRevRatioList.length
-    : 0;
+  const peerExpRevRatioList = companies
+    .map((c) => {
+      const q_fin = c.quarterly_financials || [];
+      const rev = q_fin.reduce((sum, q) => sum + q.revenue, 0);
+      const exp = q_fin.reduce((sum, q) => sum + q.expenditure, 0);
+      return rev > 0 ? (exp / rev) * 100 : 0;
+    })
+    .filter((v) => v > 0);
+  const avgPeerExpRevRatio =
+    peerExpRevRatioList.length > 0
+      ? peerExpRevRatioList.reduce((sum, v) => sum + v, 0) / peerExpRevRatioList.length
+      : 0;
 
   // 6. Profit Margin %
   const msmeTotalProf = msme_fin.reduce((sum, q) => sum + q.profit, 0);
   const msmeProfitMargin = msmeTotalRev > 0 ? (msmeTotalProf / msmeTotalRev) * 100 : 0;
 
-  const peerProfitMarginList = companies.map(c => {
-    const q_fin = c.quarterly_financials || [];
-    const rev = q_fin.reduce((sum, q) => sum + q.revenue, 0);
-    const prof = q_fin.reduce((sum, q) => sum + q.profit, 0);
-    return rev > 0 ? (prof / rev) * 100 : 0;
-  }).filter(v => v > 0);
-  const avgPeerProfitMargin = peerProfitMarginList.length > 0
-    ? peerProfitMarginList.reduce((sum, v) => sum + v, 0) / peerProfitMarginList.length
-    : 0;
+  const peerProfitMarginList = companies
+    .map((c) => {
+      const q_fin = c.quarterly_financials || [];
+      const rev = q_fin.reduce((sum, q) => sum + q.revenue, 0);
+      const prof = q_fin.reduce((sum, q) => sum + q.profit, 0);
+      return rev > 0 ? (prof / rev) * 100 : 0;
+    })
+    .filter((v) => v > 0);
+  const avgPeerProfitMargin =
+    peerProfitMarginList.length > 0
+      ? peerProfitMarginList.reduce((sum, v) => sum + v, 0) / peerProfitMarginList.length
+      : 0;
 
   // Sort companies by market cap for listing
   const sortedCompanies = useMemo(() => {
@@ -239,7 +314,7 @@ export function IndustryDashboard() {
 
   // Bubble chart dataset mapping
   const bubbleChartData = useMemo(() => {
-    const peers = companies.map(c => {
+    const peers = companies.map((c) => {
       const q_fin = c.quarterly_financials || [];
       const totalRev = q_fin.reduce((sum, q) => sum + q.revenue, 0);
       const totalExp = q_fin.reduce((sum, q) => sum + q.expenditure, 0);
@@ -274,7 +349,7 @@ export function IndustryDashboard() {
 
   // Market cap Treemap dataset mapping
   const treemapData = useMemo(() => {
-    return sortedCompanies.slice(0, 10).map(c => {
+    return sortedCompanies.slice(0, 10).map((c) => {
       const rawCap = c.market_cap_cr || 0;
       // Apply power scaling (power of 0.35) so that smaller companies remain
       // visible and are not squeezed, while preserving the visual ranking hierarchy.
@@ -292,12 +367,12 @@ export function IndustryDashboard() {
     if (!stockData) return [];
     const dates = Object.keys(stockData).sort();
     if (dates.length === 0) return [];
-    
+
     // Sample ~10 dates evenly to prevent label clutter
     const step = Math.max(1, Math.floor(dates.length / 10));
     const sampledDates = dates.filter((_, idx) => idx % step === 0);
 
-    return sampledDates.map(date => {
+    return sampledDates.map((date) => {
       const prices = stockData[date] || {};
       return {
         date,
@@ -327,18 +402,25 @@ export function IndustryDashboard() {
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-3">
-          <Select value={sectorName} onValueChange={handleSectorChange}>
-            <SelectTrigger className="w-[280px] bg-surface border-border shadow-sm rounded-lg text-sm font-medium">
-              <SelectValue placeholder="Select Sector" />
-            </SelectTrigger>
-            <SelectContent>
-              {basicIndustries.map((name) => (
-                <SelectItem key={name} value={name}>
-                  {name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <div className="relative flex items-center">
+            <Select value={sectorName} onValueChange={handleSectorChange} disabled={isBasicLoading}>
+              <SelectTrigger className="w-[280px] bg-surface border-border shadow-sm rounded-lg text-sm font-medium pr-9">
+                <SelectValue placeholder="Select Sector" />
+              </SelectTrigger>
+              <SelectContent className="max-h-[300px]">
+                {basicIndustries.map((name) => (
+                  <SelectItem key={name} value={name}>
+                    {name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {isUpdating && !isInitialLoading && (
+              <div className="absolute right-8 pointer-events-none flex items-center">
+                <Loader2 className="h-3.5 w-3.5 animate-spin text-brand" />
+              </div>
+            )}
+          </div>
 
           <Button variant="outline" size="icon" className="shadow-sm bg-surface rounded-lg">
             <SlidersHorizontal className="h-4 w-4" />
@@ -350,7 +432,17 @@ export function IndustryDashboard() {
         </div>
       </header>
 
-      {/* KPI Cards Layout (Tailwind Grid) */}
+      {isInitialLoading ? (
+        <div className="min-h-[500px] flex items-center justify-center rounded-2xl border border-border/40 bg-surface/50 p-12">
+          <SpotliteLoader
+            message={`Loading ${sectorName} Intelligence…`}
+            subMessage="Fetching peer financials, benchmarks & market trends"
+            fullScreen={false}
+          />
+        </div>
+      ) : (
+        <div className={cn("space-y-8 transition-opacity duration-200", isUpdating && "opacity-60")}>
+          {/* KPI Cards Layout (Tailwind Grid) */}
       <section className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-6 gap-5">
         {/* KPI 1: Revenue Growth */}
         <Card className="border-border/60 shadow-sm bg-surface rounded-2xl">
@@ -360,19 +452,23 @@ export function IndustryDashboard() {
                 Avg. Revenue Growth %
               </p>
               <h3 className="text-2xl font-extrabold font-num text-[#0F172A] mt-1.5">
-                {avgPeerRevGrowth >= 0 ? "+" : ""}{avgPeerRevGrowth.toFixed(1)}%
+                {avgPeerRevGrowth >= 0 ? "+" : ""}
+                {avgPeerRevGrowth.toFixed(1)}%
               </h3>
             </div>
-            <div className={cn(
-              "flex items-center gap-1 mt-2.5 text-xs font-semibold",
-              avgMsmeRevGrowth >= avgPeerRevGrowth ? "text-success" : "text-amber-500"
-            )}>
+            <div
+              className={cn(
+                "flex items-center gap-1 mt-2.5 text-xs font-semibold",
+                avgMsmeRevGrowth >= avgPeerRevGrowth ? "text-success" : "text-amber-500",
+              )}
+            >
               {avgMsmeRevGrowth >= avgPeerRevGrowth ? (
                 <TrendingUp className="h-3 w-3" />
               ) : (
                 <TrendingDown className="h-3 w-3" />
               )}
-              vs. {avgMsmeRevGrowth >= 0 ? "+" : ""}{avgMsmeRevGrowth.toFixed(1)}% MSME
+              vs. {avgMsmeRevGrowth >= 0 ? "+" : ""}
+              {avgMsmeRevGrowth.toFixed(1)}% MSME
             </div>
           </CardContent>
         </Card>
@@ -385,19 +481,23 @@ export function IndustryDashboard() {
                 Avg. Profit Growth %
               </p>
               <h3 className="text-2xl font-extrabold font-num text-[#0F172A] mt-1.5">
-                {avgPeerProfitGrowth >= 0 ? "+" : ""}{avgPeerProfitGrowth.toFixed(1)}%
+                {avgPeerProfitGrowth >= 0 ? "+" : ""}
+                {avgPeerProfitGrowth.toFixed(1)}%
               </h3>
             </div>
-            <div className={cn(
-              "flex items-center gap-1 mt-2.5 text-xs font-semibold",
-              avgMsmeProfitGrowth >= avgPeerProfitGrowth ? "text-success" : "text-amber-500"
-            )}>
+            <div
+              className={cn(
+                "flex items-center gap-1 mt-2.5 text-xs font-semibold",
+                avgMsmeProfitGrowth >= avgPeerProfitGrowth ? "text-success" : "text-amber-500",
+              )}
+            >
               {avgMsmeProfitGrowth >= avgPeerProfitGrowth ? (
                 <TrendingUp className="h-3 w-3" />
               ) : (
                 <TrendingDown className="h-3 w-3" />
               )}
-              vs. {avgMsmeProfitGrowth >= 0 ? "+" : ""}{avgMsmeProfitGrowth.toFixed(1)}% MSME
+              vs. {avgMsmeProfitGrowth >= 0 ? "+" : ""}
+              {avgMsmeProfitGrowth.toFixed(1)}% MSME
             </div>
           </CardContent>
         </Card>
@@ -410,19 +510,23 @@ export function IndustryDashboard() {
                 Avg. Expenditure Growth %
               </p>
               <h3 className="text-2xl font-extrabold font-num text-[#0F172A] mt-1.5">
-                {avgPeerExpGrowth >= 0 ? "+" : ""}{avgPeerExpGrowth.toFixed(1)}%
+                {avgPeerExpGrowth >= 0 ? "+" : ""}
+                {avgPeerExpGrowth.toFixed(1)}%
               </h3>
             </div>
-            <div className={cn(
-              "flex items-center gap-1 mt-2.5 text-xs font-semibold",
-              avgMsmeExpGrowth <= avgPeerExpGrowth ? "text-success" : "text-amber-500"
-            )}>
+            <div
+              className={cn(
+                "flex items-center gap-1 mt-2.5 text-xs font-semibold",
+                avgMsmeExpGrowth <= avgPeerExpGrowth ? "text-success" : "text-amber-500",
+              )}
+            >
               {avgMsmeExpGrowth <= avgPeerExpGrowth ? (
                 <TrendingDown className="h-3 w-3" />
               ) : (
                 <TrendingUp className="h-3 w-3" />
               )}
-              vs. {avgMsmeExpGrowth >= 0 ? "+" : ""}{avgMsmeExpGrowth.toFixed(1)}% MSME
+              vs. {avgMsmeExpGrowth >= 0 ? "+" : ""}
+              {avgMsmeExpGrowth.toFixed(1)}% MSME
             </div>
           </CardContent>
         </Card>
@@ -435,19 +539,28 @@ export function IndustryDashboard() {
                 Avg. Rev Per Employee
               </p>
               <h3 className="text-2xl font-extrabold font-num text-[#0F172A] mt-1.5">
-                ₹{avgPeerRevPerEmp >= 10000000 ? `${(avgPeerRevPerEmp / 10000000).toFixed(1)}Cr` : `${(avgPeerRevPerEmp / 100000).toFixed(1)}L`}
+                ₹
+                {avgPeerRevPerEmp >= 10000000
+                  ? `${(avgPeerRevPerEmp / 10000000).toFixed(1)}Cr`
+                  : `${(avgPeerRevPerEmp / 100000).toFixed(1)}L`}
               </h3>
             </div>
-            <div className={cn(
-              "flex items-center gap-1 mt-2.5 text-xs font-semibold",
-              msmeRevPerEmp >= avgPeerRevPerEmp ? "text-success" : "text-amber-500"
-            )}>
+            <div
+              className={cn(
+                "flex items-center gap-1 mt-2.5 text-xs font-semibold",
+                msmeRevPerEmp >= avgPeerRevPerEmp ? "text-success" : "text-amber-500",
+              )}
+            >
               {msmeRevPerEmp >= avgPeerRevPerEmp ? (
                 <TrendingUp className="h-3 w-3" />
               ) : (
                 <TrendingDown className="h-3 w-3" />
               )}
-              vs. ₹{msmeRevPerEmp >= 100000 ? `${(msmeRevPerEmp / 100000).toFixed(1)}L` : `${(msmeRevPerEmp / 1000).toFixed(0)}K`} MSME
+              vs. ₹
+              {msmeRevPerEmp >= 100000
+                ? `${(msmeRevPerEmp / 100000).toFixed(1)}L`
+                : `${(msmeRevPerEmp / 1000).toFixed(0)}K`}{" "}
+              MSME
             </div>
           </CardContent>
         </Card>
@@ -463,10 +576,12 @@ export function IndustryDashboard() {
                 {avgPeerExpRevRatio.toFixed(1)}%
               </h3>
             </div>
-            <div className={cn(
-              "flex items-center gap-1 mt-2.5 text-xs font-semibold",
-              msmeExpRevRatio <= avgPeerExpRevRatio ? "text-success" : "text-amber-500"
-            )}>
+            <div
+              className={cn(
+                "flex items-center gap-1 mt-2.5 text-xs font-semibold",
+                msmeExpRevRatio <= avgPeerExpRevRatio ? "text-success" : "text-amber-500",
+              )}
+            >
               {msmeExpRevRatio <= avgPeerExpRevRatio ? (
                 <TrendingDown className="h-3 w-3" />
               ) : (
@@ -488,10 +603,12 @@ export function IndustryDashboard() {
                 {avgPeerProfitMargin.toFixed(1)}%
               </h3>
             </div>
-            <div className={cn(
-              "flex items-center gap-1 mt-2.5 text-xs font-semibold",
-              msmeProfitMargin >= avgPeerProfitMargin ? "text-success" : "text-amber-500"
-            )}>
+            <div
+              className={cn(
+                "flex items-center gap-1 mt-2.5 text-xs font-semibold",
+                msmeProfitMargin >= avgPeerProfitMargin ? "text-success" : "text-amber-500",
+              )}
+            >
               {msmeProfitMargin >= avgPeerProfitMargin ? (
                 <TrendingUp className="h-3 w-3" />
               ) : (
@@ -507,7 +624,9 @@ export function IndustryDashboard() {
       <Card className="border-border/60 shadow-sm bg-surface rounded-2xl p-5">
         <div className="mb-4">
           <h2 className="text-sm font-bold text-text-primary">Market Concentration</h2>
-          <p className="text-xs text-text-secondary mt-0.5">Top competitors' market share distribution by market cap (₹ Cr).</p>
+          <p className="text-xs text-text-secondary mt-0.5">
+            Top competitors' market share distribution by market cap (₹ Cr).
+          </p>
         </div>
         <div className="h-[390px] w-full">
           <ResponsiveContainer width="100%" height="100%">
@@ -533,10 +652,14 @@ export function IndustryDashboard() {
           <div className="h-[220px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={lineChartData} margin={{ left: 5, right: 5, top: 10, bottom: 5 }}>
-                <CartesianGrid vertical={false} strokeDasharray="3 3" className="stroke-border/40" />
+                <CartesianGrid
+                  vertical={false}
+                  strokeDasharray="3 3"
+                  className="stroke-border/40"
+                />
                 <XAxis
                   dataKey="quarter"
-                  line={false}
+                  axisLine={false}
                   tickLine={false}
                   tickMargin={8}
                   className="fill-text-secondary text-[10px]"
@@ -581,10 +704,14 @@ export function IndustryDashboard() {
           <div className="h-[220px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={lineChartData} margin={{ left: 5, right: 5, top: 10, bottom: 5 }}>
-                <CartesianGrid vertical={false} strokeDasharray="3 3" className="stroke-border/40" />
+                <CartesianGrid
+                  vertical={false}
+                  strokeDasharray="3 3"
+                  className="stroke-border/40"
+                />
                 <XAxis
                   dataKey="quarter"
-                  line={false}
+                  axisLine={false}
                   tickLine={false}
                   tickMargin={8}
                   className="fill-text-secondary text-[10px]"
@@ -629,10 +756,14 @@ export function IndustryDashboard() {
           <div className="h-[220px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={lineChartData} margin={{ left: 5, right: 5, top: 10, bottom: 5 }}>
-                <CartesianGrid vertical={false} strokeDasharray="3 3" className="stroke-border/40" />
+                <CartesianGrid
+                  vertical={false}
+                  strokeDasharray="3 3"
+                  className="stroke-border/40"
+                />
                 <XAxis
                   dataKey="quarter"
-                  line={false}
+                  axisLine={false}
                   tickLine={false}
                   tickMargin={8}
                   className="fill-text-secondary text-[10px]"
@@ -675,18 +806,24 @@ export function IndustryDashboard() {
         <Card className="border-border/60 shadow-sm bg-surface rounded-2xl p-5">
           <div className="mb-4">
             <h2 className="text-sm font-bold text-text-primary">Revenue Per Employee</h2>
-            <p className="text-xs text-text-secondary mt-0.5">X: Employees | Y: Rev/Employee | Size: Market Cap</p>
+            <p className="text-xs text-text-secondary mt-0.5">
+              X: Employees | Y: Rev/Employee | Size: Market Cap
+            </p>
           </div>
           <div className="h-[220px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <ScatterChart margin={{ left: 5, right: 5, top: 10, bottom: 5 }}>
-                <CartesianGrid vertical={false} strokeDasharray="3 3" className="stroke-border/40" />
+                <CartesianGrid
+                  vertical={false}
+                  strokeDasharray="3 3"
+                  className="stroke-border/40"
+                />
                 <XAxis
                   type="number"
                   dataKey="employeeCount"
                   name="Employees"
                   domain={[0, 15000]}
-                  line={false}
+                  axisLine={false}
                   tickLine={false}
                   tickMargin={8}
                   className="fill-text-secondary text-[10px]"
@@ -699,7 +836,9 @@ export function IndustryDashboard() {
                   axisLine={false}
                   tickMargin={8}
                   className="fill-text-secondary text-[10px]"
-                  tickFormatter={(v) => v >= 100000 ? `₹${(v / 100000).toFixed(0)}L` : `₹${(v / 1000).toFixed(0)}K`}
+                  tickFormatter={(v) =>
+                    v >= 100000 ? `₹${(v / 100000).toFixed(0)}L` : `₹${(v / 1000).toFixed(0)}K`
+                  }
                 />
                 <ZAxis dataKey="marketCap" range={[100, 800]} />
                 <Tooltip content={<BubbleTooltip />} cursor={{ strokeDasharray: "3 3" }} />
@@ -714,17 +853,23 @@ export function IndustryDashboard() {
         <Card className="border-border/60 shadow-sm bg-surface rounded-2xl p-5">
           <div className="mb-4">
             <h2 className="text-sm font-bold text-text-primary">Expenditure / Revenue Ratio</h2>
-            <p className="text-xs text-text-secondary mt-0.5">X: Total Revenue | Y: Ratio | Size: Market Cap</p>
+            <p className="text-xs text-text-secondary mt-0.5">
+              X: Total Revenue | Y: Ratio | Size: Market Cap
+            </p>
           </div>
           <div className="h-[220px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <ScatterChart margin={{ left: 5, right: 5, top: 10, bottom: 5 }}>
-                <CartesianGrid vertical={false} strokeDasharray="3 3" className="stroke-border/40" />
+                <CartesianGrid
+                  vertical={false}
+                  strokeDasharray="3 3"
+                  className="stroke-border/40"
+                />
                 <XAxis
                   type="number"
                   dataKey="revenue"
                   name="Revenue"
-                  line={false}
+                  axisLine={false}
                   tickLine={false}
                   tickMargin={8}
                   className="fill-text-secondary text-[10px]"
@@ -754,17 +899,23 @@ export function IndustryDashboard() {
         <Card className="border-border/60 shadow-sm bg-surface rounded-2xl p-5">
           <div className="mb-4">
             <h2 className="text-sm font-bold text-text-primary">Profit / Revenue Margin</h2>
-            <p className="text-xs text-text-secondary mt-0.5">X: Total Revenue | Y: Margin | Size: Market Cap</p>
+            <p className="text-xs text-text-secondary mt-0.5">
+              X: Total Revenue | Y: Margin | Size: Market Cap
+            </p>
           </div>
           <div className="h-[220px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <ScatterChart margin={{ left: 5, right: 5, top: 10, bottom: 5 }}>
-                <CartesianGrid vertical={false} strokeDasharray="3 3" className="stroke-border/40" />
+                <CartesianGrid
+                  vertical={false}
+                  strokeDasharray="3 3"
+                  className="stroke-border/40"
+                />
                 <XAxis
                   type="number"
                   dataKey="revenue"
                   name="Revenue"
-                  line={false}
+                  axisLine={false}
                   tickLine={false}
                   tickMargin={8}
                   className="fill-text-secondary text-[10px]"
@@ -797,15 +948,21 @@ export function IndustryDashboard() {
         <Card className="border-border/60 shadow-sm bg-surface rounded-2xl p-6">
           <div className="mb-6">
             <h2 className="text-base font-bold text-text-primary">Sector Trend Analysis</h2>
-            <p className="text-xs text-text-secondary mt-0.5">Aggregated peer performance growth trends tracking over the quarters.</p>
+            <p className="text-xs text-text-secondary mt-0.5">
+              Aggregated peer performance growth trends tracking over the quarters.
+            </p>
           </div>
           <div className="h-[300px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={lineChartData} margin={{ left: 10, right: 10, top: 10, bottom: 10 }}>
-                <CartesianGrid vertical={false} strokeDasharray="3 3" className="stroke-border/40" />
+                <CartesianGrid
+                  vertical={false}
+                  strokeDasharray="3 3"
+                  className="stroke-border/40"
+                />
                 <XAxis
                   dataKey="quarter"
-                  line={false}
+                  axisLine={false}
                   tickLine={false}
                   tickMargin={10}
                   className="fill-text-secondary text-[11px]"
@@ -851,16 +1008,27 @@ export function IndustryDashboard() {
         {/* Top 5 Stock Price Trends */}
         <Card className="border-border/60 shadow-sm bg-surface rounded-2xl p-6">
           <div className="mb-6">
-            <h2 className="text-base font-bold text-text-primary">Top 5 Companies Share Value Trend</h2>
-            <p className="text-xs text-text-secondary mt-0.5">Historical stock price index over time.</p>
+            <h2 className="text-base font-bold text-text-primary">
+              Top 5 Companies Share Value Trend
+            </h2>
+            <p className="text-xs text-text-secondary mt-0.5">
+              Historical stock price index over time.
+            </p>
           </div>
           <div className="h-[300px] w-full">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={stockChartData} margin={{ left: 10, right: 10, top: 10, bottom: 10 }}>
-                <CartesianGrid vertical={false} strokeDasharray="3 3" className="stroke-border/40" />
+              <LineChart
+                data={stockChartData}
+                margin={{ left: 10, right: 10, top: 10, bottom: 10 }}
+              >
+                <CartesianGrid
+                  vertical={false}
+                  strokeDasharray="3 3"
+                  className="stroke-border/40"
+                />
                 <XAxis
                   dataKey="date"
-                  line={false}
+                  axisLine={false}
                   tickLine={false}
                   tickMargin={10}
                   className="fill-text-secondary text-[10px]"
@@ -893,7 +1061,9 @@ export function IndustryDashboard() {
       <Card className="border-border/60 shadow-sm bg-surface rounded-2xl">
         <CardHeader className="px-6 py-5 flex flex-row items-center justify-between gap-4 border-b border-border/40">
           <div>
-            <CardTitle className="text-base font-bold text-text-primary">Sector Peer Directory</CardTitle>
+            <CardTitle className="text-base font-bold text-text-primary">
+              Sector Peer Directory
+            </CardTitle>
             <p className="text-xs text-text-secondary mt-0.5">
               Comprehensive list of peer companies in the {sectorName} sector.
             </p>
@@ -916,12 +1086,19 @@ export function IndustryDashboard() {
               </TableHeader>
               <TableBody>
                 {sortedCompanies.map((c, index) => (
-                  <TableRow key={c.nse_symbol || index} className="hover:bg-surface-alt/20 transition-colors">
-                    <TableCell className="pl-6 font-semibold text-text-secondary">#{index + 1}</TableCell>
+                  <TableRow
+                    key={c.nse_symbol || index}
+                    className="hover:bg-surface-alt/20 transition-colors"
+                  >
+                    <TableCell className="pl-6 font-semibold text-text-secondary">
+                      #{index + 1}
+                    </TableCell>
                     <TableCell className="font-medium">
                       <div>
                         <div className="flex items-center gap-1.5">
-                          <span className="text-sm font-bold text-text-primary">{c.full_name || c.name}</span>
+                          <span className="text-sm font-bold text-text-primary">
+                            {c.full_name || c.name}
+                          </span>
                           {c.url && (
                             <a
                               href={c.url}
@@ -933,7 +1110,9 @@ export function IndustryDashboard() {
                             </a>
                           )}
                         </div>
-                        <p className="text-xs text-text-secondary mt-0.5">{c.nse_symbol || c.bse_code || "N/A"}</p>
+                        <p className="text-xs text-text-secondary mt-0.5">
+                          {c.nse_symbol || c.bse_code || "N/A"}
+                        </p>
                       </div>
                     </TableCell>
                     <TableCell className="text-right font-num text-sm text-text-primary">
@@ -943,7 +1122,9 @@ export function IndustryDashboard() {
                       {c.sales_qtr_cr ? c.sales_qtr_cr.toLocaleString("en-IN") : "0"}
                     </TableCell>
                     <TableCell className="text-right font-num text-sm text-text-primary pr-6">
-                      {c.revenue_per_employee ? formatINR(c.revenue_per_employee, { compact: true }) : "0"}
+                      {c.revenue_per_employee
+                        ? formatINR(c.revenue_per_employee, { compact: true })
+                        : "0"}
                     </TableCell>
                   </TableRow>
                 ))}
@@ -952,6 +1133,8 @@ export function IndustryDashboard() {
           </div>
         </CardContent>
       </Card>
+        </div>
+      )}
     </div>
   );
 }

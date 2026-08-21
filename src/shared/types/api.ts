@@ -202,8 +202,39 @@ export interface CompanyDocumentResponse {
   file_size_bytes: number;
   mime_type?: string | null;
   upload_status: string;
+  quality_score?: number | null;
+  is_verified?: boolean;
+  verification_notes?: string | null;
+  /**
+   * Will be null for documents uploaded during onboarding — backend does not populate this field on that route yet. Always handle null.
+   */
+  uploaded_by?: number | null;
   created_at?: string;
   updated_at?: string;
+}
+
+export type CompanyDocument = CompanyDocumentResponse;
+
+// ---------------------------------------------------------------------------
+// Package Types
+// ---------------------------------------------------------------------------
+
+export interface PackageResponse {
+  id: string;
+  name: string;
+  created_by: number | null;
+  created_at: string;
+  updated_at: string;
+  documents: CompanyDocument[];
+}
+
+export interface PackageRequest {
+  name: string;
+  document_ids?: string[] | null;
+}
+
+export interface PackageDocumentUpdate {
+  document_ids: string[];
 }
 
 export interface BusinessOnboardingFullResponse {

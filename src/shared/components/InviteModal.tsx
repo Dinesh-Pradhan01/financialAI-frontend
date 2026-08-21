@@ -201,23 +201,6 @@ export function InviteModal({ isOpen, onClose, invitesEndpoint }: InviteModalPro
             {lastInviteLink && (
               <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-text-primary space-y-2">
                 <div className="flex items-center gap-2 text-xs font-bold text-emerald-600">
-                  <Sparkles className="h-4 w-4" /> Invitation Link Ready (Valid for 24 hours)
-                </div>
-                {/* <div className="flex items-center gap-2">
-                  <input
-                    type="text"
-                    readOnly
-                    value={lastInviteLink}
-                    className="w-full rounded-lg border border-border bg-surface px-3 py-1.5 text-xs text-text-secondary font-mono"
-                  />
-                  <button
-                    onClick={() => copyToClipboard(lastInviteLink)}
-                    className="flex shrink-0 items-center gap-1 rounded-lg bg-brand px-3 py-1.5 text-xs font-semibold text-white hover:opacity-90"
-                  >
-                    {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
-                    {copied ? "Copied" : "Copy"}
-                  </button>
-                </div> */}
                   <Sparkles className="h-4 w-4" /> Invitation Link Has Been Sent. (Valid for 24 hours)
                 </div>
               </div>
