@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
-import { basicIndustriesQueryOptions, sectorQueryOptions, top5StocksQueryOptions } from "@/hooks/useIndustryAPI";
+import { basicIndustriesQueryOptions, sectorQueryOptions, top5StocksQueryOptions } from "@/shared/hooks/useIndustryAPI";
 import { IndustryDashboard } from "@/components/industry/IndustryDashboard";
 
 const industrySearchSchema = z.object({

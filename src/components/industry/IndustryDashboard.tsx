@@ -1,20 +1,20 @@
 import { useState, useRef, useMemo } from "react";
 import { useSearch, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { sectorQueryOptions, top5StocksQueryOptions, basicIndustriesQueryOptions } from "@/hooks/useIndustryAPI";
+import { sectorQueryOptions, top5StocksQueryOptions, basicIndustriesQueryOptions } from "@/shared/hooks/useIndustryAPI";
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+} from "@/shared/components/ui/card";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@/shared/components/ui/select";
 import {
   Table,
   TableBody,
@@ -22,8 +22,8 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
+} from "@/shared/components/ui/table";
+import { Button } from "@/shared/components/ui/button";
 import {
   Treemap,
   ScatterChart,
@@ -39,8 +39,8 @@ import {
   CartesianGrid,
 } from "recharts";
 import { TrendingUp, TrendingDown, Building2, Users, ArrowUpRight, Download, SlidersHorizontal } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { formatINR } from "@/lib/format";
+import { cn } from "@/shared/lib/utils";
+import { formatINR } from "@/shared/lib/format";
 
 const TREEMAP_COLORS = ["#1E2A7A", "#6D28D9", "#8B5CF6", "#A78BFA", "#EC4899", "#F43F5E", "#0EA5E9", "#10B981"];
 const STOCK_COLORS = ["#1E2A7A", "#8B5CF6", "#10B981", "#F59E0B", "#EF4444"];

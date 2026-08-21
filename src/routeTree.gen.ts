@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as landingIndexRouteImport } from './routes/(landing)/index'
+import { Route as AppIndustryRouteImport } from './routes/_app.industry'
 import { Route as onboardingUploadRouteImport } from './routes/(onboarding)/upload'
 import { Route as onboardingProcessingRouteImport } from './routes/(onboarding)/processing'
 import { Route as onboardingOnboardingRouteImport } from './routes/(onboarding)/onboarding'
@@ -46,6 +47,11 @@ const landingIndexRoute = landingIndexRouteImport.update({
   id: '/(landing)/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AppIndustryRoute = AppIndustryRouteImport.update({
+  id: '/industry',
+  path: '/industry',
+  getParentRoute: () => AppRoute,
 } as any)
 const onboardingUploadRoute = onboardingUploadRouteImport.update({
   id: '/(onboarding)/upload',
@@ -161,6 +167,7 @@ export interface FileRoutesByFullPath {
   '/onboarding': typeof onboardingOnboardingRoute
   '/processing': typeof onboardingProcessingRoute
   '/upload': typeof onboardingUploadRoute
+  '/industry': typeof AppIndustryRoute
   '/accept-invite/$token': typeof authAcceptInviteTokenRoute
   '/agents': typeof AppagentsAgentsRoute
   '/coach': typeof AppcoachCoachRoute
@@ -185,6 +192,7 @@ export interface FileRoutesByTo {
   '/onboarding': typeof onboardingOnboardingRoute
   '/processing': typeof onboardingProcessingRoute
   '/upload': typeof onboardingUploadRoute
+  '/industry': typeof AppIndustryRoute
   '/accept-invite/$token': typeof authAcceptInviteTokenRoute
   '/agents': typeof AppagentsAgentsRoute
   '/coach': typeof AppcoachCoachRoute
@@ -210,6 +218,7 @@ export interface FileRoutesById {
   '/(onboarding)/onboarding': typeof onboardingOnboardingRoute
   '/(onboarding)/processing': typeof onboardingProcessingRoute
   '/(onboarding)/upload': typeof onboardingUploadRoute
+  '/_app/industry': typeof AppIndustryRoute
   '/(landing)/': typeof landingIndexRoute
   '/(auth)/accept-invite/$token': typeof authAcceptInviteTokenRoute
   '/_app/(agents)/agents': typeof AppagentsAgentsRoute
@@ -237,6 +246,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/processing'
     | '/upload'
+    | '/industry'
     | '/accept-invite/$token'
     | '/agents'
     | '/coach'
@@ -261,6 +271,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/processing'
     | '/upload'
+    | '/industry'
     | '/accept-invite/$token'
     | '/agents'
     | '/coach'
@@ -285,6 +296,7 @@ export interface FileRouteTypes {
     | '/(onboarding)/onboarding'
     | '/(onboarding)/processing'
     | '/(onboarding)/upload'
+    | '/_app/industry'
     | '/(landing)/'
     | '/(auth)/accept-invite/$token'
     | '/_app/(agents)/agents'
@@ -338,6 +350,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof landingIndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_app/industry': {
+      id: '/_app/industry'
+      path: '/industry'
+      fullPath: '/industry'
+      preLoaderRoute: typeof AppIndustryRouteImport
+      parentRoute: typeof AppRoute
     }
     '/(onboarding)/upload': {
       id: '/(onboarding)/upload'
@@ -510,6 +529,7 @@ const AppspotlightsSpotlightsRouteWithChildren =
   )
 
 interface AppRouteChildren {
+  AppIndustryRoute: typeof AppIndustryRoute
   AppagentsAgentsRoute: typeof AppagentsAgentsRoute
   AppcoachCoachRoute: typeof AppcoachCoachRoute
   AppdashboardHomeRoute: typeof AppdashboardHomeRoute
@@ -521,6 +541,7 @@ interface AppRouteChildren {
 }
 
 const AppRouteChildren: AppRouteChildren = {
+  AppIndustryRoute: AppIndustryRoute,
   AppagentsAgentsRoute: AppagentsAgentsRoute,
   AppcoachCoachRoute: AppcoachCoachRoute,
   AppdashboardHomeRoute: AppdashboardHomeRoute,
