@@ -9,240 +9,253 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as VerifyEmailRouteImport } from './routes/verify-email'
-import { Route as UploadRouteImport } from './routes/upload'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
-import { Route as SignupRouteImport } from './routes/signup'
-import { Route as ProcessingRouteImport } from './routes/processing'
-import { Route as OnboardingRouteImport } from './routes/onboarding'
-import { Route as LoginRouteImport } from './routes/login'
-import { Route as ConsentRouteImport } from './routes/consent'
 import { Route as AppRouteImport } from './routes/_app'
-import { Route as IndexRouteImport } from './routes/index'
-import { Route as AcceptInviteIndexRouteImport } from './routes/accept-invite.index'
-import { Route as AcceptInviteTokenRouteImport } from './routes/accept-invite.$token'
-import { Route as AppWrappedRouteImport } from './routes/_app.wrapped'
-import { Route as AppSpotlightsRouteImport } from './routes/_app.spotlights'
-import { Route as AppSpendingRouteImport } from './routes/_app.spending'
-import { Route as AppSettingsRouteImport } from './routes/_app.settings'
-import { Route as AppProfileRouteImport } from './routes/_app.profile'
-import { Route as AppHomeRouteImport } from './routes/_app.home'
-import { Route as AppCoachRouteImport } from './routes/_app.coach'
-import { Route as AppAgentsRouteImport } from './routes/_app.agents'
-import { Route as AppSpotlightsIdRouteImport } from './routes/_app.spotlights.$id'
-import { Route as AppSpendingCategoryRouteImport } from './routes/_app.spending.$category'
-import { Route as AppSpotlightsIdApplyRouteImport } from './routes/_app.spotlights.$id_.apply'
+import { Route as landingIndexRouteImport } from './routes/(landing)/index'
+import { Route as AppIndustryRouteImport } from './routes/_app.industry'
+import { Route as onboardingUploadRouteImport } from './routes/(onboarding)/upload'
+import { Route as onboardingProcessingRouteImport } from './routes/(onboarding)/processing'
+import { Route as onboardingOnboardingRouteImport } from './routes/(onboarding)/onboarding'
+import { Route as onboardingConsentRouteImport } from './routes/(onboarding)/consent'
+import { Route as authVerifyEmailRouteImport } from './routes/(auth)/verify-email'
+import { Route as authSignupRouteImport } from './routes/(auth)/signup'
+import { Route as authLoginRouteImport } from './routes/(auth)/login'
+import { Route as authAcceptInviteIndexRouteImport } from './routes/(auth)/accept-invite.index'
+import { Route as AppspotlightsSpotlightsRouteImport } from './routes/_app/(spotlights)/spotlights'
+import { Route as AppspendingSpendingRouteImport } from './routes/_app/(spending)/spending'
+import { Route as AppsettingsSettingsRouteImport } from './routes/_app/(settings)/settings'
+import { Route as AppprofileWrappedRouteImport } from './routes/_app/(profile)/wrapped'
+import { Route as AppprofileProfileRouteImport } from './routes/_app/(profile)/profile'
+import { Route as AppdashboardHomeRouteImport } from './routes/_app/(dashboard)/home'
+import { Route as AppcoachCoachRouteImport } from './routes/_app/(coach)/coach'
+import { Route as AppagentsAgentsRouteImport } from './routes/_app/(agents)/agents'
+import { Route as authAcceptInviteTokenRouteImport } from './routes/(auth)/accept-invite.$token'
+import { Route as AppspotlightsSpotlightsIdRouteImport } from './routes/_app/(spotlights)/spotlights.$id'
+import { Route as AppspendingSpendingCategoryRouteImport } from './routes/_app/(spending)/spending.$category'
+import { Route as AppspotlightsSpotlightsIdApplyRouteImport } from './routes/_app/(spotlights)/spotlights.$id_.apply'
 
-const VerifyEmailRoute = VerifyEmailRouteImport.update({
-  id: '/verify-email',
-  path: '/verify-email',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const UploadRoute = UploadRouteImport.update({
-  id: '/upload',
-  path: '/upload',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SignupRoute = SignupRouteImport.update({
-  id: '/signup',
-  path: '/signup',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ProcessingRoute = ProcessingRouteImport.update({
-  id: '/processing',
-  path: '/processing',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const OnboardingRoute = OnboardingRouteImport.update({
-  id: '/onboarding',
-  path: '/onboarding',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LoginRoute = LoginRouteImport.update({
-  id: '/login',
-  path: '/login',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ConsentRoute = ConsentRouteImport.update({
-  id: '/consent',
-  path: '/consent',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AppRoute = AppRouteImport.update({
   id: '/_app',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
+const landingIndexRoute = landingIndexRouteImport.update({
+  id: '/(landing)/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AcceptInviteIndexRoute = AcceptInviteIndexRouteImport.update({
-  id: '/accept-invite/',
+const AppIndustryRoute = AppIndustryRouteImport.update({
+  id: '/industry',
+  path: '/industry',
+  getParentRoute: () => AppRoute,
+} as any)
+const onboardingUploadRoute = onboardingUploadRouteImport.update({
+  id: '/(onboarding)/upload',
+  path: '/upload',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const onboardingProcessingRoute = onboardingProcessingRouteImport.update({
+  id: '/(onboarding)/processing',
+  path: '/processing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const onboardingOnboardingRoute = onboardingOnboardingRouteImport.update({
+  id: '/(onboarding)/onboarding',
+  path: '/onboarding',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const onboardingConsentRoute = onboardingConsentRouteImport.update({
+  id: '/(onboarding)/consent',
+  path: '/consent',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const authVerifyEmailRoute = authVerifyEmailRouteImport.update({
+  id: '/(auth)/verify-email',
+  path: '/verify-email',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const authSignupRoute = authSignupRouteImport.update({
+  id: '/(auth)/signup',
+  path: '/signup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const authLoginRoute = authLoginRouteImport.update({
+  id: '/(auth)/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const authAcceptInviteIndexRoute = authAcceptInviteIndexRouteImport.update({
+  id: '/(auth)/accept-invite/',
   path: '/accept-invite/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AcceptInviteTokenRoute = AcceptInviteTokenRouteImport.update({
-  id: '/accept-invite/$token',
-  path: '/accept-invite/$token',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AppWrappedRoute = AppWrappedRouteImport.update({
-  id: '/wrapped',
-  path: '/wrapped',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppSpotlightsRoute = AppSpotlightsRouteImport.update({
-  id: '/spotlights',
+const AppspotlightsSpotlightsRoute = AppspotlightsSpotlightsRouteImport.update({
+  id: '/(spotlights)/spotlights',
   path: '/spotlights',
   getParentRoute: () => AppRoute,
 } as any)
-const AppSpendingRoute = AppSpendingRouteImport.update({
-  id: '/spending',
+const AppspendingSpendingRoute = AppspendingSpendingRouteImport.update({
+  id: '/(spending)/spending',
   path: '/spending',
   getParentRoute: () => AppRoute,
 } as any)
-const AppSettingsRoute = AppSettingsRouteImport.update({
-  id: '/settings',
+const AppsettingsSettingsRoute = AppsettingsSettingsRouteImport.update({
+  id: '/(settings)/settings',
   path: '/settings',
   getParentRoute: () => AppRoute,
 } as any)
-const AppProfileRoute = AppProfileRouteImport.update({
-  id: '/profile',
+const AppprofileWrappedRoute = AppprofileWrappedRouteImport.update({
+  id: '/(profile)/wrapped',
+  path: '/wrapped',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppprofileProfileRoute = AppprofileProfileRouteImport.update({
+  id: '/(profile)/profile',
   path: '/profile',
   getParentRoute: () => AppRoute,
 } as any)
-const AppHomeRoute = AppHomeRouteImport.update({
-  id: '/home',
+const AppdashboardHomeRoute = AppdashboardHomeRouteImport.update({
+  id: '/(dashboard)/home',
   path: '/home',
   getParentRoute: () => AppRoute,
 } as any)
-const AppCoachRoute = AppCoachRouteImport.update({
-  id: '/coach',
+const AppcoachCoachRoute = AppcoachCoachRouteImport.update({
+  id: '/(coach)/coach',
   path: '/coach',
   getParentRoute: () => AppRoute,
 } as any)
-const AppAgentsRoute = AppAgentsRouteImport.update({
-  id: '/agents',
+const AppagentsAgentsRoute = AppagentsAgentsRouteImport.update({
+  id: '/(agents)/agents',
   path: '/agents',
   getParentRoute: () => AppRoute,
 } as any)
-const AppSpotlightsIdRoute = AppSpotlightsIdRouteImport.update({
-  id: '/$id',
-  path: '/$id',
-  getParentRoute: () => AppSpotlightsRoute,
+const authAcceptInviteTokenRoute = authAcceptInviteTokenRouteImport.update({
+  id: '/(auth)/accept-invite/$token',
+  path: '/accept-invite/$token',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const AppSpendingCategoryRoute = AppSpendingCategoryRouteImport.update({
-  id: '/$category',
-  path: '/$category',
-  getParentRoute: () => AppSpendingRoute,
-} as any)
-const AppSpotlightsIdApplyRoute = AppSpotlightsIdApplyRouteImport.update({
-  id: '/$id_/apply',
-  path: '/$id/apply',
-  getParentRoute: () => AppSpotlightsRoute,
-} as any)
+const AppspotlightsSpotlightsIdRoute =
+  AppspotlightsSpotlightsIdRouteImport.update({
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => AppspotlightsSpotlightsRoute,
+  } as any)
+const AppspendingSpendingCategoryRoute =
+  AppspendingSpendingCategoryRouteImport.update({
+    id: '/$category',
+    path: '/$category',
+    getParentRoute: () => AppspendingSpendingRoute,
+  } as any)
+const AppspotlightsSpotlightsIdApplyRoute =
+  AppspotlightsSpotlightsIdApplyRouteImport.update({
+    id: '/$id_/apply',
+    path: '/$id/apply',
+    getParentRoute: () => AppspotlightsSpotlightsRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/consent': typeof ConsentRoute
-  '/login': typeof LoginRoute
-  '/onboarding': typeof OnboardingRoute
-  '/processing': typeof ProcessingRoute
-  '/signup': typeof SignupRoute
+  '/': typeof landingIndexRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
-  '/upload': typeof UploadRoute
-  '/verify-email': typeof VerifyEmailRoute
-  '/agents': typeof AppAgentsRoute
-  '/coach': typeof AppCoachRoute
-  '/home': typeof AppHomeRoute
-  '/profile': typeof AppProfileRoute
-  '/settings': typeof AppSettingsRoute
-  '/spending': typeof AppSpendingRouteWithChildren
-  '/spotlights': typeof AppSpotlightsRouteWithChildren
-  '/wrapped': typeof AppWrappedRoute
-  '/accept-invite/$token': typeof AcceptInviteTokenRoute
-  '/accept-invite/': typeof AcceptInviteIndexRoute
-  '/spending/$category': typeof AppSpendingCategoryRoute
-  '/spotlights/$id': typeof AppSpotlightsIdRoute
-  '/spotlights/$id/apply': typeof AppSpotlightsIdApplyRoute
+  '/login': typeof authLoginRoute
+  '/signup': typeof authSignupRoute
+  '/verify-email': typeof authVerifyEmailRoute
+  '/consent': typeof onboardingConsentRoute
+  '/onboarding': typeof onboardingOnboardingRoute
+  '/processing': typeof onboardingProcessingRoute
+  '/upload': typeof onboardingUploadRoute
+  '/industry': typeof AppIndustryRoute
+  '/accept-invite/$token': typeof authAcceptInviteTokenRoute
+  '/agents': typeof AppagentsAgentsRoute
+  '/coach': typeof AppcoachCoachRoute
+  '/home': typeof AppdashboardHomeRoute
+  '/profile': typeof AppprofileProfileRoute
+  '/wrapped': typeof AppprofileWrappedRoute
+  '/settings': typeof AppsettingsSettingsRoute
+  '/spending': typeof AppspendingSpendingRouteWithChildren
+  '/spotlights': typeof AppspotlightsSpotlightsRouteWithChildren
+  '/accept-invite/': typeof authAcceptInviteIndexRoute
+  '/spending/$category': typeof AppspendingSpendingCategoryRoute
+  '/spotlights/$id': typeof AppspotlightsSpotlightsIdRoute
+  '/spotlights/$id/apply': typeof AppspotlightsSpotlightsIdApplyRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/consent': typeof ConsentRoute
-  '/login': typeof LoginRoute
-  '/onboarding': typeof OnboardingRoute
-  '/processing': typeof ProcessingRoute
-  '/signup': typeof SignupRoute
+  '/': typeof landingIndexRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
-  '/upload': typeof UploadRoute
-  '/verify-email': typeof VerifyEmailRoute
-  '/agents': typeof AppAgentsRoute
-  '/coach': typeof AppCoachRoute
-  '/home': typeof AppHomeRoute
-  '/profile': typeof AppProfileRoute
-  '/settings': typeof AppSettingsRoute
-  '/spending': typeof AppSpendingRouteWithChildren
-  '/spotlights': typeof AppSpotlightsRouteWithChildren
-  '/wrapped': typeof AppWrappedRoute
-  '/accept-invite/$token': typeof AcceptInviteTokenRoute
-  '/accept-invite': typeof AcceptInviteIndexRoute
-  '/spending/$category': typeof AppSpendingCategoryRoute
-  '/spotlights/$id': typeof AppSpotlightsIdRoute
-  '/spotlights/$id/apply': typeof AppSpotlightsIdApplyRoute
+  '/login': typeof authLoginRoute
+  '/signup': typeof authSignupRoute
+  '/verify-email': typeof authVerifyEmailRoute
+  '/consent': typeof onboardingConsentRoute
+  '/onboarding': typeof onboardingOnboardingRoute
+  '/processing': typeof onboardingProcessingRoute
+  '/upload': typeof onboardingUploadRoute
+  '/industry': typeof AppIndustryRoute
+  '/accept-invite/$token': typeof authAcceptInviteTokenRoute
+  '/agents': typeof AppagentsAgentsRoute
+  '/coach': typeof AppcoachCoachRoute
+  '/home': typeof AppdashboardHomeRoute
+  '/profile': typeof AppprofileProfileRoute
+  '/wrapped': typeof AppprofileWrappedRoute
+  '/settings': typeof AppsettingsSettingsRoute
+  '/spending': typeof AppspendingSpendingRouteWithChildren
+  '/spotlights': typeof AppspotlightsSpotlightsRouteWithChildren
+  '/accept-invite': typeof authAcceptInviteIndexRoute
+  '/spending/$category': typeof AppspendingSpendingCategoryRoute
+  '/spotlights/$id': typeof AppspotlightsSpotlightsIdRoute
+  '/spotlights/$id/apply': typeof AppspotlightsSpotlightsIdApplyRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
   '/_app': typeof AppRouteWithChildren
-  '/consent': typeof ConsentRoute
-  '/login': typeof LoginRoute
-  '/onboarding': typeof OnboardingRoute
-  '/processing': typeof ProcessingRoute
-  '/signup': typeof SignupRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
-  '/upload': typeof UploadRoute
-  '/verify-email': typeof VerifyEmailRoute
-  '/_app/agents': typeof AppAgentsRoute
-  '/_app/coach': typeof AppCoachRoute
-  '/_app/home': typeof AppHomeRoute
-  '/_app/profile': typeof AppProfileRoute
-  '/_app/settings': typeof AppSettingsRoute
-  '/_app/spending': typeof AppSpendingRouteWithChildren
-  '/_app/spotlights': typeof AppSpotlightsRouteWithChildren
-  '/_app/wrapped': typeof AppWrappedRoute
-  '/accept-invite/$token': typeof AcceptInviteTokenRoute
-  '/accept-invite/': typeof AcceptInviteIndexRoute
-  '/_app/spending/$category': typeof AppSpendingCategoryRoute
-  '/_app/spotlights/$id': typeof AppSpotlightsIdRoute
-  '/_app/spotlights/$id_/apply': typeof AppSpotlightsIdApplyRoute
+  '/(auth)/login': typeof authLoginRoute
+  '/(auth)/signup': typeof authSignupRoute
+  '/(auth)/verify-email': typeof authVerifyEmailRoute
+  '/(onboarding)/consent': typeof onboardingConsentRoute
+  '/(onboarding)/onboarding': typeof onboardingOnboardingRoute
+  '/(onboarding)/processing': typeof onboardingProcessingRoute
+  '/(onboarding)/upload': typeof onboardingUploadRoute
+  '/_app/industry': typeof AppIndustryRoute
+  '/(landing)/': typeof landingIndexRoute
+  '/(auth)/accept-invite/$token': typeof authAcceptInviteTokenRoute
+  '/_app/(agents)/agents': typeof AppagentsAgentsRoute
+  '/_app/(coach)/coach': typeof AppcoachCoachRoute
+  '/_app/(dashboard)/home': typeof AppdashboardHomeRoute
+  '/_app/(profile)/profile': typeof AppprofileProfileRoute
+  '/_app/(profile)/wrapped': typeof AppprofileWrappedRoute
+  '/_app/(settings)/settings': typeof AppsettingsSettingsRoute
+  '/_app/(spending)/spending': typeof AppspendingSpendingRouteWithChildren
+  '/_app/(spotlights)/spotlights': typeof AppspotlightsSpotlightsRouteWithChildren
+  '/(auth)/accept-invite/': typeof authAcceptInviteIndexRoute
+  '/_app/(spending)/spending/$category': typeof AppspendingSpendingCategoryRoute
+  '/_app/(spotlights)/spotlights/$id': typeof AppspotlightsSpotlightsIdRoute
+  '/_app/(spotlights)/spotlights/$id_/apply': typeof AppspotlightsSpotlightsIdApplyRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/consent'
+    | '/sitemap.xml'
     | '/login'
+    | '/signup'
+    | '/verify-email'
+    | '/consent'
     | '/onboarding'
     | '/processing'
-    | '/signup'
-    | '/sitemap.xml'
     | '/upload'
-    | '/verify-email'
+    | '/industry'
+    | '/accept-invite/$token'
     | '/agents'
     | '/coach'
     | '/home'
     | '/profile'
+    | '/wrapped'
     | '/settings'
     | '/spending'
     | '/spotlights'
-    | '/wrapped'
-    | '/accept-invite/$token'
     | '/accept-invite/'
     | '/spending/$category'
     | '/spotlights/$id'
@@ -250,125 +263,78 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/consent'
+    | '/sitemap.xml'
     | '/login'
+    | '/signup'
+    | '/verify-email'
+    | '/consent'
     | '/onboarding'
     | '/processing'
-    | '/signup'
-    | '/sitemap.xml'
     | '/upload'
-    | '/verify-email'
+    | '/industry'
+    | '/accept-invite/$token'
     | '/agents'
     | '/coach'
     | '/home'
     | '/profile'
+    | '/wrapped'
     | '/settings'
     | '/spending'
     | '/spotlights'
-    | '/wrapped'
-    | '/accept-invite/$token'
     | '/accept-invite'
     | '/spending/$category'
     | '/spotlights/$id'
     | '/spotlights/$id/apply'
   id:
     | '__root__'
-    | '/'
     | '/_app'
-    | '/consent'
-    | '/login'
-    | '/onboarding'
-    | '/processing'
-    | '/signup'
     | '/sitemap.xml'
-    | '/upload'
-    | '/verify-email'
-    | '/_app/agents'
-    | '/_app/coach'
-    | '/_app/home'
-    | '/_app/profile'
-    | '/_app/settings'
-    | '/_app/spending'
-    | '/_app/spotlights'
-    | '/_app/wrapped'
-    | '/accept-invite/$token'
-    | '/accept-invite/'
-    | '/_app/spending/$category'
-    | '/_app/spotlights/$id'
-    | '/_app/spotlights/$id_/apply'
+    | '/(auth)/login'
+    | '/(auth)/signup'
+    | '/(auth)/verify-email'
+    | '/(onboarding)/consent'
+    | '/(onboarding)/onboarding'
+    | '/(onboarding)/processing'
+    | '/(onboarding)/upload'
+    | '/_app/industry'
+    | '/(landing)/'
+    | '/(auth)/accept-invite/$token'
+    | '/_app/(agents)/agents'
+    | '/_app/(coach)/coach'
+    | '/_app/(dashboard)/home'
+    | '/_app/(profile)/profile'
+    | '/_app/(profile)/wrapped'
+    | '/_app/(settings)/settings'
+    | '/_app/(spending)/spending'
+    | '/_app/(spotlights)/spotlights'
+    | '/(auth)/accept-invite/'
+    | '/_app/(spending)/spending/$category'
+    | '/_app/(spotlights)/spotlights/$id'
+    | '/_app/(spotlights)/spotlights/$id_/apply'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
   AppRoute: typeof AppRouteWithChildren
-  ConsentRoute: typeof ConsentRoute
-  LoginRoute: typeof LoginRoute
-  OnboardingRoute: typeof OnboardingRoute
-  ProcessingRoute: typeof ProcessingRoute
-  SignupRoute: typeof SignupRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
-  UploadRoute: typeof UploadRoute
-  VerifyEmailRoute: typeof VerifyEmailRoute
-  AcceptInviteTokenRoute: typeof AcceptInviteTokenRoute
-  AcceptInviteIndexRoute: typeof AcceptInviteIndexRoute
+  authLoginRoute: typeof authLoginRoute
+  authSignupRoute: typeof authSignupRoute
+  authVerifyEmailRoute: typeof authVerifyEmailRoute
+  onboardingConsentRoute: typeof onboardingConsentRoute
+  onboardingOnboardingRoute: typeof onboardingOnboardingRoute
+  onboardingProcessingRoute: typeof onboardingProcessingRoute
+  onboardingUploadRoute: typeof onboardingUploadRoute
+  landingIndexRoute: typeof landingIndexRoute
+  authAcceptInviteTokenRoute: typeof authAcceptInviteTokenRoute
+  authAcceptInviteIndexRoute: typeof authAcceptInviteIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/verify-email': {
-      id: '/verify-email'
-      path: '/verify-email'
-      fullPath: '/verify-email'
-      preLoaderRoute: typeof VerifyEmailRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/upload': {
-      id: '/upload'
-      path: '/upload'
-      fullPath: '/upload'
-      preLoaderRoute: typeof UploadRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/sitemap.xml': {
       id: '/sitemap.xml'
       path: '/sitemap.xml'
       fullPath: '/sitemap.xml'
       preLoaderRoute: typeof SitemapDotxmlRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/signup': {
-      id: '/signup'
-      path: '/signup'
-      fullPath: '/signup'
-      preLoaderRoute: typeof SignupRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/processing': {
-      id: '/processing'
-      path: '/processing'
-      fullPath: '/processing'
-      preLoaderRoute: typeof ProcessingRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/onboarding': {
-      id: '/onboarding'
-      path: '/onboarding'
-      fullPath: '/onboarding'
-      preLoaderRoute: typeof OnboardingRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/consent': {
-      id: '/consent'
-      path: '/consent'
-      fullPath: '/consent'
-      preLoaderRoute: typeof ConsentRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_app': {
@@ -378,170 +344,229 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
+    '/(landing)/': {
+      id: '/(landing)/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+      preLoaderRoute: typeof landingIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/accept-invite/': {
-      id: '/accept-invite/'
+    '/_app/industry': {
+      id: '/_app/industry'
+      path: '/industry'
+      fullPath: '/industry'
+      preLoaderRoute: typeof AppIndustryRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/(onboarding)/upload': {
+      id: '/(onboarding)/upload'
+      path: '/upload'
+      fullPath: '/upload'
+      preLoaderRoute: typeof onboardingUploadRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(onboarding)/processing': {
+      id: '/(onboarding)/processing'
+      path: '/processing'
+      fullPath: '/processing'
+      preLoaderRoute: typeof onboardingProcessingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(onboarding)/onboarding': {
+      id: '/(onboarding)/onboarding'
+      path: '/onboarding'
+      fullPath: '/onboarding'
+      preLoaderRoute: typeof onboardingOnboardingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(onboarding)/consent': {
+      id: '/(onboarding)/consent'
+      path: '/consent'
+      fullPath: '/consent'
+      preLoaderRoute: typeof onboardingConsentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(auth)/verify-email': {
+      id: '/(auth)/verify-email'
+      path: '/verify-email'
+      fullPath: '/verify-email'
+      preLoaderRoute: typeof authVerifyEmailRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(auth)/signup': {
+      id: '/(auth)/signup'
+      path: '/signup'
+      fullPath: '/signup'
+      preLoaderRoute: typeof authSignupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(auth)/login': {
+      id: '/(auth)/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof authLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(auth)/accept-invite/': {
+      id: '/(auth)/accept-invite/'
       path: '/accept-invite'
       fullPath: '/accept-invite/'
-      preLoaderRoute: typeof AcceptInviteIndexRouteImport
+      preLoaderRoute: typeof authAcceptInviteIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/accept-invite/$token': {
-      id: '/accept-invite/$token'
-      path: '/accept-invite/$token'
-      fullPath: '/accept-invite/$token'
-      preLoaderRoute: typeof AcceptInviteTokenRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/_app/wrapped': {
-      id: '/_app/wrapped'
-      path: '/wrapped'
-      fullPath: '/wrapped'
-      preLoaderRoute: typeof AppWrappedRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/spotlights': {
-      id: '/_app/spotlights'
+    '/_app/(spotlights)/spotlights': {
+      id: '/_app/(spotlights)/spotlights'
       path: '/spotlights'
       fullPath: '/spotlights'
-      preLoaderRoute: typeof AppSpotlightsRouteImport
+      preLoaderRoute: typeof AppspotlightsSpotlightsRouteImport
       parentRoute: typeof AppRoute
     }
-    '/_app/spending': {
-      id: '/_app/spending'
+    '/_app/(spending)/spending': {
+      id: '/_app/(spending)/spending'
       path: '/spending'
       fullPath: '/spending'
-      preLoaderRoute: typeof AppSpendingRouteImport
+      preLoaderRoute: typeof AppspendingSpendingRouteImport
       parentRoute: typeof AppRoute
     }
-    '/_app/settings': {
-      id: '/_app/settings'
+    '/_app/(settings)/settings': {
+      id: '/_app/(settings)/settings'
       path: '/settings'
       fullPath: '/settings'
-      preLoaderRoute: typeof AppSettingsRouteImport
+      preLoaderRoute: typeof AppsettingsSettingsRouteImport
       parentRoute: typeof AppRoute
     }
-    '/_app/profile': {
-      id: '/_app/profile'
+    '/_app/(profile)/wrapped': {
+      id: '/_app/(profile)/wrapped'
+      path: '/wrapped'
+      fullPath: '/wrapped'
+      preLoaderRoute: typeof AppprofileWrappedRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/(profile)/profile': {
+      id: '/_app/(profile)/profile'
       path: '/profile'
       fullPath: '/profile'
-      preLoaderRoute: typeof AppProfileRouteImport
+      preLoaderRoute: typeof AppprofileProfileRouteImport
       parentRoute: typeof AppRoute
     }
-    '/_app/home': {
-      id: '/_app/home'
+    '/_app/(dashboard)/home': {
+      id: '/_app/(dashboard)/home'
       path: '/home'
       fullPath: '/home'
-      preLoaderRoute: typeof AppHomeRouteImport
+      preLoaderRoute: typeof AppdashboardHomeRouteImport
       parentRoute: typeof AppRoute
     }
-    '/_app/coach': {
-      id: '/_app/coach'
+    '/_app/(coach)/coach': {
+      id: '/_app/(coach)/coach'
       path: '/coach'
       fullPath: '/coach'
-      preLoaderRoute: typeof AppCoachRouteImport
+      preLoaderRoute: typeof AppcoachCoachRouteImport
       parentRoute: typeof AppRoute
     }
-    '/_app/agents': {
-      id: '/_app/agents'
+    '/_app/(agents)/agents': {
+      id: '/_app/(agents)/agents'
       path: '/agents'
       fullPath: '/agents'
-      preLoaderRoute: typeof AppAgentsRouteImport
+      preLoaderRoute: typeof AppagentsAgentsRouteImport
       parentRoute: typeof AppRoute
     }
-    '/_app/spotlights/$id': {
-      id: '/_app/spotlights/$id'
+    '/(auth)/accept-invite/$token': {
+      id: '/(auth)/accept-invite/$token'
+      path: '/accept-invite/$token'
+      fullPath: '/accept-invite/$token'
+      preLoaderRoute: typeof authAcceptInviteTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_app/(spotlights)/spotlights/$id': {
+      id: '/_app/(spotlights)/spotlights/$id'
       path: '/$id'
       fullPath: '/spotlights/$id'
-      preLoaderRoute: typeof AppSpotlightsIdRouteImport
-      parentRoute: typeof AppSpotlightsRoute
+      preLoaderRoute: typeof AppspotlightsSpotlightsIdRouteImport
+      parentRoute: typeof AppspotlightsSpotlightsRoute
     }
-    '/_app/spending/$category': {
-      id: '/_app/spending/$category'
+    '/_app/(spending)/spending/$category': {
+      id: '/_app/(spending)/spending/$category'
       path: '/$category'
       fullPath: '/spending/$category'
-      preLoaderRoute: typeof AppSpendingCategoryRouteImport
-      parentRoute: typeof AppSpendingRoute
+      preLoaderRoute: typeof AppspendingSpendingCategoryRouteImport
+      parentRoute: typeof AppspendingSpendingRoute
     }
-    '/_app/spotlights/$id_/apply': {
-      id: '/_app/spotlights/$id_/apply'
+    '/_app/(spotlights)/spotlights/$id_/apply': {
+      id: '/_app/(spotlights)/spotlights/$id_/apply'
       path: '/$id/apply'
       fullPath: '/spotlights/$id/apply'
-      preLoaderRoute: typeof AppSpotlightsIdApplyRouteImport
-      parentRoute: typeof AppSpotlightsRoute
+      preLoaderRoute: typeof AppspotlightsSpotlightsIdApplyRouteImport
+      parentRoute: typeof AppspotlightsSpotlightsRoute
     }
   }
 }
 
-interface AppSpendingRouteChildren {
-  AppSpendingCategoryRoute: typeof AppSpendingCategoryRoute
+interface AppspendingSpendingRouteChildren {
+  AppspendingSpendingCategoryRoute: typeof AppspendingSpendingCategoryRoute
 }
 
-const AppSpendingRouteChildren: AppSpendingRouteChildren = {
-  AppSpendingCategoryRoute: AppSpendingCategoryRoute,
+const AppspendingSpendingRouteChildren: AppspendingSpendingRouteChildren = {
+  AppspendingSpendingCategoryRoute: AppspendingSpendingCategoryRoute,
 }
 
-const AppSpendingRouteWithChildren = AppSpendingRoute._addFileChildren(
-  AppSpendingRouteChildren,
-)
+const AppspendingSpendingRouteWithChildren =
+  AppspendingSpendingRoute._addFileChildren(AppspendingSpendingRouteChildren)
 
-interface AppSpotlightsRouteChildren {
-  AppSpotlightsIdRoute: typeof AppSpotlightsIdRoute
-  AppSpotlightsIdApplyRoute: typeof AppSpotlightsIdApplyRoute
+interface AppspotlightsSpotlightsRouteChildren {
+  AppspotlightsSpotlightsIdRoute: typeof AppspotlightsSpotlightsIdRoute
+  AppspotlightsSpotlightsIdApplyRoute: typeof AppspotlightsSpotlightsIdApplyRoute
 }
 
-const AppSpotlightsRouteChildren: AppSpotlightsRouteChildren = {
-  AppSpotlightsIdRoute: AppSpotlightsIdRoute,
-  AppSpotlightsIdApplyRoute: AppSpotlightsIdApplyRoute,
-}
+const AppspotlightsSpotlightsRouteChildren: AppspotlightsSpotlightsRouteChildren =
+  {
+    AppspotlightsSpotlightsIdRoute: AppspotlightsSpotlightsIdRoute,
+    AppspotlightsSpotlightsIdApplyRoute: AppspotlightsSpotlightsIdApplyRoute,
+  }
 
-const AppSpotlightsRouteWithChildren = AppSpotlightsRoute._addFileChildren(
-  AppSpotlightsRouteChildren,
-)
+const AppspotlightsSpotlightsRouteWithChildren =
+  AppspotlightsSpotlightsRoute._addFileChildren(
+    AppspotlightsSpotlightsRouteChildren,
+  )
 
 interface AppRouteChildren {
-  AppAgentsRoute: typeof AppAgentsRoute
-  AppCoachRoute: typeof AppCoachRoute
-  AppHomeRoute: typeof AppHomeRoute
-  AppProfileRoute: typeof AppProfileRoute
-  AppSettingsRoute: typeof AppSettingsRoute
-  AppSpendingRoute: typeof AppSpendingRouteWithChildren
-  AppSpotlightsRoute: typeof AppSpotlightsRouteWithChildren
-  AppWrappedRoute: typeof AppWrappedRoute
+  AppIndustryRoute: typeof AppIndustryRoute
+  AppagentsAgentsRoute: typeof AppagentsAgentsRoute
+  AppcoachCoachRoute: typeof AppcoachCoachRoute
+  AppdashboardHomeRoute: typeof AppdashboardHomeRoute
+  AppprofileProfileRoute: typeof AppprofileProfileRoute
+  AppprofileWrappedRoute: typeof AppprofileWrappedRoute
+  AppsettingsSettingsRoute: typeof AppsettingsSettingsRoute
+  AppspendingSpendingRoute: typeof AppspendingSpendingRouteWithChildren
+  AppspotlightsSpotlightsRoute: typeof AppspotlightsSpotlightsRouteWithChildren
 }
 
 const AppRouteChildren: AppRouteChildren = {
-  AppAgentsRoute: AppAgentsRoute,
-  AppCoachRoute: AppCoachRoute,
-  AppHomeRoute: AppHomeRoute,
-  AppProfileRoute: AppProfileRoute,
-  AppSettingsRoute: AppSettingsRoute,
-  AppSpendingRoute: AppSpendingRouteWithChildren,
-  AppSpotlightsRoute: AppSpotlightsRouteWithChildren,
-  AppWrappedRoute: AppWrappedRoute,
+  AppIndustryRoute: AppIndustryRoute,
+  AppagentsAgentsRoute: AppagentsAgentsRoute,
+  AppcoachCoachRoute: AppcoachCoachRoute,
+  AppdashboardHomeRoute: AppdashboardHomeRoute,
+  AppprofileProfileRoute: AppprofileProfileRoute,
+  AppprofileWrappedRoute: AppprofileWrappedRoute,
+  AppsettingsSettingsRoute: AppsettingsSettingsRoute,
+  AppspendingSpendingRoute: AppspendingSpendingRouteWithChildren,
+  AppspotlightsSpotlightsRoute: AppspotlightsSpotlightsRouteWithChildren,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
   AppRoute: AppRouteWithChildren,
-  ConsentRoute: ConsentRoute,
-  LoginRoute: LoginRoute,
-  OnboardingRoute: OnboardingRoute,
-  ProcessingRoute: ProcessingRoute,
-  SignupRoute: SignupRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
-  UploadRoute: UploadRoute,
-  VerifyEmailRoute: VerifyEmailRoute,
-  AcceptInviteTokenRoute: AcceptInviteTokenRoute,
-  AcceptInviteIndexRoute: AcceptInviteIndexRoute,
+  authLoginRoute: authLoginRoute,
+  authSignupRoute: authSignupRoute,
+  authVerifyEmailRoute: authVerifyEmailRoute,
+  onboardingConsentRoute: onboardingConsentRoute,
+  onboardingOnboardingRoute: onboardingOnboardingRoute,
+  onboardingProcessingRoute: onboardingProcessingRoute,
+  onboardingUploadRoute: onboardingUploadRoute,
+  landingIndexRoute: landingIndexRoute,
+  authAcceptInviteTokenRoute: authAcceptInviteTokenRoute,
+  authAcceptInviteIndexRoute: authAcceptInviteIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
