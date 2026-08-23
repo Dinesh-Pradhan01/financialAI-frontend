@@ -26,6 +26,7 @@ import {
 } from "@/shared/components/ui/dialog";
 import { Checkbox } from "@/shared/components/ui/checkbox";
 import { DocumentQualityBadge } from "./DocumentQualityBadge";
+import { formatFileSize } from "../lib/documentPresentation";
 import type { CompanyDocument, PackageResponse } from "@/shared/types/api";
 
 export interface PackagesSectionProps {
@@ -139,16 +140,21 @@ export function PackagesSection({ documents }: PackagesSectionProps) {
     );
   };
 
-  const handleRemoveDocFromPackage = (pkgId: string, docId: string) => {
+  const handleRemoveDocsFromPackage = (pkgId: string, docIds: string[]) => {
+    if (docIds.length === 0) return;
     removeDocsMutation.mutate(
-      { pkgId, documentIds: [docId] },
+      { pkgId, documentIds: docIds },
       {
         onSuccess: () => {
-          toast.success("Document removed from package.");
+          toast.success(
+            docIds.length === 1
+              ? "Document removed from package."
+              : `Removed ${docIds.length} documents from package.`
+          );
         },
         onError: (err) => {
           toast.error(
-            getApiErrorMessage(err, "Failed to remove document from package")
+            getApiErrorMessage(err, "Failed to remove documents from package")
           );
         },
       }
@@ -255,10 +261,11 @@ export function PackagesSection({ documents }: PackagesSectionProps) {
               package={pkg}
               onRename={(newName) => handleRename(pkg.id, newName)}
               onDisband={() => handleDisband(pkg)}
-              onRemoveDocument={(docId) => handleRemoveDocFromPackage(pkg.id, docId)}
+              onRemoveDocuments={(docIds) => handleRemoveDocsFromPackage(pkg.id, docIds)}
               onAddDocuments={() => setTargetPackageForAdd(pkg)}
               isRenaming={renamingPkgId === pkg.id}
               isDisbanding={disbandingPkgId === pkg.id}
+              isRemoving={removeDocsMutation.isPending}
             />
           ))}
         </div>
@@ -353,7 +360,7 @@ export function PackagesSection({ documents }: PackagesSectionProps) {
                             </p>
                             <span className="text-[10px] text-text-secondary capitalize font-mono">
                               {doc.document_type.replace(/[-_]/g, " ")} •{" "}
-                              {(doc.file_size_bytes / 1024).toFixed(0)} KB
+                              {formatFileSize(doc.file_size_bytes)}
                             </span>
                           </div>
                         </div>

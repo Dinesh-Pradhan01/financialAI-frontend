@@ -32,6 +32,7 @@ export const useUploadDocument = () => {
       api.upload<CompanyDocument>("/api/company/documents", formData),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.company.documents() });
+      queryClient.invalidateQueries({ queryKey: queryKeys.company.packages() });
       queryClient.invalidateQueries({ queryKey: queryKeys.company.rating() });
     },
   });
@@ -47,6 +48,8 @@ export const useReplaceDocument = () => {
       api.upload<CompanyDocument>(`/api/company/documents/${docId}`, formData, "PUT"),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.company.documents() });
+      queryClient.invalidateQueries({ queryKey: queryKeys.company.packages() });
+      queryClient.invalidateQueries({ queryKey: queryKeys.company.rating() });
     },
   });
 };
@@ -61,6 +64,7 @@ export const useDeleteDocument = () => {
       api.delete(`/api/company/documents/${docId}`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.company.documents() });
+      queryClient.invalidateQueries({ queryKey: queryKeys.company.packages() });
       queryClient.invalidateQueries({ queryKey: queryKeys.company.rating() });
     },
   });

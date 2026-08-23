@@ -12,6 +12,7 @@ import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
 import { Checkbox } from "@/shared/components/ui/checkbox";
 import { DocumentQualityBadge } from "./DocumentQualityBadge";
+import { formatFileSize } from "../lib/documentPresentation";
 import type { CompanyDocument } from "@/shared/types/api";
 
 export interface PackageDocumentPickerProps {
@@ -176,7 +177,7 @@ export function PackageDocumentPicker({
                         <span className="capitalize">
                           {doc.document_type.replace(/[-_]/g, " ")}
                         </span>
-                        <span>• {(doc.file_size_bytes / 1024).toFixed(0)} KB</span>
+                        <span>• {formatFileSize(doc.file_size_bytes)}</span>
                       </div>
                     </div>
                   </div>

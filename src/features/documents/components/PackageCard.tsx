@@ -10,10 +10,13 @@ import {
   X,
   Loader2,
   Check,
+  CheckSquare,
+  Square,
 } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
 import { Badge } from "@/shared/components/ui/badge";
+import { Checkbox } from "@/shared/components/ui/checkbox";
 import {
   AlertDialog,
   AlertDialogContent,
@@ -25,32 +28,37 @@ import {
   AlertDialogCancel,
 } from "@/shared/components/ui/alert-dialog";
 import { DocumentQualityBadge } from "./DocumentQualityBadge";
+import { formatFileSize } from "../lib/documentPresentation";
 import type { PackageResponse } from "@/shared/types/api";
 
 export interface PackageCardProps {
   package: PackageResponse;
   onRename: (newName: string) => void;
   onDisband: () => void;
-  onRemoveDocument: (docId: string) => void;
+  onRemoveDocuments: (docIds: string[]) => void;
   onAddDocuments: () => void;
   isRenaming: boolean;
   isDisbanding: boolean;
+  isRemoving?: boolean;
 }
 
 export function PackageCard({
   package: pkg,
   onRename,
   onDisband,
-  onRemoveDocument,
+  onRemoveDocuments,
   onAddDocuments,
   isRenaming,
   isDisbanding,
+  isRemoving = false,
 }: PackageCardProps) {
   const [isEditingName, setIsEditingName] = useState(false);
   const [nameInput, setNameInput] = useState(pkg.name);
   const [isExpanded, setIsExpanded] = useState(true);
   const [disbandDialogOpen, setDisbandDialogOpen] = useState(false);
-  const [removingDocId, setRemovingDocId] = useState<string | null>(null);
+  const [selectedDocIds, setSelectedDocIds] = useState<string[]>([]);
+  const [pendingRemovalDocIds, setPendingRemovalDocIds] = useState<string[] | null>(null);
+  const [removingSingleDocId, setRemovingSingleDocId] = useState<string | null>(null);
 
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -64,6 +72,22 @@ export function PackageCard({
       inputRef.current?.select();
     }
   }, [isEditingName]);
+
+  // Clean up selectedDocIds when documents change
+  useEffect(() => {
+    setSelectedDocIds((prev) =>
+      prev.filter((id) => pkg.documents.some((d) => d.id === id))
+    );
+    if (removingSingleDocId && !pkg.documents.some((d) => d.id === removingSingleDocId)) {
+      setRemovingSingleDocId(null);
+    }
+    if (pendingRemovalDocIds) {
+      const valid = pendingRemovalDocIds.filter((id) => pkg.documents.some((d) => d.id === id));
+      if (valid.length === 0) {
+        setPendingRemovalDocIds(null);
+      }
+    }
+  }, [pkg.documents, removingSingleDocId, pendingRemovalDocIds]);
 
   const handleNameSubmit = () => {
     const trimmed = nameInput.trim();
@@ -85,17 +109,42 @@ export function PackageCard({
     }
   };
 
-  const handleRemoveDoc = (docId: string) => {
-    setRemovingDocId(docId);
-    onRemoveDocument(docId);
+  const toggleSelectDoc = (docId: string) => {
+    setSelectedDocIds((prev) =>
+      prev.includes(docId) ? prev.filter((id) => id !== docId) : [...prev, docId]
+    );
   };
 
-  // Reset removingDocId once doc is removed
-  useEffect(() => {
-    if (removingDocId && !pkg.documents.some((d) => d.id === removingDocId)) {
-      setRemovingDocId(null);
+  const handleSelectAllToggle = () => {
+    if (selectedDocIds.length === pkg.documents.length) {
+      setSelectedDocIds([]);
+    } else {
+      setSelectedDocIds(pkg.documents.map((d) => d.id));
     }
-  }, [pkg.documents, removingDocId]);
+  };
+
+  const handleRemoveSingle = (docId: string) => {
+    setPendingRemovalDocIds([docId]);
+  };
+
+  const handleBulkRemove = () => {
+    if (selectedDocIds.length === 0) return;
+    setPendingRemovalDocIds(selectedDocIds);
+  };
+
+  const handleConfirmRemoval = () => {
+    if (!pendingRemovalDocIds || pendingRemovalDocIds.length === 0) return;
+    const idsToRemove = [...pendingRemovalDocIds];
+    if (idsToRemove.length === 1) {
+      setRemovingSingleDocId(idsToRemove[0]);
+    }
+    onRemoveDocuments(idsToRemove);
+    setSelectedDocIds((prev) => prev.filter((id) => !idsToRemove.includes(id)));
+    setPendingRemovalDocIds(null);
+  };
+
+  const isAllSelected =
+    pkg.documents.length > 0 && selectedDocIds.length === pkg.documents.length;
 
   return (
     <div className="rounded-2xl border border-border bg-surface p-5 shadow-xs transition-all space-y-4">
@@ -108,7 +157,7 @@ export function PackageCard({
 
           <div className="min-w-0 flex-1">
             {isEditingName ? (
-              <div className="flex items-center gap-1.5 max-w-sm">
+              <div className="flex items-center gap-2 max-w-sm">
                 <Input
                   ref={inputRef}
                   value={nameInput}
@@ -123,6 +172,8 @@ export function PackageCard({
                   variant="ghost"
                   onClick={handleNameSubmit}
                   disabled={isRenaming || !nameInput.trim()}
+                  aria-label="Save package name"
+                  title="Save package name"
                   className="h-8 w-8 text-success hover:text-success hover:bg-success/10 shrink-0"
                 >
                   <Check className="h-4 w-4" />
@@ -137,6 +188,7 @@ export function PackageCard({
                   size="icon"
                   variant="ghost"
                   onClick={() => setIsEditingName(true)}
+                  aria-label={`Rename package ${pkg.name}`}
                   title="Rename package"
                   className="h-6 w-6 text-text-secondary hover:text-text-primary"
                 >
@@ -191,6 +243,7 @@ export function PackageCard({
             size="icon"
             onClick={() => setIsExpanded((prev) => !prev)}
             className="h-8 w-8 text-text-secondary hover:text-text-primary ml-1"
+            aria-label={isExpanded ? `Collapse ${pkg.name} documents` : `Expand ${pkg.name} documents`}
             title={isExpanded ? "Collapse documents" : "Expand documents"}
           >
             {isExpanded ? (
@@ -204,85 +257,137 @@ export function PackageCard({
 
       {/* Expandable Document List */}
       {isExpanded && (
-        <div className="border-t border-border pt-3 space-y-2">
+        <div className="border-t border-border pt-3 space-y-2.5">
           {pkg.documents.length === 0 ? (
             <div className="rounded-xl border border-dashed border-border/60 p-4 text-center text-xs text-text-secondary">
               No documents in this package yet. Click &quot;Add documents&quot; above to bundle files.
             </div>
           ) : (
-            <div className="grid gap-2">
-              {pkg.documents.map((doc) => {
-                const isItemRemoving = removingDocId === doc.id;
-
-                return (
-                  <div
-                    key={doc.id}
-                    className="flex items-center justify-between gap-3 rounded-xl border border-border/60 bg-surface-alt/30 p-2.5 px-3 hover:bg-surface-alt/50 transition-colors"
-                  >
-                    <div className="flex items-center gap-2.5 min-w-0 flex-1">
-                      <FileText className="h-4 w-4 shrink-0 text-brand" />
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <span
-                            className="font-medium text-xs text-text-primary truncate max-w-[200px] sm:max-w-[280px]"
-                            title={doc.original_name}
-                          >
-                            {doc.original_name}
-                          </span>
-                          <span className="text-[11px] text-text-secondary capitalize font-mono">
-                            • {doc.document_type.replace(/[-_]/g, " ")}
-                          </span>
-                          <span className="text-[11px] text-text-secondary font-mono">
-                            • {(doc.file_size_bytes / 1024).toFixed(0)} KB
-                          </span>
-                        </div>
-                      </div>
-                      <DocumentQualityBadge document={doc} />
-                    </div>
-
+            <>
+              {/* Batch Action Toolbar */}
+              <div className="flex items-center justify-between gap-3 px-1 py-1 text-xs">
+                <div className="flex items-center gap-2">
+                  {pkg.documents.length >= 2 && (
                     <Button
                       type="button"
                       variant="ghost"
-                      size="icon"
-                      title="Remove from package"
-                      disabled={isItemRemoving}
-                      onClick={() => handleRemoveDoc(doc.id)}
-                      className="h-7 w-7 text-text-secondary hover:text-destructive hover:bg-destructive/10 shrink-0"
+                      size="sm"
+                      onClick={handleSelectAllToggle}
+                      className="h-7 text-xs text-text-secondary gap-1.5 px-2 hover:text-text-primary"
                     >
-                      {isItemRemoving ? (
-                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      {isAllSelected ? (
+                        <CheckSquare className="h-3.5 w-3.5 text-brand" />
                       ) : (
-                        <X className="h-3.5 w-3.5" />
+                        <Square className="h-3.5 w-3.5" />
                       )}
+                      {isAllSelected ? "Deselect all" : "Select all"}
                     </Button>
-                  </div>
-                );
-              })}
-            </div>
+                  )}
+                  {selectedDocIds.length > 0 && (
+                    <span className="text-xs font-semibold text-text-primary">
+                      {selectedDocIds.length} of {pkg.documents.length} selected
+                    </span>
+                  )}
+                </div>
+
+                {selectedDocIds.length > 0 && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleBulkRemove}
+                    disabled={isRemoving}
+                    className="h-7 text-xs text-destructive border-destructive/30 hover:bg-destructive/10 hover:text-destructive gap-1.5 font-semibold"
+                  >
+                    {isRemoving ? (
+                      <Loader2 className="h-3 w-3 animate-spin" />
+                    ) : (
+                      <X className="h-3 w-3" />
+                    )}
+                    Remove {selectedDocIds.length} from package
+                  </Button>
+                )}
+              </div>
+
+              <div className="grid gap-2">
+                {pkg.documents.map((doc) => {
+                  const isItemRemoving =
+                    removingSingleDocId === doc.id || (isRemoving && selectedDocIds.includes(doc.id));
+                  const isChecked = selectedDocIds.includes(doc.id);
+
+                  return (
+                    <div
+                      key={doc.id}
+                      className={`flex items-center justify-between gap-3 rounded-xl border border-border/60 p-2.5 px-3 transition-colors ${
+                        isChecked ? "bg-brand/5 border-brand/40" : "bg-surface-alt/30 hover:bg-surface-alt/50"
+                      }`}
+                    >
+                      <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                        <Checkbox
+                          checked={isChecked}
+                          onCheckedChange={() => toggleSelectDoc(doc.id)}
+                          aria-label={`Select ${doc.original_name}`}
+                          className="mr-1"
+                        />
+                        <FileText className="h-4 w-4 shrink-0 text-brand" />
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span
+                              className="font-medium text-xs text-text-primary truncate max-w-[180px] sm:max-w-[280px]"
+                              title={doc.original_name}
+                            >
+                              {doc.original_name}
+                            </span>
+                            <span className="text-[11px] text-text-secondary capitalize font-mono">
+                              • {doc.document_type.replace(/[-_]/g, " ")}
+                            </span>
+                            <span className="text-[11px] text-text-secondary font-mono">
+                              • {formatFileSize(doc.file_size_bytes)}
+                            </span>
+                          </div>
+                        </div>
+                        <DocumentQualityBadge document={doc} />
+                      </div>
+
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        aria-label={`Remove ${doc.original_name} from package ${pkg.name}`}
+                        title="Remove from package"
+                        disabled={isItemRemoving}
+                        onClick={() => handleRemoveSingle(doc.id)}
+                        className="h-7 w-7 text-text-secondary hover:text-destructive hover:bg-destructive/10 shrink-0"
+                      >
+                        {isItemRemoving ? (
+                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                        ) : (
+                          <X className="h-3.5 w-3.5" />
+                        )}
+                      </Button>
+                    </div>
+                  );
+                })}
+              </div>
+            </>
           )}
         </div>
       )}
 
       {/* Disband Confirmation Dialog */}
-      <AlertDialog
-        open={disbandDialogOpen}
-        onOpenChange={setDisbandDialogOpen}
-      >
+      <AlertDialog open={disbandDialogOpen} onOpenChange={setDisbandDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Disband {pkg.name}?</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to disband this package? This removes the package bundle,
-              but keeps all its documents safe in your Documents list.
+              This removes the package bundle, but keeps all its documents safe in your
+              Documents list. No files will be deleted.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel disabled={isDisbanding}>Cancel</AlertDialogCancel>
             <AlertDialogAction
-              onClick={() => {
-                onDisband();
-                setDisbandDialogOpen(false);
-              }}
+              onClick={onDisband}
               disabled={isDisbanding}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
@@ -292,6 +397,43 @@ export function PackageCard({
                 </>
               ) : (
                 "Disband Package"
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Removal Confirmation Dialog */}
+      <AlertDialog
+        open={Boolean(pendingRemovalDocIds && pendingRemovalDocIds.length > 0)}
+        onOpenChange={(open) => {
+          if (!open) setPendingRemovalDocIds(null);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {pendingRemovalDocIds?.length === 1
+                ? `Remove Document from ${pkg.name}?`
+                : `Remove ${pendingRemovalDocIds?.length} Documents from ${pkg.name}?`}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              This removes the selected {pendingRemovalDocIds?.length === 1 ? "document" : "documents"} from this package. The documents themselves will remain in your Documents list.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isRemoving}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmRemoval}
+              disabled={isRemoving}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {isRemoving ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin mr-1.5" /> Removing…
+                </>
+              ) : (
+                "Remove from Package"
               )}
             </AlertDialogAction>
           </AlertDialogFooter>
