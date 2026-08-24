@@ -4,13 +4,14 @@ import { Skeleton } from "@/shared/components/ui/skeleton";
 import { useIndustryLeaders, isSetupRequiredError } from '../hooks/useCompanyAPI';
 import { Trophy, TrendingUp, AlertCircle, RefreshCw, Sparkles, ArrowRight } from 'lucide-react';
 import { Button } from "@/shared/components/ui/button";
-import { Link } from '@tanstack/react-router';
+import { Link, useNavigate } from '@tanstack/react-router';
 
 interface Props {
   hasProfile?: boolean;
 }
 
 export const IndustryLeadershipCard = ({ hasProfile = true }: Props) => {
+  const navigate = useNavigate();
   const { data, isLoading, isError, error, refetch, isFetching } = useIndustryLeaders({
     enabled: hasProfile,
   });
@@ -57,7 +58,7 @@ export const IndustryLeadershipCard = ({ hasProfile = true }: Props) => {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => window.dispatchEvent(new CustomEvent("open-onboarding"))}
+              onClick={() => navigate({ to: "/onboarding" })}
               className="rounded-pill text-xs font-semibold gap-1.5 cursor-pointer shrink-0"
             >
               Complete Profile <ArrowRight className="w-3.5 h-3.5" />

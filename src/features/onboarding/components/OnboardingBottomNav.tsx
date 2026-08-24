@@ -1,4 +1,3 @@
-import React from "react";
 import { ArrowLeft, ArrowRight, CheckCircle2, Loader2 } from "lucide-react";
 
 interface Props {
@@ -29,7 +28,7 @@ export function OnboardingBottomNav({
 
   return (
     <div className="mt-8 pt-4 border-t border-border flex items-center justify-center gap-4">
-      {step > 1 && (
+      {step > 1 && step < 5 && (
         <button
           type="button"
           onClick={onPrevStep}
@@ -59,7 +58,8 @@ export function OnboardingBottomNav({
             )
           ) : (
             <>
-              Save & Continue <ArrowRight className="h-4 w-4" />
+              {step === 4 ? "Save & Review" : "Save & Continue"}{" "}
+              <ArrowRight className="h-4 w-4" />
             </>
           )}
         </button>
@@ -68,7 +68,7 @@ export function OnboardingBottomNav({
           type="button"
           onClick={onFinalSubmit}
           disabled={isDisabled}
-          className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand-gradient py-2.5 px-10 text-sm font-bold text-on-brand shadow-brand hover:opacity-95 transition disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer min-w-[200px]"
+          className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand-gradient py-2.5 px-10 text-sm font-bold text-on-brand shadow-brand hover:opacity-95 transition disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer min-w-50"
         >
           {submitting ? (
             <>

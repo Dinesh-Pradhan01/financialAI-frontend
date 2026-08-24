@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { ArrowRight, Sparkles, ShieldAlert, CheckCircle2, ChevronRight } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
 import { useOnboardingStatus } from "../hooks/useCompanyAPI";
@@ -10,6 +10,7 @@ interface OnboardingProgressBannerProps {
 }
 
 export function OnboardingProgressBanner({ onOpenOnboarding }: OnboardingProgressBannerProps) {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const { data: onboardingData } = useOnboardingStatus();
 
@@ -25,7 +26,7 @@ export function OnboardingProgressBanner({ onOpenOnboarding }: OnboardingProgres
     if (onOpenOnboarding) {
       onOpenOnboarding();
     } else {
-      window.dispatchEvent(new CustomEvent("open-onboarding"));
+      navigate({ to: "/onboarding" });
     }
   };
 
@@ -42,7 +43,9 @@ export function OnboardingProgressBanner({ onOpenOnboarding }: OnboardingProgres
               <span className="inline-flex items-center gap-1.5 rounded-full bg-brand/15 px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider text-brand">
                 <Sparkles className="h-3 w-3 text-brand" /> Setup in Progress
               </span>
-              <span className="text-xs text-text-secondary">Step {currentStep} of 5</span>
+              <span className="text-xs text-text-secondary">
+                {currentStep <= 4 ? `Step ${currentStep} of 4` : "Review & Complete"}
+              </span>
             </div>
             <h2 className="text-base sm:text-lg font-bold tracking-tight text-foreground">
               Finish your Business Profile for Full AI Intelligence

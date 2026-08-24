@@ -9,10 +9,20 @@ import { waitForAuth } from "@/shared/firebase/auth";
 import { GoogleSignInButton } from "@/features/auth/components/GoogleSignInButton";
 import { AuthHeroPanel } from "@/features/auth/components/AuthHeroPanel";
 import { SpotLiteBrand } from "@/shared/components/SpotLiteBrand";
+import { getSafeRedirectPath } from "@/shared/lib/redirectValidation";
 
 import { SpotliteLoader } from "@/shared/components/ui/SpotliteLoader";
 
+interface LoginSearchParams {
+  redirect?: string;
+}
+
 export const Route = createFileRoute("/(auth)/login")({
+  validateSearch: (search: Record<string, unknown>): LoginSearchParams => {
+    return {
+      redirect: typeof search.redirect === "string" ? search.redirect : undefined,
+    };
+  },
   head: () => ({
     meta: [
       { title: "Log in · SpotLite Intelligence" },
@@ -22,13 +32,13 @@ export const Route = createFileRoute("/(auth)/login")({
       },
     ],
   }),
-  beforeLoad: async () => {
+  beforeLoad: async ({ search }) => {
     if (typeof window === "undefined") return;
 
     const snapshot = getAuthSnapshot();
     if (!snapshot.loading && snapshot.user) {
       if (snapshot.user.email_verified) {
-        throw redirect({ to: "/home" });
+        throw redirect({ to: getSafeRedirectPath(search.redirect) });
       } else {
         throw redirect({ to: "/signup" });
       }
@@ -39,6 +49,7 @@ export const Route = createFileRoute("/(auth)/login")({
 
 function Login() {
   const nav = useNavigate();
+  const search = Route.useSearch();
   const { user, loading, login, resetPassword } = useAuth();
 
   const [email, setEmail] = useState("");
@@ -52,12 +63,12 @@ function Login() {
   useEffect(() => {
     if (!loading && user) {
       if (user.email_verified) {
-        nav({ to: "/home", replace: true });
+        nav({ to: getSafeRedirectPath(search.redirect), replace: true });
       } else {
         nav({ to: "/signup", replace: true });
       }
     }
-  }, [user, loading, nav]);
+  }, [user, loading, nav, search.redirect]);
 
   if (loading) {
     return <SpotliteLoader message="Verifying session…" subMessage="SpotLite Intelligence" />;
@@ -87,8 +98,8 @@ function Login() {
         return;
       }
 
-      // Deferred onboarding: go straight to dashboard home
-      nav({ to: "/home", replace: true });
+      // Dynamic safe redirect (defaults to /home if not specified)
+      nav({ to: getSafeRedirectPath(search.redirect), replace: true });
     } catch (err: unknown) {
       const msg =
         err instanceof Error ? err.message : "Login failed. Please try again.";

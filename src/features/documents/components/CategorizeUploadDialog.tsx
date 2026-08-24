@@ -72,13 +72,8 @@ export function CategorizeUploadDialog({
     setSelectedCategory(category);
     if (category === "required" && pendingRequiredSlots.length > 0) {
       setSelectedSlotKey(pendingRequiredSlots[0].typeKey);
-    } else if (category === "recommended") {
-      const recSlots = KNOWN_DOCUMENT_SLOTS.filter(
-        (s) => s.category === "optional" || s.category === "recommended"
-      );
-      if (recSlots.length > 0) {
-        setSelectedSlotKey(recSlots[0].typeKey);
-      }
+    } else if (category === "recommended" && pendingRecommendedSlots.length > 0) {
+      setSelectedSlotKey(pendingRecommendedSlots[0].typeKey);
     }
   };
 
@@ -88,7 +83,7 @@ export function CategorizeUploadDialog({
       return !selectedSlotKey || pendingRequiredSlots.length === 0;
     }
     if (selectedCategory === "recommended") {
-      return !selectedSlotKey;
+      return !selectedSlotKey || pendingRecommendedSlots.length === 0;
     }
     if (selectedCategory === "custom") {
       return !customLabel.trim();
@@ -136,10 +131,6 @@ export function CategorizeUploadDialog({
       setIsUploading(false);
     }
   };
-
-  const recommendedSlots = KNOWN_DOCUMENT_SLOTS.filter(
-    (s) => s.category === "optional" || s.category === "recommended"
-  );
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -230,14 +221,17 @@ export function CategorizeUploadDialog({
                 {/* Recommended Card */}
                 <motion.button
                   type="button"
-                  whileHover={{ y: -1 }}
-                  whileTap={{ scale: 0.98 }}
+                  whileHover={pendingRecommendedSlots.length > 0 ? { y: -1 } : {}}
+                  whileTap={pendingRecommendedSlots.length > 0 ? { scale: 0.98 } : {}}
+                  disabled={pendingRecommendedSlots.length === 0}
                   onClick={() => handleCategorySelect("recommended")}
                   className={cn(
-                    "flex flex-col p-3 rounded-xl border text-left transition cursor-pointer select-none",
-                    selectedCategory === "recommended"
-                      ? "border-brand bg-brand/5 ring-2 ring-brand/20 shadow-xs"
-                      : "border-border-c bg-surface hover:border-brand/40"
+                    "flex flex-col p-3 rounded-xl border text-left transition relative select-none",
+                    pendingRecommendedSlots.length === 0
+                      ? "opacity-50 cursor-not-allowed border-border/50 bg-surface-alt/40"
+                      : selectedCategory === "recommended"
+                      ? "border-brand bg-brand/5 ring-2 ring-brand/20 cursor-pointer shadow-xs"
+                      : "border-border-c bg-surface hover:border-brand/40 cursor-pointer"
                   )}
                 >
                   <div className="flex items-center justify-between w-full mb-1">
@@ -254,7 +248,9 @@ export function CategorizeUploadDialog({
                     />
                   </div>
                   <span className="text-[10px] text-text-secondary font-medium">
-                    {recommendedSlots.length} slots
+                    {pendingRecommendedSlots.length > 0
+                      ? `${pendingRecommendedSlots.length} pending`
+                      : "All uploaded"}
                   </span>
                 </motion.button>
 
@@ -359,39 +355,45 @@ export function CategorizeUploadDialog({
                   <Label className="text-xs font-semibold text-text-primary">
                     Select Recommended Document Slot <span className="text-destructive">*</span>
                   </Label>
-                  <div className="space-y-1.5 max-h-[36vh] overflow-y-auto pr-1">
-                    {recommendedSlots.map((slot) => {
-                      const isSelected = selectedSlotKey === slot.typeKey;
-                      return (
-                        <div
-                          key={slot.typeKey}
-                          onClick={() => setSelectedSlotKey(slot.typeKey)}
-                          className={cn(
-                            "p-2.5 rounded-xl border text-xs flex items-center justify-between transition cursor-pointer select-none",
-                            isSelected
-                              ? "border-brand bg-brand/5 ring-1 ring-brand/30 font-medium"
-                              : "border-border-c bg-surface hover:border-brand/30"
-                          )}
-                        >
-                          <div className="space-y-0.5 pr-2">
-                            <p className="font-semibold text-xs text-text-primary">
-                              {slot.label}
-                            </p>
-                            <p className="text-[11px] text-text-secondary leading-tight">
-                              {slot.description}
-                            </p>
+                  {pendingRecommendedSlots.length === 0 ? (
+                    <div className="rounded-xl border border-border-c bg-surface-alt/30 p-3.5 text-center text-xs text-text-secondary">
+                      All recommended corporate documents are already uploaded.
+                    </div>
+                  ) : (
+                    <div className="space-y-1.5 max-h-[36vh] overflow-y-auto pr-1">
+                      {pendingRecommendedSlots.map((slot) => {
+                        const isSelected = selectedSlotKey === slot.typeKey;
+                        return (
+                          <div
+                            key={slot.typeKey}
+                            onClick={() => setSelectedSlotKey(slot.typeKey)}
+                            className={cn(
+                              "p-2.5 rounded-xl border text-xs flex items-center justify-between transition cursor-pointer select-none",
+                              isSelected
+                                ? "border-brand bg-brand/5 ring-1 ring-brand/30 font-medium"
+                                : "border-border-c bg-surface hover:border-brand/30"
+                            )}
+                          >
+                            <div className="space-y-0.5 pr-2">
+                              <p className="font-semibold text-xs text-text-primary">
+                                {slot.label}
+                              </p>
+                              <p className="text-[11px] text-text-secondary leading-tight">
+                                {slot.description}
+                              </p>
+                            </div>
+                            <input
+                              type="radio"
+                              name="recommendedSlotChoice"
+                              checked={isSelected}
+                              onChange={() => setSelectedSlotKey(slot.typeKey)}
+                              className="text-brand focus:ring-brand shrink-0 cursor-pointer"
+                            />
                           </div>
-                          <input
-                            type="radio"
-                            name="recommendedSlotChoice"
-                            checked={isSelected}
-                            onChange={() => setSelectedSlotKey(slot.typeKey)}
-                            className="text-brand focus:ring-brand shrink-0 cursor-pointer"
-                          />
-                        </div>
-                      );
-                    })}
-                  </div>
+                        );
+                      })}
+                    </div>
+                  )}
                 </motion.div>
               )}
 

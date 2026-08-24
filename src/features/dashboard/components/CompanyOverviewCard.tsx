@@ -16,9 +16,10 @@ import {
 } from "lucide-react";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 
 export const CompanyOverviewCard = () => {
+  const navigate = useNavigate();
   const { data, isLoading, isError, error, refetch, isFetching } = useCompanyProfile();
 
   if (isLoading) {
@@ -95,7 +96,7 @@ export const CompanyOverviewCard = () => {
           </div>
           <div className="flex items-center gap-3 shrink-0">
             <Button
-              onClick={() => window.dispatchEvent(new CustomEvent("open-onboarding"))}
+              onClick={() => navigate({ to: "/onboarding" })}
               className="bg-brand-gradient hover:opacity-95 text-white font-semibold flex items-center gap-2 cursor-pointer shadow-brand px-5 py-2.5 rounded-pill"
             >
               Complete Setup <ArrowRight className="w-4 h-4" />

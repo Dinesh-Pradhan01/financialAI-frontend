@@ -102,7 +102,7 @@ export function HeroUploadDropzone({
               {isDragOver ? "Drop your file to categorize" : "Upload Company Documents"}
             </h3>
             <p className="text-xs text-text-secondary leading-relaxed">
-              Drag &amp; drop files here, or click to browse corporate filings
+              Drag &amp; drop PDF files here, or click to browse corporate filings
             </p>
           </div>
 
@@ -124,14 +124,8 @@ export function HeroUploadDropzone({
 
           {/* Format Badges & Security Reassurance */}
           <div className="flex items-center justify-center gap-2 pt-1 flex-wrap text-text-tertiary">
-            <span className="px-2 py-0.5 rounded-md bg-surface border border-border/70 font-mono text-[10px] font-medium text-text-secondary">
-              PDF
-            </span>
-            <span className="px-2 py-0.5 rounded-md bg-surface border border-border/70 font-mono text-[10px] font-medium text-text-secondary">
-              PNG
-            </span>
-            <span className="px-2 py-0.5 rounded-md bg-surface border border-border/70 font-mono text-[10px] font-medium text-text-secondary">
-              JPG
+            <span className="px-2 py-0.5 rounded-md bg-brand/10 border border-brand/20 font-mono text-[10px] font-semibold text-brand">
+              PDF only
             </span>
             <span className="text-xs text-border">•</span>
             <span className="font-mono text-[11px] text-text-tertiary">

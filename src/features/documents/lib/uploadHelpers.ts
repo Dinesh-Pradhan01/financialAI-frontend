@@ -1,7 +1,7 @@
 export const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024; // 10MB
-export const ACCEPTED_FILE_EXTENSIONS = [".pdf", ".png", ".jpg", ".jpeg"];
-export const ACCEPTED_FILE_FORMATS_STRING = ".pdf,.png,.jpg,.jpeg";
-export const UPLOAD_CONSTRAINTS_LABEL = "PDF, PNG, JPG, JPEG • Max 10MB";
+export const ACCEPTED_FILE_EXTENSIONS = [".pdf"];
+export const ACCEPTED_FILE_FORMATS_STRING = ".pdf";
+export const UPLOAD_CONSTRAINTS_LABEL = "PDF only • Max 10MB";
 
 export interface FileValidationResult {
   valid: boolean;
@@ -10,6 +10,8 @@ export interface FileValidationResult {
 
 /**
  * Validates a candidate file against size and format constraints.
+ * Only PDF files are accepted — quality score verification requires
+ * text extraction which only works on PDF documents.
  */
 export function validateFile(file: File): FileValidationResult {
   if (file.size > MAX_FILE_SIZE_BYTES) {
@@ -23,7 +25,7 @@ export function validateFile(file: File): FileValidationResult {
   if (!ACCEPTED_FILE_EXTENSIONS.includes(ext)) {
     return {
       valid: false,
-      error: `Invalid file type for "${file.name}". Allowed formats: PDF, PNG, JPG, JPEG.`,
+      error: `Invalid file type for "${file.name}". Only PDF files are accepted for document verification.`,
     };
   }
 

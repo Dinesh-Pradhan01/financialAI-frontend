@@ -19,13 +19,17 @@ export function DemoTour() {
   const step = active ? tourSteps[tourStep] : null;
 
   // Drive navigation from the active step.
+  // Use `tourStep` (a stable number) as the dependency — NOT the derived `step`
+  // object, which gets a new reference every render and would cause an infinite loop.
   useEffect(() => {
-    if (!step) return;
+    if (tourStep < 0 || tourStep >= tourSteps.length) return;
+    const s = tourSteps[tourStep];
     (nav as (opts: { to: string; params?: Record<string, string> }) => void)({
-      to: step.to,
-      params: step.params,
+      to: s.to,
+      params: s.params,
     });
-  }, [step, nav]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tourStep]);
 
   if (!step) return null;
 

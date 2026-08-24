@@ -6,6 +6,10 @@ import type {
   PackageResponse,
   PackageRequest,
 } from "@/shared/types/api";
+import {
+  applyDeleteDocumentOptimistic,
+  applyReplaceDocumentOptimistic,
+} from "../lib/optimisticTransforms";
 
 // ---------------------------------------------------------------------------
 // Document Hooks
@@ -30,42 +34,96 @@ export const useUploadDocument = () => {
   return useMutation({
     mutationFn: (formData: FormData) =>
       api.upload<CompanyDocument>("/api/company/documents", formData),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.company.documents() });
-      queryClient.invalidateQueries({ queryKey: queryKeys.company.packages() });
-      queryClient.invalidateQueries({ queryKey: queryKeys.company.rating() });
+    onSettled: () => {
+      queryClient.refetchQueries({ queryKey: queryKeys.company.documents() });
+      queryClient.refetchQueries({ queryKey: queryKeys.company.packages() });
+      queryClient.refetchQueries({ queryKey: queryKeys.company.rating() });
     },
   });
 };
 
 /**
- * Replace an existing company document (PUT /api/company/documents/{doc_id}).
+ * Replace an existing company document (PUT /api/company/documents/{doc_id})
+ * with optimistic UI timestamp touch and multi-key cancellation.
  */
 export const useReplaceDocument = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ docId, formData }: { docId: string; formData: FormData }) =>
       api.upload<CompanyDocument>(`/api/company/documents/${docId}`, formData, "PUT"),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.company.documents() });
-      queryClient.invalidateQueries({ queryKey: queryKeys.company.packages() });
-      queryClient.invalidateQueries({ queryKey: queryKeys.company.rating() });
+    onMutate: async ({ docId }) => {
+      // Cancel all affected queries to prevent in-flight GETs from stomping optimistic state
+      await queryClient.cancelQueries({ queryKey: queryKeys.company.documents() });
+      await queryClient.cancelQueries({ queryKey: queryKeys.company.packages() });
+      await queryClient.cancelQueries({ queryKey: queryKeys.company.rating() });
+
+      const previousDocuments = queryClient.getQueryData<CompanyDocument[]>(
+        queryKeys.company.documents()
+      );
+
+      // Optimistically update updated_at timestamp on the replacing document
+      queryClient.setQueryData<CompanyDocument[]>(
+        queryKeys.company.documents(),
+        (old = []) => applyReplaceDocumentOptimistic(old, docId)
+      );
+
+      return { previousDocuments };
+    },
+    onError: (_err, _variables, context) => {
+      if (context?.previousDocuments) {
+        queryClient.setQueryData(
+          queryKeys.company.documents(),
+          context.previousDocuments
+        );
+      }
+    },
+    onSettled: () => {
+      queryClient.refetchQueries({ queryKey: queryKeys.company.documents() });
+      queryClient.refetchQueries({ queryKey: queryKeys.company.packages() });
+      queryClient.refetchQueries({ queryKey: queryKeys.company.rating() });
     },
   });
 };
 
 /**
- * Delete a company document (DELETE /api/company/documents/{doc_id}).
+ * Delete a company document (DELETE /api/company/documents/{doc_id})
+ * with instant optimistic row removal and multi-key cancellation.
  */
 export const useDeleteDocument = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (docId: string) =>
       api.delete(`/api/company/documents/${docId}`),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.company.documents() });
-      queryClient.invalidateQueries({ queryKey: queryKeys.company.packages() });
-      queryClient.invalidateQueries({ queryKey: queryKeys.company.rating() });
+    onMutate: async (docId: string) => {
+      // Cancel all affected queries to prevent in-flight GETs from stomping optimistic state
+      await queryClient.cancelQueries({ queryKey: queryKeys.company.documents() });
+      await queryClient.cancelQueries({ queryKey: queryKeys.company.packages() });
+      await queryClient.cancelQueries({ queryKey: queryKeys.company.rating() });
+
+      const previousDocuments = queryClient.getQueryData<CompanyDocument[]>(
+        queryKeys.company.documents()
+      );
+
+      // Instantly remove document from cache
+      queryClient.setQueryData<CompanyDocument[]>(
+        queryKeys.company.documents(),
+        (old = []) => applyDeleteDocumentOptimistic(old, docId)
+      );
+
+      return { previousDocuments };
+    },
+    onError: (_err, _variables, context) => {
+      if (context?.previousDocuments) {
+        queryClient.setQueryData(
+          queryKeys.company.documents(),
+          context.previousDocuments
+        );
+      }
+    },
+    onSettled: () => {
+      queryClient.refetchQueries({ queryKey: queryKeys.company.documents() });
+      queryClient.refetchQueries({ queryKey: queryKeys.company.packages() });
+      queryClient.refetchQueries({ queryKey: queryKeys.company.rating() });
     },
   });
 };
@@ -86,7 +144,7 @@ export async function downloadDocument(docId: string, filename: string): Promise
 }
 
 // ---------------------------------------------------------------------------
-// Package Hooks
+// Package Hooks (Immediate Refetch - Full Optimistic Updates Deferred)
 // ---------------------------------------------------------------------------
 
 /**
@@ -108,8 +166,9 @@ export const useCreatePackage = () => {
   return useMutation({
     mutationFn: (payload: PackageRequest) =>
       api.post<PackageResponse>("/api/company/packages", payload),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.company.packages() });
+    onSettled: () => {
+      // Immediate refetch (partial improvement; full optimistic deferred)
+      queryClient.refetchQueries({ queryKey: queryKeys.company.packages() });
     },
   });
 };
@@ -122,8 +181,8 @@ export const useRenamePackage = () => {
   return useMutation({
     mutationFn: ({ pkgId, name }: { pkgId: string; name: string }) =>
       api.patch<PackageResponse>(`/api/company/packages/${pkgId}`, { name }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.company.packages() });
+    onSettled: () => {
+      queryClient.refetchQueries({ queryKey: queryKeys.company.packages() });
     },
   });
 };
@@ -136,8 +195,8 @@ export const useDisbandPackage = () => {
   return useMutation({
     mutationFn: (pkgId: string) =>
       api.delete(`/api/company/packages/${pkgId}`),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.company.packages() });
+    onSettled: () => {
+      queryClient.refetchQueries({ queryKey: queryKeys.company.packages() });
     },
   });
 };
@@ -152,8 +211,8 @@ export const useAddDocumentsToPackage = () => {
       api.post<PackageResponse>(`/api/company/packages/${pkgId}/documents`, {
         document_ids: documentIds,
       }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.company.packages() });
+    onSettled: () => {
+      queryClient.refetchQueries({ queryKey: queryKeys.company.packages() });
     },
   });
 };
@@ -168,8 +227,8 @@ export const useRemoveDocumentsFromPackage = () => {
       api.delete(`/api/company/packages/${pkgId}/documents`, {
         body: JSON.stringify({ document_ids: documentIds }),
       }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.company.packages() });
+    onSettled: () => {
+      queryClient.refetchQueries({ queryKey: queryKeys.company.packages() });
     },
   });
 };

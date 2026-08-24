@@ -7,6 +7,10 @@ export const queryKeys = {
   business: {
     invites: () => ["business", "invites"] as const,
   },
+  team: {
+    all: () => ["team"] as const,
+    invites: () => ["team", "invites"] as const,
+  },
   company: {
     all: () => ["company"] as const,
     profile: () => ["company", "profile"] as const,

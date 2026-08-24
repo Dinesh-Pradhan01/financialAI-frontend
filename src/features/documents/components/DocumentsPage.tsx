@@ -26,7 +26,10 @@ import {
   formatFileSize,
   formatDocumentDate,
 } from "../lib/documentPresentation";
-import { ACCEPTED_FILE_FORMATS_STRING } from "../lib/uploadHelpers";
+import {
+  ACCEPTED_FILE_FORMATS_STRING,
+  validateFile,
+} from "../lib/uploadHelpers";
 import { DocumentQualityBadge } from "./DocumentQualityBadge";
 import { DocumentInfoPopover } from "./DocumentInfoPopover";
 import { DocumentPreviewModal } from "./DocumentPreviewModal";
@@ -160,7 +163,13 @@ export function DocumentsPage() {
     [mandatorySlots, documents]
   );
 
-  const pendingRecommendedSlots = recommendedSlots;
+  const pendingRecommendedSlots = useMemo(
+    () =>
+      recommendedSlots.filter(
+        (slot) => !documents.some((d) => d.document_type === slot.typeKey)
+      ),
+    [recommendedSlots, documents]
+  );
 
   // ---------------------------------------------------------------------------
   // General Documents Filtering (Includes ALL documents: required + recommended + custom)
@@ -287,6 +296,15 @@ export function DocumentsPage() {
   const handleTableReplaceSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (replacingDocId && e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
+      e.target.value = "";
+
+      const validation = validateFile(file);
+      if (!validation.valid) {
+        toast.error(validation.error || "Invalid file. Only PDF files are supported.");
+        setReplacingDocId(null);
+        return;
+      }
+
       const formData = new FormData();
       formData.append("file", file);
 
@@ -306,7 +324,6 @@ export function DocumentsPage() {
           },
         }
       );
-      e.target.value = "";
     }
   };
 

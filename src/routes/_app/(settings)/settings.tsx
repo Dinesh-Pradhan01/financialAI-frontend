@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Globe, Bell, MessageCircle, Lock, Download, Trash2, ShieldCheck, UserPlus, Loader2 } from "lucide-react";
+import { Globe, Bell, MessageCircle, Lock, Download, Trash2, ShieldCheck, Users, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Switch } from "@/shared/components/ui/switch";
 import { languages, channels } from "@/shared/data/agentic";
@@ -12,9 +12,9 @@ import { resetSpotlights } from "@/shared/store/slices/spotlightsSlice";
 import { resetNotifications } from "@/shared/store/slices/notificationsSlice";
 import { clearConversation } from "@/shared/store/slices/coachSlice";
 import { resetTour, dismissIntro } from "@/shared/store/slices/tourSlice";
-import { InviteModal } from "@/shared/components/InviteModal";
 import { useAuth } from "@/shared/contexts/AuthContext";
 import { useLogout } from "@/shared/hooks/useLogout";
+import { isCeoOrAdmin } from "@/shared/lib/roles";
 
 export const Route = createFileRoute("/_app/(settings)/settings")({
   head: () => ({
@@ -51,7 +51,7 @@ function Settings() {
   };
 
   const [confirmDelete, setConfirmDelete] = useState(false);
-  const [inviteModalOpen, setInviteModalOpen] = useState(false);
+  const canManageTeam = isCeoOrAdmin(user?.role);
 
   return (
     <div className="mx-auto max-w-2xl px-5 py-6 md:px-10">
@@ -95,25 +95,24 @@ function Settings() {
         />
       </section>
 
-      <h2 className="mt-8 flex items-center gap-2 font-display text-base font-semibold">
-        <UserPlus className="h-4 w-4 text-brand" /> Executive Team & Roles
-      </h2>
-      <section className="card-spot mt-3 p-4">
-        <p className="text-xs text-text-secondary mb-3">
-          As CEO/Admin, manually invite your CFO or HR team members. Invited executives receive a shared 24-hour verification link to setup their credentials.
-        </p>
-        <button
-          onClick={() => setInviteModalOpen(true)}
-          className="flex items-center gap-2 rounded-xl bg-brand px-4 py-2.5 text-xs font-semibold text-white shadow-brand hover:opacity-90 transition"
-        >
-          <UserPlus className="h-4 w-4" /> Invite CFO / HR
-        </button>
-      </section>
-      <InviteModal
-        isOpen={inviteModalOpen}
-        onClose={() => setInviteModalOpen(false)}
-        invitesEndpoint="/api/business/onboarding/invites"
-      />
+      {canManageTeam && (
+        <>
+          <h2 className="mt-8 flex items-center gap-2 font-display text-base font-semibold">
+            <Users className="h-4 w-4 text-brand" /> Executive Team & Roles
+          </h2>
+          <section className="card-spot mt-3 p-4">
+            <p className="text-xs text-text-secondary mb-3">
+              As CEO/Admin, manage your executive leadership team, dispatch invitations, and oversee role-based permissions.
+            </p>
+            <Link
+              to="/team"
+              className="inline-flex items-center gap-2 rounded-xl bg-brand px-4 py-2.5 text-xs font-semibold text-white shadow-brand hover:opacity-90 transition"
+            >
+              <Users className="h-4 w-4" /> Manage Team
+            </Link>
+          </section>
+        </>
+      )}
 
       <h2 className="mt-8 flex items-center gap-2 font-display text-base font-semibold">
         <ShieldCheck className="h-4 w-4 text-success" /> Trust Center

@@ -5,12 +5,12 @@ export type RequirementType = "Required" | "Recommended" | "Custom";
 
 export type QualityStatus = "not_checked" | "passed";
 
-export const ACCEPTED_FILE_EXTENSIONS = [".pdf", ".png", ".jpg", ".jpeg"];
-export const ACCEPTED_FILE_FORMATS_STRING = ".pdf,.png,.jpg,.jpeg";
-export const ACCEPTED_FILE_FORMATS_LABEL = "PDF, PNG, JPG, JPEG";
+export const ACCEPTED_FILE_EXTENSIONS = [".pdf"];
+export const ACCEPTED_FILE_FORMATS_STRING = ".pdf";
+export const ACCEPTED_FILE_FORMATS_LABEL = "PDF";
 export const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024; // 10MB
 export const MAX_FILE_SIZE_LABEL = "Max 10MB";
-export const UPLOAD_CONSTRAINTS_LABEL = `${ACCEPTED_FILE_FORMATS_LABEL} • ${MAX_FILE_SIZE_LABEL}`;
+export const UPLOAD_CONSTRAINTS_LABEL = `PDF only • ${MAX_FILE_SIZE_LABEL}`;
 
 export interface DocumentPresentationModel {
   id: string;

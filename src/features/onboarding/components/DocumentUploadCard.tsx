@@ -1,5 +1,7 @@
 import React, { useRef, useState } from "react";
 import { CheckCircle2, FileText, Loader2, Trash2, Upload } from "lucide-react";
+import { toast } from "sonner";
+import { validateFile } from "@/features/documents/lib/uploadHelpers";
 import { DocumentRequirement } from "../lib/businessOnboarding";
 import { UploadedDoc } from "./types";
 
@@ -26,11 +28,20 @@ export function DocumentUploadCard({
   const isUploading = uploadingDocType === req.typeKey;
   const isDeleting = Boolean(existingDoc && deletingDocId === existingDoc.id);
 
+  const handleProcessFile = (file: File) => {
+    const validation = validateFile(file);
+    if (!validation.valid) {
+      toast.error(validation.error || "Only PDF files are accepted for document verification.");
+      return;
+    }
+    onUpload(file);
+  };
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       e.target.value = ""; // Reset input so re-selecting same file works
-      onUpload(file);
+      handleProcessFile(file);
     }
   };
 
@@ -39,7 +50,7 @@ export function DocumentUploadCard({
     setIsDragOver(false);
     if (isUploading || isDeleting || uploadingDocType || deletingDocId) return;
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      onUpload(e.dataTransfer.files[0]);
+      handleProcessFile(e.dataTransfer.files[0]);
     }
   };
 
@@ -94,6 +105,11 @@ export function DocumentUploadCard({
             <p className="text-xs text-text-secondary mt-1 leading-relaxed">
               {req.why}
             </p>
+            {!existingDoc && (
+              <p className="text-[10px] text-text-tertiary font-mono mt-1">
+                PDF only • Max 10MB
+              </p>
+            )}
             {existingDoc && (
               <div className="flex items-center gap-2 mt-1.5">
                 <span className="text-xs font-medium text-text-primary truncate max-w-[220px]">
@@ -113,7 +129,7 @@ export function DocumentUploadCard({
             ref={fileInputRef}
             onChange={handleFileChange}
             className="hidden"
-            accept=".pdf,.png,.jpg,.jpeg"
+            accept=".pdf"
             disabled={Boolean(uploadingDocType) || Boolean(deletingDocId)}
           />
 

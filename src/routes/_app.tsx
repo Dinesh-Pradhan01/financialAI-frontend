@@ -6,19 +6,27 @@ import { useAuth, getAuthSnapshot } from "@/shared/contexts/AuthContext";
 import { SpotliteLoader } from "@/shared/components/ui/SpotliteLoader";
 
 export const Route = createFileRoute("/_app")({
-  beforeLoad: async () => {
+  beforeLoad: async ({ location }) => {
     // Avoid running client redirects during server-side rendering
     if (typeof window === "undefined") return;
+
+    const currentPath = location.href || location.pathname;
 
     // Fast-path: check in-memory AuthSnapshot if already resolved
     const snapshot = getAuthSnapshot();
     if (!snapshot.loading) {
       if (!snapshot.user) {
-        throw redirect({ to: "/login" });
+        throw redirect({
+          to: "/login",
+          search: { redirect: currentPath },
+        });
       }
       const isVerified = auth.currentUser ? auth.currentUser.emailVerified : snapshot.user.email_verified;
       if (!isVerified) {
-        throw redirect({ to: "/verify-email" });
+        throw redirect({
+          to: "/verify-email",
+          search: { redirect: currentPath },
+        });
       }
     }
     // If loading is true (cold refresh), allow AppLayout to render SpotliteLoader while auth syncs
@@ -33,10 +41,19 @@ function AppLayout() {
   useEffect(() => {
     // Only make navigation decisions AFTER auth initialization and backend sync have completed
     if (!loading) {
+      const currentPath = window.location.pathname + window.location.search;
       if (!user) {
-        navigate({ to: "/login", replace: true });
+        navigate({
+          to: "/login",
+          search: { redirect: currentPath },
+          replace: true,
+        });
       } else if (auth.currentUser && !auth.currentUser.emailVerified) {
-        navigate({ to: "/verify-email", replace: true });
+        navigate({
+          to: "/verify-email",
+          search: { redirect: currentPath },
+          replace: true,
+        });
       }
     }
   }, [user, loading, navigate]);

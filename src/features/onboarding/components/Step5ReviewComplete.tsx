@@ -10,7 +10,6 @@ import {
   ChevronDown,
   ChevronUp,
   ShieldCheck,
-  Sparkles,
 } from "lucide-react";
 import {
   OPTIONAL_DOCUMENTS,
@@ -35,6 +34,7 @@ interface Props {
   deletingDocId: string | null;
   completionPct: number;
   onJumpToStep: (stepNumber: number) => void;
+  onEditSection: (stepNumber: number) => void;
   onUpload: (file: File, docType: string, category: string) => void;
   onDelete: (docId: string) => void;
 }
@@ -48,6 +48,7 @@ export function Step5ReviewComplete({
   deletingDocId,
   completionPct,
   onJumpToStep,
+  onEditSection,
   onUpload,
   onDelete,
 }: Props) {
@@ -69,7 +70,7 @@ export function Step5ReviewComplete({
       {/* Completion Readiness Banner */}
       <div className="rounded-xl bg-brand/5 p-5 border border-brand/20 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xs">
         <div className="flex items-center gap-3.5">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-brand text-on-brand font-bold text-lg font-mono shadow-sm">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-brand text-on-brand font-bold text-md font-mono shadow-sm">
             {completionPct}%
           </div>
           <div>
@@ -96,7 +97,7 @@ export function Step5ReviewComplete({
             </h3>
             <button
               type="button"
-              onClick={() => onJumpToStep(2)}
+              onClick={() => onEditSection(2)}
               className="text-xs font-semibold text-brand hover:underline flex items-center gap-1 cursor-pointer bg-brand/5 px-2.5 py-1 rounded-md border border-brand/20"
             >
               <Edit3 className="h-3 w-3" /> Edit
@@ -141,7 +142,7 @@ export function Step5ReviewComplete({
             </h3>
             <button
               type="button"
-              onClick={() => onJumpToStep(3)}
+              onClick={() => onEditSection(3)}
               className="text-xs font-semibold text-brand hover:underline flex items-center gap-1 cursor-pointer bg-brand/5 px-2.5 py-1 rounded-md border border-brand/20"
             >
               <Edit3 className="h-3 w-3" /> Edit
@@ -219,7 +220,7 @@ export function Step5ReviewComplete({
             </h3>
             <button
               type="button"
-              onClick={() => onJumpToStep(4)}
+              onClick={() => onEditSection(4)}
               className="text-xs font-semibold text-brand hover:underline flex items-center gap-1 cursor-pointer bg-brand/5 px-2.5 py-1 rounded-md border border-brand/20"
             >
               <Edit3 className="h-3 w-3" /> Edit
@@ -254,7 +255,7 @@ export function Step5ReviewComplete({
             </h3>
             <button
               type="button"
-              onClick={() => onJumpToStep(1)}
+              onClick={() => onEditSection(1)}
               className="text-xs font-semibold text-brand hover:underline flex items-center gap-1 cursor-pointer bg-brand/5 px-2.5 py-1 rounded-md border border-brand/20"
             >
               <Edit3 className="h-3 w-3" /> Edit

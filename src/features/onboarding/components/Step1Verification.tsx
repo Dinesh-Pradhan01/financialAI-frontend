@@ -48,7 +48,7 @@ export function Step1Verification({
             <ShieldCheck className="h-4 w-4 text-brand" />
             <span>Required Verification Documents</span>
           </div>
-          <span className="text-text-secondary font-normal">Accepted: PDF, PNG, JPG (Max 10MB)</span>
+          <span className="text-text-secondary font-normal">Accepted: PDF only (Max 10MB)</span>
         </div>
 
         <div className="grid gap-3">

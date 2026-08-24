@@ -8,8 +8,18 @@ import { auth } from "@/shared/firebase/firebase";
 import { waitForAuth } from "@/shared/firebase/auth";
 import { SpotliteLoader } from "@/shared/components/ui/SpotliteLoader";
 import { SpotLiteBrand } from "@/shared/components/SpotLiteBrand";
+import { getSafeRedirectPath } from "@/shared/lib/redirectValidation";
+
+interface VerifyEmailSearchParams {
+  redirect?: string;
+}
 
 export const Route = createFileRoute("/(auth)/verify-email")({
+  validateSearch: (search: Record<string, unknown>): VerifyEmailSearchParams => {
+    return {
+      redirect: typeof search.redirect === "string" ? search.redirect : undefined,
+    };
+  },
   head: () => ({
     meta: [
       { title: "Verify your email · SpotLite Intelligence" },
@@ -19,16 +29,19 @@ export const Route = createFileRoute("/(auth)/verify-email")({
       },
     ],
   }),
-  beforeLoad: async () => {
+  beforeLoad: async ({ search }) => {
     if (typeof window === "undefined") return;
 
     const fbUser = auth.currentUser ?? (await waitForAuth());
     if (!fbUser) {
-      throw redirect({ to: "/login" });
+      throw redirect({
+        to: "/login",
+        search: { redirect: search.redirect },
+      });
     }
-    // If already verified, move to home
+    // If already verified, move to destination
     if (fbUser.emailVerified) {
-      throw redirect({ to: "/home" });
+      throw redirect({ to: getSafeRedirectPath(search.redirect) });
     }
   },
   component: VerifyEmail,
@@ -36,6 +49,7 @@ export const Route = createFileRoute("/(auth)/verify-email")({
 
 function VerifyEmail() {
   const nav = useNavigate();
+  const search = Route.useSearch();
   const { user, firebaseUser, loading, resendVerificationEmail, logout, sync } = useAuth();
 
   const [resending, setResending] = useState(false);
@@ -106,14 +120,14 @@ function VerifyEmail() {
       await sync();
 
       toast.success("Email verified successfully! Welcome to SpotLite.");
-      nav({ to: "/home", replace: true });
+      nav({ to: getSafeRedirectPath(search.redirect), replace: true });
     } catch (error) {
       console.error("Verification check failed:", error);
       toast.error("Could not check verification status. Please try again.");
     } finally {
       setChecking(false);
     }
-  }, [nav, sync]);
+  }, [nav, sync, search.redirect]);
 
   if (loading) {
     return <SpotliteLoader message="Verifying status…" subMessage="SpotLite Intelligence" />;

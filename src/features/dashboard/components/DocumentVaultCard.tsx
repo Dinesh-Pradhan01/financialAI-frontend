@@ -5,13 +5,16 @@ import { useCompanyDocuments, useUploadCompanyDocument, useDeleteCompanyDocument
 import { FolderLock, FileText, Trash2, Plus, Loader2, AlertCircle, Sparkles, ArrowRight } from 'lucide-react';
 import { Button } from "@/shared/components/ui/button";
 import { Badge } from "@/shared/components/ui/badge";
-import { Link } from '@tanstack/react-router';
+import { Link, useNavigate } from '@tanstack/react-router';
+import { toast } from 'sonner';
+import { validateFile, ACCEPTED_FILE_FORMATS_STRING } from '@/features/documents/lib/uploadHelpers';
 
 interface Props {
   hasProfile?: boolean;
 }
 
 export const DocumentVaultCard = ({ hasProfile = true }: Props) => {
+  const navigate = useNavigate();
   const { data: documents, isLoading, isError, error, refetch, isFetching } = useCompanyDocuments({
     enabled: hasProfile,
   });
@@ -23,6 +26,13 @@ export const DocumentVaultCard = ({ hasProfile = true }: Props) => {
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, category: string) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    const validation = validateFile(file);
+    if (!validation.valid) {
+      toast.error(validation.error || "Invalid file. Only PDF files are supported.");
+      if (e.target) e.target.value = '';
+      return;
+    }
 
     setIsUploading(true);
     const formData = new FormData();
@@ -99,7 +109,7 @@ export const DocumentVaultCard = ({ hasProfile = true }: Props) => {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => window.dispatchEvent(new CustomEvent("open-onboarding"))}
+              onClick={() => navigate({ to: "/onboarding" })}
               className="rounded-pill text-xs font-semibold gap-1.5 cursor-pointer shrink-0"
             >
               Complete Setup <ArrowRight className="w-3.5 h-3.5" />
@@ -152,6 +162,7 @@ export const DocumentVaultCard = ({ hasProfile = true }: Props) => {
           <input
             type="file"
             id="vault-upload"
+            accept={ACCEPTED_FILE_FORMATS_STRING}
             className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
             onChange={(e) => handleFileUpload(e, 'Other')}
             disabled={isUploading}

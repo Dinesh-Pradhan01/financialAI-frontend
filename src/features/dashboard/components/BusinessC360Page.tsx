@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
+import { useNavigate } from "@tanstack/react-router";
 import { OnboardingProgressBanner } from "./OnboardingProgressBanner";
 import { CompanyOverviewCard } from "./CompanyOverviewCard";
 import { IndustryLeadershipCard } from "./IndustryLeadershipCard";
@@ -9,16 +10,14 @@ import { UploadTransactionsCard } from "./UploadTransactionsCard";
 import { DocumentVaultCard } from "./DocumentVaultCard";
 import { useCompanyProfile, useOnboardingStatus } from "../hooks/useCompanyAPI";
 import { useAuth } from "@/shared/contexts/AuthContext";
-import { OnboardingModal } from "@/features/onboarding/components/OnboardingModal";
 
 export const BusinessC360Page = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const { data: profile, isError } = useCompanyProfile();
   const { data: onboardingData } = useOnboardingStatus();
 
-  const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
-
-  // Auto-open modal on initial load if user profile is incomplete
+  // Auto-prompt to /onboarding on initial session load if user profile is incomplete
   useEffect(() => {
     if (
       user &&
@@ -26,24 +25,16 @@ export const BusinessC360Page = () => {
       onboardingData &&
       !onboardingData.onboarding_completed
     ) {
-      const hasDismissed = sessionStorage.getItem("spotlite_onboarding_dismissed");
+      const hasDismissed =
+        typeof window !== "undefined"
+          ? sessionStorage.getItem("spotlite_onboarding_dismissed")
+          : null;
       if (!hasDismissed) {
-        setIsOnboardingOpen(true);
+        sessionStorage.setItem("spotlite_onboarding_dismissed", "true");
+        navigate({ to: "/onboarding" });
       }
     }
-  }, [user, onboardingData]);
-
-  // Listen for open-onboarding custom event from any card or action button
-  useEffect(() => {
-    const handleOpen = () => setIsOnboardingOpen(true);
-    window.addEventListener("open-onboarding", handleOpen);
-    return () => window.removeEventListener("open-onboarding", handleOpen);
-  }, []);
-
-  const handleCloseOnboarding = () => {
-    setIsOnboardingOpen(false);
-    sessionStorage.setItem("spotlite_onboarding_dismissed", "true");
-  };
+  }, [user, onboardingData, navigate]);
 
   // Downstream cards know whether profile is ready
   const hasProfile = Boolean(profile && !isError);
@@ -58,13 +49,7 @@ export const BusinessC360Page = () => {
       </div>
 
       {/* Onboarding Incomplete Reminder Banner */}
-      <OnboardingProgressBanner onOpenOnboarding={() => setIsOnboardingOpen(true)} />
-
-      {/* Onboarding Centered Modal Dialog */}
-      <OnboardingModal
-        isOpen={isOnboardingOpen}
-        onClose={handleCloseOnboarding}
-      />
+      <OnboardingProgressBanner />
 
       <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
         {/* Row 1: Overview */}
