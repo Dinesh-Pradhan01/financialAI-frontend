@@ -455,12 +455,7 @@ export function DocumentsPage() {
         <DocumentsWhyWeNeedGuide />
       </motion.section>
 
-      {/* 3. Packages Section */}
-      <motion.div variants={itemVariants}>
-        <PackagesSection documents={documents} />
-      </motion.div>
-
-      {/* 4. Document Registry (General Documents Table with Bulk Actions & Preview) */}
+      {/* 3. Document Registry (General Documents Table with Bulk Actions & Preview) */}
       <motion.section variants={itemVariants} className="space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
@@ -757,6 +752,11 @@ export function DocumentsPage() {
           </div>
         )}
       </motion.section>
+
+      {/* 4. Packages Section */}
+      <motion.div variants={itemVariants}>
+        <PackagesSection documents={documents} />
+      </motion.div>
 
       {/* Hidden file input for table row replacement */}
       <input
