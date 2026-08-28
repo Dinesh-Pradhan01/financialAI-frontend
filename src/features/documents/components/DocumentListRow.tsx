@@ -30,7 +30,8 @@ export interface DocumentListRowProps {
   slot: DocumentSlot;
   document: CompanyDocument | null;
   onUpload: (file: File) => void;
-  onReplace: (file: File) => void;
+  onReplace?: (file: File) => void;
+  onRequestReplace?: (stagedFile?: File) => void;
   onDelete: (docId: string) => void;
   onPreview: (doc: CompanyDocument) => void;
   onDownload?: (doc: CompanyDocument) => void;
@@ -45,6 +46,7 @@ export function DocumentListRow({
   document,
   onUpload,
   onReplace,
+  onRequestReplace,
   onDelete,
   onPreview,
   onDownload,
@@ -68,7 +70,11 @@ export function DocumentListRow({
       }
 
       if (document) {
-        onReplace(file);
+        if (onRequestReplace) {
+          onRequestReplace(file);
+        } else if (onReplace) {
+          onReplace(file);
+        }
       } else {
         onUpload(file);
       }
@@ -220,7 +226,13 @@ export function DocumentListRow({
               aria-label={`Replace ${document.original_name}`}
               title="Replace document"
               disabled={isBusy}
-              onClick={() => fileInputRef.current?.click()}
+              onClick={() => {
+                if (onRequestReplace) {
+                  onRequestReplace();
+                } else {
+                  fileInputRef.current?.click();
+                }
+              }}
               className="h-8 w-8 text-text-secondary hover:text-text-primary cursor-pointer"
             >
               {isReplacing ? (

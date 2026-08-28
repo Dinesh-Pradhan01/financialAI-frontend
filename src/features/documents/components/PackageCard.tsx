@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Package as PackageIcon,
   Pencil,
@@ -181,7 +182,7 @@ export function PackageCard({
               </div>
             ) : (
               <div className="flex items-center gap-2 flex-wrap">
-                <h3 className="font-bold text-base text-text-primary truncate">
+                <h3 className="font-bold text-base text-text-primary tracking-tight truncate">
                   {pkg.name}
                 </h3>
                 <Button
@@ -200,7 +201,7 @@ export function PackageCard({
                 </Button>
                 <Badge
                   variant="secondary"
-                  className="text-[11px] font-medium text-text-secondary px-2 py-0.5"
+                  className="text-[11px] font-semibold text-text-secondary px-2 py-0.5 tabular-nums"
                 >
                   {pkg.documents.length} {pkg.documents.length === 1 ? "document" : "documents"}
                 </Badge>
@@ -243,8 +244,7 @@ export function PackageCard({
             size="icon"
             onClick={() => setIsExpanded((prev) => !prev)}
             className="h-8 w-8 text-text-secondary hover:text-text-primary ml-1"
-            aria-label={isExpanded ? `Collapse ${pkg.name} documents` : `Expand ${pkg.name} documents`}
-            title={isExpanded ? "Collapse documents" : "Expand documents"}
+            aria-label={isExpanded ? "Collapse package documents" : "Expand package documents"}
           >
             {isExpanded ? (
               <ChevronUp className="h-4 w-4" />
@@ -255,124 +255,152 @@ export function PackageCard({
         </div>
       </div>
 
-      {/* Expandable Document List */}
-      {isExpanded && (
-        <div className="border-t border-border pt-3 space-y-2.5">
-          {pkg.documents.length === 0 ? (
-            <div className="rounded-xl border border-dashed border-border/60 p-4 text-center text-xs text-text-secondary">
-              No documents in this package yet. Click &quot;Add documents&quot; above to bundle files.
-            </div>
-          ) : (
-            <>
-              {/* Batch Action Toolbar */}
-              <div className="flex items-center justify-between gap-3 px-1 py-1 text-xs">
-                <div className="flex items-center gap-2">
-                  {pkg.documents.length >= 2 && (
+      {/* Expanded Document List */}
+      <AnimatePresence initial={false}>
+        {isExpanded && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+            className="overflow-hidden pt-2 border-t border-border/60 space-y-3"
+          >
+            {pkg.documents.length === 0 ? (
+              <div className="rounded-xl border border-dashed border-border/80 p-6 text-center bg-surface-alt/20">
+                <FileText className="mx-auto h-6 w-6 text-text-tertiary mb-1" />
+                <p className="text-xs font-medium text-text-secondary">No documents in this package yet</p>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={onAddDocuments}
+                  className="mt-2 text-xs font-semibold gap-1 cursor-pointer"
+                >
+                  <Plus className="h-3 w-3" /> Add documents
+                </Button>
+              </div>
+            ) : (
+              <>
+                {/* Batch Actions Toolbar */}
+                <div className="flex items-center justify-between gap-2 text-xs">
+                  <div className="flex items-center gap-2">
                     <Button
                       type="button"
                       variant="ghost"
                       size="sm"
                       onClick={handleSelectAllToggle}
-                      className="h-7 text-xs text-text-secondary gap-1.5 px-2 hover:text-text-primary"
+                      className="h-7 text-xs text-text-secondary hover:text-text-primary gap-1 px-2 font-medium cursor-pointer"
                     >
                       {isAllSelected ? (
-                        <CheckSquare className="h-3.5 w-3.5 text-brand" />
+                        <>
+                          <CheckSquare className="h-3.5 w-3.5 text-brand" /> Deselect all
+                        </>
                       ) : (
-                        <Square className="h-3.5 w-3.5" />
+                        <>
+                          <Square className="h-3.5 w-3.5" /> Select all
+                        </>
                       )}
-                      {isAllSelected ? "Deselect all" : "Select all"}
                     </Button>
-                  )}
-                  {selectedDocIds.length > 0 && (
-                    <span className="text-xs font-semibold text-text-primary">
-                      {selectedDocIds.length} of {pkg.documents.length} selected
-                    </span>
-                  )}
+                    {selectedDocIds.length > 0 && (
+                      <span className="text-[11px] text-text-secondary font-medium tabular-nums">
+                        ({selectedDocIds.length} of {pkg.documents.length} selected)
+                      </span>
+                    )}
+                  </div>
+
+                  <AnimatePresence>
+                    {selectedDocIds.length > 0 && (
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.95 }}
+                        transition={{ duration: 0.15 }}
+                      >
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          disabled={isRemoving}
+                          onClick={handleBulkRemove}
+                          className="h-7 text-xs text-destructive border-destructive/30 hover:bg-destructive/10 hover:text-destructive gap-1.5 font-semibold cursor-pointer"
+                        >
+                          {isRemoving ? (
+                            <Loader2 className="h-3 w-3 animate-spin" />
+                          ) : (
+                            <X className="h-3 w-3" />
+                          )}
+                          Remove {selectedDocIds.length}
+                        </Button>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
 
-                {selectedDocIds.length > 0 && (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={handleBulkRemove}
-                    disabled={isRemoving}
-                    className="h-7 text-xs text-destructive border-destructive/30 hover:bg-destructive/10 hover:text-destructive gap-1.5 font-semibold"
-                  >
-                    {isRemoving ? (
-                      <Loader2 className="h-3 w-3 animate-spin" />
-                    ) : (
-                      <X className="h-3 w-3" />
-                    )}
-                    Remove {selectedDocIds.length} from package
-                  </Button>
-                )}
-              </div>
+                <div className="grid gap-2">
+                  {pkg.documents.map((doc) => {
+                    const isItemRemoving =
+                      removingSingleDocId === doc.id || (isRemoving && selectedDocIds.includes(doc.id));
+                    const isChecked = selectedDocIds.includes(doc.id);
 
-              <div className="grid gap-2">
-                {pkg.documents.map((doc) => {
-                  const isItemRemoving =
-                    removingSingleDocId === doc.id || (isRemoving && selectedDocIds.includes(doc.id));
-                  const isChecked = selectedDocIds.includes(doc.id);
-
-                  return (
-                    <div
-                      key={doc.id}
-                      className={`flex items-center justify-between gap-3 rounded-xl border border-border/60 p-2.5 px-3 transition-colors ${
-                        isChecked ? "bg-brand/5 border-brand/40" : "bg-surface-alt/30 hover:bg-surface-alt/50"
-                      }`}
-                    >
-                      <div className="flex items-center gap-2.5 min-w-0 flex-1">
-                        <Checkbox
-                          checked={isChecked}
-                          onCheckedChange={() => toggleSelectDoc(doc.id)}
-                          aria-label={`Select ${doc.original_name}`}
-                          className="mr-1"
-                        />
-                        <FileText className="h-4 w-4 shrink-0 text-brand" />
-                        <div className="min-w-0 flex-1">
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <span
-                              className="font-medium text-xs text-text-primary truncate max-w-[180px] sm:max-w-[280px]"
-                              title={doc.original_name}
-                            >
-                              {doc.original_name}
-                            </span>
-                            <span className="text-[11px] text-text-secondary capitalize font-mono">
-                              • {doc.document_type.replace(/[-_]/g, " ")}
-                            </span>
-                            <span className="text-[11px] text-text-secondary font-mono">
-                              • {formatFileSize(doc.file_size_bytes)}
-                            </span>
-                          </div>
-                        </div>
-                        <DocumentQualityBadge document={doc} />
-                      </div>
-
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        aria-label={`Remove ${doc.original_name} from package ${pkg.name}`}
-                        title="Remove from package"
-                        disabled={isItemRemoving}
-                        onClick={() => handleRemoveSingle(doc.id)}
-                        className="h-7 w-7 text-text-secondary hover:text-destructive hover:bg-destructive/10 shrink-0"
+                    return (
+                      <div
+                        key={doc.id}
+                        className={`flex items-center justify-between gap-3 rounded-xl border border-border/60 p-2.5 px-3 transition-colors ${
+                          isChecked ? "bg-brand/5 border-brand/40" : "bg-surface-alt/30 hover:bg-surface-alt/50"
+                        }`}
                       >
-                        {isItemRemoving ? (
-                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                        ) : (
-                          <X className="h-3.5 w-3.5" />
-                        )}
-                      </Button>
-                    </div>
-                  );
-                })}
-              </div>
-            </>
-          )}
-        </div>
-      )}
+                        <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                          <Checkbox
+                            checked={isChecked}
+                            onCheckedChange={() => toggleSelectDoc(doc.id)}
+                            aria-label={`Select ${doc.original_name}`}
+                            className="mr-1"
+                          />
+                          <FileText className="h-4 w-4 shrink-0 text-brand" />
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-2 flex-wrap text-xs">
+                              <span
+                                className="font-medium text-text-primary truncate max-w-[180px] sm:max-w-[280px]"
+                                title={doc.original_name}
+                              >
+                                {doc.original_name}
+                              </span>
+                              <span className="text-[11px] text-text-secondary capitalize font-mono">
+                                • {doc.document_type.replace(/[-_]/g, " ")}
+                              </span>
+                              <span className="text-[11px] text-text-secondary font-mono tabular-nums">
+                                • {formatFileSize(doc.file_size_bytes)}
+                              </span>
+                            </div>
+                          </div>
+                          <DocumentQualityBadge document={doc} />
+                        </div>
+
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          aria-label={`Remove ${doc.original_name} from package ${pkg.name}`}
+                          title="Remove from package"
+                          disabled={isItemRemoving}
+                          onClick={() => handleRemoveSingle(doc.id)}
+                          className="h-7 w-7 text-text-secondary hover:text-destructive hover:bg-destructive/10 shrink-0 cursor-pointer"
+                        >
+                          {isItemRemoving ? (
+                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                          ) : (
+                            <X className="h-3.5 w-3.5" />
+                          )}
+                        </Button>
+                      </div>
+                    );
+                  })}
+                </div>
+              </>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Disband Confirmation Dialog */}
       <AlertDialog open={disbandDialogOpen} onOpenChange={setDisbandDialogOpen}>

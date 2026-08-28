@@ -1,14 +1,22 @@
 import { motion } from "framer-motion";
-import { ChevronRight, FileText, Shield, CheckCircle2 } from "lucide-react";
+import { CheckCircle2, ChevronRight, type LucideIcon } from "lucide-react";
 import { cn } from "@/shared/lib/utils";
-import { DocumentProgressRing } from "./DocumentProgressRing";
 
 export interface DocumentCategorySummaryCardProps {
   label: string;
+  /** Documents on record in this category. */
   completed: number;
+  /** Documents defined for this category by the taxonomy. */
   total: number;
+  /**
+   * Required-only progress, where the category has required rows. Four of the
+   * eight categories have none, so this is optional and the sub-line is dropped
+   * rather than showing a meaningless 0 of 0.
+   */
+  requiredCompleted?: number;
+  requiredTotal?: number;
+  icon: LucideIcon;
   onManage: () => void;
-  variant: "required" | "recommended";
   className?: string;
 }
 
@@ -16,17 +24,27 @@ export function DocumentCategorySummaryCard({
   label,
   completed,
   total,
+  requiredCompleted = 0,
+  requiredTotal = 0,
+  icon: Icon,
   onManage,
-  variant,
   className,
 }: DocumentCategorySummaryCardProps) {
   const percent = total > 0 ? Math.min(100, Math.round((completed / total) * 100)) : 0;
-  const isComplete = completed >= total && total > 0;
+  const hasRequired = requiredTotal > 0;
+  /**
+   * "Complete" means every *required* document is on record. Optional documents
+   * apply conditionally — an entity may legitimately never hold most of them —
+   * so gating this on the full count would leave every category permanently
+   * incomplete. Categories with no required rows never claim completion.
+   */
+  const isComplete = hasRequired && requiredCompleted >= requiredTotal;
 
   return (
     <motion.div
       role="button"
       tabIndex={0}
+      aria-label={`${label} — ${completed} of ${total} uploaded. Manage documents.`}
       whileHover={{ y: -2 }}
       whileTap={{ scale: 0.995 }}
       transition={{ duration: 0.2 }}
@@ -38,78 +56,104 @@ export function DocumentCategorySummaryCard({
         }
       }}
       className={cn(
-        "rounded-2xl border p-5 transition-all duration-200 cursor-pointer shadow-xs select-none flex items-center justify-between gap-4 group relative overflow-hidden",
-        isComplete && variant === "required"
-          ? "border-success/40 bg-gradient-to-br from-success/[0.06] via-surface to-surface hover:border-success/60 hover:shadow-md"
-          : "border-border-c bg-gradient-to-br from-surface via-surface to-surface-alt/20 hover:border-brand/40 hover:bg-surface-alt/30 hover:shadow-md",
-        className
+        "rounded-2xl border p-4 sm:p-5 transition-all duration-200 cursor-pointer shadow-xs select-none flex flex-col justify-between gap-3.5 group relative overflow-hidden min-h-[144px]",
+        isComplete
+          ? "border-emerald-500/35 bg-gradient-to-br from-emerald-500/[0.08] via-surface to-surface hover:border-emerald-500/50 hover:shadow-md"
+          : hasRequired && requiredCompleted > 0
+            ? "border-brand/30 bg-gradient-to-br from-brand/[0.05] via-surface to-surface-alt/30 hover:border-brand/40 hover:bg-surface-alt/40 hover:shadow-md"
+            : "border-border-c bg-gradient-to-br from-surface via-surface to-surface-alt/25 hover:border-brand/30 hover:bg-surface-alt/30 hover:shadow-md",
+        className,
       )}
     >
-      {/* Subtle ambient light highlight */}
+      {/* Subtle ambient light highlight on hover */}
       <div
         className={cn(
           "absolute inset-0 pointer-events-none transition-opacity duration-300 opacity-0 group-hover:opacity-100",
-          isComplete && variant === "required"
-            ? "bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-success/[0.08] via-transparent to-transparent"
-            : "bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-brand/[0.06] via-transparent to-transparent"
+          isComplete
+            ? "bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-emerald-500/[0.08] via-transparent to-transparent"
+            : "bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-brand/[0.06] via-transparent to-transparent",
         )}
       />
 
-      {/* Left: Progress Ring + Content */}
-      <div className="flex items-center gap-4 min-w-0 flex-1 relative z-10">
-        <DocumentProgressRing
-          completed={completed}
-          total={total}
-          size={48}
-          strokeWidth={4.5}
-        />
-
-        <div className="min-w-0 flex-1 space-y-1">
-          <div className="flex items-center gap-2">
-            <h3 className="font-bold text-sm text-text-primary tracking-tight">
-              {label} Documents
-            </h3>
-            {isComplete && (
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-success/15 text-success font-semibold text-[10px]">
-                <CheckCircle2 className="h-3 w-3" /> Complete
-              </span>
-            )}
-          </div>
-
-          <p
+      {/* Top Row: Icon + Category Label + Status Pill */}
+      <div className="flex items-start justify-between gap-3 relative z-10">
+        <div className="flex items-center gap-3 min-w-0 flex-1">
+          <div
             className={cn(
-              "text-xs font-semibold font-num flex items-center gap-1.5",
-              isComplete ? "text-success" : "text-brand"
+              "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-transform duration-200 group-hover:scale-105 shadow-2xs",
+              isComplete
+                ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/25"
+                : hasRequired
+                  ? "bg-brand/10 text-brand border border-brand/20"
+                  : "bg-surface-alt text-text-secondary border border-border/60",
             )}
           >
-            <span>{percent}% Completed</span>
-            <span className="text-text-tertiary font-normal font-mono text-[11px]">
-              • {completed} of {total} uploaded
-            </span>
-          </p>
-
-          <div className="flex items-center gap-1 text-[11px] font-medium text-text-secondary group-hover:text-brand pt-0.5 transition-colors">
-            <span>Manage documents</span>
-            <ChevronRight className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-1" />
+            <Icon aria-hidden="true" className="h-4.5 w-4.5" />
           </div>
+
+          <div className="min-w-0 flex-1">
+            <h3 className="font-bold text-sm text-text-primary tracking-tight truncate group-hover:text-brand transition-colors">
+              {label}
+            </h3>
+            <p className="text-[11px] text-text-secondary font-mono tabular-nums mt-0.5">
+              {completed} of {total} uploaded
+            </p>
+          </div>
+        </div>
+
+        {/* Status Pill Badge */}
+        <div className="shrink-0 pt-0.5">
+          {isComplete ? (
+            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 font-semibold text-[10px] border border-emerald-500/25">
+              <CheckCircle2 aria-hidden="true" className="h-3 w-3" /> Complete
+            </span>
+          ) : hasRequired ? (
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-brand/10 text-brand font-semibold text-[10px] border border-brand/20">
+              <span className="font-num font-bold tabular-nums">{requiredCompleted}/{requiredTotal}</span>
+              <span className="text-destructive font-bold text-xs leading-none" title="Required">*</span>
+            </span>
+          ) : (
+            <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-surface-alt text-text-secondary font-medium text-[10px] border border-border-c">
+              Optional
+            </span>
+          )}
         </div>
       </div>
 
-      {/* Right: Decorative Icon Badge */}
-      <div
-        className={cn(
-          "flex h-11 w-11 shrink-0 items-center justify-center rounded-xl transition-transform duration-200 group-hover:scale-105 shadow-2xs relative z-10",
-          isComplete && variant === "required"
-            ? "bg-success/15 text-success"
-            : "bg-brand/10 text-brand"
-        )}
-      >
-        {variant === "required" ? (
-          <Shield className="h-5 w-5" />
-        ) : (
-          <FileText className="h-5 w-5" />
-        )}
+      {/* Bottom Progress Bar & Footer */}
+      <div className="space-y-1.5 relative z-10 pt-1">
+        {/* Progress Bar Track */}
+        <div className="h-1.5 w-full overflow-hidden rounded-full bg-surface-alt border border-border/50">
+          <div
+            className={cn(
+              "h-full rounded-full transition-all duration-500 ease-out",
+              isComplete ? "bg-success" : "bg-brand",
+            )}
+            style={{ width: `${percent}%` }}
+          />
+        </div>
+
+        {/* Footer Meta Row */}
+        <div className="flex items-center justify-between text-[11px] pt-0.5">
+          <span
+            className={cn(
+              "font-num font-semibold text-xs tabular-nums",
+              isComplete ? "text-success" : percent > 0 ? "text-brand" : "text-text-tertiary",
+            )}
+          >
+            {percent}% completed
+          </span>
+
+          <div className="flex items-center gap-0.5 font-semibold text-text-secondary group-hover:text-brand transition-colors text-xs">
+            <span>Manage</span>
+            <ChevronRight
+              aria-hidden="true"
+              className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-0.5"
+            />
+          </div>
+        </div>
       </div>
     </motion.div>
   );
 }
+

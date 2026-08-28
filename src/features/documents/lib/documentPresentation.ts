@@ -1,7 +1,7 @@
 import type { CompanyDocument } from "@/shared/types/api";
-import { KNOWN_DOCUMENT_SLOTS } from "./documentGuidance";
+import { getTaxonomyDocument } from "./documentTaxonomy";
 
-export type RequirementType = "Required" | "Recommended" | "Custom";
+export type RequirementType = "Required" | "Optional" | "Other";
 
 export type QualityStatus = "not_checked" | "passed";
 
@@ -100,23 +100,17 @@ export function getChronologicalGroup(dateStr?: string | null): string {
 }
 
 /**
- * Map category string or known slot typeKey to user-facing requirement type label.
+ * Resolve a stored document's requirement label from the taxonomy.
+ *
+ * `document_category` is deliberately not consulted. Legacy rows carry the
+ * retired mandatory/optional/recommended/custom values in that column, so
+ * `document_type` is the only trustworthy key. Anything the taxonomy does not
+ * name is "Other" and sits outside the checklist.
  */
-export function getRequirementType(category?: string, documentType?: string): RequirementType {
-  const normalized = category?.toLowerCase();
-  if (normalized === "mandatory") return "Required";
-  if (normalized === "optional" || normalized === "recommended") return "Recommended";
-  if (normalized === "custom") return "Custom";
-
-  // Fallback to known slots lookup
-  if (documentType) {
-    const slot = KNOWN_DOCUMENT_SLOTS.find((s) => s.typeKey === documentType);
-    if (slot) {
-      return slot.category === "mandatory" ? "Required" : "Recommended";
-    }
-  }
-
-  return "Custom";
+export function getRequirementType(documentType?: string): RequirementType {
+  const taxonomyDocument = getTaxonomyDocument(documentType);
+  if (!taxonomyDocument) return "Other";
+  return taxonomyDocument.requirement === "required" ? "Required" : "Optional";
 }
 
 /**
@@ -153,7 +147,7 @@ export function getQualityPresentation(doc: CompanyDocument): {
  */
 export function toDocumentPresentation(doc: CompanyDocument): DocumentPresentationModel {
   const quality = getQualityPresentation(doc);
-  const requirementType = getRequirementType(doc.document_category, doc.document_type);
+  const requirementType = getRequirementType(doc.document_type);
   const isUpdated = isDocumentUpdated(doc.created_at, doc.updated_at);
 
   return {

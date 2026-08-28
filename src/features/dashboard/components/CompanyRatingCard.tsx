@@ -70,7 +70,7 @@ export const CompanyRatingCard = ({ hasProfile = true }: Props) => {
             <div className="space-y-1.5 max-w-xs">
               <h3 className="font-bold text-base text-foreground">Score Unlocks with Profile</h3>
               <p className="text-xs text-muted-foreground leading-relaxed">
-                Complete your company profile and upload verification documents to compute your Business C360 score.
+                Complete your company profile and upload verification documents to compute your Business 360 score.
               </p>
             </div>
             <Button

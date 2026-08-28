@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { ArrowLeft, Zap } from "lucide-react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
+import { queryKeys } from "@/shared/lib/queryKeys";
 import { useAuth } from "@/shared/contexts/AuthContext";
 import { api } from "@/shared/lib/api";
 import { getApiErrorMessage } from "@/shared/lib/apiError";
@@ -586,6 +587,8 @@ export function OnboardingPage() {
       if (res.completion_percentage !== undefined)
         setCompletionPct(res.completion_percentage);
       toast.success(`Uploaded ${file.name} successfully!`);
+      // Invalidate so Documents page reflects this upload immediately.
+      queryClient.invalidateQueries({ queryKey: queryKeys.company.documents() });
     } catch (err: any) {
       toast.error(getApiErrorMessage(err, "Failed to upload document."));
     } finally {
@@ -605,6 +608,8 @@ export function OnboardingPage() {
       if (res.completion_percentage !== undefined)
         setCompletionPct(res.completion_percentage);
       toast.success("Document removed.");
+      // Invalidate so Documents page reflects this deletion immediately.
+      queryClient.invalidateQueries({ queryKey: queryKeys.company.documents() });
     } catch (err: any) {
       toast.error(getApiErrorMessage(err, "Failed to remove document."));
     } finally {
@@ -774,8 +779,12 @@ export function OnboardingPage() {
       await api.post("/api/business/onboarding/complete", {});
       toast.success("SpotLite Business Onboarding Completed!");
       await refreshUser();
+      // Invalidate all company-scoped queries so Documents page, Document Vault,
+      // and any rating/profile cards reflect the docs uploaded during onboarding.
+      queryClient.invalidateQueries({ queryKey: queryKeys.company.all() });
       queryClient.invalidateQueries({ queryKey: ["companyProfile"] });
       queryClient.invalidateQueries({ queryKey: ["onboardingStatus"] });
+      queryClient.invalidateQueries({ queryKey: ["business", "onboarding", "me"] });
       navigate({ to: "/home" });
     } catch (err: any) {
       toast.error(getApiErrorMessage(err, "Failed to complete onboarding."));

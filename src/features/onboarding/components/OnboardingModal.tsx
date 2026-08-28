@@ -4,6 +4,8 @@ import { toast } from "sonner";
 import { X, Pencil, Loader2, FileCheck2, Building2, Users, Landmark } from "lucide-react";
 import { useAuth } from "@/shared/contexts/AuthContext";
 import { api } from "@/shared/lib/api";
+import { useQueryClient } from "@tanstack/react-query";
+import { queryKeys } from "@/shared/lib/queryKeys";
 import {
   GeneralInfoSaveSchema,
   LeadershipInfoSaveSchema,
@@ -63,6 +65,7 @@ export function OnboardingModal({
   section,
 }: OnboardingModalProps) {
   const { user, loading: authLoading } = useAuth();
+  const queryClient = useQueryClient();
 
   const [step, setStep] = useState(section || 1);
   const [submitting, setSubmitting] = useState(false);
@@ -491,6 +494,8 @@ export function OnboardingModal({
         setCompletionPct(res.completion_percentage);
       }
       toast.success(`${file.name} uploaded successfully!`);
+      // Invalidate company docs so the Documents page reflects this upload.
+      queryClient.invalidateQueries({ queryKey: queryKeys.company.documents() });
     } catch (err: any) {
       toast.error(getApiErrorMessage(err, "Failed to upload document."));
     } finally {
@@ -504,6 +509,8 @@ export function OnboardingModal({
     try {
       const res = await api.delete<any>(`/api/business/onboarding/documents/${docId}`);
       setUploadedDocs((prev) => prev.filter((d) => d.id !== docId));
+      // Invalidate company docs so the Documents page reflects this deletion.
+      queryClient.invalidateQueries({ queryKey: queryKeys.company.documents() });
       if (res.completion_percentage !== undefined) {
         setCompletionPct(res.completion_percentage);
       }

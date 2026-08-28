@@ -10,7 +10,7 @@ import { useLogout } from "@/shared/hooks/useLogout";
 import { isCeoOrAdmin } from "@/shared/lib/roles";
 
 const items = [
-  { to: "/home", label: "Business C360", icon: Home },
+  { to: "/home", label: "Business 360", icon: Home },
   { to: "/spending", label: "Spending", icon: BarChart3 },
   { to: "/industry", label: "Industry", icon: TrendingUp },
   { to: "/spotlights", label: "Spotlights", icon: Zap },

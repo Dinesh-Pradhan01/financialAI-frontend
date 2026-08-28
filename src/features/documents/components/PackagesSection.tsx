@@ -210,14 +210,18 @@ export function PackagesSection({ documents }: PackagesSectionProps) {
     <section className="space-y-4">
       {/* Section Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div>
-          <h2 className="text-base font-bold text-text-primary flex items-center gap-2">
-            <PackageIcon className="h-4 w-4 text-brand" />
-            Packages
-          </h2>
-          <p className="text-xs text-text-secondary mt-0.5">
-            Organize documents into curated bundles for due diligence, audits, or investor reviews.
-          </p>
+        <div className="flex items-center gap-2.5">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-brand/10 text-brand border border-brand/20">
+            <PackageIcon className="h-4 w-4" />
+          </div>
+          <div>
+            <h2 className="text-base font-bold text-text-primary">
+              Document Packages
+            </h2>
+            <p className="text-xs text-text-secondary mt-0.5">
+              Organize documents into curated bundles for due diligence, audits, or investor reviews.
+            </p>
+          </div>
         </div>
 
         <Button
@@ -225,9 +229,9 @@ export function PackagesSection({ documents }: PackagesSectionProps) {
           variant="outline"
           size="sm"
           onClick={handleOpenCreateDialog}
-          className="gap-1.5 text-xs font-semibold self-start sm:self-auto"
+          className="gap-1.5 text-xs font-semibold self-start sm:self-auto cursor-pointer hover:border-brand/40 hover:bg-brand/5 hover:text-brand"
         >
-          <Plus className="h-4 w-4 text-brand" /> Create package
+          <Plus className="h-3.5 w-3.5 text-brand" /> Create package
         </Button>
       </div>
 

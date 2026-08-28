@@ -20,10 +20,11 @@ import {
   useDeleteDocument,
   downloadDocument,
 } from "../hooks/useDocuments";
-import { KNOWN_DOCUMENT_SLOTS } from "../lib/documentGuidance";
+import { KNOWN_DOCUMENT_SLOTS, type DocumentSlot } from "../lib/documentGuidance";
 import { buildUploadFormData } from "../lib/uploadHelpers";
 import { DocumentListRow } from "./DocumentListRow";
 import { DocumentPreviewModal } from "./DocumentPreviewModal";
+import { ReplaceDocumentDialog } from "./ReplaceDocumentDialog";
 import type { CompanyDocument } from "@/shared/types/api";
 
 export interface RequiredDocumentsPopupProps {
@@ -43,6 +44,11 @@ export function RequiredDocumentsPopup({
 
   const [uploadingSlotKey, setUploadingSlotKey] = useState<string | null>(null);
   const [replacingDocId, setReplacingDocId] = useState<string | null>(null);
+  const [replacingTarget, setReplacingTarget] = useState<{
+    document: CompanyDocument;
+    slot: DocumentSlot;
+    stagedFile?: File;
+  } | null>(null);
   const [deletingDocId, setDeletingDocId] = useState<string | null>(null);
   const [downloadingDocId, setDownloadingDocId] = useState<string | null>(null);
   const [previewDoc, setPreviewDoc] = useState<CompanyDocument | null>(null);
@@ -180,6 +186,9 @@ export function RequiredDocumentsPopup({
                       onUpload={(file) =>
                         handleUpload(file, slot.typeKey, slot.category)
                       }
+                      onRequestReplace={(stagedFile) =>
+                        doc && setReplacingTarget({ document: doc, slot, stagedFile })
+                      }
                       onReplace={(file) => doc && handleReplace(file, doc.id)}
                       onDelete={(docId) =>
                         handleDelete(docId, doc?.original_name)
@@ -236,6 +245,24 @@ export function RequiredDocumentsPopup({
           if (!openState) setPreviewDoc(null);
         }}
         document={previewDoc}
+      />
+
+      {/* Document Replace Confirmation Modal */}
+      <ReplaceDocumentDialog
+        open={Boolean(replacingTarget)}
+        onOpenChange={(open) => {
+          if (!open) setReplacingTarget(null);
+        }}
+        targetDocument={replacingTarget?.document ?? null}
+        targetLabel={replacingTarget?.slot.label}
+        initialFile={replacingTarget?.stagedFile ?? null}
+        isReplacing={Boolean(replacingTarget && replacingDocId === replacingTarget.document.id)}
+        onConfirmReplace={(file) => {
+          if (replacingTarget) {
+            handleReplace(file, replacingTarget.document.id);
+            setReplacingTarget(null);
+          }
+        }}
       />
     </>
   );

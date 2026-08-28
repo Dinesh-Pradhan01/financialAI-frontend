@@ -90,7 +90,7 @@ export const CompanyOverviewCard = () => {
               <h3 className="text-xl font-bold text-foreground">Complete Company Profile</h3>
               <p className="text-sm text-muted-foreground max-w-lg">
                 Enter your company registration details, industry, and PAN/GST to generate your
-                Business C360 intelligence scorecard.
+                Business 360 intelligence scorecard.
               </p>
             </div>
           </div>
