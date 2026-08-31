@@ -97,8 +97,8 @@ export function DocumentInfoPopover({
         sideOffset={6}
         collisionPadding={16}
         className={cn(
-          "w-80 sm:w-92 text-xs p-4 shadow-xl bg-surface border border-border rounded-2xl z-50",
-          "max-h-[min(78vh,500px)] overflow-y-auto overscroll-contain space-y-3",
+          "w-80 sm:w-92 text-xs p-3.5 shadow-xl bg-surface border border-border rounded-2xl z-50",
+          "max-h-[var(--radix-popover-content-available-height)] overflow-y-auto overscroll-contain space-y-2.5",
           className,
         )}
         onClick={(e) => e.stopPropagation()}

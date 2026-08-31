@@ -21,20 +21,7 @@ export function DocumentRequirementBadge({
   className,
 }: DocumentRequirementBadgeProps) {
   if (requirement === "required") {
-    return (
-      <Badge
-        variant="outline"
-        title={sourceStatus ?? "Required"}
-        className={cn(
-          "text-[11px] font-semibold gap-1 shrink-0 select-none",
-          "bg-brand/10 text-brand border-brand/30",
-          className,
-        )}
-      >
-        <span className="text-destructive font-bold text-xs leading-none">*</span>
-        Required
-      </Badge>
-    );
+    return null;
   }
 
   return (
