@@ -3,7 +3,7 @@ import { Zap } from "lucide-react";
 export function LandingFooter() {
   return (
     <footer className="bg-[#050c1b] text-slate-400">
-      <div className="mx-auto grid max-w-7xl 2xl:max-w-[90rem] gap-8 lg:gap-10 px-4 py-10 lg:py-12 sm:px-6 lg:grid-cols-5 lg:px-8 2xl:px-12">
+      <div className="mx-auto grid max-w-7xl 2xl:max-w-360 gap-8 lg:gap-10 px-4 py-10 lg:py-12 sm:px-6 lg:grid-cols-5 lg:px-8 2xl:px-12">
         <div className="lg:col-span-2">
           <div className="flex items-center gap-2.5">
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-white font-bold">
@@ -131,7 +131,7 @@ export function LandingFooter() {
       </div>
 
       <div className="border-t border-white/10">
-        <div className="mx-auto flex max-w-7xl 2xl:max-w-[90rem] flex-col gap-3 px-4 py-4 sm:py-5 text-xs text-slate-400 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8 2xl:px-12">
+        <div className="mx-auto flex max-w-7xl 2xl:max-w-360 flex-col gap-3 px-4 py-4 sm:py-5 text-xs text-slate-400 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8 2xl:px-12">
           <p>© 2026 SpotLite Technologies Inc. All rights reserved.</p>
           <div className="flex flex-wrap gap-6">
             <a href="#" className="hover:text-slate-200 transition-colors">

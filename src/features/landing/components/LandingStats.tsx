@@ -10,7 +10,7 @@ export function LandingStats({ currency }: LandingStatsProps) {
 
   return (
     <section className="border-b border-border bg-white py-6 sm:py-8 lg:py-9">
-      <div className="mx-auto max-w-7xl 2xl:max-w-[90rem] px-4 sm:px-6 lg:px-8 2xl:px-12">
+      <div className="mx-auto max-w-7xl 2xl:max-w-360 px-4 sm:px-6 lg:px-8 2xl:px-12">
         <motion.div
           initial="hidden"
           whileInView="visible"

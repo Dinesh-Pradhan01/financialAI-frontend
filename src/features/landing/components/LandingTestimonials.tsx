@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 export function LandingTestimonials() {
   return (
     <section className="bg-white py-10 sm:py-12 lg:py-14 border-b border-border">
-      <div className="mx-auto max-w-7xl 2xl:max-w-[90rem] px-4 sm:px-6 lg:px-8 2xl:px-12">
+      <div className="mx-auto max-w-7xl 2xl:max-w-360 px-4 sm:px-6 lg:px-8 2xl:px-12">
         <motion.div
           initial={{ opacity: 0, y: 15 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -65,7 +65,7 @@ export function LandingTestimonials() {
               <div className="mt-4 border-t border-border-c pt-3 space-y-1.5">
                 <div className="flex items-center gap-2.5">
                   <div
-                    className={`flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full ${item.badgeColor} text-xs font-bold text-white font-mono shadow-2xs`}
+                    className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${item.badgeColor} text-xs font-bold text-white font-mono shadow-2xs`}
                   >
                     {item.initials}
                   </div>

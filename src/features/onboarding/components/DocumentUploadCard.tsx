@@ -112,7 +112,7 @@ export function DocumentUploadCard({
             )}
             {existingDoc && (
               <div className="flex items-center gap-2 mt-1.5">
-                <span className="text-xs font-medium text-text-primary truncate max-w-[220px]">
+                <span className="text-xs font-medium text-text-primary truncate max-w-55">
                   {existingDoc.original_name}
                 </span>
                 <span className="text-xs text-text-secondary font-mono">

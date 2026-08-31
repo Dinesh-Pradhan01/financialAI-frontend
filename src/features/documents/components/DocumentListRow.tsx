@@ -138,7 +138,7 @@ export function DocumentListRow({
           {document ? (
             <div className="flex items-center gap-1.5 flex-wrap text-[11px] text-text-secondary">
               <span
-                className="font-medium text-text-primary truncate max-w-[170px]"
+                className="font-medium text-text-primary truncate max-w-42.5"
                 title={document.original_name}
               >
                 {document.original_name}

@@ -260,7 +260,7 @@ export function LandingInteractiveSandbox({
       </div>
 
       {/* Step Content Container */}
-      <div className="min-h-[380px]">
+      <div className="min-h-95">
         {/* STEP 1: MULTI-SOURCE INGESTION & OCR PIPELINE */}
         {step === 1 && (
           <motion.div
@@ -537,7 +537,7 @@ export function LandingInteractiveSandbox({
             exit={{ opacity: 0, y: -8 }}
             className="space-y-4"
           >
-            <div className="rounded-2xl border border-blue-900 bg-gradient-to-br from-slate-950 via-slate-900 to-blue-950 p-5 sm:p-6 text-white shadow-md space-y-4">
+            <div className="rounded-2xl border border-blue-900 bg-linear-to-br from-slate-950 via-slate-900 to-blue-950 p-5 sm:p-6 text-white shadow-md space-y-4">
               <div className="flex items-center justify-between border-b border-white/10 pb-3">
                 <div className="flex items-center gap-2.5">
                   <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-white shadow-xs">
@@ -669,7 +669,7 @@ export function LandingInteractiveSandbox({
             exit={{ opacity: 0, y: -8 }}
             className="space-y-5"
           >
-            <div className="rounded-2xl border border-emerald-200 bg-gradient-to-b from-emerald-50/90 to-white p-6 sm:p-8 text-center shadow-xs space-y-4">
+            <div className="rounded-2xl border border-emerald-200 bg-linear-to-b from-emerald-50/90 to-white p-6 sm:p-8 text-center shadow-xs space-y-4">
               <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-600 text-white shadow-md">
                 <CheckCircle2 size={32} />
               </div>

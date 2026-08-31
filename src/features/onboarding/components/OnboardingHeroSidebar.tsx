@@ -1,4 +1,3 @@
-import React from "react";
 import { Zap, Lock, ShieldCheck, CheckCircle2 } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 
@@ -35,7 +34,8 @@ export function OnboardingHeroSidebar({ completionPct }: Props) {
         </h2>
 
         <p className="text-xs text-white/90 leading-relaxed font-normal">
-          SpotLite links entity records, verifies business credentials, and configures autonomous transaction intelligence in 5 structured steps.
+          SpotLite links entity records, verifies business credentials, and configures autonomous
+          transaction intelligence in 5 structured steps.
         </p>
 
         {/* Dynamic completion gauge */}

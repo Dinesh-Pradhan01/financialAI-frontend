@@ -134,13 +134,13 @@ export function TeamStatsBar({ className }: TeamStatsBarProps) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.2 }}
             className={cn(
-              "relative overflow-hidden rounded-2xl border border-border/80 bg-gradient-to-br from-surface via-surface to-surface-alt/20 p-4 sm:p-5 shadow-xs transition-all duration-200 hover:border-brand/30 hover:shadow-sm group text-left"
+              "relative overflow-hidden rounded-2xl border border-border/80 bg-linear-to-br from-surface via-surface to-surface-alt/20 p-4 sm:p-5 shadow-xs transition-all duration-200 hover:border-brand/30 hover:shadow-sm group text-left"
             )}
           >
             {/* Subtle ambient light */}
             <div
               className={cn(
-                "absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] via-transparent to-transparent opacity-60 group-hover:opacity-100 transition-opacity duration-300",
+                "absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_top_left,var(--tw-gradient-stops))] via-transparent to-transparent opacity-60 group-hover:opacity-100 transition-opacity duration-300",
                 card.ambient
               )}
             />

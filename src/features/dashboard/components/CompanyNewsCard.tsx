@@ -18,7 +18,7 @@ export const CompanyNewsCard = ({ hasProfile = true }: Props) => {
   });
 
   return (
-    <Card className="h-[450px] flex flex-col border border-border/70 shadow-sm bg-card">
+    <Card className="h-112.5 flex flex-col border border-border/70 shadow-sm bg-card">
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center justify-between text-lg font-bold tracking-tight">
           <div className="flex items-center gap-2">

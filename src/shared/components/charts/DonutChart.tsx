@@ -1,4 +1,3 @@
-import React from "react";
 import { cn } from "@/shared/lib/utils";
 
 export interface DonutSegment {
@@ -33,16 +32,8 @@ export function DonutChart({
   let acc = 0;
 
   return (
-    <div
-      className={cn("relative shrink-0", className)}
-      style={{ width: size, height: size }}
-    >
-      <svg
-        width={size}
-        height={size}
-        viewBox={`0 0 ${size} ${size}`}
-        className="-rotate-90"
-      >
+    <div className={cn("relative shrink-0", className)} style={{ width: size, height: size }}>
+      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="-rotate-90">
         <circle
           cx={half}
           cy={half}

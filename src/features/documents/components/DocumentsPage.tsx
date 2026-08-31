@@ -380,11 +380,11 @@ export function DocumentsPage() {
           className={cn(
             "flex items-center gap-3 border rounded-2xl p-3 sm:px-4 shadow-xs self-start md:self-auto transition-all",
             compliancePercentage === 100
-              ? "bg-gradient-to-br from-emerald-500/[0.06] via-surface to-surface border-emerald-500/30"
+              ? "bg-linear-to-br from-emerald-500/6 via-surface to-surface border-emerald-500/30"
               : "bg-surface border-border/80",
           )}
         >
-          <div className="space-y-1 min-w-[140px]">
+          <div className="space-y-1 min-w-35">
             <div className="flex items-center justify-between text-[11px]">
               <span className="font-semibold text-text-secondary">Statutory Compliance</span>
               <span
@@ -668,7 +668,7 @@ export function DocumentsPage() {
                         </TableCell>
 
                         <TableCell className="font-medium text-sm py-3">
-                          <div className="flex items-center gap-2.5 max-w-[260px]">
+                          <div className="flex items-center gap-2.5 max-w-65">
                             <FileText className="h-4 w-4 shrink-0 text-brand" />
                             <span className="truncate" title={doc.original_name}>
                               {doc.original_name}
@@ -680,7 +680,7 @@ export function DocumentsPage() {
                           <span
                             title={doc.document_type}
                             className={cn(
-                              "inline-block max-w-[220px] truncate px-2 py-0.5 rounded-md bg-surface-alt/60 border border-border/60 text-[11px] align-middle",
+                              "inline-block max-w-55 truncate px-2 py-0.5 rounded-md bg-surface-alt/60 border border-border/60 text-[11px] align-middle",
                               !taxonomyDocument && "capitalize",
                             )}
                           >

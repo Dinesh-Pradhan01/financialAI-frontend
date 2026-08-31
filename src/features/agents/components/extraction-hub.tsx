@@ -350,7 +350,7 @@ export function ExtractionHub({
           </div>
 
           {/* Documents list */}
-          <div className="min-h-[180px]">
+          <div className="min-h-45">
             {documents.length === 0 ? (
               <div className="flex h-full flex-col items-center justify-center rounded-2xl bg-surface-alt/50 px-4 py-8 text-center">
                 <FileText className="h-8 w-8 text-text-secondary/40" />
@@ -367,7 +367,7 @@ export function ExtractionHub({
                 <p className="text-xs font-semibold uppercase tracking-wider text-text-secondary">
                   Your statements ({documents.length})
                 </p>
-                <ul className="max-h-[280px] space-y-1.5 overflow-y-auto pr-1">
+                <ul className="max-h-70 space-y-1.5 overflow-y-auto pr-1">
                   {documents.map((doc) => (
                     <DocumentRow
                       key={doc.id}
@@ -527,7 +527,7 @@ function DocumentRow({
           {doc.error_message && (
             <>
               <span>·</span>
-              <span className="text-danger truncate max-w-[200px]">{doc.error_message}</span>
+              <span className="text-danger truncate max-w-50">{doc.error_message}</span>
             </>
           )}
         </div>

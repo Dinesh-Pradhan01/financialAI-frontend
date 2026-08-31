@@ -1,10 +1,5 @@
-import React from "react";
 import { Building2, Mail, MapPin } from "lucide-react";
-import {
-  BUSINESS_CATEGORIES,
-  BUSINESS_TYPES,
-  INDIAN_STATES,
-} from "../lib/businessOnboarding";
+import { BUSINESS_CATEGORIES, BUSINESS_TYPES, INDIAN_STATES } from "../lib/businessOnboarding";
 import { GeneralInfoState } from "./types";
 import { FormField, FormTextarea, FormSelect } from "@/shared/components/ui/FormField";
 
@@ -18,7 +13,9 @@ export function Step2GeneralInfo({ state }: Props) {
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
       <div>
-        <h1 className="font-display text-2xl md:text-3xl font-bold text-foreground">General Info</h1>
+        <h1 className="font-display text-2xl md:text-3xl font-bold text-foreground">
+          General Info
+        </h1>
         <p className="text-sm text-text-secondary mt-1">
           Identify your business and create its legal profile.
         </p>
@@ -32,12 +29,8 @@ export function Step2GeneralInfo({ state }: Props) {
               <Building2 className="h-4 w-4" />
             </div>
             <div>
-              <h3 className="font-semibold text-sm text-foreground">
-                1. Legal Business Entity
-              </h3>
-              <p className="text-xs text-text-secondary">
-                Registered identity & statutory numbers
-              </p>
+              <h3 className="font-semibold text-sm text-foreground">1. Legal Business Entity</h3>
+              <p className="text-xs text-text-secondary">Registered identity & statutory numbers</p>
             </div>
           </div>
 
@@ -170,9 +163,7 @@ export function Step2GeneralInfo({ state }: Props) {
               <h3 className="font-semibold text-sm text-foreground">
                 2. Official Contact Channels
               </h3>
-              <p className="text-xs text-text-secondary">
-                Primary business communication channels
-              </p>
+              <p className="text-xs text-text-secondary">Primary business communication channels</p>
             </div>
           </div>
 
@@ -230,9 +221,7 @@ export function Step2GeneralInfo({ state }: Props) {
               <MapPin className="h-4 w-4" />
             </div>
             <div>
-              <h3 className="font-semibold text-sm text-foreground">
-                3. Business Addresses
-              </h3>
+              <h3 className="font-semibold text-sm text-foreground">3. Business Addresses</h3>
               <p className="text-xs text-text-secondary">
                 Registered office & operational location
               </p>

@@ -1,4 +1,3 @@
-import React from "react";
 import {
   Info,
   HelpCircle,
@@ -6,7 +5,6 @@ import {
   UserCheck,
   Calendar,
   FileText,
-  CheckCircle2,
   Layers,
   FileCheck2,
 } from "lucide-react";
@@ -140,7 +138,7 @@ export function DocumentInfoPopover({
                     <FileText className="h-3 w-3" /> File
                   </span>
                   <span
-                    className="font-medium text-text-primary text-right truncate max-w-[170px]"
+                    className="font-medium text-text-primary text-right truncate max-w-42.5"
                     title={metadata.originalName}
                   >
                     {metadata.originalName}
@@ -186,7 +184,7 @@ export function DocumentInfoPopover({
                   <span className="text-[10px] font-bold text-text-tertiary uppercase tracking-wider block">
                     Verification Notes
                   </span>
-                  <p className="text-text-secondary text-[11px] leading-relaxed break-words bg-surface p-2 rounded-lg border border-border/50">
+                  <p className="text-text-secondary text-[11px] leading-relaxed wrap-break-word bg-surface p-2 rounded-lg border border-border/50">
                     {metadata.verificationNotes}
                   </p>
                 </div>

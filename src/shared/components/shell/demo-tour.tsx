@@ -45,7 +45,7 @@ export function DemoTour() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 z-[60] flex items-end justify-center p-4 md:items-end md:pb-8"
+        className="fixed inset-0 z-60 flex items-end justify-center p-4 md:items-end md:pb-8"
       >
         <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]" />
 
@@ -153,7 +153,7 @@ export function IntroModal() {
   if (!show) return null;
 
   return (
-    <div className="fixed inset-0 z-[55] flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-55 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/45 backdrop-blur-sm" onClick={() => dispatch(dismissIntro())} />
       <motion.div
         initial={{ opacity: 0, scale: 0.95, y: 12 }}

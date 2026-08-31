@@ -360,7 +360,7 @@ export function PackageCard({
                           <div className="min-w-0 flex-1">
                             <div className="flex items-center gap-2 flex-wrap text-xs">
                               <span
-                                className="font-medium text-text-primary truncate max-w-[180px] sm:max-w-[280px]"
+                                className="font-medium text-text-primary truncate max-w-45 sm:max-w-70"
                                 title={doc.original_name}
                               >
                                 {doc.original_name}

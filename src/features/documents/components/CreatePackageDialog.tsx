@@ -175,7 +175,7 @@ export function CreatePackageDialog({
                 />
               </div>
 
-              <div className="flex-1 overflow-y-auto max-h-[220px] rounded-xl border border-border/80 divide-y divide-border/60 bg-surface-alt/20">
+              <div className="flex-1 overflow-y-auto max-h-55 rounded-xl border border-border/80 divide-y divide-border/60 bg-surface-alt/20">
                 {filteredDocs.length === 0 ? (
                   <div className="p-6 text-center text-xs text-text-secondary">
                     No documents matching &quot;{searchQuery}&quot;

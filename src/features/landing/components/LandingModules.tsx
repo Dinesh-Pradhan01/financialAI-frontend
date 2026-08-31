@@ -33,7 +33,7 @@ export function LandingModules({
 
   return (
     <section id="modules" className="bg-[#f8fafc] py-10 sm:py-12 lg:py-14 border-b border-border">
-      <div className="mx-auto max-w-7xl 2xl:max-w-[90rem] px-4 sm:px-6 lg:px-8 2xl:px-12">
+      <div className="mx-auto max-w-7xl 2xl:max-w-360 px-4 sm:px-6 lg:px-8 2xl:px-12">
         {/* Section Header */}
         <motion.div
           initial={{ opacity: 0, y: 15 }}
@@ -104,7 +104,7 @@ export function LandingModules({
               {activeTab === "copilot" && (
                 <motion.div
                   layoutId="activeModuleTabPill"
-                  className="absolute inset-0 rounded-xl bg-gradient-to-r from-blue-900 to-primary shadow-xs"
+                  className="absolute inset-0 rounded-xl bg-linear-to-r from-blue-900 to-primary shadow-xs"
                   transition={{ type: "spring", stiffness: 420, damping: 32 }}
                 />
               )}
@@ -133,7 +133,7 @@ export function LandingModules({
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -8 }}
                   transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
-                  className="grid lg:grid-cols-12 gap-6 lg:gap-8 items-center rounded-2xl bg-gradient-to-br from-blue-950 via-primary to-blue-900 p-5 sm:p-7 lg:p-8 text-white"
+                  className="grid lg:grid-cols-12 gap-6 lg:gap-8 items-center rounded-2xl bg-linear-to-br from-blue-950 via-primary to-blue-900 p-5 sm:p-7 lg:p-8 text-white"
                 >
                   <div className="lg:col-span-7 space-y-3.5">
                     <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold text-blue-200 border border-white/15">
@@ -210,7 +210,7 @@ export function LandingModules({
                             key={bullet}
                             className="flex items-start gap-2.5 text-xs sm:text-sm font-medium text-slate-700 leading-relaxed"
                           >
-                            <CheckCircle2 size={16} className="mt-0.5 flex-shrink-0 text-primary" />
+                            <CheckCircle2 size={16} className="mt-0.5 shrink-0 text-primary" />
                             <span>{bullet}</span>
                           </li>
                         ))}

@@ -53,12 +53,12 @@ export function LandingHero({ currency, onOpenSandbox }: LandingHeroProps) {
   return (
     <section
       id="platform"
-      className="relative overflow-hidden border-b border-border bg-gradient-to-b from-[#f0f6fe] via-[#f8fbff] to-background py-8 sm:py-10 lg:py-12 xl:py-14"
+      className="relative overflow-hidden border-b border-border bg-linear-to-b from-[#f0f6fe] via-[#f8fbff] to-background py-8 sm:py-10 lg:py-12 xl:py-14"
     >
       {/* Subtle background mesh grid */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#e2e8f01a_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f01a_1px,transparent_1px)] bg-[size:3.5rem_3.5rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] pointer-events-none" />
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#e2e8f01a_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f01a_1px,transparent_1px)] bg-size-[3.5rem_3.5rem] mask-[radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] pointer-events-none" />
 
-      <div className="relative mx-auto max-w-7xl 2xl:max-w-[90rem] px-4 sm:px-6 lg:px-8 2xl:px-12">
+      <div className="relative mx-auto max-w-7xl 2xl:max-w-360 px-4 sm:px-6 lg:px-8 2xl:px-12">
         <div className="grid items-center gap-8 lg:grid-cols-12 lg:gap-10 xl:gap-12">
           {/* Hero Left Content */}
           <motion.div

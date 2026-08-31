@@ -1,4 +1,3 @@
-import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { useCompanyProfile, isSetupRequiredError } from "../hooks/useCompanyAPI";
@@ -75,7 +74,7 @@ export const CompanyOverviewCard = () => {
   // State: Expected First-Time / Setup Required (404 or profile not yet created)
   if (!data || (isError && isSetupRequiredError(error))) {
     return (
-      <Card className="h-full border-dashed border-2 border-primary/30 bg-gradient-to-br from-primary/5 via-card to-secondary/5 relative overflow-hidden shadow-sm">
+      <Card className="h-full border-dashed border-2 border-primary/30 bg-linear-to-br from-primary/5 via-card to-secondary/5 relative overflow-hidden shadow-sm">
         <div className="absolute top-0 right-0 p-32 bg-primary/5 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none" />
         <CardContent className="flex flex-col md:flex-row items-center justify-between p-8 text-left gap-6 h-full relative z-10">
           <div className="flex items-start gap-4">

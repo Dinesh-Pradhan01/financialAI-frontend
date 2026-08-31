@@ -1,4 +1,3 @@
-import React from "react";
 import { Check } from "lucide-react";
 import { cn } from "@/shared/lib/utils";
 
@@ -57,9 +56,7 @@ export function DocumentProgressRing({
         {isComplete ? (
           <Check className="h-3.5 w-3.5 text-success" strokeWidth={3} />
         ) : (
-          <span className="text-[10px] font-bold font-mono text-text-primary">
-            {percent}%
-          </span>
+          <span className="text-[10px] font-bold font-mono text-text-primary">{percent}%</span>
         )}
       </div>
     </div>

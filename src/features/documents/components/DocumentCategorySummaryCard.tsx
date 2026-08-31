@@ -1,4 +1,3 @@
-import React from "react";
 import { motion } from "framer-motion";
 import { CheckCircle2, ChevronRight, type LucideIcon } from "lucide-react";
 import { cn } from "@/shared/lib/utils";
@@ -69,14 +68,14 @@ export function DocumentCategorySummaryCard({
         }
       }}
       className={cn(
-        "rounded-2xl border p-4 sm:p-5 transition-all duration-200 cursor-pointer shadow-xs select-none flex flex-col justify-between gap-3.5 group relative overflow-hidden min-h-[144px]",
+        "rounded-2xl border p-4 sm:p-5 transition-all duration-200 cursor-pointer shadow-xs select-none flex flex-col justify-between gap-3.5 group relative overflow-hidden min-h-36",
         isComplete
-          ? "border-emerald-500/35 bg-gradient-to-br from-emerald-500/[0.08] via-surface to-surface hover:border-emerald-500/50 hover:shadow-md"
+          ? "border-emerald-500/35 bg-linear-to-br from-emerald-500/8 via-surface to-surface hover:border-emerald-500/50 hover:shadow-md"
           : hasRequired && requiredCompleted > 0
-            ? "border-brand/30 bg-gradient-to-br from-brand/[0.05] via-surface to-surface-alt/30 hover:border-brand/40 hover:bg-surface-alt/40 hover:shadow-md"
+            ? "border-brand/30 bg-linear-to-br from-brand/5 via-surface to-surface-alt/30 hover:border-brand/40 hover:bg-surface-alt/40 hover:shadow-md"
             : completed > 0
-              ? "border-brand/25 bg-gradient-to-br from-brand/[0.03] via-surface to-surface-alt/25 hover:border-brand/35 hover:bg-surface-alt/30 hover:shadow-md"
-              : "border-border-c bg-gradient-to-br from-surface via-surface to-surface-alt/25 hover:border-brand/30 hover:bg-surface-alt/30 hover:shadow-md",
+              ? "border-brand/25 bg-linear-to-br from-brand/3 via-surface to-surface-alt/25 hover:border-brand/35 hover:bg-surface-alt/30 hover:shadow-md"
+              : "border-border-c bg-linear-to-br from-surface via-surface to-surface-alt/25 hover:border-brand/30 hover:bg-surface-alt/30 hover:shadow-md",
         className,
       )}
     >
@@ -85,8 +84,8 @@ export function DocumentCategorySummaryCard({
         className={cn(
           "absolute inset-0 pointer-events-none transition-opacity duration-300 opacity-0 group-hover:opacity-100",
           isComplete
-            ? "bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-emerald-500/[0.08] via-transparent to-transparent"
-            : "bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-brand/[0.06] via-transparent to-transparent",
+            ? "bg-[radial-gradient(ellipse_at_top_left,var(--tw-gradient-stops))] from-emerald-500/8 via-transparent to-transparent"
+            : "bg-[radial-gradient(ellipse_at_top_left,var(--tw-gradient-stops))] from-brand/6 via-transparent to-transparent",
         )}
       />
 
@@ -113,7 +112,8 @@ export function DocumentCategorySummaryCard({
               {label}
             </h3>
             <p className="text-[11px] text-text-secondary font-mono tabular-nums mt-0.5">
-              {subLabel ?? (total > 0 ? `${completed} of ${total} uploaded` : `${completed} uploaded`)}
+              {subLabel ??
+                (total > 0 ? `${completed} of ${total} uploaded` : `${completed} uploaded`)}
             </p>
           </div>
         </div>
@@ -162,7 +162,7 @@ export function DocumentCategorySummaryCard({
         {/* Footer Meta Row */}
         <div className="flex items-center justify-between text-[11px] pt-0.5">
           {hideProgress ? (
-            <span className="text-[11px] text-text-secondary truncate max-w-[200px]">
+            <span className="text-[11px] text-text-secondary truncate max-w-50">
               {description ?? "Custom & auxiliary records"}
             </span>
           ) : (

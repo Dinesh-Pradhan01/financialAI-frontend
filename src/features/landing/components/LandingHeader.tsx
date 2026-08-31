@@ -47,7 +47,7 @@ export function LandingHeader({
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/80 bg-white/95 backdrop-blur-md transition-all">
-      <div className="mx-auto flex h-16 lg:h-18 max-w-7xl 2xl:max-w-[90rem] items-center justify-between px-4 sm:px-6 lg:px-8 2xl:px-12">
+      <div className="mx-auto flex h-16 lg:h-18 max-w-7xl 2xl:max-w-360 items-center justify-between px-4 sm:px-6 lg:px-8 2xl:px-12">
         {/* Brand Logo */}
         <a href="#platform" className="flex items-center gap-2.5 group shrink-0">
           <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-white shadow-md shadow-primary/25 transition-transform group-hover:scale-105">

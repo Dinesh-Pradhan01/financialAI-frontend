@@ -161,11 +161,11 @@ function Login() {
           </div>
 
           <div className="relative mt-6 flex items-center py-2">
-            <div className="flex-grow border-t border-border"></div>
+            <div className="grow border-t border-border"></div>
             <span className="shrink-0 px-4 text-xs font-semibold text-text-secondary uppercase tracking-wider">
               Or continue with email
             </span>
-            <div className="flex-grow border-t border-border"></div>
+            <div className="grow border-t border-border"></div>
           </div>
 
           <form onSubmit={handleSubmit} className="mt-6 space-y-4">

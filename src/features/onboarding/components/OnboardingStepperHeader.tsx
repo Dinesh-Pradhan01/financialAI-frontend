@@ -1,4 +1,3 @@
-import React from "react";
 import { Sparkles, Loader2 } from "lucide-react";
 
 interface Props {
@@ -45,9 +44,7 @@ export function OnboardingStepperHeader({
       <div className="mb-6">
         <div className="flex justify-between items-center text-xs text-text-secondary font-medium mb-3">
           <div className="flex items-center gap-2">
-            <span className="font-mono text-brand font-semibold">
-              STEP {step} OF 4
-            </span>
+            <span className="font-mono text-brand font-semibold">STEP {step} OF 4</span>
             <span className="text-border-c">·</span>
             <span className="font-semibold text-brand">{completionPct}% Complete</span>
           </div>
@@ -75,8 +72,8 @@ export function OnboardingStepperHeader({
                   s === step
                     ? "bg-brand shadow-xs"
                     : s < step
-                    ? "bg-brand/50 hover:bg-brand/70 cursor-pointer"
-                    : "bg-border cursor-default"
+                      ? "bg-brand/50 hover:bg-brand/70 cursor-pointer"
+                      : "bg-border cursor-default"
                 } ${!isClickable ? "cursor-default" : ""}`}
                 title={isClickable ? `Jump to Step ${s}` : undefined}
               />

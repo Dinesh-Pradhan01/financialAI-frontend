@@ -50,7 +50,7 @@ export function DocumentsWhyWeNeedGuide() {
           >
             <div className="border-t border-border/60 bg-surface-alt/20 p-4 md:p-5 grid gap-4 sm:grid-cols-3">
               {/* Pillar 1: Statutory Verification */}
-              <div className="space-y-2 rounded-xl border border-blue-500/20 bg-blue-500/[0.03] p-3">
+              <div className="space-y-2 rounded-xl border border-blue-500/20 bg-blue-500/3 p-3">
                 <div className="flex items-center gap-2 text-xs font-bold text-text-primary">
                   <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-blue-500/15 text-blue-600 dark:text-blue-400 border border-blue-500/20">
                     <ShieldCheck className="h-4 w-4" />
@@ -63,7 +63,7 @@ export function DocumentsWhyWeNeedGuide() {
               </div>
 
               {/* Pillar 2: Credit Profiling */}
-              <div className="space-y-2 rounded-xl border border-emerald-500/20 bg-emerald-500/[0.03] p-3">
+              <div className="space-y-2 rounded-xl border border-emerald-500/20 bg-emerald-500/3 p-3">
                 <div className="flex items-center gap-2 text-xs font-bold text-text-primary">
                   <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
                     <LineChart className="h-4 w-4" />
@@ -76,7 +76,7 @@ export function DocumentsWhyWeNeedGuide() {
               </div>
 
               {/* Pillar 3: Due Diligence Vault */}
-              <div className="space-y-2 rounded-xl border border-purple-500/20 bg-purple-500/[0.03] p-3">
+              <div className="space-y-2 rounded-xl border border-purple-500/20 bg-purple-500/3 p-3">
                 <div className="flex items-center gap-2 text-xs font-bold text-text-primary">
                   <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-purple-500/15 text-purple-600 dark:text-purple-400 border border-purple-500/20">
                     <FolderKanban className="h-4 w-4" />

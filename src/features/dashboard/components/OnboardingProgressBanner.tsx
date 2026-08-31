@@ -1,4 +1,3 @@
-import React from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { ArrowRight, Sparkles, ShieldAlert, CheckCircle2, ChevronRight } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";

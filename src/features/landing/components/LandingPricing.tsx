@@ -21,7 +21,7 @@ export function LandingPricing({
 }: LandingPricingProps) {
   return (
     <section id="pricing" className="bg-[#f8fafc] py-10 sm:py-12 lg:py-14 border-t border-border">
-      <div className="mx-auto max-w-7xl 2xl:max-w-[90rem] px-4 sm:px-6 lg:px-8 2xl:px-12">
+      <div className="mx-auto max-w-7xl 2xl:max-w-360 px-4 sm:px-6 lg:px-8 2xl:px-12">
         <motion.div
           initial={{ opacity: 0, y: 15 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -143,7 +143,7 @@ export function LandingPricing({
                 className={cn(
                   "relative flex flex-col justify-between rounded-2xl border p-5 sm:p-6 transition-all duration-200 h-full transform-gpu",
                   plan.highlight
-                    ? "border-primary bg-gradient-to-b from-[#0a1b38] to-[#071329] text-white shadow-2xl shadow-blue-900/30 lg:scale-[1.02]"
+                    ? "border-primary bg-linear-to-b from-[#0a1b38] to-[#071329] text-white shadow-2xl shadow-blue-900/30 lg:scale-[1.02]"
                     : "border-border-c bg-white shadow-xs hover:border-slate-300 hover:shadow-md",
                 )}
               >
@@ -160,7 +160,7 @@ export function LandingPricing({
 
                   <p
                     className={cn(
-                      "mt-1.5 text-xs sm:text-sm leading-relaxed min-h-[36px]",
+                      "mt-1.5 text-xs sm:text-sm leading-relaxed min-h-9",
                       plan.highlight ? "text-slate-300" : "text-slate-600",
                     )}
                   >
@@ -217,7 +217,7 @@ export function LandingPricing({
                         <Check
                           size={14}
                           className={cn(
-                            "mt-0.5 flex-shrink-0",
+                            "mt-0.5 shrink-0",
                             plan.highlight ? "text-emerald-400" : "text-primary",
                           )}
                         />

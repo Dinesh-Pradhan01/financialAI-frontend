@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 export function LandingSecurity() {
   return (
     <section id="security" className="border-y border-border bg-white py-10 sm:py-12 lg:py-14">
-      <div className="mx-auto max-w-7xl 2xl:max-w-[90rem] px-4 sm:px-6 lg:px-8 2xl:px-12">
+      <div className="mx-auto max-w-7xl 2xl:max-w-360 px-4 sm:px-6 lg:px-8 2xl:px-12">
         <motion.div
           initial={{ opacity: 0, scale: 0.98 }}
           whileInView={{ opacity: 1, scale: 1 }}

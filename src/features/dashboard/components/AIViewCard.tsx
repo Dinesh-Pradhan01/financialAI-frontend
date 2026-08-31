@@ -19,7 +19,7 @@ export const AIViewCard = ({ hasProfile = true }: Props) => {
   });
 
   return (
-    <Card className="h-[450px] flex flex-col border border-border/70 shadow-sm bg-card overflow-hidden">
+    <Card className="h-112.5 flex flex-col border border-border/70 shadow-sm bg-card overflow-hidden">
       <CardHeader className="border-b border-border/40 pb-3 bg-muted/20">
         <CardTitle className="flex items-center justify-between text-lg font-bold tracking-tight">
           <div className="flex items-center gap-2 text-primary">

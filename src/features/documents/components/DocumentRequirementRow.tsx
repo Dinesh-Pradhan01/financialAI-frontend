@@ -172,8 +172,8 @@ export function DocumentRequirementRow({
         "rounded-xl border p-3 sm:p-3.5 transition-all duration-150 shadow-xs",
         "flex flex-col gap-2.5",
         document
-          ? "border-emerald-500/20 bg-gradient-to-r from-emerald-500/[0.03] via-surface to-surface hover:border-emerald-500/40 hover:shadow-xs"
-          : "border-dashed border-border-c bg-surface hover:border-brand/40 hover:bg-brand/[0.02]",
+          ? "border-emerald-500/20 bg-linear-to-r from-emerald-500/3 via-surface to-surface hover:border-emerald-500/40 hover:shadow-xs"
+          : "border-dashed border-border-c bg-surface hover:border-brand/40 hover:bg-brand/2",
         showDropHint && "cursor-pointer",
         isDraggingOver && "border-solid border-brand bg-brand/10 ring-2 ring-brand/20 shadow-sm",
         rejectionReason && "border-solid border-destructive/40 bg-destructive/5 ring-1 ring-destructive/20",
@@ -248,7 +248,7 @@ export function DocumentRequirementRow({
         {document ? (
           <div className="flex items-center gap-1.5 flex-wrap text-[11px] text-text-secondary min-w-0 font-mono">
             <span
-              className="font-sans font-medium text-text-primary truncate max-w-[200px]"
+              className="font-sans font-medium text-text-primary truncate max-w-50"
               title={document.original_name}
             >
               {document.original_name}

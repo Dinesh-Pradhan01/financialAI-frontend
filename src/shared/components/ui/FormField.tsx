@@ -1,4 +1,4 @@
-import React from "react";
+import * as React from "react";
 import { CheckCircle2, AlertCircle } from "lucide-react";
 import {
   Select,
@@ -10,8 +10,7 @@ import {
 
 // TODO(phase-2): Wire with dynamic schema validation (e.g. Zod / React Hook Form) in later phase
 
-export interface FormFieldProps
-  extends React.InputHTMLAttributes<HTMLInputElement> {
+export interface FormFieldProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label: string;
   error?: string;
   isValid?: boolean;
@@ -36,7 +35,7 @@ export const FormField = React.forwardRef<HTMLInputElement, FormFieldProps>(
       required,
       ...props
     },
-    ref
+    ref,
   ) => {
     const inputId = id || (label ? label.toLowerCase().replace(/[^a-z0-9]/g, "-") : undefined);
 
@@ -53,9 +52,7 @@ export const FormField = React.forwardRef<HTMLInputElement, FormFieldProps>(
             )}
           </label>
           {optional && (
-            <span className="text-[0.6875rem] font-normal text-text-tertiary">
-              Optional
-            </span>
+            <span className="text-[0.6875rem] font-normal text-text-tertiary">Optional</span>
           )}
         </div>
 
@@ -78,8 +75,8 @@ export const FormField = React.forwardRef<HTMLInputElement, FormFieldProps>(
                 error
                   ? "border-destructive focus:border-destructive focus:ring-2 focus:ring-destructive/15"
                   : isValid
-                  ? "border-success/60 focus:border-brand focus:ring-2 focus:ring-brand/15"
-                  : "border-border-c focus:border-brand focus:ring-2 focus:ring-brand/15 hover:border-border-c/80"
+                    ? "border-success/60 focus:border-brand focus:ring-2 focus:ring-brand/15"
+                    : "border-border-c focus:border-brand focus:ring-2 focus:ring-brand/15 hover:border-border-c/80"
               } ${className}`}
             {...props}
           />
@@ -103,12 +100,11 @@ export const FormField = React.forwardRef<HTMLInputElement, FormFieldProps>(
         ) : null}
       </div>
     );
-  }
+  },
 );
 FormField.displayName = "FormField";
 
-export interface FormTextareaProps
-  extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
+export interface FormTextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
   label: string;
   error?: string;
   isValid?: boolean;
@@ -116,60 +112,60 @@ export interface FormTextareaProps
   helperText?: string;
 }
 
-export const FormTextarea = React.forwardRef<
-  HTMLTextAreaElement,
-  FormTextareaProps
->(({ label, error, isValid, optional, helperText, id, className = "", required, ...props }, ref) => {
-  const textareaId = id || (label ? label.toLowerCase().replace(/[^a-z0-9]/g, "-") : undefined);
+export const FormTextarea = React.forwardRef<HTMLTextAreaElement, FormTextareaProps>(
+  (
+    { label, error, isValid, optional, helperText, id, className = "", required, ...props },
+    ref,
+  ) => {
+    const textareaId = id || (label ? label.toLowerCase().replace(/[^a-z0-9]/g, "-") : undefined);
 
-  return (
-    <div className="space-y-1.5 text-left w-full">
-      <div className="flex justify-between items-center">
-        <label
-          htmlFor={textareaId}
-          className="text-xs font-semibold text-text-primary tracking-tight"
-        >
-          {label}{" "}
-          {!optional && (required || required === undefined) && (
-            <span className="text-destructive font-bold">*</span>
+    return (
+      <div className="space-y-1.5 text-left w-full">
+        <div className="flex justify-between items-center">
+          <label
+            htmlFor={textareaId}
+            className="text-xs font-semibold text-text-primary tracking-tight"
+          >
+            {label}{" "}
+            {!optional && (required || required === undefined) && (
+              <span className="text-destructive font-bold">*</span>
+            )}
+          </label>
+          {optional && (
+            <span className="text-[0.6875rem] font-normal text-text-tertiary">Optional</span>
           )}
-        </label>
-        {optional && (
-          <span className="text-[0.6875rem] font-normal text-text-tertiary">
-            Optional
-          </span>
-        )}
-      </div>
+        </div>
 
-      <div className="relative">
-        <textarea
-          id={textareaId}
-          ref={ref}
-          required={required}
-          className={`w-full rounded-xl border bg-surface px-3.5 py-2.5 text-sm text-foreground outline-none transition-all duration-150 resize-none shadow-xs
+        <div className="relative">
+          <textarea
+            id={textareaId}
+            ref={ref}
+            required={required}
+            className={`w-full rounded-xl border bg-surface px-3.5 py-2.5 text-sm text-foreground outline-none transition-all duration-150 resize-none shadow-xs
             placeholder:text-text-tertiary
             ${
               error
                 ? "border-destructive focus:border-destructive focus:ring-2 focus:ring-destructive/15"
                 : isValid
-                ? "border-success/60 focus:border-brand focus:ring-2 focus:ring-brand/15"
-                : "border-border-c focus:border-brand focus:ring-2 focus:ring-brand/15 hover:border-border-c/80"
+                  ? "border-success/60 focus:border-brand focus:ring-2 focus:ring-brand/15"
+                  : "border-border-c focus:border-brand focus:ring-2 focus:ring-brand/15 hover:border-border-c/80"
             } ${className}`}
-          {...props}
-        />
-      </div>
+            {...props}
+          />
+        </div>
 
-      {error ? (
-        <p className="text-[0.6875rem] font-medium text-destructive flex items-center gap-1 mt-1">
-          <AlertCircle className="h-3 w-3 shrink-0" />
-          <span>{error}</span>
-        </p>
-      ) : helperText ? (
-        <p className="text-[0.6875rem] text-text-secondary mt-1">{helperText}</p>
-      ) : null}
-    </div>
-  );
-});
+        {error ? (
+          <p className="text-[0.6875rem] font-medium text-destructive flex items-center gap-1 mt-1">
+            <AlertCircle className="h-3 w-3 shrink-0" />
+            <span>{error}</span>
+          </p>
+        ) : helperText ? (
+          <p className="text-[0.6875rem] text-text-secondary mt-1">{helperText}</p>
+        ) : null}
+      </div>
+    );
+  },
+);
 FormTextarea.displayName = "FormTextarea";
 
 export interface SelectOption {
@@ -205,7 +201,7 @@ export function FormSelect({
   className = "",
 }: FormSelectProps) {
   const normalizedOptions: SelectOption[] = options.map((opt) =>
-    typeof opt === "string" ? { label: opt, value: opt } : opt
+    typeof opt === "string" ? { label: opt, value: opt } : opt,
   );
 
   return (
@@ -218,19 +214,13 @@ export function FormSelect({
           )}
         </label>
         {optional && (
-          <span className="text-[0.6875rem] font-normal text-text-tertiary">
-            Optional
-          </span>
+          <span className="text-[0.6875rem] font-normal text-text-tertiary">Optional</span>
         )}
       </div>
 
-      <Select
-        value={value}
-        onValueChange={onValueChange}
-        disabled={disabled}
-      >
+      <Select value={value} onValueChange={onValueChange} disabled={disabled}>
         <SelectTrigger
-          className={`h-[2.625rem] rounded-xl border bg-surface px-3.5 py-2.5 text-sm text-foreground outline-none transition-all duration-150 shadow-xs
+          className={`h-10.5 rounded-xl border bg-surface px-3.5 py-2.5 text-sm text-foreground outline-none transition-all duration-150 shadow-xs
             ${
               error
                 ? "border-destructive focus:ring-destructive/15"

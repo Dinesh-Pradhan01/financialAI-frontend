@@ -1,9 +1,5 @@
-import React from "react";
 import { Landmark, CreditCard, Receipt, Layers } from "lucide-react";
-import {
-  ACCOUNTING_SOFTWARES,
-  DIGITAL_PAYMENT_METHODS,
-} from "../lib/businessOnboarding";
+import { ACCOUNTING_SOFTWARES, DIGITAL_PAYMENT_METHODS } from "../lib/businessOnboarding";
 import { FinancialState } from "./types";
 import { FormField, FormSelect } from "@/shared/components/ui/FormField";
 
@@ -23,7 +19,9 @@ export function Step4FinancialInfo({ state }: Props) {
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
       <div>
-        <h1 className="font-display text-2xl md:text-3xl font-bold text-foreground">Financial Info</h1>
+        <h1 className="font-display text-2xl md:text-3xl font-bold text-foreground">
+          Financial Info
+        </h1>
         <p className="text-sm text-text-secondary mt-1">
           Configure banking, accounts, accounting tools, and transaction channels.
         </p>
@@ -37,9 +35,7 @@ export function Step4FinancialInfo({ state }: Props) {
               <Landmark className="h-4 w-4" />
             </div>
             <div>
-              <h3 className="font-semibold text-sm text-foreground">
-                1. Primary Banking Accounts
-              </h3>
+              <h3 className="font-semibold text-sm text-foreground">1. Primary Banking Accounts</h3>
               <p className="text-xs text-text-secondary">
                 Operating current accounts and banking partner
               </p>

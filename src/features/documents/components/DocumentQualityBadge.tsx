@@ -67,7 +67,7 @@ export function DocumentQualityBadge({
               <Info className="h-3.5 w-3.5 text-brand shrink-0" />
               Verification Details
             </p>
-            <p className="text-text-secondary leading-relaxed text-[11px] break-words">
+            <p className="text-text-secondary leading-relaxed text-[11px] wrap-break-word">
               {notes}
             </p>
           </div>

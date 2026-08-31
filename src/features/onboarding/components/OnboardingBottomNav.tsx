@@ -44,7 +44,7 @@ export function OnboardingBottomNav({
           type="button"
           onClick={onNextStep}
           disabled={isDisabled}
-          className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand py-2.5 px-10 text-sm font-semibold text-white shadow-brand hover:opacity-95 transition disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer min-w-[180px]"
+          className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand py-2.5 px-10 text-sm font-semibold text-white shadow-brand hover:opacity-95 transition disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer min-w-45"
         >
           {savingDraft ? (
             step === 1 ? (

@@ -15,7 +15,7 @@ export function LandingRoles({ currency, onOpenRolePreview }: LandingRolesProps)
 
   return (
     <section id="roles" className="border-b border-border bg-white py-10 sm:py-12 lg:py-14">
-      <div className="mx-auto max-w-7xl 2xl:max-w-[90rem] px-4 sm:px-6 lg:px-8 2xl:px-12">
+      <div className="mx-auto max-w-7xl 2xl:max-w-360 px-4 sm:px-6 lg:px-8 2xl:px-12">
         {/* Section Header */}
         <motion.div
           initial={{ opacity: 0, y: 15 }}

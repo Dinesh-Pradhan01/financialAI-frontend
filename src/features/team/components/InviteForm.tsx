@@ -156,7 +156,7 @@ export function InviteForm({ className, onSuccess }: InviteFormProps) {
               className={cn(
                 "relative flex flex-col p-3.5 rounded-xl border text-left transition-all duration-150 cursor-pointer select-none",
                 role === "cfo"
-                  ? "border-brand bg-brand/[0.04] ring-2 ring-brand/20 shadow-2xs"
+                  ? "border-brand bg-brand/4 ring-2 ring-brand/20 shadow-2xs"
                   : "border-border/80 bg-surface-alt/25 hover:border-brand/30 hover:bg-surface-alt/50",
                 isSubmitting && "opacity-60 cursor-not-allowed"
               )}
@@ -193,7 +193,7 @@ export function InviteForm({ className, onSuccess }: InviteFormProps) {
               className={cn(
                 "relative flex flex-col p-3.5 rounded-xl border text-left transition-all duration-150 cursor-pointer select-none",
                 role === "hr"
-                  ? "border-brand bg-brand/[0.04] ring-2 ring-brand/20 shadow-2xs"
+                  ? "border-brand bg-brand/4 ring-2 ring-brand/20 shadow-2xs"
                   : "border-border/80 bg-surface-alt/25 hover:border-brand/30 hover:bg-surface-alt/50",
                 isSubmitting && "opacity-60 cursor-not-allowed"
               )}
@@ -271,7 +271,7 @@ export function InviteForm({ className, onSuccess }: InviteFormProps) {
               initial={{ opacity: 0, y: -6 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -6 }}
-              className="rounded-xl border border-emerald-500/25 bg-emerald-500/[0.06] p-3.5 text-xs text-text-primary space-y-2"
+              className="rounded-xl border border-emerald-500/25 bg-emerald-500/6 p-3.5 text-xs text-text-primary space-y-2"
             >
               <div className="flex items-center justify-between gap-2">
                 <span className="flex items-center gap-1.5 font-bold text-emerald-600 dark:text-emerald-400">
@@ -310,7 +310,7 @@ export function InviteForm({ className, onSuccess }: InviteFormProps) {
           <Button
             type="submit"
             disabled={isSubmitting || !email.trim()}
-            className="w-full sm:w-auto min-w-[160px] h-10 px-5 text-xs font-semibold gap-2 bg-brand text-white hover:bg-brand/90 shadow-brand transition disabled:opacity-50 cursor-pointer"
+            className="w-full sm:w-auto min-w-40 h-10 px-5 text-xs font-semibold gap-2 bg-brand text-white hover:bg-brand/90 shadow-brand transition disabled:opacity-50 cursor-pointer"
           >
             {isSubmitting ? (
               <>

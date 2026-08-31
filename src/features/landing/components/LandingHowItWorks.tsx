@@ -5,7 +5,7 @@ import { ArrowRight, CheckCircle2 } from "lucide-react";
 export function LandingHowItWorks() {
   return (
     <section id="how-it-works" className="bg-[#f8fafc] py-10 sm:py-12 lg:py-14 border-b border-border">
-      <div className="mx-auto max-w-7xl 2xl:max-w-[90rem] px-4 sm:px-6 lg:px-8 2xl:px-12">
+      <div className="mx-auto max-w-7xl 2xl:max-w-360 px-4 sm:px-6 lg:px-8 2xl:px-12">
         <motion.div
           initial={{ opacity: 0, y: 15 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -25,7 +25,7 @@ export function LandingHowItWorks() {
         {/* Connected Step Rail Layout */}
         <div className="mt-7 sm:mt-8 relative">
           {/* Connector Line (Desktop) - Aligned with Step Icon Centers */}
-          <div className="hidden lg:block absolute top-[2.75rem] left-14 right-14 h-0.5 bg-gradient-to-r from-primary/20 via-primary/40 to-primary/20 z-0" />
+          <div className="hidden lg:block absolute top-11 left-14 right-14 h-0.5 bg-linear-to-r from-primary/20 via-primary/40 to-primary/20 z-0" />
 
           <motion.div
             initial="hidden"

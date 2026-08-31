@@ -1,4 +1,3 @@
-import React from "react";
 import { ShieldCheck, Lock, Sparkles, CheckCircle2 } from "lucide-react";
 import { MANDATORY_DOCUMENTS } from "../lib/businessOnboarding";
 import { DocumentUploadCard } from "./DocumentUploadCard";
@@ -24,7 +23,9 @@ export function Step1Verification({
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
       <div>
-        <h1 className="font-display text-2xl md:text-3xl font-bold text-foreground">Business Verification</h1>
+        <h1 className="font-display text-2xl md:text-3xl font-bold text-foreground">
+          Business Verification
+        </h1>
         <p className="text-sm text-text-secondary mt-1">
           Lightweight KYC verification for business identity.
         </p>

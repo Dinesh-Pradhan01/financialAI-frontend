@@ -1,4 +1,3 @@
-import React from "react";
 import { Building2, Lock, ShieldCheck, Users, Briefcase } from "lucide-react";
 import { BUSINESS_MODELS } from "../lib/businessOnboarding";
 import { LeadershipState } from "./types";
@@ -22,7 +21,9 @@ export function Step3Leadership({ state }: Props) {
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
       <div>
-        <h1 className="font-display text-2xl md:text-3xl font-bold text-foreground">Leadership & Organization</h1>
+        <h1 className="font-display text-2xl md:text-3xl font-bold text-foreground">
+          Leadership & Organization
+        </h1>
         <p className="text-sm text-text-secondary mt-1">
           Add details about your leadership and invite your CFO and HR to collaborate on SpotLite.
         </p>
@@ -43,9 +44,7 @@ export function Step3Leadership({ state }: Props) {
                 <Building2 className="h-4 w-4" />
               </div>
               <div>
-                <h3 className="font-semibold text-sm text-foreground">
-                  CEO / Founder Details
-                </h3>
+                <h3 className="font-semibold text-sm text-foreground">CEO / Founder Details</h3>
                 <p className="text-xs text-text-secondary">
                   Primary signatory and enterprise owner
                 </p>
@@ -129,9 +128,7 @@ export function Step3Leadership({ state }: Props) {
                   onChange={(e) => state.setInviteCfo(e.target.checked)}
                   className="h-4 w-4 rounded border-border-c text-brand focus:ring-brand/30 accent-brand cursor-pointer"
                 />
-                <span className="text-xs font-semibold text-text-primary">
-                  Invite to SpotLite
-                </span>
+                <span className="text-xs font-semibold text-text-primary">Invite to SpotLite</span>
               </label>
             </div>
 
@@ -205,9 +202,7 @@ export function Step3Leadership({ state }: Props) {
                   <ShieldCheck className="h-4 w-4" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-sm text-foreground">
-                    Human Resources (HR)
-                  </h3>
+                  <h3 className="font-semibold text-sm text-foreground">Human Resources (HR)</h3>
                   <p className="text-xs text-text-secondary">
                     Workforce payroll & vendor compliance
                   </p>
@@ -221,9 +216,7 @@ export function Step3Leadership({ state }: Props) {
                   onChange={(e) => state.setInviteHr(e.target.checked)}
                   className="h-4 w-4 rounded border-border-c text-brand focus:ring-brand/30 accent-brand cursor-pointer"
                 />
-                <span className="text-xs font-semibold text-text-primary">
-                  Invite to SpotLite
-                </span>
+                <span className="text-xs font-semibold text-text-primary">Invite to SpotLite</span>
               </label>
             </div>
 

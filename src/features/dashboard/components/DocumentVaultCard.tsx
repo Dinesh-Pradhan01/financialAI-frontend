@@ -174,7 +174,7 @@ export const DocumentVaultCard = ({ hasProfile = true }: Props) => {
         </div>
       </CardHeader>
       <CardContent>
-        <div className="space-y-5 max-h-[400px] overflow-y-auto pr-1 custom-scrollbar">
+        <div className="space-y-5 max-h-100 overflow-y-auto pr-1 custom-scrollbar">
           {categories.map((category) => {
             const catDocs = documents?.filter(d => d.document_category === category) || [];
             if (catDocs.length === 0 && category !== 'Other') return null;

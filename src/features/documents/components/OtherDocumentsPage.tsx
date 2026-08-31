@@ -266,7 +266,7 @@ export function OtherDocumentsPage() {
                       <div className="min-w-0 space-y-0.5">
                         <div className="flex items-center gap-2 flex-wrap">
                           <span
-                            className="font-semibold text-xs text-text-primary truncate max-w-[280px] sm:max-w-md"
+                            className="font-semibold text-xs text-text-primary truncate max-w-70 sm:max-w-md"
                             title={displayLabel}
                           >
                             {displayLabel}
@@ -274,7 +274,7 @@ export function OtherDocumentsPage() {
                           <DocumentQualityBadge document={doc} />
                         </div>
                         <div className="flex items-center gap-2 text-[11px] text-text-secondary flex-wrap font-mono">
-                          <span className="truncate max-w-[200px]" title={doc.original_name}>
+                          <span className="truncate max-w-50" title={doc.original_name}>
                             {doc.original_name}
                           </span>
                           <span>•</span>

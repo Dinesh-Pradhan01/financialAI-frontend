@@ -770,7 +770,7 @@ export function OnboardingModal({
                 type="button"
                 onClick={handleEditSectionSave}
                 disabled={isActionDisabled}
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand py-2.5 px-7 text-sm font-bold text-white shadow-brand hover:opacity-95 active:scale-[0.98] transition disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer min-w-[150px]"
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand py-2.5 px-7 text-sm font-bold text-white shadow-brand hover:opacity-95 active:scale-[0.98] transition disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer min-w-37.5"
               >
                 {savingDraft ? (
                   <>
