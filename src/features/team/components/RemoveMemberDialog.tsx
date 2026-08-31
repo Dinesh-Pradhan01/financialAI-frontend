@@ -47,18 +47,18 @@ export function RemoveMemberDialog({
             Remove Member from Workspace?
           </AlertDialogTitle>
           <AlertDialogDescription className="text-xs text-text-secondary leading-relaxed space-y-2">
-            <p>
+            <div>
               Are you sure you want to remove{" "}
               <span className="font-semibold text-text-primary">{displayName}</span> (
               <span className="font-mono text-text-primary">{roleLabel}</span>)?
-            </p>
-            <p className="bg-destructive/5 p-2.5 rounded-xl border border-destructive/20 text-[11px] text-destructive leading-relaxed">
+            </div>
+            <div className="bg-destructive/5 p-2.5 rounded-xl border border-destructive/20 text-[11px] text-destructive leading-relaxed">
               • The member will immediately lose access to this company workspace.
               <br />
               • All active application login sessions are invalidated immediately.
               <br />
               • Access can only be restored by creating a brand-new invitation.
-            </p>
+            </div>
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter className="pt-2 gap-2">

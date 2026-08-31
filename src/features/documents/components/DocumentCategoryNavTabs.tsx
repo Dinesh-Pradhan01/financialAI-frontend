@@ -6,6 +6,7 @@ import { cn } from "@/shared/lib/utils";
 
 interface DocumentCategoryNavTabsProps {
   otherDocumentsCount?: number;
+  activeCategoryId?: string;
   className?: string;
 }
 
@@ -20,6 +21,7 @@ interface DocumentCategoryNavTabsProps {
  */
 export function DocumentCategoryNavTabs({
   otherDocumentsCount = 0,
+  activeCategoryId,
   className,
 }: DocumentCategoryNavTabsProps) {
   const navigate = useNavigate();
@@ -36,6 +38,24 @@ export function DocumentCategoryNavTabs({
     setCanScrollRight((prev) => (prev !== hasMoreRight ? hasMoreRight : prev));
     setCanScrollLeft((prev) => (prev !== hasMoreLeft ? hasMoreLeft : prev));
   }, []);
+
+  useEffect(() => {
+    if (activeCategoryId && scrollRef.current) {
+      // Small delay to ensure layout is complete before calculating scroll position
+      const timeoutId = setTimeout(() => {
+        if (!scrollRef.current) return;
+        const activeElement = scrollRef.current.querySelector(
+          `[data-category-id="${activeCategoryId}"]`
+        ) as HTMLElement;
+        if (activeElement) {
+          const container = scrollRef.current;
+          const scrollLeft = activeElement.offsetLeft - container.offsetLeft - 16;
+          container.scrollTo({ left: scrollLeft, behavior: "smooth" });
+        }
+      }, 50);
+      return () => clearTimeout(timeoutId);
+    }
+  }, [activeCategoryId]);
 
   const handleScrollLeft = () => {
     const el = scrollRef.current;
@@ -81,19 +101,27 @@ export function DocumentCategoryNavTabs({
       >
         {DOCUMENT_CATEGORIES.map((category) => {
           const Icon = category.icon;
+          const isActive = activeCategoryId === category.id;
           return (
             <button
               key={category.id}
               type="button"
-              onClick={() =>
+              data-category-id={category.id}
+              onClick={() => {
+                if (isActive) {
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                  return;
+                }
                 navigate({
                   to: "/documents/$categoryId",
                   params: { categoryId: category.id },
-                })
-              }
+                });
+              }}
               className={cn(
-                "flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium shrink-0 transition-all cursor-pointer",
-                "text-text-secondary hover:text-text-primary hover:bg-surface/70 hover:shadow-xs border border-transparent hover:border-border/60",
+                "flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium shrink-0 transition-all cursor-pointer border",
+                isActive
+                  ? "bg-surface text-text-primary shadow-xs border-border/90 font-semibold"
+                  : "text-text-secondary border-transparent hover:text-text-primary hover:bg-surface/70 hover:shadow-xs hover:border-border/60",
               )}
             >
               <Icon className="h-3.5 w-3.5 shrink-0" />
@@ -105,10 +133,19 @@ export function DocumentCategoryNavTabs({
         {/* Other Documents tab — navigates to dedicated Other Documents page */}
         <button
           type="button"
-          onClick={() => navigate({ to: "/documents/other" })}
+          data-category-id="other"
+          onClick={() => {
+            if (activeCategoryId === "other") {
+              window.scrollTo({ top: 0, behavior: "smooth" });
+              return;
+            }
+            navigate({ to: "/documents/other" });
+          }}
           className={cn(
-            "flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium shrink-0 transition-all cursor-pointer",
-            "text-text-secondary hover:text-text-primary hover:bg-surface/70 hover:shadow-xs border border-transparent hover:border-border/60",
+            "flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium shrink-0 transition-all cursor-pointer border",
+            activeCategoryId === "other"
+              ? "bg-surface text-text-primary shadow-xs border-border/90 font-semibold"
+              : "text-text-secondary border-transparent hover:text-text-primary hover:bg-surface/70 hover:shadow-xs hover:border-border/60",
           )}
         >
           <FilePlus2 className="h-3.5 w-3.5 shrink-0 text-brand" />
@@ -124,9 +161,9 @@ export function DocumentCategoryNavTabs({
       {/* Left-edge horizontal scroll affordance & button */}
       <div
         className={cn(
-          "pointer-events-none absolute left-px top-px bottom-px w-12 sm:w-14 rounded-l-xl",
+          "pointer-events-none absolute left-px top-px bottom-px w-16 sm:w-20 rounded-l-xl",
           "flex items-center justify-start pl-1",
-          "bg-linear-to-r from-sky-500/40 via-sky-500/20 to-transparent",
+          "bg-linear-to-r from-background via-background/90 to-transparent",
           "transition-opacity duration-300 ease-out",
           canScrollLeft ? "opacity-100" : "opacity-0",
         )}
@@ -137,21 +174,21 @@ export function DocumentCategoryNavTabs({
           aria-label="Scroll categories left"
           tabIndex={canScrollLeft ? 0 : -1}
           className={cn(
-            "flex items-center justify-center h-6 w-6 rounded-md text-brand hover:text-brand-dark hover:bg-surface/90 hover:shadow-xs active:scale-90 transition-all",
+            "flex items-center justify-center h-6 w-6 rounded-md bg-surface border border-border shadow-sm text-text-secondary hover:text-brand hover:border-brand/30 active:scale-90 transition-all",
             canScrollLeft ? "pointer-events-auto cursor-pointer" : "pointer-events-none",
             "animate-scroll-hint-left motion-reduce:animate-none",
           )}
         >
-          <ChevronsLeft className="h-4 w-4 stroke-[2.5] drop-shadow-xs" />
+          <ChevronsLeft className="h-4 w-4" />
         </button>
       </div>
 
       {/* Right-edge horizontal scroll affordance & button */}
       <div
         className={cn(
-          "pointer-events-none absolute right-px top-px bottom-px w-12 sm:w-14 rounded-r-xl",
+          "pointer-events-none absolute right-px top-px bottom-px w-16 sm:w-20 rounded-r-xl",
           "flex items-center justify-end pr-1",
-          "bg-linear-to-l from-sky-500/45 via-sky-500/25 to-transparent",
+          "bg-linear-to-l from-background via-background/90 to-transparent",
           "transition-opacity duration-300 ease-out",
           canScrollRight ? "opacity-100" : "opacity-0",
         )}
@@ -162,12 +199,12 @@ export function DocumentCategoryNavTabs({
           aria-label="Scroll categories right"
           tabIndex={canScrollRight ? 0 : -1}
           className={cn(
-            "flex items-center justify-center h-6 w-6 rounded-md text-brand hover:text-brand-dark hover:bg-surface/90 hover:shadow-xs active:scale-90 transition-all",
+            "flex items-center justify-center h-6 w-6 rounded-md bg-surface border border-border shadow-sm text-text-secondary hover:text-brand hover:border-brand/30 active:scale-90 transition-all",
             canScrollRight ? "pointer-events-auto cursor-pointer" : "pointer-events-none",
             "animate-scroll-hint motion-reduce:animate-none",
           )}
         >
-          <ChevronsRight className="h-4 w-4 stroke-[2.5] drop-shadow-xs" />
+          <ChevronsRight className="h-4 w-4" />
         </button>
       </div>
     </div>

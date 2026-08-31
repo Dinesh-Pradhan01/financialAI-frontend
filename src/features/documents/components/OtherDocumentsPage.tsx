@@ -42,6 +42,7 @@ import { DocumentQualityBadge } from "./DocumentQualityBadge";
 import { DocumentInfoPopover } from "./DocumentInfoPopover";
 import { DocumentPreviewModal } from "./DocumentPreviewModal";
 import { LabelDocumentDialog } from "./LabelDocumentDialog";
+import { DocumentCategoryNavTabs } from "./DocumentCategoryNavTabs";
 import type { CompanyDocument } from "@/shared/types/api";
 
 export function OtherDocumentsPage() {
@@ -149,6 +150,14 @@ export function OtherDocumentsPage() {
             </span>
           </div>
         </nav>
+
+        {/* Sticky Category Quick-Nav */}
+        <div className="sticky top-0 z-30 -mx-4 sm:-mx-6 px-4 sm:px-6 py-2 bg-background/80 backdrop-blur-md border-b border-border/60">
+          <DocumentCategoryNavTabs
+            activeCategoryId="other"
+            otherDocumentsCount={otherDocuments.length}
+          />
+        </div>
 
         {/* Category Header Banner */}
         <header className="rounded-2xl border border-border bg-surface p-5 sm:p-6 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">

@@ -79,19 +79,19 @@ function getStatusBadge(status: TeamInviteStatus | string) {
   switch (normalized) {
     case "accepted":
       return {
-        label: "Active Member",
+        label: "Active",
         badgeColor: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20",
         icon: UserCheck,
       };
     case "pending":
       return {
-        label: "Pending Invite",
+        label: "Pending",
         badgeColor: "bg-amber-500/10 text-amber-600 border-amber-500/20",
         icon: Clock,
       };
     case "expired":
       return {
-        label: "Expired Link",
+        label: "Expired",
         badgeColor: "bg-red-500/10 text-red-500 border-red-500/20",
         icon: AlertCircle,
       };
@@ -103,7 +103,7 @@ function getStatusBadge(status: TeamInviteStatus | string) {
       };
     case "removed":
       return {
-        label: "Removed Member",
+        label: "Removed",
         badgeColor: "bg-zinc-500/10 text-zinc-500 border-zinc-500/20",
         icon: UserMinus,
       };
@@ -267,15 +267,13 @@ export function TeamInviteTable({ className }: TeamInviteTableProps) {
       {/* Table Header / Subtitle */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-border/60 bg-surface-alt/30 px-5 py-3.5">
         <div>
-          <h3 className="text-xs font-bold uppercase tracking-wider text-text-secondary">
-            Executive Leadership Directory
-          </h3>
+          
           <p className="text-[11px] text-text-tertiary">
             {invites.length} {invites.length === 1 ? "record" : "records"} (members &amp; invitations)
           </p>
         </div>
         <div className="flex items-center gap-2 text-[11px] text-text-secondary font-medium">
-          <span className="inline-flex h-2 w-2 rounded-full bg-emerald-500" /> Real-time status sync
+          <span className="inline-flex h-2 w-2 rounded-full bg-emerald-500" /> Real-time
         </div>
       </div>
 
@@ -414,7 +412,7 @@ export function TeamInviteTable({ className }: TeamInviteTableProps) {
                               className="gap-2 cursor-pointer text-xs"
                             >
                               <Send className="h-3.5 w-3.5 text-brand" />
-                              <span>Resend Invite Email</span>
+                              <span>Resend Invite</span>
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem
@@ -422,7 +420,7 @@ export function TeamInviteTable({ className }: TeamInviteTableProps) {
                               className="gap-2 cursor-pointer text-destructive focus:text-destructive focus:bg-destructive/10 text-xs"
                             >
                               <Ban className="h-3.5 w-3.5" />
-                              <span>Revoke Invitation</span>
+                              <span>Revoke</span>
                             </DropdownMenuItem>
                           </>
                         )}
@@ -435,7 +433,7 @@ export function TeamInviteTable({ className }: TeamInviteTableProps) {
                             className="gap-2 cursor-pointer text-xs"
                           >
                             <RotateCw className="h-3.5 w-3.5 text-brand" />
-                            <span>Resend Invite (Reactivate)</span>
+                            <span>Resend</span>
                           </DropdownMenuItem>
                         )}
 

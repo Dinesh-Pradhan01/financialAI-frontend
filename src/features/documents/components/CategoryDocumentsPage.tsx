@@ -21,6 +21,7 @@ import {
 } from "../hooks/useDocuments";
 import {
   getDocumentCategory,
+  isUnmappedDocumentType,
   type DocumentCategory,
   type TaxonomyDocument,
 } from "../lib/documentTaxonomy";
@@ -28,6 +29,7 @@ import { buildUploadFormData } from "../lib/uploadHelpers";
 import { DocumentRequirementRow, type DocumentRowBusyState } from "./DocumentRequirementRow";
 import { DocumentPreviewModal } from "./DocumentPreviewModal";
 import { ReplaceDocumentDialog } from "./ReplaceDocumentDialog";
+import { DocumentCategoryNavTabs } from "./DocumentCategoryNavTabs";
 import { Button } from "@/shared/components/ui/button";
 import { getApiErrorMessage } from "@/shared/lib/apiError";
 import { cn } from "@/shared/lib/utils";
@@ -65,6 +67,10 @@ export function CategoryDocumentsPage({ categoryId }: CategoryDocumentsPageProps
       map.set(document.document_type, list);
     }
     return map;
+  }, [documents]);
+
+  const otherDocumentsCount = useMemo(() => {
+    return documents.filter((doc) => isUnmappedDocumentType(doc.document_type)).length;
   }, [documents]);
 
   const rows = useMemo(() => {
@@ -197,6 +203,14 @@ export function CategoryDocumentsPage({ categoryId }: CategoryDocumentsPageProps
             <span>Category {category?.number} of 8</span>
           </div>
         </nav>
+
+        {/* Sticky Category Quick-Nav */}
+        <div className="sticky top-0 z-30 -mx-4 sm:-mx-6 px-4 sm:px-6 py-2 bg-background/80 backdrop-blur-md border-b border-border/60">
+          <DocumentCategoryNavTabs
+            activeCategoryId={categoryId}
+            otherDocumentsCount={otherDocumentsCount}
+          />
+        </div>
 
         {/* Category Header Banner */}
         <header className="rounded-2xl border border-border bg-surface p-5 sm:p-6 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">

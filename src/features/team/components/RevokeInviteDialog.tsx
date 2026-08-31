@@ -46,18 +46,18 @@ export function RevokeInviteDialog({
             Revoke Invitation?
           </AlertDialogTitle>
           <AlertDialogDescription className="text-xs text-text-secondary leading-relaxed space-y-2">
-            <p>
+            <div>
               Are you sure you want to revoke the pending invitation for{" "}
               <span className="font-semibold text-text-primary">{displayName}</span> (
               <span className="font-mono text-text-primary">{invite.email}</span>)?
-            </p>
-            <p className="bg-surface-alt/70 p-2.5 rounded-xl border border-border/60 text-[11px] text-text-secondary">
+            </div>
+            <div className="bg-surface-alt/70 p-2.5 rounded-xl border border-border/60 text-[11px] text-text-secondary">
               • This invitation will be immediately invalidated and can no longer be used to complete setup.
               <br />
               • The recipient will no longer be able to set up their credentials with this link.
               <br />
               • This does not delete any already accepted team members.
-            </p>
+            </div>
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter className="pt-2 gap-2">

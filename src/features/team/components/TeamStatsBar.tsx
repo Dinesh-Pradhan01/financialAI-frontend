@@ -87,39 +87,30 @@ export function TeamStatsBar({ className }: TeamStatsBarProps) {
       label: "Accepted Members",
       count: acceptedCount,
       subtext: acceptedCount === 1 ? "1 active executive" : `${acceptedCount} active executives`,
-      badge: "Active",
-      badgeColor: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20",
       icon: UserCheck,
       iconColor: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20",
-      ambient: "from-emerald-500/[0.04]",
+      ambient: "from-emerald-500/20",
     },
     {
       id: "pending",
       label: "Pending Invites",
       count: pendingCount,
       subtext: pendingCount === 1 ? "1 awaiting activation" : `${pendingCount} awaiting activation`,
-      badge: "Pending",
-      badgeColor: "bg-amber-500/10 text-amber-600 border-amber-500/20",
       icon: Clock,
       iconColor: "bg-amber-500/10 text-amber-600 border-amber-500/20",
-      ambient: "from-amber-500/[0.04]",
+      ambient: "from-amber-500/20",
     },
     {
       id: "expired",
       label: "Expired Invites",
       count: expiredCount,
       subtext: expiredCount > 0 ? "Requires resend" : "All links valid",
-      badge: expiredCount > 0 ? "Action Needed" : "None Expired",
-      badgeColor:
-        expiredCount > 0
-          ? "bg-red-500/10 text-red-500 border-red-500/20"
-          : "bg-surface-alt text-text-tertiary border-border/60",
       icon: AlertCircle,
       iconColor:
         expiredCount > 0
           ? "bg-red-500/10 text-red-500 border-red-500/20"
           : "bg-surface-alt text-text-tertiary border-border/60",
-      ambient: expiredCount > 0 ? "from-red-500/[0.04]" : "from-surface-alt/30",
+      ambient: expiredCount > 0 ? "from-red-500/20" : "from-zinc-500/20",
     },
   ];
 
@@ -140,7 +131,7 @@ export function TeamStatsBar({ className }: TeamStatsBarProps) {
             {/* Subtle ambient light */}
             <div
               className={cn(
-                "absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_top_left,var(--tw-gradient-stops))] via-transparent to-transparent opacity-60 group-hover:opacity-100 transition-opacity duration-300",
+                "absolute inset-0 pointer-events-none bg-linear-to-br via-transparent to-transparent opacity-80 group-hover:opacity-100 transition-opacity duration-300",
                 card.ambient
               )}
             />
@@ -166,14 +157,6 @@ export function TeamStatsBar({ className }: TeamStatsBarProps) {
                 <div className="flex items-baseline gap-2.5">
                   <span className="font-display text-2xl sm:text-3xl font-extrabold text-text-primary tracking-tight font-num">
                     {card.count}
-                  </span>
-                  <span
-                    className={cn(
-                      "inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold border",
-                      card.badgeColor
-                    )}
-                  >
-                    {card.badge}
                   </span>
                 </div>
                 <p className="text-xs text-text-secondary leading-relaxed font-medium">

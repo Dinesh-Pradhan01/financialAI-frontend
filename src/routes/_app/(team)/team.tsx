@@ -132,21 +132,23 @@ function TeamPage() {
         <TeamStatsBar />
       </motion.section>
 
-      {/* Invite Member Form */}
-      <motion.section variants={itemVariants} className="space-y-3">
-        <h2 className="text-sm font-bold uppercase tracking-wider text-text-secondary">
-          Invite Leadership
-        </h2>
-        <InviteForm />
-      </motion.section>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+        {/* Invite Member Form */}
+        <motion.section variants={itemVariants} className="space-y-3">
+          <h2 className="text-sm font-bold uppercase tracking-wider text-text-secondary">
+            Invite Leadership
+          </h2>
+          <InviteForm />
+        </motion.section>
 
-      {/* Executive Leadership Directory */}
-      <motion.section variants={itemVariants} className="space-y-3">
-        <h2 className="text-sm font-bold uppercase tracking-wider text-text-secondary">
-          Executive Leadership Directory
-        </h2>
-        <TeamInviteTable />
-      </motion.section>
+        {/* Executive Leadership Directory */}
+        <motion.section variants={itemVariants} className="space-y-3 min-w-0">
+          <h2 className="text-sm font-bold uppercase tracking-wider text-text-secondary">
+            Executive Leadership Directory
+          </h2>
+          <TeamInviteTable />
+        </motion.section>
+      </div>
     </motion.div>
   );
 }

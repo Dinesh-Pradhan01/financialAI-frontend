@@ -1,14 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  UserPlus,
-  Mail,
-  ShieldCheck,
-  Users,
-  Loader2,
-  AlertCircle,
-  Info,
-} from "lucide-react";
+import { UserPlus, Mail, ShieldCheck, Users, Loader2, AlertCircle, Info } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/shared/lib/utils";
 import { Button } from "@/shared/components/ui/button";
@@ -73,7 +65,8 @@ export function InviteForm({ className, onSuccess }: InviteFormProps) {
 
       const targetRoleLabel = role.toUpperCase();
       const successMsg =
-        response?.message || `Invitation successfully sent to ${payload.email} (${targetRoleLabel})`;
+        response?.message ||
+        `Invitation successfully sent to ${payload.email} (${targetRoleLabel})`;
       toast.success(successMsg);
 
       // Reset form only on successful submission
@@ -92,7 +85,7 @@ export function InviteForm({ className, onSuccess }: InviteFormProps) {
     <div
       className={cn(
         "rounded-2xl border border-border/80 bg-surface p-5 sm:p-6 shadow-xs text-left space-y-5",
-        className
+        className,
       )}
     >
       {/* Header */}
@@ -117,7 +110,7 @@ export function InviteForm({ className, onSuccess }: InviteFormProps) {
           <label className="block text-xs font-semibold text-text-primary tracking-tight">
             Designated Role <span className="text-destructive font-bold">*</span>
           </label>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
+          <div className="grid grid-cols-2 gap-2.5">
             {/* CFO Option */}
             <button
               type="button"
@@ -131,7 +124,7 @@ export function InviteForm({ className, onSuccess }: InviteFormProps) {
                 role === "cfo"
                   ? "border-brand bg-brand/4 ring-2 ring-brand/20 shadow-2xs"
                   : "border-border/80 bg-surface-alt/25 hover:border-brand/30 hover:bg-surface-alt/50",
-                isSubmitting && "opacity-60 cursor-not-allowed"
+                isSubmitting && "opacity-60 cursor-not-allowed",
               )}
             >
               <div className="flex items-center justify-between w-full mb-1">
@@ -139,20 +132,13 @@ export function InviteForm({ className, onSuccess }: InviteFormProps) {
                   <ShieldCheck
                     className={cn("h-4 w-4", role === "cfo" ? "text-brand" : "text-text-secondary")}
                   />
-                  <span className="font-bold text-xs sm:text-sm text-text-primary">
-                    CFO
-                  </span>
+                  <span className="font-bold text-xs sm:text-sm text-text-primary">CFO</span>
                 </div>
                 <span
-                  className={cn(
-                    "h-2 w-2 rounded-full",
-                    role === "cfo" ? "bg-brand" : "bg-border"
-                  )}
+                  className={cn("h-2 w-2 rounded-full", role === "cfo" ? "bg-brand" : "bg-border")}
                 />
               </div>
-              <span className="text-[11px] text-text-secondary">
-                Chief Financial Officer · Financials & Reconciliation
-              </span>
+              <span className="text-[11px] text-text-secondary">Financials & Reconciliation</span>
             </button>
 
             {/* HR Option */}
@@ -168,7 +154,7 @@ export function InviteForm({ className, onSuccess }: InviteFormProps) {
                 role === "hr"
                   ? "border-brand bg-brand/4 ring-2 ring-brand/20 shadow-2xs"
                   : "border-border/80 bg-surface-alt/25 hover:border-brand/30 hover:bg-surface-alt/50",
-                isSubmitting && "opacity-60 cursor-not-allowed"
+                isSubmitting && "opacity-60 cursor-not-allowed",
               )}
             >
               <div className="flex items-center justify-between w-full mb-1">
@@ -176,26 +162,19 @@ export function InviteForm({ className, onSuccess }: InviteFormProps) {
                   <Users
                     className={cn("h-4 w-4", role === "hr" ? "text-brand" : "text-text-secondary")}
                   />
-                  <span className="font-bold text-xs sm:text-sm text-text-primary">
-                    HR Leadership
-                  </span>
+                  <span className="font-bold text-xs sm:text-sm text-text-primary">HR</span>
                 </div>
                 <span
-                  className={cn(
-                    "h-2 w-2 rounded-full",
-                    role === "hr" ? "bg-brand" : "bg-border"
-                  )}
+                  className={cn("h-2 w-2 rounded-full", role === "hr" ? "bg-brand" : "bg-border")}
                 />
               </div>
-              <span className="text-[11px] text-text-secondary">
-                Human Resources · Team & Payroll Oversight
-              </span>
+              <span className="text-[11px] text-text-secondary">Team & Payroll Oversight</span>
             </button>
           </div>
         </div>
 
         {/* Inputs */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4">
+        <div className="grid grid-cols-2 gap-3.5">
           <FormField
             label="Work Email Address"
             type="email"
@@ -232,23 +211,24 @@ export function InviteForm({ className, onSuccess }: InviteFormProps) {
               className="rounded-xl border border-destructive/30 bg-destructive/5 p-3 text-xs text-destructive flex items-center gap-2"
             >
               <AlertCircle className="h-4 w-4 shrink-0" />
-              <span>{getApiErrorMessage(sendInviteMutation.error, "Failed to dispatch invitation.")}</span>
+              <span>
+                {getApiErrorMessage(sendInviteMutation.error, "Failed to dispatch invitation.")}
+              </span>
             </motion.div>
           )}
         </AnimatePresence>
 
-
         {/* Actions & Submit */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-1">
-          <p className="text-[11px] text-text-tertiary flex items-center gap-1">
-            <Info className="h-3 w-3 shrink-0" />
-            Invitation links are sent directly to the recipient's email address.
+        <div className="flex items-center justify-between gap-3 pt-1">
+          <p className="text-[11px] text-text-tertiary flex items-center gap-1.5 shrink-0">
+            <Info className="h-3.5 w-3.5 shrink-0" />
+            Links sent directly to recipient.
           </p>
 
           <Button
             type="submit"
             disabled={isSubmitting || !email.trim()}
-            className="w-full sm:w-auto min-w-40 h-10 px-5 text-xs font-semibold gap-2 bg-brand text-white hover:bg-brand/90 shadow-brand transition disabled:opacity-50 cursor-pointer"
+            className="shrink-0 h-9 px-5 text-xs font-semibold gap-1.5 bg-brand text-white hover:bg-brand/90 shadow-brand transition disabled:opacity-50 cursor-pointer"
           >
             {isSubmitting ? (
               <>
