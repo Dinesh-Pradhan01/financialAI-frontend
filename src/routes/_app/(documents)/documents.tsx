@@ -1,12 +1,9 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { DocumentsPage } from "@/features/documents/components/DocumentsPage";
+import { createFileRoute, Outlet } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_app/(documents)/documents")({
-  head: () => ({
-    meta: [
-      { title: "Documents · Spotlite" },
-      { name: "description", content: "Upload, verify, and manage company documents." },
-    ],
-  }),
-  component: DocumentsPage,
+  component: DocumentsLayout,
 });
+
+function DocumentsLayout() {
+  return <Outlet />;
+}

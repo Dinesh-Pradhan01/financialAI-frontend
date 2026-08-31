@@ -41,6 +41,7 @@ export interface DocumentRequirementRowProps {
   onPreview: () => void;
   onDownload: () => void;
   onDismissRejection?: () => void;
+  className?: string;
 }
 
 export function DocumentRequirementRow({
@@ -56,6 +57,7 @@ export function DocumentRequirementRow({
   onPreview,
   onDownload,
   onDismissRejection,
+  className,
 }: DocumentRequirementRowProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   /**
@@ -159,7 +161,13 @@ export function DocumentRequirementRow({
        * focus stop on an element that announces nothing useful, and would nest
        * interactive controls inside it.
        */
-      onClick={showDropHint ? openFilePicker : undefined}
+      onClick={
+        showDropHint
+          ? () => {
+              openFilePicker();
+            }
+          : undefined
+      }
       className={cn(
         "rounded-xl border p-3 sm:p-3.5 transition-all duration-150 shadow-xs",
         "flex flex-col gap-2.5",
@@ -169,6 +177,7 @@ export function DocumentRequirementRow({
         showDropHint && "cursor-pointer",
         isDraggingOver && "border-solid border-brand bg-brand/10 ring-2 ring-brand/20 shadow-sm",
         rejectionReason && "border-solid border-destructive/40 bg-destructive/5 ring-1 ring-destructive/20",
+        className,
       )}
     >
       <input

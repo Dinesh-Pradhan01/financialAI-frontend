@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from "react";
-import { motion, AnimatePresence, type Variants } from "framer-motion";
+import { useNavigate } from "@tanstack/react-router";
+import { motion, type Variants } from "framer-motion";
 import {
   FolderLock,
   Loader2,
@@ -13,10 +14,8 @@ import {
   FileSpreadsheet,
   Eye,
   CheckCircle2,
-  ShieldCheck,
-  Package as PackageIcon,
-  LayoutGrid,
-  CheckSquare,
+  FilePlus2,
+  PackagePlus,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -38,20 +37,14 @@ import { DocumentInfoPopover } from "./DocumentInfoPopover";
 import { DocumentPreviewModal } from "./DocumentPreviewModal";
 import { ReplaceDocumentDialog } from "./ReplaceDocumentDialog";
 import { DocumentCategorySummaryCard } from "./DocumentCategorySummaryCard";
+import { DocumentCategoryNavTabs } from "./DocumentCategoryNavTabs";
 import { DocumentsWhyWeNeedGuide } from "./DocumentsWhyWeNeedGuide";
-import { CategoryDocumentsPopup } from "./CategoryDocumentsPopup";
-import { OtherDocumentsSection } from "./OtherDocumentsSection";
 import { PackagesSection } from "./PackagesSection";
+import { CreatePackageDialog } from "./CreatePackageDialog";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
 import { Checkbox } from "@/shared/components/ui/checkbox";
 import { Skeleton } from "@/shared/components/ui/skeleton";
-import {
-  Tabs,
-  TabsList,
-  TabsTrigger,
-  TabsContent,
-} from "@/shared/components/ui/tabs";
 import {
   Table,
   TableHeader,
@@ -94,17 +87,12 @@ const itemVariants: Variants = {
 };
 
 export function DocumentsPage() {
+  const navigate = useNavigate();
   const { data: documents = [], isLoading, isError, error, refetch, isFetching } = useDocuments();
   const { data: packages = [] } = usePackages();
 
   const replaceMutation = useReplaceDocument();
   const deleteMutation = useDeleteDocument();
-
-  // Navigation Tab State: "categories" | "registry" | "packages" | "all"
-  const [activeTab, setActiveTab] = useState<string>("categories");
-
-  // Which category dialog is open. One id rather than a boolean per category
-  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
 
   // Preview Modal State for Document Registry Table
   const [previewDoc, setPreviewDoc] = useState<CompanyDocument | null>(null);
@@ -114,6 +102,7 @@ export function DocumentsPage() {
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [selectedDocIds, setSelectedDocIds] = useState<string[]>([]);
   const [isBulkDownloading, setIsBulkDownloading] = useState(false);
+  const [isCreatePackageOpen, setIsCreatePackageOpen] = useState(false);
 
   const [docToReplace, setDocToReplace] = useState<CompanyDocument | null>(null);
   const [isReplacingDoc, setIsReplacingDoc] = useState(false);
@@ -165,11 +154,6 @@ export function DocumentsPage() {
   const totalBytes = useMemo(
     () => documents.reduce((sum, doc) => sum + (doc.file_size_bytes || 0), 0),
     [documents],
-  );
-
-  const selectedCategory = useMemo(
-    () => DOCUMENT_CATEGORIES.find((category) => category.id === selectedCategoryId) ?? null,
-    [selectedCategoryId],
   );
 
   /** Documents the taxonomy does not name — reviewable outside the checklist. */
@@ -385,7 +369,8 @@ export function DocumentsPage() {
               Documents
             </h1>
             <p className="text-sm text-text-secondary mt-0.5">
-              Upload, verify, and manage statutory filings, compliance certificates, and audit records.
+              Upload, verify, and manage statutory filings, compliance certificates, and audit
+              records.
             </p>
           </div>
         </div>
@@ -405,7 +390,9 @@ export function DocumentsPage() {
               <span
                 className={cn(
                   "font-bold font-num tabular-nums",
-                  compliancePercentage === 100 ? "text-emerald-600 dark:text-emerald-400" : "text-brand",
+                  compliancePercentage === 100
+                    ? "text-emerald-600 dark:text-emerald-400"
+                    : "text-brand",
                 )}
               >
                 {compliancePercentage}%
@@ -421,8 +408,12 @@ export function DocumentsPage() {
               />
             </div>
             <p className="text-[10px] text-text-secondary font-mono">
-              <span className="font-semibold text-text-primary font-num tabular-nums">{requiredCompletedTotal}</span> of{" "}
-              <span className="font-semibold font-num tabular-nums">{REQUIRED_DOCUMENT_COUNT}</span> required on record
+              <span className="font-semibold text-text-primary font-num tabular-nums">
+                {requiredCompletedTotal}
+              </span>{" "}
+              of{" "}
+              <span className="font-semibold font-num tabular-nums">{REQUIRED_DOCUMENT_COUNT}</span>{" "}
+              required on record
             </p>
           </div>
 
@@ -442,784 +433,357 @@ export function DocumentsPage() {
         </div>
       </motion.div>
 
-      {/* 2. Navigation Tabs (Checklist, Registry, Packages, All) */}
-      <motion.div variants={itemVariants}>
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <div className="flex items-center justify-between gap-3 overflow-x-auto pb-1">
-            <TabsList className="bg-surface-alt/70 p-1 border border-border/80 rounded-xl h-auto">
-              <TabsTrigger
-                value="categories"
-                className="gap-2 px-3.5 py-1.5 text-xs font-semibold rounded-lg data-[state=active]:bg-surface data-[state=active]:text-brand data-[state=active]:shadow-xs"
-              >
-                <LayoutGrid className="h-3.5 w-3.5" />
-                <span>Categories & Checklist</span>
-                <span className="ml-0.5 rounded-full bg-brand/10 text-brand px-1.5 py-0.2 text-[10px] font-mono font-bold tabular-nums">
-                  {requiredCompletedTotal}/{REQUIRED_DOCUMENT_COUNT}
-                </span>
-              </TabsTrigger>
+      {/* 2. Main Content Sections */}
+      <motion.div variants={itemVariants} className="space-y-10">
+        {/* Section 1: Categories */}
+        <section className="space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div>
+              <h2 className="text-base font-bold text-text-primary tracking-tight">
+                Document Categories
+              </h2>
+              <p className="text-xs text-text-secondary mt-0.5 mb-2">
+                Open a category to view and upload its statutory requirements.
+              </p>
+              {/* Quick-jump tabs for all 8 categories + Other Documents */}
+              <DocumentCategoryNavTabs otherDocumentsCount={otherDocuments.length} />
+            </div>
 
-              <TabsTrigger
-                value="registry"
-                className="gap-2 px-3.5 py-1.5 text-xs font-semibold rounded-lg data-[state=active]:bg-surface data-[state=active]:text-brand data-[state=active]:shadow-xs"
-              >
-                <FileSpreadsheet className="h-3.5 w-3.5" />
-                <span>Document Registry</span>
-                <span className="ml-0.5 rounded-full bg-surface-alt border border-border/80 text-text-secondary px-1.5 py-0.2 text-[10px] font-mono tabular-nums">
-                  {documents.length}
-                </span>
-              </TabsTrigger>
-
-              <TabsTrigger
-                value="packages"
-                className="gap-2 px-3.5 py-1.5 text-xs font-semibold rounded-lg data-[state=active]:bg-surface data-[state=active]:text-brand data-[state=active]:shadow-xs"
-              >
-                <PackageIcon className="h-3.5 w-3.5" />
-                <span>Diligence Packages</span>
-                {packages.length > 0 && (
-                  <span className="ml-0.5 rounded-full bg-surface-alt border border-border/80 text-text-secondary px-1.5 py-0.2 text-[10px] font-mono tabular-nums">
-                    {packages.length}
-                  </span>
-                )}
-              </TabsTrigger>
-
-              <TabsTrigger
-                value="all"
-                className="gap-2 px-3.5 py-1.5 text-xs font-semibold rounded-lg data-[state=active]:bg-surface data-[state=active]:text-brand data-[state=active]:shadow-xs"
-              >
-                <span>All Sections</span>
-              </TabsTrigger>
-            </TabsList>
+            {compliancePercentage === 100 && (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 text-xs font-semibold border border-emerald-500/25">
+                <CheckCircle2 className="h-3.5 w-3.5" /> All Statutory Requirements Fulfilled
+              </span>
+            )}
           </div>
 
-          {/* TAB 1: Categories & Checklist */}
-          <TabsContent value="categories" className="space-y-6 mt-0">
-            <motion.div
-              initial={{ opacity: 0, y: 6 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.2, ease: "easeOut" }}
-              className="space-y-4"
-            >
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                <div>
-                  <h2 className="text-base font-bold text-text-primary tracking-tight">Document Categories</h2>
-                  <p className="text-xs text-text-secondary mt-0.5">
-                    Open a category to view and upload its statutory requirements.
-                  </p>
-                </div>
-                {compliancePercentage === 100 && (
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 text-xs font-semibold border border-emerald-500/25">
-                    <CheckCircle2 className="h-3.5 w-3.5" /> All Statutory Requirements Fulfilled
+          <div className="grid gap-3.5 sm:grid-cols-2">
+            {categoryMetrics.map((metric) => (
+              <DocumentCategorySummaryCard
+                key={metric.category.id}
+                label={metric.category.shortLabel}
+                completed={metric.completed}
+                total={metric.total}
+                requiredCompleted={metric.requiredCompleted}
+                requiredTotal={metric.requiredTotal}
+                icon={metric.category.icon}
+                onManage={() =>
+                  navigate({
+                    to: "/documents/$categoryId",
+                    params: { categoryId: metric.category.id },
+                  })
+                }
+              />
+            ))}
+
+            {/* 9th Category Card: Other Documents */}
+            <DocumentCategorySummaryCard
+              label="Other Documents"
+              completed={otherDocuments.length}
+              icon={FilePlus2}
+              hideProgress
+              subLabel={`${otherDocuments.length} uploaded`}
+              badgeLabel="Custom"
+              description="Auxiliary & custom records"
+              onManage={() => navigate({ to: "/documents/other" })}
+            />
+          </div>
+
+          <DocumentsWhyWeNeedGuide />
+        </section>
+
+        {/* Section 3: Document Registry */}
+        <section className="space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <h2 className="text-base font-bold text-text-primary flex items-center gap-2">
+                <FileSpreadsheet className="h-4.5 w-4.5 text-brand" />
+                Document Registry
+              </h2>
+              <p className="text-xs text-text-secondary mt-0.5">
+                Search, preview, download, and manage all corporate records on file.
+              </p>
+            </div>
+
+            <div className="flex items-center gap-2 flex-wrap">
+              {selectedDocIds.length > 0 && (
+                <div className="flex items-center gap-1.5 bg-brand/10 border border-brand/20 rounded-lg px-2.5 py-1 text-xs animate-in fade-in-50">
+                  <span className="font-semibold text-brand text-[11px]">
+                    {selectedDocIds.length} selected
                   </span>
-                )}
-              </div>
-
-              {compliancePercentage === 100 && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.98, y: -4 }}
-                  animate={{ opacity: 1, scale: 1, y: 0 }}
-                  transition={{ duration: 0.3 }}
-                  className="rounded-2xl border border-emerald-500/30 bg-gradient-to-r from-emerald-500/[0.08] via-surface to-surface p-4 flex items-center justify-between gap-4 shadow-xs"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/25">
-                      <CheckCircle2 className="h-5 w-5" />
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-bold text-text-primary tracking-tight">
-                        Statutory Vault Audit-Ready
-                      </h3>
-                      <p className="text-xs text-text-secondary mt-0.5 leading-relaxed">
-                        All {REQUIRED_DOCUMENT_COUNT} required corporate filings are verified on record. Your entity is fully primed for underwriting and diligence reviews.
-                      </p>
-                    </div>
-                  </div>
-                  <span className="shrink-0 hidden md:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 text-xs font-semibold border border-emerald-500/25 font-mono">
-                    100% Verified
-                  </span>
-                </motion.div>
-              )}
-
-              <div className="grid gap-3.5 sm:grid-cols-2">
-                {categoryMetrics.map((metric) => (
-                  <DocumentCategorySummaryCard
-                    key={metric.category.id}
-                    label={metric.category.shortLabel}
-                    completed={metric.completed}
-                    total={metric.total}
-                    requiredCompleted={metric.requiredCompleted}
-                    requiredTotal={metric.requiredTotal}
-                    icon={metric.category.icon}
-                    onManage={() => setSelectedCategoryId(metric.category.id)}
-                  />
-                ))}
-              </div>
-
-              {/* Explanatory Guide */}
-              <DocumentsWhyWeNeedGuide />
-
-              {/* Other Documents Escape Hatch */}
-              <OtherDocumentsSection documents={otherDocuments} />
-            </motion.div>
-          </TabsContent>
-
-          {/* TAB 2: Document Registry Table */}
-          <TabsContent value="registry" className="space-y-6 mt-0">
-            <motion.section
-              initial={{ opacity: 0, y: 6 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.2, ease: "easeOut" }}
-              className="space-y-4"
-            >
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <div>
-                  <h2 className="text-base font-bold text-text-primary flex items-center gap-2 tracking-tight">
-                    <FileSpreadsheet className="h-4.5 w-4.5 text-brand" />
-                    Document Registry
-                  </h2>
-                  <p className="text-xs text-text-secondary mt-0.5">
-                    Search, preview, download, and manage all corporate records on file.
-                  </p>
-                </div>
-
-                <div className="flex items-center gap-2 flex-wrap">
-                  {/* Bulk Download Action Bar when items selected */}
-                  <AnimatePresence>
-                    {selectedDocIds.length > 0 && (
-                      <motion.div
-                        initial={{ opacity: 0, scale: 0.95, y: -4 }}
-                        animate={{ opacity: 1, scale: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.95, y: -4 }}
-                        transition={{ duration: 0.15 }}
-                        className="flex items-center gap-1.5 bg-brand/10 border border-brand/20 rounded-lg px-2.5 py-1 text-xs"
-                      >
-                        <span className="font-semibold text-brand text-[11px] tabular-nums">
-                          {selectedDocIds.length} selected
-                        </span>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          disabled={isBulkDownloading}
-                          onClick={handleBulkDownload}
-                          className="h-6 px-2 text-[11px] font-semibold border-brand/30 bg-surface text-brand hover:bg-brand hover:text-white gap-1 cursor-pointer"
-                        >
-                          {isBulkDownloading ? (
-                            <Loader2 className="h-3 w-3 animate-spin text-brand" />
-                          ) : (
-                            <Download className="h-3 w-3" />
-                          )}
-                          <span>Download</span>
-                        </Button>
-                        <button
-                          type="button"
-                          onClick={() => setSelectedDocIds([])}
-                          className="text-text-tertiary hover:text-text-primary p-0.5 rounded cursor-pointer"
-                          title="Clear selection"
-                        >
-                          <X className="h-3 w-3" />
-                        </button>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-
-                  {/* Search Input */}
-                  <div className="relative w-full sm:w-52">
-                    <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-text-tertiary" />
-                    <Input
-                      type="text"
-                      placeholder="Search documents…"
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="h-8 pl-8 pr-8 text-xs bg-surface border-border-c"
-                    />
-                    {searchQuery && (
-                      <button
-                        type="button"
-                        onClick={() => setSearchQuery("")}
-                        className="absolute right-2.5 top-2.5 text-text-tertiary hover:text-text-primary cursor-pointer"
-                      >
-                        <X className="h-3.5 w-3.5" />
-                      </button>
-                    )}
-                  </div>
-
-                  {/* Requirement Filter Pills */}
-                  <div className="flex items-center gap-1 bg-surface-alt/50 p-0.5 rounded-lg border border-border/70 text-xs">
-                    {(["all", "required", "optional", "other"] as const).map((cat) => (
-                      <button
-                        key={cat}
-                        type="button"
-                        onClick={() => setCategoryFilter(cat)}
-                        className={cn(
-                          "px-2.5 py-1 rounded-md capitalize font-medium text-[11px] transition-colors cursor-pointer",
-                          categoryFilter === cat
-                            ? "bg-surface text-text-primary shadow-2xs font-semibold"
-                            : "text-text-secondary hover:text-text-primary",
-                        )}
-                      >
-                        {cat}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* Table Container */}
-              {documents.length === 0 ? (
-                <div className="rounded-2xl border border-dashed border-border/80 p-8 text-center bg-surface/50">
-                  <FileText className="mx-auto h-8 w-8 text-text-tertiary mb-2" />
-                  <p className="text-sm font-medium text-text-secondary">No documents uploaded yet</p>
-                  <p className="text-xs text-text-tertiary mt-1">
-                    Open a category in the Checklist tab to upload your corporate documents.
-                  </p>
-                </div>
-              ) : filteredDocuments.length === 0 ? (
-                <div className="rounded-2xl border border-dashed border-border/80 p-8 text-center bg-surface/50 space-y-2">
-                  <FileText className="mx-auto h-8 w-8 text-text-tertiary mb-1" />
-                  <p className="text-sm font-medium text-text-secondary">
-                    No documents match your filter
-                  </p>
-                  <p className="text-xs text-text-tertiary">
-                    Try adjusting your search query or switching category filters.
-                  </p>
                   <Button
+                    type="button"
                     variant="outline"
                     size="sm"
-                    onClick={() => {
-                      setSearchQuery("");
-                      setCategoryFilter("all");
-                    }}
-                    className="mt-2 text-xs cursor-pointer"
+                    disabled={isBulkDownloading}
+                    onClick={handleBulkDownload}
+                    className="h-6 px-2 text-[11px] font-semibold border-brand/30 bg-surface text-brand hover:bg-brand hover:text-white gap-1 cursor-pointer"
                   >
-                    Clear filters
+                    {isBulkDownloading ? (
+                      <Loader2 className="h-3 w-3 animate-spin text-brand" />
+                    ) : (
+                      <Download className="h-3 w-3" />
+                    )}
+                    <span>Download</span>
                   </Button>
-                </div>
-              ) : (
-                <div className="rounded-2xl border border-border bg-surface overflow-hidden shadow-xs">
-                  <div className="overflow-x-auto">
-                    <Table>
-                      <TableHeader>
-                        <TableRow className="bg-surface-alt/40 hover:bg-surface-alt/40">
-                          {/* Select All Checkbox */}
-                          <TableHead className="w-10 py-3 pl-4 pr-2">
-                            <Checkbox
-                              checked={
-                                isAllFilteredSelected
-                                  ? true
-                                  : isSomeFilteredSelected
-                                    ? "indeterminate"
-                                    : false
-                              }
-                              onCheckedChange={(checked) => toggleSelectAllFiltered(Boolean(checked))}
-                              aria-label="Select all visible documents"
-                            />
-                          </TableHead>
-                          <TableHead className="font-semibold text-xs py-3 text-text-secondary min-w-[200px]">Name</TableHead>
-                          <TableHead className="font-semibold text-xs py-3 text-text-secondary min-w-[140px]">Type</TableHead>
-                          <TableHead className="font-semibold text-xs py-3 text-text-secondary min-w-[80px]">Size</TableHead>
-                          <TableHead className="font-semibold text-xs py-3 text-text-secondary min-w-[90px]">Quality</TableHead>
-                          <TableHead className="font-semibold text-xs py-3 text-text-secondary min-w-[110px]">Uploaded</TableHead>
-                          <TableHead className="font-semibold text-xs py-3 text-right pr-6 text-text-secondary min-w-[120px]">
-                            Actions
-                          </TableHead>
-                        </TableRow>
-                      </TableHeader>
-                    <TableBody>
-                      {filteredDocuments.map((doc) => {
-                        const isSelected = selectedDocIds.includes(doc.id);
-                        const isRowDownloading = downloadingDocId === doc.id;
-                        const isRowDeleting = deletingDocId === doc.id;
-                        const taxonomyDocument = getTaxonomyDocument(doc.document_type);
-
-                        return (
-                          <TableRow
-                            key={doc.id}
-                            className={cn(
-                              "transition-colors",
-                              isSelected ? "bg-brand/5 hover:bg-brand/10" : "hover:bg-surface-alt/30",
-                            )}
-                          >
-                            {/* Row Checkbox */}
-                            <TableCell className="py-3 pl-4 pr-2">
-                              <Checkbox
-                                checked={isSelected}
-                                onCheckedChange={() => toggleSelectDoc(doc.id)}
-                                aria-label={`Select ${doc.original_name}`}
-                              />
-                            </TableCell>
-
-                            {/* Name */}
-                            <TableCell className="font-medium text-sm py-3">
-                              <div className="flex items-center gap-2.5 max-w-[260px]">
-                                <FileText className="h-4 w-4 shrink-0 text-brand" />
-                                <span className="truncate tracking-tight" title={doc.original_name}>
-                                  {doc.original_name}
-                                </span>
-                              </div>
-                            </TableCell>
-
-                            {/* Document Type */}
-                            <TableCell className="text-xs text-text-secondary py-3">
-                              <span
-                                title={doc.document_type}
-                                className={cn(
-                                  "inline-block max-w-[220px] truncate px-2 py-0.5 rounded-md bg-surface-alt/60 border border-border/60 text-[11px] align-middle",
-                                  !taxonomyDocument && "capitalize",
-                                )}
-                              >
-                                {taxonomyDocument?.label ?? doc.document_type.replace(/[-_]/g, " ")}
-                              </span>
-                            </TableCell>
-
-                            {/* File Size */}
-                            <TableCell className="text-xs text-text-secondary font-mono tabular-nums py-3">
-                              {formatFileSize(doc.file_size_bytes)}
-                            </TableCell>
-
-                            {/* Quality Score */}
-                            <TableCell className="py-3">
-                              <DocumentQualityBadge document={doc} />
-                            </TableCell>
-
-                            {/* Uploaded Date & Metadata Popover */}
-                            <TableCell className="text-xs text-text-secondary py-3">
-                              <div className="flex items-center gap-1.5 font-mono text-[11px] tabular-nums">
-                                <span>{formatDocumentDate(doc.created_at)}</span>
-                                <DocumentInfoPopover
-                                  taxonomyDocument={taxonomyDocument}
-                                  metadata={{
-                                    uploadedBy: doc.uploaded_by,
-                                    uploadedAt: doc.created_at,
-                                    qualityScore: doc.quality_score,
-                                    verificationNotes: doc.verification_notes,
-                                    originalName: doc.original_name,
-                                    fileSizeBytes: doc.file_size_bytes,
-                                    documentType: doc.document_type,
-                                  }}
-                                />
-                              </div>
-                            </TableCell>
-
-                            {/* Actions: Preview, Download, Replace, Delete */}
-                            <TableCell className="text-right pr-6 py-3">
-                              <div className="flex items-center justify-end gap-1.5">
-                                {/* 1. Preview Button */}
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  title="Preview document"
-                                  aria-label={`Preview ${doc.original_name}`}
-                                  disabled={isRowDownloading || isRowDeleting}
-                                  onClick={() => setPreviewDoc(doc)}
-                                  className="h-8 w-8 text-text-secondary hover:text-text-primary cursor-pointer"
-                                >
-                                  <Eye className="h-3.5 w-3.5" />
-                                </Button>
-
-                                {/* 2. Download Button */}
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  title="Download document"
-                                  aria-label={`Download ${doc.original_name}`}
-                                  disabled={isRowDownloading || isRowDeleting}
-                                  onClick={() => handleDownload(doc)}
-                                  className="h-8 w-8 text-text-secondary hover:text-text-primary cursor-pointer"
-                                >
-                                  {isRowDownloading ? (
-                                    <Loader2 className="h-4 w-4 animate-spin text-brand" />
-                                  ) : (
-                                    <Download className="h-4 w-4" />
-                                  )}
-                                </Button>
-
-                                {/* 3. Replace Button */}
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  title="Replace document"
-                                  aria-label={`Replace ${doc.original_name}`}
-                                  disabled={isRowDownloading || isRowDeleting}
-                                  onClick={() => setDocToReplace(doc)}
-                                  className="h-8 w-8 text-text-secondary hover:text-text-primary cursor-pointer"
-                                >
-                                  <Upload className="h-4 w-4" />
-                                </Button>
-
-                                {/* 4. Delete Button */}
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  title="Delete document"
-                                  aria-label={`Delete ${doc.original_name}`}
-                                  disabled={isRowDownloading || isRowDeleting}
-                                  onClick={() => setDocToDelete(doc)}
-                                  className="h-8 w-8 text-destructive hover:bg-destructive/10 hover:text-destructive cursor-pointer"
-                                >
-                                  {isRowDeleting ? (
-                                    <Loader2 className="h-4 w-4 animate-spin" />
-                                  ) : (
-                                    <Trash2 className="h-4 w-4" />
-                                  )}
-                                </Button>
-                              </div>
-                            </TableCell>
-                          </TableRow>
-                        );
-                      })}
-                    </TableBody>
-                  </Table>
-                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setIsCreatePackageOpen(true)}
+                    className="h-6 px-2 text-[11px] font-semibold border-brand/30 bg-surface text-brand hover:bg-brand hover:text-white gap-1 cursor-pointer"
+                  >
+                    <PackagePlus className="h-3 w-3" />
+                    <span>Create Package</span>
+                  </Button>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedDocIds([])}
+                    className="text-text-tertiary hover:text-text-primary p-0.5 rounded cursor-pointer ml-0.5"
+                    title="Clear selection"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
                 </div>
               )}
 
-              {/* Other Documents Integration */}
-              <OtherDocumentsSection documents={otherDocuments} />
-            </motion.section>
-          </TabsContent>
-
-          {/* TAB 3: Diligence Packages */}
-          <TabsContent value="packages" className="space-y-6 mt-0">
-            <motion.div
-              initial={{ opacity: 0, y: 6 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.2, ease: "easeOut" }}
-            >
-              <PackagesSection documents={documents} />
-            </motion.div>
-          </TabsContent>
-
-          {/* TAB 4: All Sections View */}
-          <TabsContent value="all" className="space-y-9 mt-0">
-            <motion.div
-              initial={{ opacity: 0, y: 6 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.2, ease: "easeOut" }}
-              className="space-y-9"
-            >
-              {/* Section 1: Categories */}
-              <section className="space-y-4">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                  <div>
-                    <h2 className="text-base font-bold text-text-primary">Document Categories</h2>
-                    <p className="text-xs text-text-secondary mt-0.5">
-                      Open a category to view and upload its statutory requirements.
-                    </p>
-                  </div>
-                {compliancePercentage === 100 && (
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-success/10 text-success text-xs font-semibold border border-success/20">
-                    <CheckCircle2 className="h-3.5 w-3.5" /> All Statutory Requirements Fulfilled
-                  </span>
+              <div className="relative w-full sm:w-52">
+                <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-text-tertiary" />
+                <Input
+                  type="text"
+                  placeholder="Search documents…"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="h-8 pl-8 pr-8 text-xs bg-surface border-border-c"
+                />
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => setSearchQuery("")}
+                    className="absolute right-2.5 top-2.5 text-text-tertiary hover:text-text-primary cursor-pointer"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
                 )}
               </div>
 
-              <div className="grid gap-3.5 sm:grid-cols-2">
-                {categoryMetrics.map((metric) => (
-                  <DocumentCategorySummaryCard
-                    key={metric.category.id}
-                    label={metric.category.shortLabel}
-                    completed={metric.completed}
-                    total={metric.total}
-                    requiredCompleted={metric.requiredCompleted}
-                    requiredTotal={metric.requiredTotal}
-                    icon={metric.category.icon}
-                    onManage={() => setSelectedCategoryId(metric.category.id)}
-                  />
+              <div className="flex items-center gap-1 bg-surface-alt/50 p-0.5 rounded-lg border border-border/70 text-xs">
+                {(["all", "required", "optional", "other"] as const).map((cat) => (
+                  <button
+                    key={cat}
+                    type="button"
+                    onClick={() => setCategoryFilter(cat)}
+                    className={cn(
+                      "px-2.5 py-1 rounded-md capitalize font-medium text-[11px] transition-colors cursor-pointer",
+                      categoryFilter === cat
+                        ? "bg-surface text-text-primary shadow-2xs font-semibold"
+                        : "text-text-secondary hover:text-text-primary",
+                    )}
+                  >
+                    {cat}
+                  </button>
                 ))}
               </div>
+            </div>
+          </div>
 
-              <DocumentsWhyWeNeedGuide />
-            </section>
+          {/* Table Container */}
+          {documents.length === 0 ? (
+            <div className="rounded-2xl border border-dashed border-border/80 p-8 text-center bg-surface/50">
+              <FileText className="mx-auto h-8 w-8 text-text-tertiary mb-2" />
+              <p className="text-sm font-medium text-text-secondary">No documents uploaded yet</p>
+              <p className="text-xs text-text-tertiary mt-1">
+                Open a category above to upload its documents.
+              </p>
+            </div>
+          ) : filteredDocuments.length === 0 ? (
+            <div className="rounded-2xl border border-dashed border-border/80 p-8 text-center bg-surface/50 space-y-2">
+              <FileText className="mx-auto h-8 w-8 text-text-tertiary mb-1" />
+              <p className="text-sm font-medium text-text-secondary">
+                No documents match your filter
+              </p>
+              <p className="text-xs text-text-tertiary">
+                Try adjusting your search query or switching category filters.
+              </p>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setSearchQuery("");
+                  setCategoryFilter("all");
+                }}
+                className="mt-2 text-xs cursor-pointer"
+              >
+                Clear filters
+              </Button>
+            </div>
+          ) : (
+            <div className="rounded-2xl border border-border bg-surface overflow-hidden shadow-xs">
+              <Table>
+                <TableHeader>
+                  <TableRow className="bg-surface-alt/40 hover:bg-surface-alt/40">
+                    <TableHead className="w-10 py-3 pl-4 pr-2">
+                      <Checkbox
+                        checked={
+                          isAllFilteredSelected
+                            ? true
+                            : isSomeFilteredSelected
+                              ? "indeterminate"
+                              : false
+                        }
+                        onCheckedChange={(checked) => toggleSelectAllFiltered(Boolean(checked))}
+                        aria-label="Select all visible documents"
+                      />
+                    </TableHead>
+                    <TableHead className="font-semibold text-xs py-3">Name</TableHead>
+                    <TableHead className="font-semibold text-xs py-3">Type</TableHead>
+                    <TableHead className="font-semibold text-xs py-3">Size</TableHead>
+                    <TableHead className="font-semibold text-xs py-3">Quality</TableHead>
+                    <TableHead className="font-semibold text-xs py-3">Uploaded</TableHead>
+                    <TableHead className="font-semibold text-xs py-3 text-right pr-6">
+                      Actions
+                    </TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredDocuments.map((doc) => {
+                    const isSelected = selectedDocIds.includes(doc.id);
+                    const isRowDownloading = downloadingDocId === doc.id;
+                    const isRowDeleting = deletingDocId === doc.id;
+                    const taxonomyDocument = getTaxonomyDocument(doc.document_type);
 
-            {/* Section 2: Registry */}
-            <section className="space-y-4">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <div>
-                  <h2 className="text-base font-bold text-text-primary flex items-center gap-2">
-                    <FileSpreadsheet className="h-4.5 w-4.5 text-brand" />
-                    Document Registry
-                  </h2>
-                  <p className="text-xs text-text-secondary mt-0.5">
-                    Search, preview, download, and manage all corporate records on file.
-                  </p>
-                </div>
-
-                <div className="flex items-center gap-2 flex-wrap">
-                  {selectedDocIds.length > 0 && (
-                    <div className="flex items-center gap-1.5 bg-brand/10 border border-brand/20 rounded-lg px-2.5 py-1 text-xs animate-in fade-in-50">
-                      <span className="font-semibold text-brand text-[11px]">
-                        {selectedDocIds.length} selected
-                      </span>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        disabled={isBulkDownloading}
-                        onClick={handleBulkDownload}
-                        className="h-6 px-2 text-[11px] font-semibold border-brand/30 bg-surface text-brand hover:bg-brand hover:text-white gap-1 cursor-pointer"
-                      >
-                        {isBulkDownloading ? (
-                          <Loader2 className="h-3 w-3 animate-spin text-brand" />
-                        ) : (
-                          <Download className="h-3 w-3" />
-                        )}
-                        <span>Download</span>
-                      </Button>
-                      <button
-                        type="button"
-                        onClick={() => setSelectedDocIds([])}
-                        className="text-text-tertiary hover:text-text-primary p-0.5 rounded cursor-pointer"
-                        title="Clear selection"
-                      >
-                        <X className="h-3 w-3" />
-                      </button>
-                    </div>
-                  )}
-
-                  <div className="relative w-full sm:w-52">
-                    <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-text-tertiary" />
-                    <Input
-                      type="text"
-                      placeholder="Search documents…"
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="h-8 pl-8 pr-8 text-xs bg-surface border-border-c"
-                    />
-                    {searchQuery && (
-                      <button
-                        type="button"
-                        onClick={() => setSearchQuery("")}
-                        className="absolute right-2.5 top-2.5 text-text-tertiary hover:text-text-primary cursor-pointer"
-                      >
-                        <X className="h-3.5 w-3.5" />
-                      </button>
-                    )}
-                  </div>
-
-                  <div className="flex items-center gap-1 bg-surface-alt/50 p-0.5 rounded-lg border border-border/70 text-xs">
-                    {(["all", "required", "optional", "other"] as const).map((cat) => (
-                      <button
-                        key={cat}
-                        type="button"
-                        onClick={() => setCategoryFilter(cat)}
+                    return (
+                      <TableRow
+                        key={doc.id}
                         className={cn(
-                          "px-2.5 py-1 rounded-md capitalize font-medium text-[11px] transition-colors cursor-pointer",
-                          categoryFilter === cat
-                            ? "bg-surface text-text-primary shadow-2xs font-semibold"
-                            : "text-text-secondary hover:text-text-primary",
+                          "transition-colors",
+                          isSelected ? "bg-brand/5 hover:bg-brand/10" : "hover:bg-surface-alt/30",
                         )}
                       >
-                        {cat}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* Table Container */}
-              {documents.length === 0 ? (
-                <div className="rounded-2xl border border-dashed border-border/80 p-8 text-center bg-surface/50">
-                  <FileText className="mx-auto h-8 w-8 text-text-tertiary mb-2" />
-                  <p className="text-sm font-medium text-text-secondary">No documents uploaded yet</p>
-                  <p className="text-xs text-text-tertiary mt-1">
-                    Open a category above to upload its documents.
-                  </p>
-                </div>
-              ) : filteredDocuments.length === 0 ? (
-                <div className="rounded-2xl border border-dashed border-border/80 p-8 text-center bg-surface/50 space-y-2">
-                  <FileText className="mx-auto h-8 w-8 text-text-tertiary mb-1" />
-                  <p className="text-sm font-medium text-text-secondary">
-                    No documents match your filter
-                  </p>
-                  <p className="text-xs text-text-tertiary">
-                    Try adjusting your search query or switching category filters.
-                  </p>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      setSearchQuery("");
-                      setCategoryFilter("all");
-                    }}
-                    className="mt-2 text-xs cursor-pointer"
-                  >
-                    Clear filters
-                  </Button>
-                </div>
-              ) : (
-                <div className="rounded-2xl border border-border bg-surface overflow-hidden shadow-xs">
-                  <Table>
-                    <TableHeader>
-                      <TableRow className="bg-surface-alt/40 hover:bg-surface-alt/40">
-                        <TableHead className="w-10 py-3 pl-4 pr-2">
+                        <TableCell className="py-3 pl-4 pr-2">
                           <Checkbox
-                            checked={
-                              isAllFilteredSelected
-                                ? true
-                                : isSomeFilteredSelected
-                                  ? "indeterminate"
-                                  : false
-                            }
-                            onCheckedChange={(checked) => toggleSelectAllFiltered(Boolean(checked))}
-                            aria-label="Select all visible documents"
+                            checked={isSelected}
+                            onCheckedChange={() => toggleSelectDoc(doc.id)}
+                            aria-label={`Select ${doc.original_name}`}
                           />
-                        </TableHead>
-                        <TableHead className="font-semibold text-xs py-3">Name</TableHead>
-                        <TableHead className="font-semibold text-xs py-3">Type</TableHead>
-                        <TableHead className="font-semibold text-xs py-3">Size</TableHead>
-                        <TableHead className="font-semibold text-xs py-3">Quality</TableHead>
-                        <TableHead className="font-semibold text-xs py-3">Uploaded</TableHead>
-                        <TableHead className="font-semibold text-xs py-3 text-right pr-6">
-                          Actions
-                        </TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {filteredDocuments.map((doc) => {
-                        const isSelected = selectedDocIds.includes(doc.id);
-                        const isRowDownloading = downloadingDocId === doc.id;
-                        const isRowDeleting = deletingDocId === doc.id;
-                        const taxonomyDocument = getTaxonomyDocument(doc.document_type);
+                        </TableCell>
 
-                        return (
-                          <TableRow
-                            key={doc.id}
+                        <TableCell className="font-medium text-sm py-3">
+                          <div className="flex items-center gap-2.5 max-w-[260px]">
+                            <FileText className="h-4 w-4 shrink-0 text-brand" />
+                            <span className="truncate" title={doc.original_name}>
+                              {doc.original_name}
+                            </span>
+                          </div>
+                        </TableCell>
+
+                        <TableCell className="text-xs text-text-secondary py-3">
+                          <span
+                            title={doc.document_type}
                             className={cn(
-                              "transition-colors",
-                              isSelected ? "bg-brand/5 hover:bg-brand/10" : "hover:bg-surface-alt/30",
+                              "inline-block max-w-[220px] truncate px-2 py-0.5 rounded-md bg-surface-alt/60 border border-border/60 text-[11px] align-middle",
+                              !taxonomyDocument && "capitalize",
                             )}
                           >
-                            <TableCell className="py-3 pl-4 pr-2">
-                              <Checkbox
-                                checked={isSelected}
-                                onCheckedChange={() => toggleSelectDoc(doc.id)}
-                                aria-label={`Select ${doc.original_name}`}
-                              />
-                            </TableCell>
+                            {taxonomyDocument?.label ?? doc.document_type.replace(/[-_]/g, " ")}
+                          </span>
+                        </TableCell>
 
-                            <TableCell className="font-medium text-sm py-3">
-                              <div className="flex items-center gap-2.5 max-w-[260px]">
-                                <FileText className="h-4 w-4 shrink-0 text-brand" />
-                                <span className="truncate" title={doc.original_name}>
-                                  {doc.original_name}
-                                </span>
-                              </div>
-                            </TableCell>
+                        <TableCell className="text-xs text-text-secondary font-mono py-3">
+                          {formatFileSize(doc.file_size_bytes)}
+                        </TableCell>
 
-                            <TableCell className="text-xs text-text-secondary py-3">
-                              <span
-                                title={doc.document_type}
-                                className={cn(
-                                  "inline-block max-w-[220px] truncate px-2 py-0.5 rounded-md bg-surface-alt/60 border border-border/60 text-[11px] align-middle",
-                                  !taxonomyDocument && "capitalize",
-                                )}
-                              >
-                                {taxonomyDocument?.label ?? doc.document_type.replace(/[-_]/g, " ")}
-                              </span>
-                            </TableCell>
+                        <TableCell className="py-3">
+                          <DocumentQualityBadge document={doc} />
+                        </TableCell>
 
-                            <TableCell className="text-xs text-text-secondary font-mono py-3">
-                              {formatFileSize(doc.file_size_bytes)}
-                            </TableCell>
+                        <TableCell className="text-xs text-text-secondary py-3">
+                          <div className="flex items-center gap-1.5 font-mono text-[11px]">
+                            <span>{formatDocumentDate(doc.created_at)}</span>
+                            <DocumentInfoPopover
+                              taxonomyDocument={taxonomyDocument}
+                              metadata={{
+                                uploadedBy: doc.uploaded_by,
+                                uploadedAt: doc.created_at,
+                                qualityScore: doc.quality_score,
+                                verificationNotes: doc.verification_notes,
+                                originalName: doc.original_name,
+                                fileSizeBytes: doc.file_size_bytes,
+                                documentType: doc.document_type,
+                              }}
+                            />
+                          </div>
+                        </TableCell>
 
-                            <TableCell className="py-3">
-                              <DocumentQualityBadge document={doc} />
-                            </TableCell>
+                        <TableCell className="text-right pr-6 py-3">
+                          <div className="flex items-center justify-end gap-1.5">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              title="Preview document"
+                              aria-label={`Preview ${doc.original_name}`}
+                              disabled={isRowDownloading || isRowDeleting}
+                              onClick={() => setPreviewDoc(doc)}
+                              className="h-8 w-8 text-text-secondary hover:text-text-primary cursor-pointer"
+                            >
+                              <Eye className="h-3.5 w-3.5" />
+                            </Button>
 
-                            <TableCell className="text-xs text-text-secondary py-3">
-                              <div className="flex items-center gap-1.5 font-mono text-[11px]">
-                                <span>{formatDocumentDate(doc.created_at)}</span>
-                                <DocumentInfoPopover
-                                  taxonomyDocument={taxonomyDocument}
-                                  metadata={{
-                                    uploadedBy: doc.uploaded_by,
-                                    uploadedAt: doc.created_at,
-                                    qualityScore: doc.quality_score,
-                                    verificationNotes: doc.verification_notes,
-                                    originalName: doc.original_name,
-                                    fileSizeBytes: doc.file_size_bytes,
-                                    documentType: doc.document_type,
-                                  }}
-                                />
-                              </div>
-                            </TableCell>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              title="Download document"
+                              aria-label={`Download ${doc.original_name}`}
+                              disabled={isRowDownloading || isRowDeleting}
+                              onClick={() => handleDownload(doc)}
+                              className="h-8 w-8 text-text-secondary hover:text-text-primary cursor-pointer"
+                            >
+                              {isRowDownloading ? (
+                                <Loader2 className="h-4 w-4 animate-spin text-brand" />
+                              ) : (
+                                <Download className="h-4 w-4" />
+                              )}
+                            </Button>
 
-                            <TableCell className="text-right pr-6 py-3">
-                              <div className="flex items-center justify-end gap-1.5">
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  title="Preview document"
-                                  aria-label={`Preview ${doc.original_name}`}
-                                  disabled={isRowDownloading || isRowDeleting}
-                                  onClick={() => setPreviewDoc(doc)}
-                                  className="h-8 w-8 text-text-secondary hover:text-text-primary cursor-pointer"
-                                >
-                                  <Eye className="h-3.5 w-3.5" />
-                                </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              title="Replace document"
+                              aria-label={`Replace ${doc.original_name}`}
+                              disabled={isRowDownloading || isRowDeleting}
+                              onClick={() => setDocToReplace(doc)}
+                              className="h-8 w-8 text-text-secondary hover:text-text-primary cursor-pointer"
+                            >
+                              <Upload className="h-4 w-4" />
+                            </Button>
 
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  title="Download document"
-                                  aria-label={`Download ${doc.original_name}`}
-                                  disabled={isRowDownloading || isRowDeleting}
-                                  onClick={() => handleDownload(doc)}
-                                  className="h-8 w-8 text-text-secondary hover:text-text-primary cursor-pointer"
-                                >
-                                  {isRowDownloading ? (
-                                    <Loader2 className="h-4 w-4 animate-spin text-brand" />
-                                  ) : (
-                                    <Download className="h-4 w-4" />
-                                  )}
-                                </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              title="Delete document"
+                              aria-label={`Delete ${doc.original_name}`}
+                              disabled={isRowDownloading || isRowDeleting}
+                              onClick={() => setDocToDelete(doc)}
+                              className="h-8 w-8 text-destructive hover:bg-destructive/10 hover:text-destructive cursor-pointer"
+                            >
+                              {isRowDeleting ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              ) : (
+                                <Trash2 className="h-4 w-4" />
+                              )}
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+        </section>
 
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  title="Replace document"
-                                  aria-label={`Replace ${doc.original_name}`}
-                                  disabled={isRowDownloading || isRowDeleting}
-                                  onClick={() => setDocToReplace(doc)}
-                                  className="h-8 w-8 text-text-secondary hover:text-text-primary cursor-pointer"
-                                >
-                                  <Upload className="h-4 w-4" />
-                                </Button>
-
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  title="Delete document"
-                                  aria-label={`Delete ${doc.original_name}`}
-                                  disabled={isRowDownloading || isRowDeleting}
-                                  onClick={() => setDocToDelete(doc)}
-                                  className="h-8 w-8 text-destructive hover:bg-destructive/10 hover:text-destructive cursor-pointer"
-                                >
-                                  {isRowDeleting ? (
-                                    <Loader2 className="h-4 w-4 animate-spin" />
-                                  ) : (
-                                    <Trash2 className="h-4 w-4" />
-                                  )}
-                                </Button>
-                              </div>
-                            </TableCell>
-                          </TableRow>
-                        );
-                      })}
-                    </TableBody>
-                  </Table>
-                </div>
-              )}
-            </section>
-
-            {/* Section 3: Other Documents */}
-            <OtherDocumentsSection documents={otherDocuments} />
-
-            {/* Section 4: Packages */}
-            <PackagesSection documents={documents} />
-            </motion.div>
-          </TabsContent>
-        </Tabs>
+        {/* Section 4: Packages */}
+        <PackagesSection documents={documents} />
       </motion.div>
 
       {/* Delete Confirmation Alert Dialog for Table Rows */}
@@ -1257,16 +821,6 @@ export function DocumentsPage() {
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Category Documents Popup — one dialog for whichever category is open */}
-      <CategoryDocumentsPopup
-        open={Boolean(selectedCategory)}
-        onOpenChange={(open) => {
-          if (!open) setSelectedCategoryId(null);
-        }}
-        category={selectedCategory}
-        documents={documents}
-      />
-
       {/* Document Preview Modal for Registry Table */}
       <DocumentPreviewModal
         open={Boolean(previewDoc)}
@@ -1285,6 +839,15 @@ export function DocumentsPage() {
         targetDocument={docToReplace}
         isReplacing={isReplacingDoc}
         onConfirmReplace={handleConfirmReplace}
+      />
+
+      {/* Create Package Dialog from Registry Multi-Select */}
+      <CreatePackageDialog
+        open={isCreatePackageOpen}
+        onOpenChange={setIsCreatePackageOpen}
+        documents={documents}
+        initialSelectedDocIds={selectedDocIds}
+        onSuccess={() => setSelectedDocIds([])}
       />
     </motion.div>
   );

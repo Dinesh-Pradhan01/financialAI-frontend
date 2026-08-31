@@ -69,22 +69,6 @@ export function LandingPreviewModal({
   const selectedModule =
     preview.type === "module" ? MODULES.find((m) => m.id === preview.moduleId) : null;
 
-  const handleSimulateOcr = () => {
-    setIsSimulatingOcr(true);
-    setTimeout(() => {
-      setIsSimulatingOcr(false);
-      setOcrCompleted(true);
-    }, 1200);
-  };
-
-  const handleRunCopilotQuery = (query: string, response: string) => {
-    setActiveCopilotQuery(query);
-    setIsThinking(true);
-    setTimeout(() => {
-      setIsThinking(false);
-      setCopilotResponse(response);
-    }, 600);
-  };
   return (
     <Dialog open={Boolean(preview)} onOpenChange={(open) => !open && onClose()}>
       <DialogPortal>

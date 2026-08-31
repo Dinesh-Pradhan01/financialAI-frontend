@@ -177,6 +177,42 @@
     letter-spacing: -0.025em;
     text-wrap: balance;
   }
+
+  /* Global — thin, sleek, transparent scrollbars */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: oklch(0.28 0.14 265 / 0.18) transparent;
+  }
+  *:hover {
+    scrollbar-color: oklch(0.28 0.14 265 / 0.32) transparent;
+  }
+
+  /* Chromium (Chrome, Edge, Safari) */
+  ::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background-color: oklch(0.28 0.14 265 / 0.18);
+    border-radius: 9999px;
+    transition: background-color 150ms ease;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: oklch(0.28 0.14 265 / 0.35);
+  }
+  ::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+}
+
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 @utility font-display {
@@ -279,6 +315,21 @@
 
 .thinking-dot {
   animation: spotlite-thinking 1.2s ease-in-out infinite;
+}
+
+@utility animate-scroll-hint {
+  animation: spotlite-scroll-hint 2.2s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+}
+
+@keyframes spotlite-scroll-hint {
+  0%, 100% {
+    transform: translateX(0);
+    opacity: 0.85;
+  }
+  50% {
+    transform: translateX(3px);
+    opacity: 1;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
