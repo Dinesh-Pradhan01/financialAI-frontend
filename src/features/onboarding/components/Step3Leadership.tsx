@@ -1,7 +1,9 @@
 import { Building2, Lock, ShieldCheck, Users, Briefcase } from "lucide-react";
+import { toast } from "sonner";
 import { BUSINESS_MODELS } from "../lib/businessOnboarding";
 import { LeadershipState } from "./types";
 import { FormField, FormTextarea, FormSelect } from "@/shared/components/ui/FormField";
+import { useSendInvite } from "../../team/hooks/useTeamInvites";
 
 // TODO(phase-2): Defer CFO & HR team invitation flow to workspace post-onboarding modal in Phase 2
 
@@ -18,6 +20,68 @@ const EMPLOYEE_RANGES = [
 ];
 
 export function Step3Leadership({ state }: Props) {
+  const sendInviteMutation = useSendInvite();
+
+  const currentCfoEmail = state.cfoEmail.trim().toLowerCase();
+  const existingCfoInvite = state.teamInvites.find(
+    (i) => i.role === "cfo" && i.email.trim().toLowerCase() === currentCfoEmail
+  );
+  const isCfoInviteSent = Boolean(existingCfoInvite);
+  const canCheckCfo = state.cfoName.trim() !== "" && currentCfoEmail !== "";
+
+  const handleCfoInviteToggle = async (checked: boolean) => {
+    if (isCfoInviteSent) return;
+    if (checked) {
+      if (!canCheckCfo) {
+        toast.error("Please fill in both Full Name and Email Address first.");
+        return;
+      }
+      try {
+        const res = await sendInviteMutation.mutateAsync({
+          email: currentCfoEmail,
+          role: "cfo",
+          full_name: state.cfoName.trim(),
+        });
+        toast.success(res?.message || "CFO invitation sent successfully!");
+        state.setInviteCfo(true);
+      } catch (err: any) {
+        toast.error(err?.response?.data?.message || err?.message || "Failed to send CFO invite");
+      }
+    } else {
+      state.setInviteCfo(false);
+    }
+  };
+
+  const currentHrEmail = state.hrEmail.trim().toLowerCase();
+  const existingHrInvite = state.teamInvites.find(
+    (i) => i.role === "hr" && i.email.trim().toLowerCase() === currentHrEmail
+  );
+  const isHrInviteSent = Boolean(existingHrInvite);
+  const canCheckHr = state.hrName.trim() !== "" && currentHrEmail !== "";
+
+  const handleHrInviteToggle = async (checked: boolean) => {
+    if (isHrInviteSent) return;
+    if (checked) {
+      if (!canCheckHr) {
+        toast.error("Please fill in both Full Name and Email Address first.");
+        return;
+      }
+      try {
+        const res = await sendInviteMutation.mutateAsync({
+          email: currentHrEmail,
+          role: "hr",
+          full_name: state.hrName.trim(),
+        });
+        toast.success(res?.message || "HR invitation sent successfully!");
+        state.setInviteHr(true);
+      } catch (err: any) {
+        toast.error(err?.response?.data?.message || err?.message || "Failed to send HR invite");
+      }
+    } else {
+      state.setInviteHr(false);
+    }
+  };
+
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
       <div>
@@ -121,12 +185,26 @@ export function Step3Leadership({ state }: Props) {
                 </div>
               </div>
 
-              <label className="flex items-center gap-2 cursor-pointer select-none bg-surface-alt px-3 py-1.5 rounded-lg border border-border-c hover:bg-surface transition">
+              <label 
+                className={`flex items-center gap-2 select-none px-3 py-1.5 rounded-lg border transition ${
+                  isCfoInviteSent || !canCheckCfo || sendInviteMutation.isPending
+                    ? "bg-surface-alt/50 border-border-c/50 opacity-60 cursor-not-allowed"
+                    : "bg-surface-alt border-border-c hover:bg-surface cursor-pointer"
+                }`}
+                title={
+                  !canCheckCfo
+                    ? "Please fill Full Name and Email Address to invite"
+                    : isCfoInviteSent
+                      ? `Invite already sent to ${existingCfoInvite?.email}`
+                      : ""
+                }
+              >
                 <input
                   type="checkbox"
-                  checked={state.inviteCfo}
-                  onChange={(e) => state.setInviteCfo(e.target.checked)}
-                  className="h-4 w-4 rounded border-border-c text-brand focus:ring-brand/30 accent-brand cursor-pointer"
+                  checked={isCfoInviteSent || (state.inviteCfo && Boolean(currentCfoEmail))}
+                  disabled={isCfoInviteSent || !canCheckCfo || sendInviteMutation.isPending}
+                  onChange={(e) => handleCfoInviteToggle(e.target.checked)}
+                  className="h-4 w-4 rounded border-border-c text-brand focus:ring-brand/30 accent-brand disabled:cursor-not-allowed"
                 />
                 <span className="text-xs font-semibold text-text-primary">Invite to SpotLite</span>
               </label>
@@ -154,6 +232,7 @@ export function Step3Leadership({ state }: Props) {
                 onChange={(e) => {
                   state.setCfoEmail(e.target.value);
                   state.clearError?.("cfo_email");
+                  state.setInviteCfo(false);
                 }}
                 placeholder="e.g. cfo@company.com"
               />
@@ -184,11 +263,11 @@ export function Step3Leadership({ state }: Props) {
               />
             </div>
 
-            {state.teamInvites.find((i) => i.role === "cfo") && (
+            {existingCfoInvite && (
               <div className="pt-2 text-xs text-text-secondary">
                 Invite Status:{" "}
                 <span className="font-semibold capitalize text-brand">
-                  {state.teamInvites.find((i) => i.role === "cfo")?.status}
+                  {existingCfoInvite.status}
                 </span>
               </div>
             )}
@@ -209,12 +288,26 @@ export function Step3Leadership({ state }: Props) {
                 </div>
               </div>
 
-              <label className="flex items-center gap-2 cursor-pointer select-none bg-surface-alt px-3 py-1.5 rounded-lg border border-border-c hover:bg-surface transition">
+              <label 
+                className={`flex items-center gap-2 select-none px-3 py-1.5 rounded-lg border transition ${
+                  isHrInviteSent || !canCheckHr || sendInviteMutation.isPending
+                    ? "bg-surface-alt/50 border-border-c/50 opacity-60 cursor-not-allowed"
+                    : "bg-surface-alt border-border-c hover:bg-surface cursor-pointer"
+                }`}
+                title={
+                  !canCheckHr
+                    ? "Please fill Full Name and Email Address to invite"
+                    : isHrInviteSent
+                      ? `Invite already sent to ${existingHrInvite?.email}`
+                      : ""
+                }
+              >
                 <input
                   type="checkbox"
-                  checked={state.inviteHr}
-                  onChange={(e) => state.setInviteHr(e.target.checked)}
-                  className="h-4 w-4 rounded border-border-c text-brand focus:ring-brand/30 accent-brand cursor-pointer"
+                  checked={isHrInviteSent || (state.inviteHr && Boolean(currentHrEmail))}
+                  disabled={isHrInviteSent || !canCheckHr || sendInviteMutation.isPending}
+                  onChange={(e) => handleHrInviteToggle(e.target.checked)}
+                  className="h-4 w-4 rounded border-border-c text-brand focus:ring-brand/30 accent-brand disabled:cursor-not-allowed"
                 />
                 <span className="text-xs font-semibold text-text-primary">Invite to SpotLite</span>
               </label>
@@ -242,6 +335,7 @@ export function Step3Leadership({ state }: Props) {
                 onChange={(e) => {
                   state.setHrEmail(e.target.value);
                   state.clearError?.("hr_email");
+                  state.setInviteHr(false);
                 }}
                 placeholder="e.g. hr@company.com"
               />
@@ -272,11 +366,11 @@ export function Step3Leadership({ state }: Props) {
               />
             </div>
 
-            {state.teamInvites.find((i) => i.role === "hr") && (
+            {existingHrInvite && (
               <div className="pt-2 text-xs text-text-secondary">
                 Invite Status:{" "}
                 <span className="font-semibold capitalize text-brand">
-                  {state.teamInvites.find((i) => i.role === "hr")?.status}
+                  {existingHrInvite.status}
                 </span>
               </div>
             )}

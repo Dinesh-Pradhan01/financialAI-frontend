@@ -5,11 +5,8 @@ import {
   Mail,
   ShieldCheck,
   Users,
-  Copy,
-  Check,
   Loader2,
   AlertCircle,
-  Sparkles,
   Info,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -32,8 +29,6 @@ export function InviteForm({ className, onSuccess }: InviteFormProps) {
   const [email, setEmail] = useState("");
   const [fullName, setFullName] = useState("");
   const [validationError, setValidationError] = useState<string | null>(null);
-  const [lastGeneratedLink, setLastGeneratedLink] = useState<string | null>(null);
-  const [copied, setCopied] = useState(false);
 
   const sendInviteMutation = useSendInvite();
   const isSubmitting = sendInviteMutation.isPending;
@@ -67,8 +62,6 @@ export function InviteForm({ className, onSuccess }: InviteFormProps) {
       return;
     }
 
-    setLastGeneratedLink(null);
-
     const payload = {
       email: email.trim().toLowerCase(),
       role,
@@ -83,19 +76,6 @@ export function InviteForm({ className, onSuccess }: InviteFormProps) {
         response?.message || `Invitation successfully sent to ${payload.email} (${targetRoleLabel})`;
       toast.success(successMsg);
 
-      // Resolve complete invite link:
-      // 1. If backend returned explicit invite_link, use it.
-      // 2. If backend returned invite_token, construct canonical accept-invite URL using app route structure.
-      // 3. Otherwise, null (no raw token exposed as a link).
-      if (response?.invite_link) {
-        setLastGeneratedLink(response.invite_link);
-      } else if (response?.invite_token && typeof window !== "undefined") {
-        const canonicalUrl = `${window.location.origin}/accept-invite/${response.invite_token}`;
-        setLastGeneratedLink(canonicalUrl);
-      } else {
-        setLastGeneratedLink(null);
-      }
-
       // Reset form only on successful submission
       setEmail("");
       setFullName("");
@@ -106,13 +86,6 @@ export function InviteForm({ className, onSuccess }: InviteFormProps) {
       const errMsg = getApiErrorMessage(err, "Failed to send executive invitation.");
       toast.error(errMsg);
     }
-  };
-
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
-    setCopied(true);
-    toast.success("Invitation link copied to clipboard");
-    setTimeout(() => setCopied(false), 2000);
   };
 
   return (
@@ -264,41 +237,6 @@ export function InviteForm({ className, onSuccess }: InviteFormProps) {
           )}
         </AnimatePresence>
 
-        {/* Inline Success & Generated Link Card */}
-        <AnimatePresence>
-          {lastGeneratedLink && (
-            <motion.div
-              initial={{ opacity: 0, y: -6 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -6 }}
-              className="rounded-xl border border-emerald-500/25 bg-emerald-500/6 p-3.5 text-xs text-text-primary space-y-2"
-            >
-              <div className="flex items-center justify-between gap-2">
-                <span className="flex items-center gap-1.5 font-bold text-emerald-600 dark:text-emerald-400">
-                  <Sparkles className="h-3.5 w-3.5" /> Direct Invitation Link Generated
-                </span>
-                <button
-                  type="button"
-                  onClick={() => copyToClipboard(lastGeneratedLink)}
-                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-emerald-500/30 bg-surface font-semibold text-[11px] text-emerald-700 dark:text-emerald-300 hover:bg-emerald-500/10 transition cursor-pointer"
-                >
-                  {copied ? (
-                    <>
-                      <Check className="h-3 w-3 text-emerald-600" /> Copied
-                    </>
-                  ) : (
-                    <>
-                      <Copy className="h-3 w-3" /> Copy Link
-                    </>
-                  )}
-                </button>
-              </div>
-              <p className="font-mono text-[11px] text-text-secondary truncate bg-surface/70 px-2 py-1.5 rounded border border-border/40">
-                {lastGeneratedLink}
-              </p>
-            </motion.div>
-          )}
-        </AnimatePresence>
 
         {/* Actions & Submit */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-1">
