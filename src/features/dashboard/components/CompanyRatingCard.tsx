@@ -1,11 +1,20 @@
-import React from 'react';
+import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { Skeleton } from "@/shared/components/ui/skeleton";
-import { useCompanyRating, isSetupRequiredError } from '../hooks/useCompanyAPI';
-import { Star, ShieldCheck, FileCheck2, Activity, RefreshCw, AlertCircle, Sparkles, ArrowRight } from 'lucide-react';
+import { useCompanyRating, isSetupRequiredError } from "../hooks/useCompanyAPI";
+import {
+  Star,
+  ShieldCheck,
+  FileCheck2,
+  Activity,
+  RefreshCw,
+  AlertCircle,
+  Sparkles,
+  ArrowRight,
+} from "lucide-react";
 import { Progress } from "@/shared/components/ui/progress";
 import { Button } from "@/shared/components/ui/button";
-import { Link, useNavigate } from '@tanstack/react-router';
+import { Link, useNavigate } from "@tanstack/react-router";
 
 interface Props {
   hasProfile?: boolean;
@@ -18,15 +27,15 @@ export const CompanyRatingCard = ({ hasProfile = true }: Props) => {
   });
 
   const getScoreColor = (score: number) => {
-    if (score >= 80) return 'text-emerald-600 dark:text-emerald-400';
-    if (score >= 50) return 'text-amber-600 dark:text-amber-400';
-    return 'text-primary';
+    if (score >= 80) return "text-emerald-600 dark:text-emerald-400";
+    if (score >= 50) return "text-amber-600 dark:text-amber-400";
+    return "text-primary";
   };
 
   const getProgressColor = (score: number) => {
-    if (score >= 80) return 'bg-emerald-500';
-    if (score >= 50) return 'bg-amber-500';
-    return 'bg-primary';
+    if (score >= 80) return "bg-emerald-500";
+    if (score >= 50) return "bg-amber-500";
+    return "bg-primary";
   };
 
   return (
@@ -38,13 +47,13 @@ export const CompanyRatingCard = ({ hasProfile = true }: Props) => {
             Company Rating
           </div>
           {hasProfile && !isLoading && (
-            <button 
-              onClick={() => refetch()} 
+            <button
+              onClick={() => refetch()}
               disabled={isFetching}
               className="p-1 rounded-md hover:bg-muted transition-colors text-muted-foreground hover:text-foreground cursor-pointer"
               title="Refresh Rating"
             >
-              <RefreshCw className={`w-4 h-4 ${isFetching ? 'animate-spin' : ''}`} />
+              <RefreshCw className={`w-4 h-4 ${isFetching ? "animate-spin" : ""}`} />
             </button>
           )}
         </CardTitle>
@@ -70,7 +79,8 @@ export const CompanyRatingCard = ({ hasProfile = true }: Props) => {
             <div className="space-y-1.5 max-w-xs">
               <h3 className="font-bold text-base text-foreground">Score Unlocks with Profile</h3>
               <p className="text-xs text-muted-foreground leading-relaxed">
-                Complete your company profile and upload verification documents to compute your Business 360 score.
+                Complete your company profile and upload verification documents to compute your
+                Business 360 score.
               </p>
             </div>
             <Button
@@ -92,7 +102,12 @@ export const CompanyRatingCard = ({ hasProfile = true }: Props) => {
               <h3 className="font-semibold text-sm text-foreground">Could not load rating</h3>
               <p className="text-xs text-muted-foreground">Server error while calculating score.</p>
             </div>
-            <Button size="sm" variant="outline" onClick={() => refetch()} className="cursor-pointer">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => refetch()}
+              className="cursor-pointer"
+            >
               Try again
             </Button>
           </div>
@@ -100,7 +115,9 @@ export const CompanyRatingCard = ({ hasProfile = true }: Props) => {
           /* State: Ready */
           <div className="space-y-6 pt-2">
             <div className="flex items-center gap-5">
-              <div className={`relative flex items-center justify-center w-18 h-18 rounded-full border-4 border-primary/20`}>
+              <div
+                className={`relative flex items-center justify-center w-18 h-18 rounded-full border-4 border-primary/20`}
+              >
                 <span className={`text-2xl font-extrabold font-num ${getScoreColor(data.overall)}`}>
                   {data.overall}
                 </span>
@@ -119,7 +136,11 @@ export const CompanyRatingCard = ({ hasProfile = true }: Props) => {
                   </span>
                   <span className="font-bold font-num">{data.verification}/100</span>
                 </div>
-                <Progress value={data.verification} className="h-2" indicatorColor={getProgressColor(data.verification)} />
+                <Progress
+                  value={data.verification}
+                  className="h-2"
+                  indicatorColor={getProgressColor(data.verification)}
+                />
               </div>
 
               <div className="space-y-1.5">
@@ -129,7 +150,11 @@ export const CompanyRatingCard = ({ hasProfile = true }: Props) => {
                   </span>
                   <span className="font-bold font-num">{data.documents}/100</span>
                 </div>
-                <Progress value={data.documents} className="h-2" indicatorColor={getProgressColor(data.documents)} />
+                <Progress
+                  value={data.documents}
+                  className="h-2"
+                  indicatorColor={getProgressColor(data.documents)}
+                />
               </div>
 
               {data.compliance != null ? (
@@ -140,7 +165,11 @@ export const CompanyRatingCard = ({ hasProfile = true }: Props) => {
                     </span>
                     <span className="font-bold font-num">{data.compliance}/100</span>
                   </div>
-                  <Progress value={data.compliance} className="h-2" indicatorColor={getProgressColor(data.compliance)} />
+                  <Progress
+                    value={data.compliance}
+                    className="h-2"
+                    indicatorColor={getProgressColor(data.compliance)}
+                  />
                 </div>
               ) : (
                 <div className="space-y-1.5 opacity-60">
@@ -148,7 +177,9 @@ export const CompanyRatingCard = ({ hasProfile = true }: Props) => {
                     <span className="font-medium flex items-center gap-1.5 text-muted-foreground">
                       <ShieldCheck className="w-4 h-4" /> Compliance
                     </span>
-                    <span className="text-[10px] border px-1.5 py-0.5 rounded text-muted-foreground bg-muted font-medium">Coming Soon</span>
+                    <span className="text-[10px] border px-1.5 py-0.5 rounded text-muted-foreground bg-muted font-medium">
+                      Coming Soon
+                    </span>
                   </div>
                   <Progress value={0} className="h-2 bg-muted/50" />
                 </div>
@@ -162,7 +193,11 @@ export const CompanyRatingCard = ({ hasProfile = true }: Props) => {
                     </span>
                     <span className="font-bold font-num">{data.financial_health}/100</span>
                   </div>
-                  <Progress value={data.financial_health} className="h-2" indicatorColor={getProgressColor(data.financial_health)} />
+                  <Progress
+                    value={data.financial_health}
+                    className="h-2"
+                    indicatorColor={getProgressColor(data.financial_health)}
+                  />
                 </div>
               ) : (
                 <div className="space-y-1.5 opacity-60">
@@ -170,7 +205,9 @@ export const CompanyRatingCard = ({ hasProfile = true }: Props) => {
                     <span className="font-medium flex items-center gap-1.5 text-muted-foreground">
                       <Activity className="w-4 h-4" /> Financial Health
                     </span>
-                    <span className="text-[10px] border px-1.5 py-0.5 rounded text-muted-foreground bg-muted font-medium">Coming Soon</span>
+                    <span className="text-[10px] border px-1.5 py-0.5 rounded text-muted-foreground bg-muted font-medium">
+                      Coming Soon
+                    </span>
                   </div>
                   <Progress value={0} className="h-2 bg-muted/50" />
                 </div>

@@ -1,10 +1,10 @@
-import React from 'react';
+import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { Skeleton } from "@/shared/components/ui/skeleton";
-import { useIndustryLeaders, isSetupRequiredError } from '../hooks/useCompanyAPI';
-import { Trophy, TrendingUp, AlertCircle, RefreshCw, Sparkles, ArrowRight } from 'lucide-react';
+import { useIndustryLeaders, isSetupRequiredError } from "../hooks/useCompanyAPI";
+import { Trophy, TrendingUp, AlertCircle, RefreshCw, Sparkles, ArrowRight } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
-import { Link, useNavigate } from '@tanstack/react-router';
+import { Link, useNavigate } from "@tanstack/react-router";
 
 interface Props {
   hasProfile?: boolean;
@@ -49,9 +49,12 @@ export const IndustryLeadershipCard = ({ hasProfile = true }: Props) => {
                 <Sparkles className="w-5 h-5" />
               </div>
               <div>
-                <h4 className="text-sm font-semibold text-foreground">Industry benchmarking unlocks with profile setup</h4>
+                <h4 className="text-sm font-semibold text-foreground">
+                  Industry benchmarking unlocks with profile setup
+                </h4>
                 <p className="text-xs text-muted-foreground mt-0.5 max-w-xl">
-                  We'll automatically benchmark your business against top tier industry competitors once your company category is defined.
+                  We'll automatically benchmark your business against top tier industry competitors
+                  once your company category is defined.
                 </p>
               </div>
             </div>
@@ -79,7 +82,9 @@ export const IndustryLeadershipCard = ({ hasProfile = true }: Props) => {
               <AlertCircle className="w-6 h-6" />
             </div>
             <div>
-              <h3 className="font-semibold text-foreground">Could not load industry leadership board</h3>
+              <h3 className="font-semibold text-foreground">
+                Could not load industry leadership board
+              </h3>
               <p className="text-sm text-muted-foreground">
                 We couldn't retrieve the industry ranking at this time.
               </p>
@@ -92,7 +97,7 @@ export const IndustryLeadershipCard = ({ hasProfile = true }: Props) => {
             disabled={isFetching}
             className="shrink-0 flex items-center gap-2 cursor-pointer"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${isFetching ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`w-3.5 h-3.5 ${isFetching ? "animate-spin" : ""}`} />
             Try again
           </Button>
         </CardContent>
@@ -113,14 +118,22 @@ export const IndustryLeadershipCard = ({ hasProfile = true }: Props) => {
       <CardContent>
         <div className="space-y-3">
           {data.map((leader, index) => (
-            <div key={leader.id} className="flex items-center justify-between p-3 rounded-xl bg-muted/40 hover:bg-muted/70 transition-colors border border-border/40 hover:border-border">
+            <div
+              key={leader.id}
+              className="flex items-center justify-between p-3 rounded-xl bg-muted/40 hover:bg-muted/70 transition-colors border border-border/40 hover:border-border"
+            >
               <div className="flex items-center gap-4">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs shadow-xs ${
-                  index === 0 ? 'bg-amber-500/20 text-amber-700 dark:text-amber-400 border border-amber-500/30' :
-                  index === 1 ? 'bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border border-slate-300 dark:border-slate-700' :
-                  index === 2 ? 'bg-amber-700/20 text-amber-800 dark:text-amber-300 border border-amber-700/30' :
-                  'bg-background text-muted-foreground'
-                }`}>
+                <div
+                  className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs shadow-xs ${
+                    index === 0
+                      ? "bg-amber-500/20 text-amber-700 dark:text-amber-400 border border-amber-500/30"
+                      : index === 1
+                        ? "bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border border-slate-300 dark:border-slate-700"
+                        : index === 2
+                          ? "bg-amber-700/20 text-amber-800 dark:text-amber-300 border border-amber-700/30"
+                          : "bg-background text-muted-foreground"
+                  }`}
+                >
                   #{index + 1}
                 </div>
                 <div>
@@ -133,7 +146,9 @@ export const IndustryLeadershipCard = ({ hasProfile = true }: Props) => {
               </div>
               {leader.market_cap && (
                 <div className="flex flex-col items-end">
-                  <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Est. Market Value</span>
+                  <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">
+                    Est. Market Value
+                  </span>
                   <span className="font-bold text-sm font-num">{leader.market_cap}</span>
                 </div>
               )}

@@ -62,9 +62,15 @@ function Profile() {
 
   const displayName = user?.full_name || (user?.email ? user.email.split("@")[0] : rohan.name);
   const displayEmail = user?.email || id.email;
-  const initials = (user?.full_name
-    ? user.full_name.split(" ").filter(Boolean).map((n) => n[0]).join("").slice(0, 2)
-    : displayName.slice(0, 2)
+  const initials = (
+    user?.full_name
+      ? user.full_name
+          .split(" ")
+          .filter(Boolean)
+          .map((n) => n[0])
+          .join("")
+          .slice(0, 2)
+      : displayName.slice(0, 2)
   ).toUpperCase();
 
   return (

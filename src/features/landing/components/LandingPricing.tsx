@@ -33,7 +33,8 @@ export function LandingPricing({
             Predictable plans scaled to your business
           </h2>
           <p className="mt-2.5 text-sm sm:text-base text-slate-600 leading-relaxed max-w-[60ch] mx-auto text-balance">
-            No hidden per-seat fees or OCR transaction penalties. Deploy across your entire executive table.
+            No hidden per-seat fees or OCR transaction penalties. Deploy across your entire
+            executive table.
           </p>
 
           {/* Toggles Row: Billing Cycle + Currency */}
@@ -52,7 +53,14 @@ export function LandingPricing({
                     transition={{ type: "spring", stiffness: 450, damping: 35 }}
                   />
                 )}
-                <span className={cn("relative z-10 transition-colors", billingCycle === "annual" ? "text-white font-bold" : "text-slate-600 hover:text-foreground")}>
+                <span
+                  className={cn(
+                    "relative z-10 transition-colors",
+                    billingCycle === "annual"
+                      ? "text-white font-bold"
+                      : "text-slate-600 hover:text-foreground",
+                  )}
+                >
                   Annual Billing (Save 20%)
                 </span>
               </button>
@@ -68,7 +76,14 @@ export function LandingPricing({
                     transition={{ type: "spring", stiffness: 450, damping: 35 }}
                   />
                 )}
-                <span className={cn("relative z-10 transition-colors", billingCycle === "monthly" ? "text-white font-bold" : "text-slate-600 hover:text-foreground")}>
+                <span
+                  className={cn(
+                    "relative z-10 transition-colors",
+                    billingCycle === "monthly"
+                      ? "text-white font-bold"
+                      : "text-slate-600 hover:text-foreground",
+                  )}
+                >
                   Monthly
                 </span>
               </button>
@@ -88,7 +103,12 @@ export function LandingPricing({
                     transition={{ type: "spring", stiffness: 450, damping: 35 }}
                   />
                 )}
-                <span className={cn("relative z-10 transition-colors", currency === "INR" ? "text-white" : "text-slate-600 hover:text-foreground")}>
+                <span
+                  className={cn(
+                    "relative z-10 transition-colors",
+                    currency === "INR" ? "text-white" : "text-slate-600 hover:text-foreground",
+                  )}
+                >
                   ₹ INR
                 </span>
               </button>
@@ -104,7 +124,12 @@ export function LandingPricing({
                     transition={{ type: "spring", stiffness: 450, damping: 35 }}
                   />
                 )}
-                <span className={cn("relative z-10 transition-colors", currency === "USD" ? "text-white" : "text-slate-600 hover:text-foreground")}>
+                <span
+                  className={cn(
+                    "relative z-10 transition-colors",
+                    currency === "USD" ? "text-white" : "text-slate-600 hover:text-foreground",
+                  )}
+                >
                   $ USD
                 </span>
               </button>
@@ -128,16 +153,18 @@ export function LandingPricing({
         >
           {PLANS.map((plan) => {
             const rawPrice =
-              currency === "INR"
-                ? plan.priceINR[billingCycle]
-                : plan.priceUSD[billingCycle];
+              currency === "INR" ? plan.priceINR[billingCycle] : plan.priceUSD[billingCycle];
 
             return (
               <motion.article
                 key={plan.plan}
                 variants={{
                   hidden: { opacity: 0, y: 16 },
-                  visible: { opacity: 1, y: 0, transition: { duration: 0.45, ease: [0.16, 1, 0.3, 1] } },
+                  visible: {
+                    opacity: 1,
+                    y: 0,
+                    transition: { duration: 0.45, ease: [0.16, 1, 0.3, 1] },
+                  },
                 }}
                 whileHover={{ y: -4, transition: { duration: 0.2 } }}
                 className={cn(
@@ -155,7 +182,9 @@ export function LandingPricing({
 
                 <div>
                   <div className="flex items-center justify-between">
-                    <h3 className="text-lg sm:text-xl font-bold font-display tracking-[-0.015em]">{plan.plan}</h3>
+                    <h3 className="text-lg sm:text-xl font-bold font-display tracking-[-0.015em]">
+                      {plan.plan}
+                    </h3>
                   </div>
 
                   <p

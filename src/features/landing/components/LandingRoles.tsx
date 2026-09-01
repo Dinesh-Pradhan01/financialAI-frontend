@@ -1,7 +1,16 @@
 import { useState } from "react";
 import { ROLES, type Currency, type RoleItem } from "../data/landing-data";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, CheckCircle2, Landmark, Calculator, UserPlus, Eye, ShieldCheck, Activity } from "lucide-react";
+import {
+  ArrowRight,
+  CheckCircle2,
+  Landmark,
+  Calculator,
+  UserPlus,
+  Eye,
+  ShieldCheck,
+  Activity,
+} from "lucide-react";
 import { cn } from "@/shared/lib/utils";
 
 interface LandingRolesProps {
@@ -28,8 +37,8 @@ export function LandingRoles({ currency, onOpenRolePreview }: LandingRolesProps)
             Tailored views for your entire executive table
           </h2>
           <p className="mt-2.5 text-sm sm:text-base text-slate-600 leading-relaxed max-w-[62ch] mx-auto text-balance">
-            Data is strictly partitioned by role. Each leader sees the exact operational metrics, alerts,
-            and levers they need without data security friction.
+            Data is strictly partitioned by role. Each leader sees the exact operational metrics,
+            alerts, and levers they need without data security friction.
           </p>
         </motion.div>
 
@@ -47,7 +56,9 @@ export function LandingRoles({ currency, onOpenRolePreview }: LandingRolesProps)
                   role="button"
                   tabIndex={0}
                   onClick={() => setActiveRoleIndex(index)}
-                  onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && setActiveRoleIndex(index)}
+                  onKeyDown={(e) =>
+                    (e.key === "Enter" || e.key === " ") && setActiveRoleIndex(index)
+                  }
                   className="relative w-full text-left rounded-2xl border p-3.5 sm:p-4 transition-colors cursor-pointer select-none border-border-c bg-[#f8fafc] hover:bg-white overflow-hidden"
                 >
                   {isSelected && (
@@ -63,13 +74,17 @@ export function LandingRoles({ currency, onOpenRolePreview }: LandingRolesProps)
                         <div
                           className={cn(
                             "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition-colors shadow-2xs",
-                            isSelected ? "bg-primary text-white" : "bg-white text-primary border border-border-c",
+                            isSelected
+                              ? "bg-primary text-white"
+                              : "bg-white text-primary border border-border-c",
                           )}
                         >
                           <Icon size={18} />
                         </div>
                         <div>
-                          <h3 className="text-sm sm:text-base font-bold font-display text-foreground tracking-[-0.015em]">{item.role}</h3>
+                          <h3 className="text-sm sm:text-base font-bold font-display text-foreground tracking-[-0.015em]">
+                            {item.role}
+                          </h3>
                           <p className="text-[11px] font-semibold text-slate-500">{item.access}</p>
                         </div>
                       </div>
@@ -114,7 +129,9 @@ export function LandingRoles({ currency, onOpenRolePreview }: LandingRolesProps)
                       <h4 className="text-sm sm:text-base font-bold font-display text-foreground tracking-[-0.015em]">
                         {selectedRole.role} Live Workspace Snapshot
                       </h4>
-                      <p className="text-[11px] text-slate-500 font-normal">{selectedRole.subtitle}</p>
+                      <p className="text-[11px] text-slate-500 font-normal">
+                        {selectedRole.subtitle}
+                      </p>
                     </div>
                   </div>
 
@@ -130,7 +147,9 @@ export function LandingRoles({ currency, onOpenRolePreview }: LandingRolesProps)
                       key={kpi.label}
                       className="rounded-xl border border-border-c bg-white p-3 shadow-2xs"
                     >
-                      <p className="text-[10px] sm:text-[11px] font-semibold text-slate-500 uppercase tracking-wider">{kpi.label}</p>
+                      <p className="text-[10px] sm:text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
+                        {kpi.label}
+                      </p>
                       <p className="text-base sm:text-lg font-bold font-mono tabular-nums text-foreground mt-0.5 tracking-tight">
                         {currency === "INR" ? kpi.valueINR : kpi.valueUSD}
                       </p>
@@ -176,7 +195,10 @@ export function LandingRoles({ currency, onOpenRolePreview }: LandingRolesProps)
                     onClick={() => onOpenRolePreview?.(selectedRole.id)}
                     className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4.5 py-2.5 text-xs sm:text-sm font-semibold tracking-[-0.005em] text-white shadow-xs hover:bg-primary-hover transition-all cursor-pointer group"
                   >
-                    <Eye size={15} className="group-hover:scale-110 transition-transform duration-200" />
+                    <Eye
+                      size={15}
+                      className="group-hover:scale-110 transition-transform duration-200"
+                    />
                     <span>Launch Interactive {selectedRole.role} Preview</span>
                   </motion.button>
 

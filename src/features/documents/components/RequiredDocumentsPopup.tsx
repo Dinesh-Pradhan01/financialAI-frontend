@@ -53,11 +53,9 @@ export function RequiredDocumentsPopup({
   const [downloadingDocId, setDownloadingDocId] = useState<string | null>(null);
   const [previewDoc, setPreviewDoc] = useState<CompanyDocument | null>(null);
 
-  const mandatorySlots = KNOWN_DOCUMENT_SLOTS.filter(
-    (s) => s.category === "mandatory"
-  );
+  const mandatorySlots = KNOWN_DOCUMENT_SLOTS.filter((s) => s.category === "mandatory");
   const completedCount = mandatorySlots.filter((slot) =>
-    documents.some((d) => d.document_type === slot.typeKey)
+    documents.some((d) => d.document_type === slot.typeKey),
   ).length;
   const totalCount = mandatorySlots.length;
   const percent =
@@ -99,7 +97,7 @@ export function RequiredDocumentsPopup({
           toast.error(getApiErrorMessage(err, "Replacement failed"));
           setReplacingDocId(null);
         },
-      }
+      },
     );
   };
 
@@ -155,7 +153,7 @@ export function RequiredDocumentsPopup({
                 <span
                   className={cn(
                     "font-semibold font-num",
-                    isAllUploaded ? "text-success" : "text-brand"
+                    isAllUploaded ? "text-success" : "text-brand",
                   )}
                 >
                   {percent}% Completed
@@ -166,8 +164,7 @@ export function RequiredDocumentsPopup({
             {/* List of Mandatory Slots with Framer Motion Stagger */}
             <div className="space-y-3 py-1">
               {mandatorySlots.map((slot, index) => {
-                const doc =
-                  documents.find((d) => d.document_type === slot.typeKey) || null;
+                const doc = documents.find((d) => d.document_type === slot.typeKey) || null;
 
                 return (
                   <motion.div
@@ -183,16 +180,12 @@ export function RequiredDocumentsPopup({
                       isReplacing={doc ? replacingDocId === doc.id : false}
                       isDeleting={doc ? deletingDocId === doc.id : false}
                       isDownloading={doc ? downloadingDocId === doc.id : false}
-                      onUpload={(file) =>
-                        handleUpload(file, slot.typeKey, slot.category)
-                      }
+                      onUpload={(file) => handleUpload(file, slot.typeKey, slot.category)}
                       onRequestReplace={(stagedFile) =>
                         doc && setReplacingTarget({ document: doc, slot, stagedFile })
                       }
                       onReplace={(file) => doc && handleReplace(file, doc.id)}
-                      onDelete={(docId) =>
-                        handleDelete(docId, doc?.original_name)
-                      }
+                      onDelete={(docId) => handleDelete(docId, doc?.original_name)}
                       onPreview={(d) => setPreviewDoc(d)}
                       onDownload={(d) => handleDownload(d)}
                     />

@@ -5,7 +5,7 @@ import { BusinessOnboardingFullResponse } from "@/shared/types/api";
  * Evaluates in forward order to land the user on their first incomplete step.
  */
 export function computeResumeStep(
-  res: Partial<BusinessOnboardingFullResponse> | null | undefined
+  res: Partial<BusinessOnboardingFullResponse> | null | undefined,
 ): number {
   if (!res) return 1;
 

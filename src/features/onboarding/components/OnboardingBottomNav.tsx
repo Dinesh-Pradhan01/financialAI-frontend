@@ -58,8 +58,7 @@ export function OnboardingBottomNav({
             )
           ) : (
             <>
-              {step === 4 ? "Save & Review" : "Save & Continue"}{" "}
-              <ArrowRight className="h-4 w-4" />
+              {step === 4 ? "Save & Review" : "Save & Continue"} <ArrowRight className="h-4 w-4" />
             </>
           )}
         </button>

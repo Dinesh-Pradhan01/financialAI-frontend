@@ -9,13 +9,7 @@ import type {
   CompanyDocumentResponse as CompanyDocument,
 } from "@/shared/types/api";
 
-export type {
-  CompanyProfile,
-  CompanyRating,
-  CompanyNews,
-  IndustryLeader,
-  CompanyDocument,
-};
+export type { CompanyProfile, CompanyRating, CompanyNews, IndustryLeader, CompanyDocument };
 
 export interface AIViewResponse {
   markdown_content: string;
@@ -165,4 +159,3 @@ export const useOnboardingStatus = (options?: QueryHookOptions) => {
     retry: false,
   });
 };
-

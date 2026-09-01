@@ -4,20 +4,14 @@ import { Upload, ShieldCheck, FileUp, ArrowUpRight } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/shared/lib/utils";
 import { Button } from "@/shared/components/ui/button";
-import {
-  validateFile,
-  ACCEPTED_FILE_FORMATS_STRING,
-} from "../lib/uploadHelpers";
+import { validateFile, ACCEPTED_FILE_FORMATS_STRING } from "../lib/uploadHelpers";
 
 export interface HeroUploadDropzoneProps {
   onFileSelected: (file: File) => void;
   className?: string;
 }
 
-export function HeroUploadDropzone({
-  onFileSelected,
-  className,
-}: HeroUploadDropzoneProps) {
+export function HeroUploadDropzone({ onFileSelected, className }: HeroUploadDropzoneProps) {
   const [isDragOver, setIsDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -51,7 +45,7 @@ export function HeroUploadDropzone({
     <div
       className={cn(
         "rounded-2xl border border-border/80 bg-surface shadow-xs transition-all duration-200 p-3 sm:p-4",
-        className
+        className,
       )}
     >
       <motion.div
@@ -68,7 +62,7 @@ export function HeroUploadDropzone({
           "relative overflow-hidden rounded-xl border-2 border-dashed p-6 sm:p-8 text-center transition-all duration-200 cursor-pointer select-none",
           isDragOver
             ? "border-brand bg-brand/[0.06] ring-4 ring-brand/15 shadow-sm"
-            : "border-border-c bg-surface-alt/25 hover:border-brand/40 hover:bg-brand/[0.02]"
+            : "border-border-c bg-surface-alt/25 hover:border-brand/40 hover:bg-brand/[0.02]",
         )}
       >
         <input
@@ -86,7 +80,7 @@ export function HeroUploadDropzone({
               "flex h-12 w-12 items-center justify-center rounded-xl border transition-all duration-200 shadow-2xs",
               isDragOver
                 ? "bg-brand/15 border-brand/40 text-brand scale-110"
-                : "bg-brand/10 border-brand/20 text-brand group-hover:scale-105"
+                : "bg-brand/10 border-brand/20 text-brand group-hover:scale-105",
             )}
           >
             {isDragOver ? (
@@ -128,9 +122,7 @@ export function HeroUploadDropzone({
               PDF only
             </span>
             <span className="text-xs text-border">•</span>
-            <span className="font-mono text-[11px] text-text-tertiary">
-              Max 10MB
-            </span>
+            <span className="font-mono text-[11px] text-text-tertiary">Max 10MB</span>
             <span className="text-xs text-border">•</span>
             <span className="inline-flex items-center gap-1 text-[11px] text-text-secondary font-medium">
               <ShieldCheck className="h-3.5 w-3.5 text-brand" /> 256-bit Encrypted

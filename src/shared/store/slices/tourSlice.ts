@@ -34,12 +34,6 @@ export const tourSlice = createSlice({
   },
 });
 
-export const {
-  dismissIntro,
-  startTour,
-  setTourStep,
-  endTour,
-  resetTour,
-} = tourSlice.actions;
+export const { dismissIntro, startTour, setTourStep, endTour, resetTour } = tourSlice.actions;
 
 export default tourSlice.reducer;

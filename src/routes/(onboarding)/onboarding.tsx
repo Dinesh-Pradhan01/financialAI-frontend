@@ -11,7 +11,8 @@ export const Route = createFileRoute("/(onboarding)/onboarding")({
       { title: "Business Onboarding · Spotlite" },
       {
         name: "description",
-        content: "Configure your enterprise financial profile and verify business credentials on SpotLite.",
+        content:
+          "Configure your enterprise financial profile and verify business credentials on SpotLite.",
       },
     ],
   }),
@@ -47,8 +48,7 @@ function OnboardingRouteComponent() {
 
   useEffect(() => {
     if (!loading) {
-      const currentPath =
-        window.location.pathname + window.location.search || "/onboarding";
+      const currentPath = window.location.pathname + window.location.search || "/onboarding";
       if (!user) {
         navigate({
           to: "/login",
@@ -67,10 +67,7 @@ function OnboardingRouteComponent() {
 
   if (loading) {
     return (
-      <SpotliteLoader
-        message="Verifying session…"
-        subMessage="SpotLite Executive Intelligence"
-      />
+      <SpotliteLoader message="Verifying session…" subMessage="SpotLite Executive Intelligence" />
     );
   }
 

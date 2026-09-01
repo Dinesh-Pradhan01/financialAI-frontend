@@ -36,11 +36,7 @@ import {
   ACCEPTED_FILE_FORMATS_STRING,
   UPLOAD_CONSTRAINTS_LABEL,
 } from "../lib/uploadHelpers";
-import {
-  formatFileSize,
-  formatDocumentDate,
-  isDocumentUpdated,
-} from "../lib/documentPresentation";
+import { formatFileSize, formatDocumentDate, isDocumentUpdated } from "../lib/documentPresentation";
 import { DocumentQualityBadge } from "./DocumentQualityBadge";
 import { DocumentRequirementBadge } from "./DocumentRequirementBadge";
 import { DocumentStatusBadge } from "./DocumentStatusBadge";

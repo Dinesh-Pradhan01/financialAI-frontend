@@ -5,7 +5,7 @@ import type { CompanyDocument } from "@/shared/types/api";
  */
 export function applyDeleteDocumentOptimistic(
   cache: CompanyDocument[],
-  docId: string
+  docId: string,
 ): CompanyDocument[] {
   return cache.filter((doc) => doc.id !== docId);
 }
@@ -15,7 +15,7 @@ export function applyDeleteDocumentOptimistic(
  */
 export function applyReplaceDocumentOptimistic(
   cache: CompanyDocument[],
-  docId: string
+  docId: string,
 ): CompanyDocument[] {
   const now = new Date().toISOString();
   return cache.map((doc) =>
@@ -24,6 +24,6 @@ export function applyReplaceDocumentOptimistic(
           ...doc,
           updated_at: now,
         }
-      : doc
+      : doc,
   );
 }

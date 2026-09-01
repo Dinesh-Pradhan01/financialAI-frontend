@@ -46,9 +46,9 @@ export function LandingInteractiveSandbox({
   isEmbedded = false,
 }: LandingInteractiveSandboxProps) {
   // Active Persona State
-  const validInitialRole = (["ceo", "cfo", "hr", "coo"].includes(initialRole)
-    ? initialRole
-    : "ceo") as "ceo" | "cfo" | "hr" | "coo";
+  const validInitialRole = (
+    ["ceo", "cfo", "hr", "coo"].includes(initialRole) ? initialRole : "ceo"
+  ) as "ceo" | "cfo" | "hr" | "coo";
 
   const [activePersonaId, setActivePersonaId] = useState<"ceo" | "cfo" | "hr" | "coo">(
     validInitialRole,
@@ -134,7 +134,10 @@ export function LandingInteractiveSandbox({
       `Statutory compliance and vendor ledger integrity confirmed.`,
       `Working capital impact calculated with 99.8% reconciliation certainty.`,
     ],
-    impactDelta: currency === "INR" ? "Optimized: +₹4.2L monthly liquidity" : "Optimized: +$5.1K monthly liquidity",
+    impactDelta:
+      currency === "INR"
+        ? "Optimized: +₹4.2L monthly liquidity"
+        : "Optimized: +$5.1K monthly liquidity",
     action: "Recommendation: Review detailed transaction log and export audit schedule.",
   };
 
@@ -183,7 +186,9 @@ export function LandingInteractiveSandbox({
                 <div
                   className={cn(
                     "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-colors",
-                    isSelected ? "bg-white/20 text-white" : "bg-white text-primary border border-border-c",
+                    isSelected
+                      ? "bg-white/20 text-white"
+                      : "bg-white text-primary border border-border-c",
                   )}
                 >
                   <Icon size={16} />
@@ -334,7 +339,9 @@ export function LandingInteractiveSandbox({
                       <RefreshCw size={13} className="animate-spin" />
                       Ingesting and extracting statement records…
                     </span>
-                    <span>{extractedCount} / {persona.step1.transactionCount} txns</span>
+                    <span>
+                      {extractedCount} / {persona.step1.transactionCount} txns
+                    </span>
                   </div>
                   <div className="h-2 w-full overflow-hidden rounded-full bg-blue-200/60">
                     <div
@@ -365,19 +372,27 @@ export function LandingInteractiveSandbox({
 
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
                     <div className="rounded-lg bg-white p-2.5 border border-emerald-100">
-                      <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Transactions Parsed</p>
+                      <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">
+                        Transactions Parsed
+                      </p>
                       <p className="text-sm font-bold font-mono tabular-nums text-foreground mt-0.5">
                         {persona.step1.transactionCount.toLocaleString()}
                       </p>
                     </div>
                     <div className="rounded-lg bg-white p-2.5 border border-emerald-100">
-                      <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Reconciled Balance</p>
+                      <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">
+                        Reconciled Balance
+                      </p>
                       <p className="text-sm font-bold font-mono tabular-nums text-foreground mt-0.5">
-                        {currency === "INR" ? persona.step1.clearedBalanceINR : persona.step1.clearedBalanceUSD}
+                        {currency === "INR"
+                          ? persona.step1.clearedBalanceINR
+                          : persona.step1.clearedBalanceUSD}
                       </p>
                     </div>
                     <div className="rounded-lg bg-white p-2.5 border border-emerald-100 col-span-2">
-                      <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Institutions Reconciled</p>
+                      <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">
+                        Institutions Reconciled
+                      </p>
                       <p className="text-xs font-semibold text-slate-700 mt-0.5 truncate font-mono">
                         {persona.step1.sourcesList.join(" • ")}
                       </p>
@@ -445,7 +460,9 @@ export function LandingInteractiveSandbox({
                       {persona.step2.anomalyTitle}
                     </h5>
                     <p className="text-xs text-amber-900 leading-relaxed font-normal">
-                      {currency === "INR" ? persona.step2.descriptionINR : persona.step2.descriptionUSD}
+                      {currency === "INR"
+                        ? persona.step2.descriptionINR
+                        : persona.step2.descriptionUSD}
                     </p>
                   </div>
                 </div>
@@ -457,7 +474,9 @@ export function LandingInteractiveSandbox({
                       Identified Financial Leakage / Variance
                     </p>
                     <p className="text-base sm:text-lg font-bold font-mono tabular-nums text-amber-950 mt-0.5 tracking-tight">
-                      {currency === "INR" ? persona.step2.quantifiedLeakageINR : persona.step2.quantifiedLeakageUSD}
+                      {currency === "INR"
+                        ? persona.step2.quantifiedLeakageINR
+                        : persona.step2.quantifiedLeakageUSD}
                     </p>
                   </div>
 
@@ -468,7 +487,9 @@ export function LandingInteractiveSandbox({
                     onClick={() => setActionSimulated(true)}
                     className={cn(
                       "text-xs font-semibold tracking-[-0.005em] gap-1.5 cursor-pointer",
-                      actionSimulated ? "border-emerald-300 text-emerald-800 bg-emerald-50 font-bold" : "",
+                      actionSimulated
+                        ? "border-emerald-300 text-emerald-800 bg-emerald-50 font-bold"
+                        : "",
                     )}
                   >
                     {actionSimulated ? (
@@ -499,7 +520,9 @@ export function LandingInteractiveSandbox({
 
               {/* Recommendation summary */}
               <div className="rounded-xl border border-border-c bg-[#f8fafc] p-3.5 text-xs text-foreground space-y-1">
-                <p className="font-bold text-primary font-display">Executive Action Recommendation:</p>
+                <p className="font-bold text-primary font-display">
+                  Executive Action Recommendation:
+                </p>
                 <p className="text-slate-600 leading-relaxed font-normal">
                   {persona.step2.recommendation}
                 </p>
@@ -559,7 +582,9 @@ export function LandingInteractiveSandbox({
 
               {/* Preset Query Chips */}
               <div className="space-y-1.5">
-                <p className="text-xs text-blue-200 font-semibold">Try role-curated executive queries:</p>
+                <p className="text-xs text-blue-200 font-semibold">
+                  Try role-curated executive queries:
+                </p>
                 <div className="flex flex-wrap gap-1.5">
                   {persona.step3.presetPrompts.map((prompt) => (
                     <button
@@ -621,7 +646,10 @@ export function LandingInteractiveSandbox({
 
                     <div className="space-y-1.5 pl-2 border-l border-primary/60">
                       {currentResponse.reasoning.map((r, i) => (
-                        <p key={i} className="text-slate-300 leading-relaxed text-[11px] font-normal">
+                        <p
+                          key={i}
+                          className="text-slate-300 leading-relaxed text-[11px] font-normal"
+                        >
                           • {r}
                         </p>
                       ))}
@@ -631,7 +659,9 @@ export function LandingInteractiveSandbox({
                       <span className="font-mono font-bold text-emerald-400 tabular-nums">
                         {currentResponse.impactDelta}
                       </span>
-                      <span className="text-blue-200 italic font-normal">{currentResponse.action}</span>
+                      <span className="text-blue-200 italic font-normal">
+                        {currentResponse.action}
+                      </span>
                     </div>
                   </div>
                 )}
@@ -695,11 +725,15 @@ export function LandingInteractiveSandbox({
                       Launch Free Workspace with Sample Data
                     </h5>
                     <p className="text-xs text-slate-600 mt-1 leading-relaxed">
-                      Start exploring your pre-populated executive dashboard immediately. Zero credit card needed.
+                      Start exploring your pre-populated executive dashboard immediately. Zero
+                      credit card needed.
                     </p>
                   </div>
 
-                  <Button asChild className="w-full text-xs font-semibold tracking-[-0.005em] gap-1.5 mt-2">
+                  <Button
+                    asChild
+                    className="w-full text-xs font-semibold tracking-[-0.005em] gap-1.5 mt-2"
+                  >
                     <Link to="/signup" onClick={onClose}>
                       <span>Start Instant Setup</span>
                       <ArrowRight size={14} />
@@ -716,11 +750,16 @@ export function LandingInteractiveSandbox({
                       Book 1-on-1 Executive Walkthrough
                     </h5>
                     <p className="text-xs text-slate-600 mt-1 leading-relaxed">
-                      Walk through custom bank integrations and enterprise governance with our product specialist.
+                      Walk through custom bank integrations and enterprise governance with our
+                      product specialist.
                     </p>
                   </div>
 
-                  <Button asChild variant="outline" className="w-full text-xs font-semibold tracking-[-0.005em] gap-1.5 mt-2">
+                  <Button
+                    asChild
+                    variant="outline"
+                    className="w-full text-xs font-semibold tracking-[-0.005em] gap-1.5 mt-2"
+                  >
                     <Link to="/signup" onClick={onClose}>
                       <span>Schedule 15m Demo</span>
                       <ChevronRight size={14} />

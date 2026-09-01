@@ -1,13 +1,28 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Globe, Bell, MessageCircle, Lock, Download, Trash2, ShieldCheck, Users, Loader2 } from "lucide-react";
+import {
+  Globe,
+  Bell,
+  MessageCircle,
+  Lock,
+  Download,
+  Trash2,
+  ShieldCheck,
+  Users,
+  Loader2,
+} from "lucide-react";
 import { toast } from "sonner";
 import { Switch } from "@/shared/components/ui/switch";
 import { languages, channels } from "@/shared/data/agentic";
 import { useAppDispatch, useAppSelector } from "@/shared/store";
 import { selectLanguage, selectChannel, selectNotificationsOn } from "@/shared/store/selectors";
-import { setLanguage, setChannel, setNotificationsOn, resetPreferences } from "@/shared/store/slices/preferencesSlice";
+import {
+  setLanguage,
+  setChannel,
+  setNotificationsOn,
+  resetPreferences,
+} from "@/shared/store/slices/preferencesSlice";
 import { resetSpotlights } from "@/shared/store/slices/spotlightsSlice";
 import { resetNotifications } from "@/shared/store/slices/notificationsSlice";
 import { clearConversation } from "@/shared/store/slices/coachSlice";
@@ -39,7 +54,9 @@ function Settings() {
   const notificationsOn = useAppSelector(selectNotificationsOn);
 
   const consent = useAppSelector((state) => state.preferences.consent);
-  const permissionsEnabled = [consent?.read, consent?.detect, consent?.offers].filter(Boolean).length;
+  const permissionsEnabled = [consent?.read, consent?.detect, consent?.offers].filter(
+    Boolean,
+  ).length;
 
   const resetAll = () => {
     dispatch(resetSpotlights());
@@ -102,7 +119,8 @@ function Settings() {
           </h2>
           <section className="card-spot mt-3 p-4">
             <p className="text-xs text-text-secondary mb-3">
-              As CEO/Admin, manage your executive leadership team, dispatch invitations, and oversee role-based permissions.
+              As CEO/Admin, manage your executive leadership team, dispatch invitations, and oversee
+              role-based permissions.
             </p>
             <Link
               to="/team"

@@ -80,7 +80,8 @@ export const basicIndustriesQueryOptions = () =>
 export const sectorQueryOptions = (sectorName: string) =>
   queryOptions({
     queryKey: ["industry", "sector", sectorName],
-    queryFn: () => api.get<SectorDataResponse>(`/api/v1/basic-industry/${encodeURIComponent(sectorName)}`),
+    queryFn: () =>
+      api.get<SectorDataResponse>(`/api/v1/basic-industry/${encodeURIComponent(sectorName)}`),
     staleTime: 5 * 60 * 1000,
   });
 

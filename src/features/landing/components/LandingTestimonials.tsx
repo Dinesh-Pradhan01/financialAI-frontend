@@ -17,7 +17,8 @@ export function LandingTestimonials() {
             Trusted by finance & operations leaders across sectors
           </h2>
           <p className="mt-2.5 text-sm sm:text-base text-slate-600 leading-relaxed max-w-[58ch] mx-auto text-balance">
-            Proven ROI, multi-bank reconciliation certainty, and actionable capital visibility from day one.
+            Proven ROI, multi-bank reconciliation certainty, and actionable capital visibility from
+            day one.
           </p>
         </motion.div>
 
@@ -70,9 +71,12 @@ export function LandingTestimonials() {
                     {item.initials}
                   </div>
                   <div>
-                    <p className="text-xs sm:text-sm font-bold font-display text-foreground">{item.name}</p>
+                    <p className="text-xs sm:text-sm font-bold font-display text-foreground">
+                      {item.name}
+                    </p>
                     <p className="text-[11px] text-slate-500">
-                      {item.title}, <span className="font-semibold text-slate-700">{item.company}</span>
+                      {item.title},{" "}
+                      <span className="font-semibold text-slate-700">{item.company}</span>
                     </p>
                   </div>
                 </div>

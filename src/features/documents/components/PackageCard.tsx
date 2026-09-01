@@ -76,9 +76,7 @@ export function PackageCard({
 
   // Clean up selectedDocIds when documents change
   useEffect(() => {
-    setSelectedDocIds((prev) =>
-      prev.filter((id) => pkg.documents.some((d) => d.id === id))
-    );
+    setSelectedDocIds((prev) => prev.filter((id) => pkg.documents.some((d) => d.id === id)));
     if (removingSingleDocId && !pkg.documents.some((d) => d.id === removingSingleDocId)) {
       setRemovingSingleDocId(null);
     }
@@ -112,7 +110,7 @@ export function PackageCard({
 
   const toggleSelectDoc = (docId: string) => {
     setSelectedDocIds((prev) =>
-      prev.includes(docId) ? prev.filter((id) => id !== docId) : [...prev, docId]
+      prev.includes(docId) ? prev.filter((id) => id !== docId) : [...prev, docId],
     );
   };
 
@@ -144,8 +142,7 @@ export function PackageCard({
     setPendingRemovalDocIds(null);
   };
 
-  const isAllSelected =
-    pkg.documents.length > 0 && selectedDocIds.length === pkg.documents.length;
+  const isAllSelected = pkg.documents.length > 0 && selectedDocIds.length === pkg.documents.length;
 
   return (
     <div className="rounded-2xl border border-border bg-surface p-5 shadow-xs transition-all space-y-4">
@@ -246,11 +243,7 @@ export function PackageCard({
             className="h-8 w-8 text-text-secondary hover:text-text-primary ml-1"
             aria-label={isExpanded ? "Collapse package documents" : "Expand package documents"}
           >
-            {isExpanded ? (
-              <ChevronUp className="h-4 w-4" />
-            ) : (
-              <ChevronDown className="h-4 w-4" />
-            )}
+            {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
           </Button>
         </div>
       </div>
@@ -268,7 +261,9 @@ export function PackageCard({
             {pkg.documents.length === 0 ? (
               <div className="rounded-xl border border-dashed border-border/80 p-6 text-center bg-surface-alt/20">
                 <FileText className="mx-auto h-6 w-6 text-text-tertiary mb-1" />
-                <p className="text-xs font-medium text-text-secondary">No documents in this package yet</p>
+                <p className="text-xs font-medium text-text-secondary">
+                  No documents in this package yet
+                </p>
                 <Button
                   type="button"
                   variant="outline"
@@ -339,14 +334,17 @@ export function PackageCard({
                 <div className="grid gap-2">
                   {pkg.documents.map((doc) => {
                     const isItemRemoving =
-                      removingSingleDocId === doc.id || (isRemoving && selectedDocIds.includes(doc.id));
+                      removingSingleDocId === doc.id ||
+                      (isRemoving && selectedDocIds.includes(doc.id));
                     const isChecked = selectedDocIds.includes(doc.id);
 
                     return (
                       <div
                         key={doc.id}
                         className={`flex items-center justify-between gap-3 rounded-xl border border-border/60 p-2.5 px-3 transition-colors ${
-                          isChecked ? "bg-brand/5 border-brand/40" : "bg-surface-alt/30 hover:bg-surface-alt/50"
+                          isChecked
+                            ? "bg-brand/5 border-brand/40"
+                            : "bg-surface-alt/30 hover:bg-surface-alt/50"
                         }`}
                       >
                         <div className="flex items-center gap-2.5 min-w-0 flex-1">
@@ -408,8 +406,8 @@ export function PackageCard({
           <AlertDialogHeader>
             <AlertDialogTitle>Disband {pkg.name}?</AlertDialogTitle>
             <AlertDialogDescription>
-              This removes the package bundle, but keeps all its documents safe in your
-              Documents list. No files will be deleted.
+              This removes the package bundle, but keeps all its documents safe in your Documents
+              list. No files will be deleted.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -446,7 +444,9 @@ export function PackageCard({
                 : `Remove ${pendingRemovalDocIds?.length} Documents from ${pkg.name}?`}
             </AlertDialogTitle>
             <AlertDialogDescription>
-              This removes the selected {pendingRemovalDocIds?.length === 1 ? "document" : "documents"} from this package. The documents themselves will remain in your Documents list.
+              This removes the selected{" "}
+              {pendingRemovalDocIds?.length === 1 ? "document" : "documents"} from this package. The
+              documents themselves will remain in your Documents list.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

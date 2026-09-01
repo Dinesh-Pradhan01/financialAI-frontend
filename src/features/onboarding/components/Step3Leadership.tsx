@@ -24,7 +24,7 @@ export function Step3Leadership({ state }: Props) {
 
   const currentCfoEmail = state.cfoEmail.trim().toLowerCase();
   const existingCfoInvite = state.teamInvites.find(
-    (i) => i.role === "cfo" && i.email.trim().toLowerCase() === currentCfoEmail
+    (i) => i.role === "cfo" && i.email.trim().toLowerCase() === currentCfoEmail,
   );
   const isCfoInviteSent = Boolean(existingCfoInvite);
   const canCheckCfo = state.cfoName.trim() !== "" && currentCfoEmail !== "";
@@ -54,7 +54,7 @@ export function Step3Leadership({ state }: Props) {
 
   const currentHrEmail = state.hrEmail.trim().toLowerCase();
   const existingHrInvite = state.teamInvites.find(
-    (i) => i.role === "hr" && i.email.trim().toLowerCase() === currentHrEmail
+    (i) => i.role === "hr" && i.email.trim().toLowerCase() === currentHrEmail,
   );
   const isHrInviteSent = Boolean(existingHrInvite);
   const canCheckHr = state.hrName.trim() !== "" && currentHrEmail !== "";
@@ -185,7 +185,7 @@ export function Step3Leadership({ state }: Props) {
                 </div>
               </div>
 
-              <label 
+              <label
                 className={`flex items-center gap-2 select-none px-3 py-1.5 rounded-lg border transition ${
                   isCfoInviteSent || !canCheckCfo || sendInviteMutation.isPending
                     ? "bg-surface-alt/50 border-border-c/50 opacity-60 cursor-not-allowed"
@@ -288,7 +288,7 @@ export function Step3Leadership({ state }: Props) {
                 </div>
               </div>
 
-              <label 
+              <label
                 className={`flex items-center gap-2 select-none px-3 py-1.5 rounded-lg border transition ${
                   isHrInviteSent || !canCheckHr || sendInviteMutation.isPending
                     ? "bg-surface-alt/50 border-border-c/50 opacity-60 cursor-not-allowed"

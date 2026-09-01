@@ -178,9 +178,7 @@ export function CategorizeUploadDialog({
 
             {/* 2. Category selection cards */}
             <div className="space-y-1.5">
-              <Label className="text-xs font-semibold text-text-primary">
-                Category
-              </Label>
+              <Label className="text-xs font-semibold text-text-primary">Category</Label>
               <div className="grid grid-cols-3 gap-2.5">
                 {/* Required Card */}
                 <motion.button
@@ -194,20 +192,16 @@ export function CategorizeUploadDialog({
                     pendingRequiredSlots.length === 0
                       ? "opacity-50 cursor-not-allowed border-border/50 bg-surface-alt/40"
                       : selectedCategory === "required"
-                      ? "border-brand bg-brand/5 ring-2 ring-brand/20 cursor-pointer shadow-xs"
-                      : "border-border-c bg-surface hover:border-brand/40 cursor-pointer"
+                        ? "border-brand bg-brand/5 ring-2 ring-brand/20 cursor-pointer shadow-xs"
+                        : "border-border-c bg-surface hover:border-brand/40 cursor-pointer",
                   )}
                 >
                   <div className="flex items-center justify-between w-full mb-1">
-                    <span className="font-bold text-xs text-text-primary">
-                      Required
-                    </span>
+                    <span className="font-bold text-xs text-text-primary">Required</span>
                     <Shield
                       className={cn(
                         "h-4 w-4",
-                        selectedCategory === "required"
-                          ? "text-brand"
-                          : "text-text-secondary"
+                        selectedCategory === "required" ? "text-brand" : "text-text-secondary",
                       )}
                     />
                   </div>
@@ -230,20 +224,16 @@ export function CategorizeUploadDialog({
                     pendingRecommendedSlots.length === 0
                       ? "opacity-50 cursor-not-allowed border-border/50 bg-surface-alt/40"
                       : selectedCategory === "recommended"
-                      ? "border-brand bg-brand/5 ring-2 ring-brand/20 cursor-pointer shadow-xs"
-                      : "border-border-c bg-surface hover:border-brand/40 cursor-pointer"
+                        ? "border-brand bg-brand/5 ring-2 ring-brand/20 cursor-pointer shadow-xs"
+                        : "border-border-c bg-surface hover:border-brand/40 cursor-pointer",
                   )}
                 >
                   <div className="flex items-center justify-between w-full mb-1">
-                    <span className="font-bold text-xs text-text-primary">
-                      Recommended
-                    </span>
+                    <span className="font-bold text-xs text-text-primary">Recommended</span>
                     <FileCheck
                       className={cn(
                         "h-4 w-4",
-                        selectedCategory === "recommended"
-                          ? "text-brand"
-                          : "text-text-secondary"
+                        selectedCategory === "recommended" ? "text-brand" : "text-text-secondary",
                       )}
                     />
                   </div>
@@ -264,25 +254,19 @@ export function CategorizeUploadDialog({
                     "flex flex-col p-3 rounded-xl border text-left transition cursor-pointer select-none",
                     selectedCategory === "custom"
                       ? "border-brand bg-brand/5 ring-2 ring-brand/20 shadow-xs"
-                      : "border-border-c bg-surface hover:border-brand/40"
+                      : "border-border-c bg-surface hover:border-brand/40",
                   )}
                 >
                   <div className="flex items-center justify-between w-full mb-1">
-                    <span className="font-bold text-xs text-text-primary">
-                      Custom
-                    </span>
+                    <span className="font-bold text-xs text-text-primary">Custom</span>
                     <FileText
                       className={cn(
                         "h-4 w-4",
-                        selectedCategory === "custom"
-                          ? "text-brand"
-                          : "text-text-secondary"
+                        selectedCategory === "custom" ? "text-brand" : "text-text-secondary",
                       )}
                     />
                   </div>
-                  <span className="text-[10px] text-text-secondary font-medium">
-                    Custom label
-                  </span>
+                  <span className="text-[10px] text-text-secondary font-medium">Custom label</span>
                 </motion.button>
               </div>
             </div>
@@ -317,7 +301,7 @@ export function CategorizeUploadDialog({
                               "p-2.5 rounded-xl border text-xs flex items-center justify-between transition cursor-pointer select-none",
                               isSelected
                                 ? "border-brand bg-brand/5 ring-1 ring-brand/30 font-medium"
-                                : "border-border-c bg-surface hover:border-brand/30"
+                                : "border-border-c bg-surface hover:border-brand/30",
                             )}
                           >
                             <div className="space-y-0.5 pr-2">
@@ -371,7 +355,7 @@ export function CategorizeUploadDialog({
                               "p-2.5 rounded-xl border text-xs flex items-center justify-between transition cursor-pointer select-none",
                               isSelected
                                 ? "border-brand bg-brand/5 ring-1 ring-brand/30 font-medium"
-                                : "border-border-c bg-surface hover:border-brand/30"
+                                : "border-border-c bg-surface hover:border-brand/30",
                             )}
                           >
                             <div className="space-y-0.5 pr-2">

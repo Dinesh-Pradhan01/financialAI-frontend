@@ -24,8 +24,7 @@ export const GET_INVITES_URL = "/api/auth/invites";
 export const SEND_INVITE_URL = "/api/auth/invite";
 
 // Canonical resend endpoint
-export const RESEND_INVITE_URL = (id: string) =>
-  `/api/business/onboarding/resend-invite/${id}`;
+export const RESEND_INVITE_URL = (id: string) => `/api/business/onboarding/resend-invite/${id}`;
 
 export const REVOKE_INVITE_URL = (id: string) => `/api/auth/invite/${id}`;
 
@@ -56,23 +55,17 @@ export const useSendInvite = () => {
       api.post<SendInviteResponse>(SEND_INVITE_URL, payload),
     onMutate: async (payload: SendInvitePayload) => {
       await queryClient.cancelQueries({ queryKey: queryKeys.team.invites() });
-      const previousInvites = queryClient.getQueryData<TeamInvite[]>(
-        queryKeys.team.invites()
-      );
+      const previousInvites = queryClient.getQueryData<TeamInvite[]>(queryKeys.team.invites());
 
-      queryClient.setQueryData<TeamInvite[]>(
-        queryKeys.team.invites(),
-        (old = []) => applySendInviteOptimistic(old, payload)
+      queryClient.setQueryData<TeamInvite[]>(queryKeys.team.invites(), (old = []) =>
+        applySendInviteOptimistic(old, payload),
       );
 
       return { previousInvites };
     },
     onError: (_err, _variables, context) => {
       if (context?.previousInvites) {
-        queryClient.setQueryData(
-          queryKeys.team.invites(),
-          context.previousInvites
-        );
+        queryClient.setQueryData(queryKeys.team.invites(), context.previousInvites);
       }
     },
     onSettled: () => {
@@ -87,27 +80,20 @@ export const useSendInvite = () => {
 export const useResendInvite = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (inviteId: string) =>
-      api.post<ResendInviteResponse>(RESEND_INVITE_URL(inviteId)),
+    mutationFn: (inviteId: string) => api.post<ResendInviteResponse>(RESEND_INVITE_URL(inviteId)),
     onMutate: async (inviteId: string) => {
       await queryClient.cancelQueries({ queryKey: queryKeys.team.invites() });
-      const previousInvites = queryClient.getQueryData<TeamInvite[]>(
-        queryKeys.team.invites()
-      );
+      const previousInvites = queryClient.getQueryData<TeamInvite[]>(queryKeys.team.invites());
 
-      queryClient.setQueryData<TeamInvite[]>(
-        queryKeys.team.invites(),
-        (old = []) => applyResendOptimistic(old, inviteId)
+      queryClient.setQueryData<TeamInvite[]>(queryKeys.team.invites(), (old = []) =>
+        applyResendOptimistic(old, inviteId),
       );
 
       return { previousInvites };
     },
     onError: (_err, _variables, context) => {
       if (context?.previousInvites) {
-        queryClient.setQueryData(
-          queryKeys.team.invites(),
-          context.previousInvites
-        );
+        queryClient.setQueryData(queryKeys.team.invites(), context.previousInvites);
       }
     },
     onSettled: () => {
@@ -122,27 +108,20 @@ export const useResendInvite = () => {
 export const useRevokeInvite = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (inviteId: string) =>
-      api.delete<RevokeInviteResponse>(REVOKE_INVITE_URL(inviteId)),
+    mutationFn: (inviteId: string) => api.delete<RevokeInviteResponse>(REVOKE_INVITE_URL(inviteId)),
     onMutate: async (inviteId: string) => {
       await queryClient.cancelQueries({ queryKey: queryKeys.team.invites() });
-      const previousInvites = queryClient.getQueryData<TeamInvite[]>(
-        queryKeys.team.invites()
-      );
+      const previousInvites = queryClient.getQueryData<TeamInvite[]>(queryKeys.team.invites());
 
-      queryClient.setQueryData<TeamInvite[]>(
-        queryKeys.team.invites(),
-        (old = []) => applyRevokeOptimistic(old, inviteId)
+      queryClient.setQueryData<TeamInvite[]>(queryKeys.team.invites(), (old = []) =>
+        applyRevokeOptimistic(old, inviteId),
       );
 
       return { previousInvites };
     },
     onError: (_err, _variables, context) => {
       if (context?.previousInvites) {
-        queryClient.setQueryData(
-          queryKeys.team.invites(),
-          context.previousInvites
-        );
+        queryClient.setQueryData(queryKeys.team.invites(), context.previousInvites);
       }
     },
     onSettled: () => {
@@ -157,27 +136,20 @@ export const useRevokeInvite = () => {
 export const useRemoveMember = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (memberId: string) =>
-      api.post<RemoveMemberResponse>(REMOVE_MEMBER_URL(memberId)),
+    mutationFn: (memberId: string) => api.post<RemoveMemberResponse>(REMOVE_MEMBER_URL(memberId)),
     onMutate: async (memberId: string) => {
       await queryClient.cancelQueries({ queryKey: queryKeys.team.invites() });
-      const previousInvites = queryClient.getQueryData<TeamInvite[]>(
-        queryKeys.team.invites()
-      );
+      const previousInvites = queryClient.getQueryData<TeamInvite[]>(queryKeys.team.invites());
 
-      queryClient.setQueryData<TeamInvite[]>(
-        queryKeys.team.invites(),
-        (old = []) => applyRemoveOptimistic(old, memberId)
+      queryClient.setQueryData<TeamInvite[]>(queryKeys.team.invites(), (old = []) =>
+        applyRemoveOptimistic(old, memberId),
       );
 
       return { previousInvites };
     },
     onError: (_err, _variables, context) => {
       if (context?.previousInvites) {
-        queryClient.setQueryData(
-          queryKeys.team.invites(),
-          context.previousInvites
-        );
+        queryClient.setQueryData(queryKeys.team.invites(), context.previousInvites);
       }
     },
     onSettled: () => {

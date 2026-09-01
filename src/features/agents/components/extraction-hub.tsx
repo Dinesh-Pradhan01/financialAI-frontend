@@ -24,20 +24,22 @@ import type { ExtractedStatementResponse } from "@/shared/types/api";
 // Types matching backend response shapes
 // ---------------------------------------------------------------------------
 
-export type ExtractedData = ExtractedStatementResponse | {
-  document?: DocumentInfo;
-  account?: {
-    bank_name: string;
-    account_holder_name?: string;
-    account_number?: string;
-    account_type?: string;
-  } | null;
-  accounts?: Array<{
-    bank_name: string;
-    account_number_mask?: string;
-  }>;
-  transactions?: unknown[];
-};
+export type ExtractedData =
+  | ExtractedStatementResponse
+  | {
+      document?: DocumentInfo;
+      account?: {
+        bank_name: string;
+        account_holder_name?: string;
+        account_number?: string;
+        account_type?: string;
+      } | null;
+      accounts?: Array<{
+        bank_name: string;
+        account_number_mask?: string;
+      }>;
+      transactions?: unknown[];
+    };
 
 // ---------------------------------------------------------------------------
 // Main component
@@ -55,15 +57,11 @@ export function ExtractionHub({
   const [dragging, setDragging] = useState(false);
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [extractedCache, setExtractedCache] = useState<
-    Record<string, ExtractedData>
-  >({});
+  const [extractedCache, setExtractedCache] = useState<Record<string, ExtractedData>>({});
 
   // Poll for documents that are still processing via GET /api/statements/{id}/status
   useEffect(() => {
-    const processing = documents.filter(
-      (d) => d.status === "PENDING" || d.status === "PROCESSING"
-    );
+    const processing = documents.filter((d) => d.status === "PENDING" || d.status === "PROCESSING");
     if (processing.length === 0) return;
 
     let isMounted = true;
@@ -72,16 +70,18 @@ export function ExtractionHub({
       await Promise.allSettled(
         processing.map(async (doc) => {
           try {
-            const res = await api.get<{ id: string; status: DocumentInfo["status"]; error_message?: string | null }>(
-              `/api/statements/${doc.id}/status`
-            );
+            const res = await api.get<{
+              id: string;
+              status: DocumentInfo["status"];
+              error_message?: string | null;
+            }>(`/api/statements/${doc.id}/status`);
             if (res && res.status !== doc.status) {
               stateChanged = true;
             }
           } catch {
             // Ignore polling errors
           }
-        })
+        }),
       );
 
       if (isMounted) {
@@ -97,20 +97,16 @@ export function ExtractionHub({
 
   // Fetch extracted data for completed documents via GET /api/statements/{id}/extracted
   useEffect(() => {
-    const completed = documents.filter(
-      (d) => d.status === "COMPLETED" && !extractedCache[d.id]
-    );
+    const completed = documents.filter((d) => d.status === "COMPLETED" && !extractedCache[d.id]);
     if (completed.length === 0) return;
 
     let isMounted = true;
 
     Promise.allSettled(
       completed.map(async (doc) => {
-        const data = await api.get<ExtractedData>(
-          `/api/statements/${doc.id}/extracted`
-        );
+        const data = await api.get<ExtractedData>(`/api/statements/${doc.id}/extracted`);
         return { doc, data };
-      })
+      }),
     ).then((results) => {
       if (!isMounted) return;
 
@@ -205,7 +201,7 @@ export function ExtractionHub({
 
       if (successCount > 0) {
         toast.success(
-          `${successCount} statement${successCount > 1 ? "s" : ""} uploaded & queued for extraction!`
+          `${successCount} statement${successCount > 1 ? "s" : ""} uploaded & queued for extraction!`,
         );
         onDocumentsChange();
       }
@@ -216,7 +212,7 @@ export function ExtractionHub({
 
       setUploading(false);
     },
-    [personId, onDocumentsChange]
+    [personId, onDocumentsChange],
   );
 
   const handleDrop = useCallback(
@@ -225,7 +221,7 @@ export function ExtractionHub({
       setDragging(false);
       handleUpload(e.dataTransfer.files);
     },
-    [handleUpload]
+    [handleUpload],
   );
 
   const handleFileSelect = useCallback(
@@ -235,7 +231,7 @@ export function ExtractionHub({
         e.target.value = "";
       }
     },
-    [handleUpload]
+    [handleUpload],
   );
 
   const handleDelete = useCallback(
@@ -253,12 +249,12 @@ export function ExtractionHub({
         toast.error("Failed to delete statement.");
       }
     },
-    [onDocumentsChange]
+    [onDocumentsChange],
   );
 
   const completedDocs = documents.filter((d) => d.status === "COMPLETED");
   const processingDocs = documents.filter(
-    (d) => d.status === "PENDING" || d.status === "PROCESSING"
+    (d) => d.status === "PENDING" || d.status === "PROCESSING",
   );
   const failedDocs = documents.filter((d) => d.status === "FAILED");
 
@@ -303,7 +299,7 @@ export function ExtractionHub({
               dragging
                 ? "border-brand bg-brand/5 ring-2 ring-brand/30 scale-[1.01]"
                 : "border-border hover:border-brand/40 hover:bg-surface-alt/50",
-              uploading && "pointer-events-none opacity-60"
+              uploading && "pointer-events-none opacity-60",
             )}
           >
             {uploading ? (
@@ -311,12 +307,8 @@ export function ExtractionHub({
                 <div className="relative">
                   <Loader2 className="h-10 w-10 animate-spin text-brand" />
                 </div>
-                <p className="text-sm font-medium text-text-primary">
-                  Processing statement…
-                </p>
-                <p className="text-xs text-text-secondary">
-                  AI is extracting bank data
-                </p>
+                <p className="text-sm font-medium text-text-primary">Processing statement…</p>
+                <p className="text-xs text-text-secondary">AI is extracting bank data</p>
               </>
             ) : (
               <>
@@ -327,9 +319,7 @@ export function ExtractionHub({
                   <p className="text-sm font-semibold text-text-primary">
                     Drop your bank statement
                   </p>
-                  <p className="mt-1 text-xs text-text-secondary">
-                    PDF format · Max 20MB
-                  </p>
+                  <p className="mt-1 text-xs text-text-secondary">PDF format · Max 20MB</p>
                 </div>
                 <button
                   onClick={() => fileInputRef.current?.click()}
@@ -354,12 +344,9 @@ export function ExtractionHub({
             {documents.length === 0 ? (
               <div className="flex h-full flex-col items-center justify-center rounded-2xl bg-surface-alt/50 px-4 py-8 text-center">
                 <FileText className="h-8 w-8 text-text-secondary/40" />
-                <p className="mt-3 text-sm font-medium text-text-secondary">
-                  No statements yet
-                </p>
+                <p className="mt-3 text-sm font-medium text-text-secondary">No statements yet</p>
                 <p className="mt-1 text-xs text-text-secondary/80">
-                  Upload a bank statement PDF to see your financial data come
-                  alive
+                  Upload a bank statement PDF to see your financial data come alive
                 </p>
               </div>
             ) : (
@@ -418,8 +405,8 @@ export function ExtractionHub({
                         }
                         return null;
                       })
-                      .filter((name): name is string => Boolean(name))
-                  )
+                      .filter((name): name is string => Boolean(name)),
+                  ),
                 ).join(" · ") || "Processed"}
               </span>
             )}
@@ -478,44 +465,33 @@ function DocumentRow({
     ? "accounts" in extracted && Array.isArray(extracted.accounts) && extracted.accounts.length > 0
       ? extracted.accounts[0]
       : "account" in extracted && extracted.account
-      ? extracted.account
-      : null
+        ? extracted.account
+        : null
     : null;
 
-  const txCount = extracted && "transactions" in extracted && Array.isArray(extracted.transactions)
-    ? extracted.transactions.length
-    : 0;
+  const txCount =
+    extracted && "transactions" in extracted && Array.isArray(extracted.transactions)
+      ? extracted.transactions.length
+      : 0;
 
   return (
     <li className="group flex items-center gap-3 rounded-xl bg-surface px-3 py-2.5 ring-1 ring-inset ring-border/60 transition hover:ring-border">
       {/* Status icon */}
       <span className={cn("shrink-0 rounded-lg p-1.5", st.bg)}>
-        <StIcon
-          className={cn(
-            "h-4 w-4",
-            st.color,
-            isSpinning && "animate-spin"
-          )}
-        />
+        <StIcon className={cn("h-4 w-4", st.color, isSpinning && "animate-spin")} />
       </span>
 
       {/* File info */}
       <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-medium text-text-primary">
-          {doc.original_name}
-        </p>
+        <p className="truncate text-sm font-medium text-text-primary">{doc.original_name}</p>
         <div className="flex items-center gap-2 text-[11px] text-text-secondary">
           <span className={cn("font-medium", st.color)}>{st.label}</span>
           {primaryAccount && (
             <>
               <span>·</span>
-              <span className="font-medium">
-                {primaryAccount.bank_name}
-              </span>
+              <span className="font-medium">{primaryAccount.bank_name}</span>
               <span>·</span>
-              <span>
-                {txCount} txns
-              </span>
+              <span>{txCount} txns</span>
             </>
           )}
           {!primaryAccount && doc.status === "COMPLETED" && (

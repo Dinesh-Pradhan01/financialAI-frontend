@@ -1,13 +1,26 @@
 import { useState } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Home, BarChart3, Zap, MessageCircle, User, Settings, Users, LogOut, Loader2, TrendingUp, FolderLock } from "lucide-react";
+import {
+  Home,
+  BarChart3,
+  Zap,
+  MessageCircle,
+  User,
+  Settings,
+  Users,
+  LogOut,
+  Loader2,
+  TrendingUp,
+  FolderLock,
+  BriefcaseBusiness,
+} from "lucide-react";
 import { cn } from "@/shared/lib/utils";
 import { useAppSelector } from "@/shared/store";
 import { selectHighPriorityCount, selectLanguage } from "@/shared/store/selectors";
 import { languages } from "@/shared/data/agentic";
 import { useAuth } from "@/shared/contexts/AuthContext";
 import { useLogout } from "@/shared/hooks/useLogout";
-import { isCeoOrAdmin } from "@/shared/lib/roles";
+import { isCeoOrAdmin, isHR } from "@/shared/lib/roles";
 
 const items = [
   { to: "/home", label: "Business 360", icon: Home },
@@ -129,62 +142,84 @@ export function DesktopSidebar() {
             </Link>
           </li>
         )}
+
+        {isHR(user?.role) && (
+          <li>
+            <Link
+              to="/hr"
+              className={cn(
+                "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium",
+                isActive("/hr")
+                  ? "bg-brand text-on-brand shadow-e1"
+                  : "text-text-secondary hover:bg-surface-alt",
+              )}
+            >
+              <BriefcaseBusiness className="h-4 w-4" />
+              <span>HR Ops</span>
+            </Link>
+          </li>
+        )}
       </ul>
 
-        <div className="my-4 border-t border-border" />
-        <Link
-          to="/settings"
-          className={cn(
-            "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium",
-            isActive("/settings")
-              ? "bg-surface-alt text-text-primary"
-              : "text-text-secondary hover:bg-surface-alt",
-          )}
-        >
-          <Settings className="h-4 w-4" />
-          Settings
-        </Link>
-
-        {/* User Profile Card & Logout */}
-        {user && (
-          <div className="mt-auto pt-4 border-t border-border space-y-3">
-            <div className="flex items-center justify-between gap-2 p-2 rounded-xl bg-surface-alt border border-border/50">
-              <div className="flex items-center gap-2 min-w-0">
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-brand text-white font-bold text-xs uppercase shadow-xs">
-                  {user.full_name
-                    ? user.full_name.split(" ").filter(Boolean).map((n) => n[0]).join("").slice(0, 2).toUpperCase()
-                    : user.email.slice(0, 2).toUpperCase()}
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-xs font-semibold text-text-primary">
-                    {user.full_name || user.email.split("@")[0]}
-                  </p>
-                  <span className="inline-block rounded-full bg-brand/10 px-1.5 py-0.2 text-[9px] font-bold text-brand uppercase tracking-wider">
-                    {user.role}
-                  </span>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={handleLogout}
-                disabled={loggingOut}
-                title={loggingOut ? "Signing out…" : "Log out"}
-                className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-text-secondary hover:bg-destructive/10 hover:text-destructive transition cursor-pointer disabled:opacity-50"
-              >
-                {loggingOut ? (
-                  <Loader2 className="h-3.5 w-3.5 animate-spin text-destructive" />
-                ) : (
-                  <LogOut className="h-3.5 w-3.5" />
-                )}
-              </button>
-            </div>
-            <div className="px-1 text-[11px] text-text-secondary">
-              <p>{languages.find((l) => l.code === language)?.label ?? "English"}</p>
-              <p className="mt-0.5 text-[10px] text-text-secondary/70">Trust Center · DPDP-ready</p>
-            </div>
-          </div>
+      <div className="my-4 border-t border-border" />
+      <Link
+        to="/settings"
+        className={cn(
+          "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium",
+          isActive("/settings")
+            ? "bg-surface-alt text-text-primary"
+            : "text-text-secondary hover:bg-surface-alt",
         )}
-      </aside>
+      >
+        <Settings className="h-4 w-4" />
+        Settings
+      </Link>
+
+      {/* User Profile Card & Logout */}
+      {user && (
+        <div className="mt-auto pt-4 border-t border-border space-y-3">
+          <div className="flex items-center justify-between gap-2 p-2 rounded-xl bg-surface-alt border border-border/50">
+            <div className="flex items-center gap-2 min-w-0">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-brand text-white font-bold text-xs uppercase shadow-xs">
+                {user.full_name
+                  ? user.full_name
+                      .split(" ")
+                      .filter(Boolean)
+                      .map((n) => n[0])
+                      .join("")
+                      .slice(0, 2)
+                      .toUpperCase()
+                  : user.email.slice(0, 2).toUpperCase()}
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-xs font-semibold text-text-primary">
+                  {user.full_name || user.email.split("@")[0]}
+                </p>
+                <span className="inline-block rounded-full bg-brand/10 px-1.5 py-0.2 text-[9px] font-bold text-brand uppercase tracking-wider">
+                  {user.role}
+                </span>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={handleLogout}
+              disabled={loggingOut}
+              title={loggingOut ? "Signing out…" : "Log out"}
+              className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-text-secondary hover:bg-destructive/10 hover:text-destructive transition cursor-pointer disabled:opacity-50"
+            >
+              {loggingOut ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin text-destructive" />
+              ) : (
+                <LogOut className="h-3.5 w-3.5" />
+              )}
+            </button>
+          </div>
+          <div className="px-1 text-[11px] text-text-secondary">
+            <p>{languages.find((l) => l.code === language)?.label ?? "English"}</p>
+            <p className="mt-0.5 text-[10px] text-text-secondary/70">Trust Center · DPDP-ready</p>
+          </div>
+        </div>
+      )}
+    </aside>
   );
 }
-

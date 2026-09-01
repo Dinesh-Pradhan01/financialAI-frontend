@@ -1,12 +1,12 @@
-import React from 'react';
-import ReactMarkdown from 'react-markdown';
+import React from "react";
+import ReactMarkdown from "react-markdown";
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { Skeleton } from "@/shared/components/ui/skeleton";
-import { useCompanyAIView, isSetupRequiredError } from '../hooks/useCompanyAPI';
-import { Sparkles, BrainCircuit, RefreshCw, AlertCircle, ArrowRight } from 'lucide-react';
+import { useCompanyAIView, isSetupRequiredError } from "../hooks/useCompanyAPI";
+import { Sparkles, BrainCircuit, RefreshCw, AlertCircle, ArrowRight } from "lucide-react";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
-import { Link, useNavigate } from '@tanstack/react-router';
+import { Link, useNavigate } from "@tanstack/react-router";
 
 interface Props {
   hasProfile?: boolean;
@@ -28,16 +28,19 @@ export const AIViewCard = ({ hasProfile = true }: Props) => {
           </div>
           <div className="flex items-center gap-2">
             {hasProfile && !isLoading && (
-              <button 
-                onClick={() => refetch()} 
+              <button
+                onClick={() => refetch()}
                 disabled={isFetching}
                 className="p-1 rounded-md hover:bg-muted transition-colors text-muted-foreground hover:text-foreground cursor-pointer"
                 title="Refresh AI View"
               >
-                <RefreshCw className={`w-3.5 h-3.5 ${isFetching ? 'animate-spin' : ''}`} />
+                <RefreshCw className={`w-3.5 h-3.5 ${isFetching ? "animate-spin" : ""}`} />
               </button>
             )}
-            <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 text-[10px] font-semibold">
+            <Badge
+              variant="outline"
+              className="bg-primary/10 text-primary border-primary/20 text-[10px] font-semibold"
+            >
               Powered by Gemini
             </Badge>
           </div>
@@ -64,7 +67,8 @@ export const AIViewCard = ({ hasProfile = true }: Props) => {
             <div className="space-y-1.5 max-w-xs">
               <h3 className="font-bold text-base text-foreground">AI Intelligence Synthesis</h3>
               <p className="text-xs text-muted-foreground leading-relaxed">
-                SpotLite AI will generate executive recommendations and business risk analysis once your company profile is active.
+                SpotLite AI will generate executive recommendations and business risk analysis once
+                your company profile is active.
               </p>
             </div>
             <Button
@@ -83,10 +87,19 @@ export const AIViewCard = ({ hasProfile = true }: Props) => {
               <AlertCircle className="w-6 h-6" />
             </div>
             <div className="space-y-1">
-              <h3 className="font-semibold text-sm text-foreground">Could not generate AI insights</h3>
-              <p className="text-xs text-muted-foreground">SpotLite AI service encountered a temporary error.</p>
+              <h3 className="font-semibold text-sm text-foreground">
+                Could not generate AI insights
+              </h3>
+              <p className="text-xs text-muted-foreground">
+                SpotLite AI service encountered a temporary error.
+              </p>
             </div>
-            <Button size="sm" variant="outline" onClick={() => refetch()} className="cursor-pointer">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => refetch()}
+              className="cursor-pointer"
+            >
               Try again
             </Button>
           </div>

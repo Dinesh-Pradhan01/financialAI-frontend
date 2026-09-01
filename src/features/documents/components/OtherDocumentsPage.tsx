@@ -181,8 +181,9 @@ export function OtherDocumentsPage() {
                 Other Documents
               </h1>
               <p className="mt-1 text-xs text-text-secondary leading-relaxed max-w-2xl">
-                Upload and manage miscellaneous corporate records, custom agreements, or supplementary
-                filings that do not belong to the eight predefined statutory categories.
+                Upload and manage miscellaneous corporate records, custom agreements, or
+                supplementary filings that do not belong to the eight predefined statutory
+                categories.
               </p>
             </div>
           </div>
@@ -235,8 +236,8 @@ export function OtherDocumentsPage() {
                   No other documents uploaded yet
                 </p>
                 <p className="text-xs text-text-secondary mt-1 max-w-md mx-auto">
-                  Upload auxiliary corporate files, supplemental audit reports, or specific agreements
-                  that don't fit into the standard categories.
+                  Upload auxiliary corporate files, supplemental audit reports, or specific
+                  agreements that don't fit into the standard categories.
                 </p>
               </div>
               <Button

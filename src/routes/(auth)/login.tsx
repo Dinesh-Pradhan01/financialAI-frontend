@@ -101,8 +101,7 @@ function Login() {
       // Dynamic safe redirect (defaults to /home if not specified)
       nav({ to: getSafeRedirectPath(search.redirect), replace: true });
     } catch (err: unknown) {
-      const msg =
-        err instanceof Error ? err.message : "Login failed. Please try again.";
+      const msg = err instanceof Error ? err.message : "Login failed. Please try again.";
 
       if (msg.includes("auth/invalid-credential") || msg.includes("auth/wrong-password")) {
         toast.error("Invalid email or password.");
@@ -171,7 +170,10 @@ function Login() {
           <form onSubmit={handleSubmit} className="mt-6 space-y-4">
             {/* Email */}
             <div className="space-y-1.5">
-              <label htmlFor="login-email" className="block text-xs font-semibold text-text-secondary">
+              <label
+                htmlFor="login-email"
+                className="block text-xs font-semibold text-text-secondary"
+              >
                 Work Email address
               </label>
               <input
@@ -188,7 +190,10 @@ function Login() {
 
             {/* Password */}
             <div className="space-y-1.5">
-              <label htmlFor="login-password" className="block text-xs font-semibold text-text-secondary">
+              <label
+                htmlFor="login-password"
+                className="block text-xs font-semibold text-text-secondary"
+              >
                 Password
               </label>
               <div className="relative">

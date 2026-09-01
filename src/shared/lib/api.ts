@@ -11,9 +11,8 @@ import { getIdToken } from "@/shared/firebase/auth";
 const _rawBase = import.meta.env.VITE_API_URL ?? import.meta.env.VITE_API_BASE_URL;
 const API_BASE_URL: string =
   _rawBase !== undefined && _rawBase !== null
-    ? _rawBase          // could be "" (proxy mode) or "https://api.example.com"
+    ? _rawBase // could be "" (proxy mode) or "https://api.example.com"
     : "http://127.0.0.1:8000"; // local fallback when env var is missing entirely
-
 
 // ---------------------------------------------------------------------------
 // Types
@@ -37,10 +36,7 @@ interface FetchOptions extends Omit<RequestInit, "headers"> {
  * - Parses JSON responses
  * - Throws on non-2xx responses with the server error detail
  */
-export async function fetchAPI<T = unknown>(
-  path: string,
-  options: FetchOptions = {},
-): Promise<T> {
+export async function fetchAPI<T = unknown>(path: string, options: FetchOptions = {}): Promise<T> {
   const { headers: extraHeaders = {}, useFirebaseToken = false, ...init } = options;
 
   const headers: Record<string, string> = {
@@ -90,8 +86,8 @@ export async function fetchAPI<T = unknown>(
       typeof detail === "string"
         ? detail
         : detail
-        ? JSON.stringify(detail)
-        : `API error ${response.status}`;
+          ? JSON.stringify(detail)
+          : `API error ${response.status}`;
     const error = new Error(message) as Error & {
       status: number;
       detail?: unknown;
@@ -145,7 +141,7 @@ export const api = {
   upload: async <T = unknown>(
     path: string,
     formData: FormData,
-    method: "POST" | "PUT" = "POST"
+    method: "POST" | "PUT" = "POST",
   ): Promise<T> => {
     const url = `${API_BASE_URL}${path}`;
     const response = await fetch(url, {
@@ -163,8 +159,8 @@ export const api = {
         typeof detail === "string"
           ? detail
           : detail
-          ? JSON.stringify(detail)
-          : `API error ${response.status}`;
+            ? JSON.stringify(detail)
+            : `API error ${response.status}`;
       const error = new Error(message) as Error & {
         status: number;
         detail?: unknown;
@@ -195,8 +191,8 @@ export const api = {
         typeof detail === "string"
           ? detail
           : detail
-          ? JSON.stringify(detail)
-          : `API error ${response.status}`;
+            ? JSON.stringify(detail)
+            : `API error ${response.status}`;
       const error = new Error(message) as Error & {
         status: number;
         detail?: unknown;

@@ -66,49 +66,37 @@ export function DocumentUploadCard({
         isDragOver
           ? "border-brand bg-brand/5 shadow-xs"
           : existingDoc
-          ? "border-success/40 bg-success/5 shadow-xs"
-          : "border-border-c bg-surface hover:border-brand/40 shadow-xs"
+            ? "border-success/40 bg-success/5 shadow-xs"
+            : "border-border-c bg-surface hover:border-brand/40 shadow-xs"
       }`}
     >
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex items-start gap-3.5">
           <div
             className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl font-bold text-sm transition-colors ${
-              existingDoc
-                ? "bg-success/15 text-success"
-                : "bg-brand/10 text-brand"
+              existingDoc ? "bg-success/15 text-success" : "bg-brand/10 text-brand"
             }`}
           >
-            {existingDoc ? (
-              <CheckCircle2 className="h-5 w-5" />
-            ) : (
-              <FileText className="h-5 w-5" />
-            )}
+            {existingDoc ? <CheckCircle2 className="h-5 w-5" /> : <FileText className="h-5 w-5" />}
           </div>
           <div>
             <div className="flex items-center gap-2 flex-wrap">
-              <h4 className="font-semibold text-sm text-text-primary">
-                {req.label}
-              </h4>
+              <h4 className="font-semibold text-sm text-text-primary">{req.label}</h4>
               <span
                 className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${
                   existingDoc
                     ? "bg-success/20 text-success"
                     : req.isOptional
-                    ? "bg-surface-alt text-text-secondary border border-border-c/60"
-                    : "bg-brand/10 text-brand font-bold"
+                      ? "bg-surface-alt text-text-secondary border border-border-c/60"
+                      : "bg-brand/10 text-brand font-bold"
                 }`}
               >
                 {existingDoc ? "Uploaded" : req.isOptional ? "Optional" : "Required"}
               </span>
             </div>
-            <p className="text-xs text-text-secondary mt-1 leading-relaxed">
-              {req.why}
-            </p>
+            <p className="text-xs text-text-secondary mt-1 leading-relaxed">{req.why}</p>
             {!existingDoc && (
-              <p className="text-[10px] text-text-tertiary font-mono mt-1">
-                PDF only • Max 10MB
-              </p>
+              <p className="text-[10px] text-text-tertiary font-mono mt-1">PDF only • Max 10MB</p>
             )}
             {existingDoc && (
               <div className="flex items-center gap-2 mt-1.5">

@@ -8,11 +8,7 @@ export interface SpotLiteBrandProps {
   to?: string | null;
 }
 
-export function SpotLiteBrand({
-  size = "sm",
-  className,
-  to = "/",
-}: SpotLiteBrandProps) {
+export function SpotLiteBrand({ size = "sm", className, to = "/" }: SpotLiteBrandProps) {
   const isMd = size === "md";
 
   const brandMark = (
@@ -20,7 +16,7 @@ export function SpotLiteBrand({
       <div
         className={cn(
           "flex items-center justify-center rounded-lg bg-primary text-white shadow-md shadow-primary/25 shrink-0",
-          isMd ? "h-9 w-9" : "h-8 w-8"
+          isMd ? "h-9 w-9" : "h-8 w-8",
         )}
       >
         <Zap size={isMd ? 20 : 18} className="fill-current text-white" />
@@ -29,7 +25,7 @@ export function SpotLiteBrand({
         <span
           className={cn(
             "font-extrabold tracking-tight text-foreground leading-tight",
-            isMd ? "text-xl" : "text-lg"
+            isMd ? "text-xl" : "text-lg",
           )}
         >
           Spot<span className="text-primary">Lite</span>
@@ -37,7 +33,7 @@ export function SpotLiteBrand({
         <span
           className={cn(
             "font-semibold uppercase tracking-widest text-muted-foreground -mt-1",
-            isMd ? "text-[9px]" : "text-[0.5625rem]"
+            isMd ? "text-[9px]" : "text-[0.5625rem]",
           )}
         >
           Intelligence

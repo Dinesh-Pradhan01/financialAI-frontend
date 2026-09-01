@@ -11,17 +11,9 @@ import {
   ChevronUp,
   ShieldCheck,
 } from "lucide-react";
-import {
-  OPTIONAL_DOCUMENTS,
-  CATEGORY_RECOMMENDED_DOCUMENTS,
-} from "../lib/businessOnboarding";
+import { OPTIONAL_DOCUMENTS, CATEGORY_RECOMMENDED_DOCUMENTS } from "../lib/businessOnboarding";
 import { DocumentUploadCard } from "./DocumentUploadCard";
-import {
-  GeneralInfoState,
-  LeadershipState,
-  FinancialState,
-  UploadedDoc,
-} from "./types";
+import { GeneralInfoState, LeadershipState, FinancialState, UploadedDoc } from "./types";
 
 // TODO(phase-2): Move secondary and industry-recommended document vault to Dashboard Settings -> Compliance
 
@@ -61,7 +53,9 @@ export function Step5ReviewComplete({
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
       <div>
-        <h1 className="font-display text-2xl md:text-3xl font-bold text-foreground">Review & Complete</h1>
+        <h1 className="font-display text-2xl md:text-3xl font-bold text-foreground">
+          Review & Complete
+        </h1>
         <p className="text-sm text-text-secondary mt-1">
           Review your company profile before final activation.
         </p>
@@ -74,9 +68,7 @@ export function Step5ReviewComplete({
             {completionPct}%
           </div>
           <div>
-            <h3 className="font-bold text-sm text-text-primary">
-              Onboarding Readiness
-            </h3>
+            <h3 className="font-bold text-sm text-text-primary">Onboarding Readiness</h3>
             <p className="text-xs text-text-secondary">
               Core business verification & configuration details captured.
             </p>
@@ -107,11 +99,15 @@ export function Step5ReviewComplete({
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3.5 text-xs">
             <div>
               <span className="text-text-secondary block font-medium">Company Name</span>
-              <span className="font-semibold text-text-primary">{generalState.companyName || "—"}</span>
+              <span className="font-semibold text-text-primary">
+                {generalState.companyName || "—"}
+              </span>
             </div>
             <div>
               <span className="text-text-secondary block font-medium">Category</span>
-              <span className="font-semibold text-text-primary">{generalState.businessCategory}</span>
+              <span className="font-semibold text-text-primary">
+                {generalState.businessCategory}
+              </span>
             </div>
             <div>
               <span className="text-text-secondary block font-medium">Legal Type</span>
@@ -119,16 +115,22 @@ export function Step5ReviewComplete({
             </div>
             <div>
               <span className="text-text-secondary block font-medium">Business PAN</span>
-              <span className="font-mono font-semibold text-text-primary">{generalState.businessPan || "—"}</span>
+              <span className="font-mono font-semibold text-text-primary">
+                {generalState.businessPan || "—"}
+              </span>
             </div>
             <div>
               <span className="text-text-secondary block font-medium">Official Email</span>
-              <span className="font-semibold text-text-primary">{generalState.officialEmail || "—"}</span>
+              <span className="font-semibold text-text-primary">
+                {generalState.officialEmail || "—"}
+              </span>
             </div>
             <div>
               <span className="text-text-secondary block font-medium">Location</span>
               <span className="font-semibold text-text-primary">
-                {generalState.city ? `${generalState.city}, ${generalState.stateName}` : generalState.stateName}
+                {generalState.city
+                  ? `${generalState.city}, ${generalState.stateName}`
+                  : generalState.stateName}
               </span>
             </div>
           </div>
@@ -153,21 +155,36 @@ export function Step5ReviewComplete({
             {leadershipState.ceoName && (
               <div className="rounded-lg border border-border-c p-3 bg-surface-alt/60">
                 <span className="text-brand font-bold block mb-1">CEO / Founder</span>
-                <span className="font-semibold text-text-primary block">{leadershipState.ceoName}</span>
-                {leadershipState.ceoEmail && <span className="text-text-secondary block truncate">{leadershipState.ceoEmail}</span>}
+                <span className="font-semibold text-text-primary block">
+                  {leadershipState.ceoName}
+                </span>
+                {leadershipState.ceoEmail && (
+                  <span className="text-text-secondary block truncate">
+                    {leadershipState.ceoEmail}
+                  </span>
+                )}
                 {leadershipState.ceoDesignation && (
-                  <span className="text-text-secondary block">{leadershipState.ceoDesignation}</span>
+                  <span className="text-text-secondary block">
+                    {leadershipState.ceoDesignation}
+                  </span>
                 )}
               </div>
             )}
             {leadershipState.cfoName && (
               <div className="rounded-lg border border-border-c p-3 bg-surface-alt/60">
                 <span className="text-brand font-bold block mb-1">CFO</span>
-                <span className="font-semibold text-text-primary block">{leadershipState.cfoName}</span>
-                {leadershipState.cfoEmail && <span className="text-text-secondary block truncate">{leadershipState.cfoEmail}</span>}
+                <span className="font-semibold text-text-primary block">
+                  {leadershipState.cfoName}
+                </span>
+                {leadershipState.cfoEmail && (
+                  <span className="text-text-secondary block truncate">
+                    {leadershipState.cfoEmail}
+                  </span>
+                )}
                 {leadershipState.inviteCfo && (
                   <span className="mt-2 inline-block rounded-full bg-brand/10 px-2 py-0.5 text-[11px] font-semibold text-brand capitalize">
-                    {leadershipState.teamInvites.find((i) => i.role === "cfo")?.status || "Invite Pending"}
+                    {leadershipState.teamInvites.find((i) => i.role === "cfo")?.status ||
+                      "Invite Pending"}
                   </span>
                 )}
               </div>
@@ -175,11 +192,18 @@ export function Step5ReviewComplete({
             {leadershipState.hrName && (
               <div className="rounded-lg border border-border-c p-3 bg-surface-alt/60">
                 <span className="text-brand font-bold block mb-1">HR</span>
-                <span className="font-semibold text-text-primary block">{leadershipState.hrName}</span>
-                {leadershipState.hrEmail && <span className="text-text-secondary block truncate">{leadershipState.hrEmail}</span>}
+                <span className="font-semibold text-text-primary block">
+                  {leadershipState.hrName}
+                </span>
+                {leadershipState.hrEmail && (
+                  <span className="text-text-secondary block truncate">
+                    {leadershipState.hrEmail}
+                  </span>
+                )}
                 {leadershipState.inviteHr && (
                   <span className="mt-2 inline-block rounded-full bg-brand/10 px-2 py-0.5 text-[11px] font-semibold text-brand capitalize">
-                    {leadershipState.teamInvites.find((i) => i.role === "hr")?.status || "Invite Pending"}
+                    {leadershipState.teamInvites.find((i) => i.role === "hr")?.status ||
+                      "Invite Pending"}
                   </span>
                 )}
               </div>
@@ -193,19 +217,25 @@ export function Step5ReviewComplete({
               {leadershipState.numberOfEmployees && (
                 <div>
                   <span className="text-text-secondary block font-medium">Workforce</span>
-                  <span className="font-semibold text-text-primary">{leadershipState.numberOfEmployees}</span>
+                  <span className="font-semibold text-text-primary">
+                    {leadershipState.numberOfEmployees}
+                  </span>
                 </div>
               )}
               {leadershipState.numberOfBranches && (
                 <div>
                   <span className="text-text-secondary block font-medium">Branches</span>
-                  <span className="font-semibold text-text-primary">{leadershipState.numberOfBranches}</span>
+                  <span className="font-semibold text-text-primary">
+                    {leadershipState.numberOfBranches}
+                  </span>
                 </div>
               )}
               {leadershipState.businessModel && (
                 <div>
                   <span className="text-text-secondary block font-medium">Business Model</span>
-                  <span className="font-semibold text-text-primary">{leadershipState.businessModel}</span>
+                  <span className="font-semibold text-text-primary">
+                    {leadershipState.businessModel}
+                  </span>
                 </div>
               )}
             </div>
@@ -230,11 +260,15 @@ export function Step5ReviewComplete({
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3.5 text-xs">
             <div>
               <span className="text-text-secondary block font-medium">Primary Bank</span>
-              <span className="font-semibold text-text-primary">{financialState.primaryBank || "Not specified"}</span>
+              <span className="font-semibold text-text-primary">
+                {financialState.primaryBank || "Not specified"}
+              </span>
             </div>
             <div>
               <span className="text-text-secondary block font-medium">Accounting System</span>
-              <span className="font-semibold text-text-primary">{financialState.accountingSoftware}</span>
+              <span className="font-semibold text-text-primary">
+                {financialState.accountingSoftware}
+              </span>
             </div>
             <div>
               <span className="text-text-secondary block font-medium">Payment Rails</span>
@@ -251,7 +285,8 @@ export function Step5ReviewComplete({
         <div className="rounded-xl border border-border-c bg-surface p-5 space-y-3.5 shadow-xs">
           <div className="flex justify-between items-center border-b border-border-c pb-3">
             <h3 className="font-semibold text-sm flex items-center gap-2 text-foreground">
-              <FileCheck className="h-4 w-4 text-brand" /> 4. Verified Verification Documents ({uploadedDocs.length})
+              <FileCheck className="h-4 w-4 text-brand" /> 4. Verified Verification Documents (
+              {uploadedDocs.length})
             </h3>
             <button
               type="button"
@@ -274,9 +309,12 @@ export function Step5ReviewComplete({
                   <div className="flex items-center gap-2.5">
                     <FileText className="h-4 w-4 text-brand shrink-0" />
                     <div>
-                      <span className="font-semibold text-text-primary block">{doc.original_name}</span>
+                      <span className="font-semibold text-text-primary block">
+                        {doc.original_name}
+                      </span>
                       <span className="text-xs text-text-secondary capitalize">
-                        {doc.document_type.replace(/_/g, " ")} • {(doc.file_size_bytes / 1024).toFixed(0)} KB
+                        {doc.document_type.replace(/_/g, " ")} •{" "}
+                        {(doc.file_size_bytes / 1024).toFixed(0)} KB
                       </span>
                     </div>
                   </div>

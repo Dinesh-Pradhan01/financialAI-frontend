@@ -23,11 +23,13 @@ export const KNOWN_DOCUMENT_SLOTS: DocumentSlot[] = [
   {
     typeKey: "registration_proof",
     label: "Business Registration Proof",
-    description: "Certificate of Incorporation, Partnership Deed, LLP Agreement, or Shop & Establishment Certificate.",
+    description:
+      "Certificate of Incorporation, Partnership Deed, LLP Agreement, or Shop & Establishment Certificate.",
     category: "mandatory",
     instanceMode: "single",
     why: "Legal proof of commercial establishment under Indian statutory authorities.",
-    equivalents: "Certificate of Incorporation (CoI), registered Partnership Deed, LLP Agreement, or Shop & Establishment Certificate.",
+    equivalents:
+      "Certificate of Incorporation (CoI), registered Partnership Deed, LLP Agreement, or Shop & Establishment Certificate.",
   },
   {
     typeKey: "udyam_certificate",
@@ -54,15 +56,18 @@ export const KNOWN_DOCUMENT_SLOTS: DocumentSlot[] = [
     category: "optional",
     instanceMode: "multiple",
     why: "Verifies operational bank account details, IFSC code, and legal account title for banking assessments. Multiple bank accounts can be added.",
-    equivalents: "Personalized cancelled cheque, latest bank statement with printed account name/IFSC, or passbook front page.",
+    equivalents:
+      "Personalized cancelled cheque, latest bank statement with printed account name/IFSC, or passbook front page.",
   },
   {
     typeKey: "address_proof",
     label: "Business Address Proof",
-    description: "Utility bill, lease agreement, or municipal property tax receipt for the registered office.",
+    description:
+      "Utility bill, lease agreement, or municipal property tax receipt for the registered office.",
     category: "optional",
     instanceMode: "multiple",
     why: "Validates physical operational presence for registered office, branches, or factories. Multiple premises can be added.",
-    equivalents: "Electricity bill (<3 months old), registered lease/rental agreement, or municipal property tax receipt.",
+    equivalents:
+      "Electricity bill (<3 months old), registered lease/rental agreement, or municipal property tax receipt.",
   },
 ];

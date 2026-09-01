@@ -8,11 +8,7 @@ import {
   Layers,
   FileCheck2,
 } from "lucide-react";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/shared/components/ui/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "@/shared/components/ui/popover";
 import { formatDocumentDate, formatFileSize } from "../lib/documentPresentation";
 import { getDocumentExplanation, isMultiInstanceDocumentType } from "../lib/documentExplanations";
 import { cn } from "@/shared/lib/utils";
@@ -59,9 +55,9 @@ export function DocumentInfoPopover({
   const hasGuidance = Boolean(guidance?.why || guidance?.equivalents);
   const hasMetadata = Boolean(
     metadata?.uploadedAt ||
-      metadata?.originalName ||
-      (metadata?.qualityScore !== undefined && metadata?.qualityScore !== null) ||
-      metadata?.verificationNotes
+    metadata?.originalName ||
+    (metadata?.qualityScore !== undefined && metadata?.qualityScore !== null) ||
+    metadata?.verificationNotes,
   );
 
   if (!hasTaxonomy && !hasExplanation && !hasGuidance && !hasMetadata) {
@@ -200,18 +196,14 @@ export function DocumentInfoPopover({
               <span className="text-[10px] font-bold text-brand uppercase tracking-wider block">
                 What is this document?
               </span>
-              <p className="text-text-primary leading-relaxed">
-                {explanation.whatIsIt}
-              </p>
+              <p className="text-text-primary leading-relaxed">{explanation.whatIsIt}</p>
             </div>
 
             <div className="space-y-1 bg-surface-alt/40 p-2.5 rounded-xl border border-border/50">
               <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider block">
                 Why is it needed?
               </span>
-              <p className="text-text-secondary leading-relaxed">
-                {explanation.whyNeeded}
-              </p>
+              <p className="text-text-secondary leading-relaxed">{explanation.whyNeeded}</p>
             </div>
           </div>
         )}
@@ -224,7 +216,8 @@ export function DocumentInfoPopover({
               <span>Multiple Records ({instanceCount} Files)</span>
             </div>
             <p className="text-text-secondary leading-relaxed">
-              You have {instanceCount} files on record for this slot. View and manage all files in the Document Registry tab.
+              You have {instanceCount} files on record for this slot. View and manage all files in
+              the Document Registry tab.
             </p>
           </div>
         ) : isMultiInstance ? (
@@ -234,7 +227,8 @@ export function DocumentInfoPopover({
               <span>Multiple Accounts / Periods</span>
             </div>
             <p className="text-text-secondary leading-relaxed">
-              If you have multiple accounts or periods, you can upload a combined PDF here, or manage files in the Document Registry.
+              If you have multiple accounts or periods, you can upload a combined PDF here, or
+              manage files in the Document Registry.
             </p>
           </div>
         ) : null}
@@ -270,9 +264,7 @@ export function DocumentInfoPopover({
             <span className="text-[10px] font-bold text-text-tertiary uppercase tracking-wider">
               Why SpotLite needs this
             </span>
-            <p className="text-text-secondary leading-relaxed">
-              {guidance.why}
-            </p>
+            <p className="text-text-secondary leading-relaxed">{guidance.why}</p>
           </div>
         )}
 
@@ -281,9 +273,7 @@ export function DocumentInfoPopover({
             <span className="text-[10px] font-bold text-text-tertiary uppercase tracking-wider">
               Accepted Alternatives
             </span>
-            <p className="text-text-secondary leading-relaxed">
-              {guidance.equivalents}
-            </p>
+            <p className="text-text-secondary leading-relaxed">{guidance.equivalents}</p>
           </div>
         )}
       </PopoverContent>

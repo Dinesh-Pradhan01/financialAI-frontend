@@ -4,7 +4,10 @@ import { ArrowRight, CheckCircle2 } from "lucide-react";
 
 export function LandingHowItWorks() {
   return (
-    <section id="how-it-works" className="bg-[#f8fafc] py-10 sm:py-12 lg:py-14 border-b border-border">
+    <section
+      id="how-it-works"
+      className="bg-[#f8fafc] py-10 sm:py-12 lg:py-14 border-b border-border"
+    >
       <div className="mx-auto max-w-7xl 2xl:max-w-360 px-4 sm:px-6 lg:px-8 2xl:px-12">
         <motion.div
           initial={{ opacity: 0, y: 15 }}

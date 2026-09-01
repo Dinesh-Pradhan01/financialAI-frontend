@@ -53,7 +53,7 @@ export function PackageDocumentPicker({
     return availableDocs.filter(
       (doc) =>
         doc.original_name.toLowerCase().includes(query) ||
-        doc.document_type.toLowerCase().includes(query)
+        doc.document_type.toLowerCase().includes(query),
     );
   }, [availableDocs, searchQuery]);
 
@@ -67,7 +67,7 @@ export function PackageDocumentPicker({
 
   const toggleSelectDoc = (id: string) => {
     setSelectedDocIds((prev) =>
-      prev.includes(id) ? prev.filter((dId) => dId !== id) : [...prev, id]
+      prev.includes(id) ? prev.filter((dId) => dId !== id) : [...prev, id],
     );
   };
 
@@ -84,8 +84,7 @@ export function PackageDocumentPicker({
     onConfirm(selectedDocIds);
   };
 
-  const isAllSelected =
-    filteredDocs.length > 0 && selectedDocIds.length === filteredDocs.length;
+  const isAllSelected = filteredDocs.length > 0 && selectedDocIds.length === filteredDocs.length;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -137,7 +136,8 @@ export function PackageDocumentPicker({
         <div className="flex-1 overflow-y-auto max-h-[340px] rounded-xl border border-border/80 divide-y divide-border/60 bg-surface-alt/20 my-2">
           {availableDocs.length === 0 ? (
             <div className="p-8 text-center text-xs text-text-secondary">
-              No available documents to add. All uploaded documents are already in this package or none have been uploaded yet.
+              No available documents to add. All uploaded documents are already in this package or
+              none have been uploaded yet.
             </div>
           ) : filteredDocs.length === 0 ? (
             <div className="p-8 text-center text-xs text-text-secondary">
@@ -152,9 +152,7 @@ export function PackageDocumentPicker({
                   key={doc.id}
                   onClick={() => toggleSelectDoc(doc.id)}
                   className={`flex items-center justify-between gap-3 p-3 text-xs transition-colors cursor-pointer ${
-                    isChecked
-                      ? "bg-brand/5 hover:bg-brand/10"
-                      : "hover:bg-surface-alt/50"
+                    isChecked ? "bg-brand/5 hover:bg-brand/10" : "hover:bg-surface-alt/50"
                   }`}
                 >
                   <div className="flex items-center gap-3 min-w-0 flex-1">

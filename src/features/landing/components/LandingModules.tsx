@@ -79,8 +79,19 @@ export function LandingModules({
                       transition={{ type: "spring", stiffness: 420, damping: 32 }}
                     />
                   )}
-                  <Icon size={15} className={cn("relative z-10 transition-colors", isActive ? "text-white" : "text-primary")} />
-                  <span className={cn("relative z-10 transition-colors", isActive ? "text-white font-bold" : "text-slate-600 hover:text-foreground")}>
+                  <Icon
+                    size={15}
+                    className={cn(
+                      "relative z-10 transition-colors",
+                      isActive ? "text-white" : "text-primary",
+                    )}
+                  />
+                  <span
+                    className={cn(
+                      "relative z-10 transition-colors",
+                      isActive ? "text-white font-bold" : "text-slate-600 hover:text-foreground",
+                    )}
+                  >
                     {mod.title}
                   </span>
                   <span
@@ -108,14 +119,27 @@ export function LandingModules({
                   transition={{ type: "spring", stiffness: 420, damping: 32 }}
                 />
               )}
-              <Bot size={15} className={cn("relative z-10 transition-colors", activeTab === "copilot" ? "text-white" : "text-primary")} />
-              <span className={cn("relative z-10 transition-colors", activeTab === "copilot" ? "text-white font-bold" : "text-primary")}>
+              <Bot
+                size={15}
+                className={cn(
+                  "relative z-10 transition-colors",
+                  activeTab === "copilot" ? "text-white" : "text-primary",
+                )}
+              />
+              <span
+                className={cn(
+                  "relative z-10 transition-colors",
+                  activeTab === "copilot" ? "text-white font-bold" : "text-primary",
+                )}
+              >
                 AI Financial Copilot
               </span>
               <span
                 className={cn(
                   "relative z-10 text-[10px] uppercase font-mono rounded px-1.5 py-0.5 font-bold transition-colors",
-                  activeTab === "copilot" ? "bg-emerald-400/30 text-emerald-200" : "bg-emerald-500/20 text-emerald-800",
+                  activeTab === "copilot"
+                    ? "bg-emerald-400/30 text-emerald-200"
+                    : "bg-emerald-500/20 text-emerald-800",
                 )}
               >
                 Agentic
@@ -143,8 +167,9 @@ export function LandingModules({
                       Ask your financial ledger anything in plain English
                     </h3>
                     <p className="text-sm sm:text-base text-blue-100/90 leading-relaxed max-w-[56ch]">
-                      SpotLite AI is trained strictly on your uploaded bank statements, GST ledgers, and
-                      verified payroll rosters. Answers include exact audit traces back to source documents.
+                      SpotLite AI is trained strictly on your uploaded bank statements, GST ledgers,
+                      and verified payroll rosters. Answers include exact audit traces back to
+                      source documents.
                     </p>
 
                     <div className="pt-2 flex flex-wrap items-center gap-3">
@@ -156,7 +181,10 @@ export function LandingModules({
                         className="inline-flex items-center gap-2 rounded-xl bg-white px-4.5 py-2.5 text-xs sm:text-sm font-semibold tracking-[-0.005em] text-primary shadow-md hover:bg-slate-100 transition-all cursor-pointer group"
                       >
                         <span>Try Sample Prompts in Sandbox</span>
-                        <ArrowRight size={14} className="transition-transform duration-200 group-hover:translate-x-0.5" />
+                        <ArrowRight
+                          size={14}
+                          className="transition-transform duration-200 group-hover:translate-x-0.5"
+                        />
                       </motion.button>
                     </div>
                   </div>
@@ -260,7 +288,9 @@ export function LandingModules({
 
                       <div className="p-3 rounded-xl bg-blue-50/60 border border-blue-100 flex items-center justify-between text-xs">
                         <span className="text-slate-500">Reconciliation Frequency:</span>
-                        <span className="font-bold text-primary font-mono">Continuous (Automated)</span>
+                        <span className="font-bold text-primary font-mono">
+                          Continuous (Automated)
+                        </span>
                       </div>
                     </div>
                   </div>

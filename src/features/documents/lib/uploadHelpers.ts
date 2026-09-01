@@ -44,7 +44,7 @@ export function suggestLabelFromFilename(filename: string): string {
  */
 export function buildUploadFormData(
   file: File,
-  options: { documentType: string; documentCategory: string }
+  options: { documentType: string; documentCategory: string },
 ): FormData {
   const formData = new FormData();
   formData.append("file", file);

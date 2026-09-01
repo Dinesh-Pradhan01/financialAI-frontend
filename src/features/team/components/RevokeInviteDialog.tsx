@@ -52,11 +52,11 @@ export function RevokeInviteDialog({
               <span className="font-mono text-text-primary">{invite.email}</span>)?
             </div>
             <div className="bg-surface-alt/70 p-2.5 rounded-xl border border-border/60 text-[11px] text-text-secondary">
-              • This invitation will be immediately invalidated and can no longer be used to complete setup.
+              • This invitation will be immediately invalidated and can no longer be used to
+              complete setup.
               <br />
               • The recipient will no longer be able to set up their credentials with this link.
-              <br />
-              • This does not delete any already accepted team members.
+              <br />• This does not delete any already accepted team members.
             </div>
           </AlertDialogDescription>
         </AlertDialogHeader>

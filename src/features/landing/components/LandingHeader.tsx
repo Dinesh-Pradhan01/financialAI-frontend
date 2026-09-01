@@ -74,9 +74,7 @@ export function LandingHeader({
                 href={link.href}
                 className={cn(
                   "text-sm font-medium tracking-normal transition-all relative py-1",
-                  isActive
-                    ? "text-primary font-bold"
-                    : "text-slate-600 hover:text-foreground",
+                  isActive ? "text-primary font-bold" : "text-slate-600 hover:text-foreground",
                 )}
               >
                 {link.name}
@@ -175,14 +173,18 @@ export function LandingHeader({
             ))}
             <div className="mt-2 flex flex-col gap-2 pt-4 border-t border-border">
               <div className="flex items-center justify-between py-1">
-                <span className="text-xs text-muted-foreground font-semibold">Display Currency</span>
+                <span className="text-xs text-muted-foreground font-semibold">
+                  Display Currency
+                </span>
                 <div className="inline-flex items-center rounded-lg border border-border bg-surface-alt p-0.5 text-xs">
                   <button
                     type="button"
                     onClick={() => setCurrency("INR")}
                     className={cn(
                       "px-2.5 py-1 rounded text-xs",
-                      currency === "INR" ? "bg-white font-bold text-primary shadow-xs" : "text-muted-foreground",
+                      currency === "INR"
+                        ? "bg-white font-bold text-primary shadow-xs"
+                        : "text-muted-foreground",
                     )}
                   >
                     ₹ INR
@@ -192,7 +194,9 @@ export function LandingHeader({
                     onClick={() => setCurrency("USD")}
                     className={cn(
                       "px-2.5 py-1 rounded text-xs",
-                      currency === "USD" ? "bg-white font-bold text-primary shadow-xs" : "text-muted-foreground",
+                      currency === "USD"
+                        ? "bg-white font-bold text-primary shadow-xs"
+                        : "text-muted-foreground",
                     )}
                   >
                     $ USD

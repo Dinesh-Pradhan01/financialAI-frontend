@@ -23,7 +23,8 @@ export function DocumentsWhyWeNeedGuide() {
               Why does SpotLite need company documents?
             </h4>
             <p className="text-[11px] text-text-secondary mt-0.5">
-              Learn how corporate filings power your MSME credit score, continuous risk models, and due diligence vault.
+              Learn how corporate filings power your MSME credit score, continuous risk models, and
+              due diligence vault.
             </p>
           </div>
         </div>
@@ -33,7 +34,7 @@ export function DocumentsWhyWeNeedGuide() {
           <ChevronDown
             className={cn(
               "h-4 w-4 transition-transform duration-200",
-              isOpen ? "rotate-180 text-brand" : "text-text-tertiary"
+              isOpen ? "rotate-180 text-brand" : "text-text-tertiary",
             )}
           />
         </div>
@@ -58,7 +59,8 @@ export function DocumentsWhyWeNeedGuide() {
                   <span>Statutory Verification</span>
                 </div>
                 <p className="text-[11px] text-text-secondary leading-relaxed max-w-prose">
-                  Confirms corporate entity registration and PAN with regulatory authorities (MCA/MSME) to verify business legitimacy.
+                  Confirms corporate entity registration and PAN with regulatory authorities
+                  (MCA/MSME) to verify business legitimacy.
                 </p>
               </div>
 
@@ -71,7 +73,8 @@ export function DocumentsWhyWeNeedGuide() {
                   <span>Credit Profiling</span>
                 </div>
                 <p className="text-[11px] text-text-secondary leading-relaxed max-w-prose">
-                  GSTIN and bank cheque verification enhance automated AI health scoring, helping negotiate better credit lines.
+                  GSTIN and bank cheque verification enhance automated AI health scoring, helping
+                  negotiate better credit lines.
                 </p>
               </div>
 
@@ -84,7 +87,8 @@ export function DocumentsWhyWeNeedGuide() {
                   <span>Due Diligence Vault</span>
                 </div>
                 <p className="text-[11px] text-text-secondary leading-relaxed max-w-prose">
-                  Organize verified filings into curated audit packages to share securely with lenders, auditors, and board members.
+                  Organize verified filings into curated audit packages to share securely with
+                  lenders, auditors, and board members.
                 </p>
               </div>
             </div>

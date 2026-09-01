@@ -1,12 +1,5 @@
 import { motion } from "framer-motion";
-import {
-  UserCheck,
-  Clock,
-  AlertCircle,
-  Users,
-  AlertTriangle,
-  RotateCw,
-} from "lucide-react";
+import { UserCheck, Clock, AlertCircle, Users, AlertTriangle, RotateCw } from "lucide-react";
 import { cn } from "@/shared/lib/utils";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { Button } from "@/shared/components/ui/button";
@@ -52,7 +45,7 @@ export function TeamStatsBar({ className }: TeamStatsBarProps) {
       <div
         className={cn(
           "rounded-2xl border border-destructive/30 bg-destructive/5 p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-left",
-          className
+          className,
         )}
       >
         <div className="flex items-center gap-3 min-w-0">
@@ -125,14 +118,14 @@ export function TeamStatsBar({ className }: TeamStatsBarProps) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.2 }}
             className={cn(
-              "relative overflow-hidden rounded-2xl border border-border/80 bg-linear-to-br from-surface via-surface to-surface-alt/20 p-4 sm:p-5 shadow-xs transition-all duration-200 hover:border-brand/30 hover:shadow-sm group text-left"
+              "relative overflow-hidden rounded-2xl border border-border/80 bg-linear-to-br from-surface via-surface to-surface-alt/20 p-4 sm:p-5 shadow-xs transition-all duration-200 hover:border-brand/30 hover:shadow-sm group text-left",
             )}
           >
             {/* Subtle ambient light */}
             <div
               className={cn(
                 "absolute inset-0 pointer-events-none bg-linear-to-br via-transparent to-transparent opacity-80 group-hover:opacity-100 transition-opacity duration-300",
-                card.ambient
+                card.ambient,
               )}
             />
 
@@ -145,7 +138,7 @@ export function TeamStatsBar({ className }: TeamStatsBarProps) {
                 <div
                   className={cn(
                     "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border transition-transform duration-200 group-hover:scale-105 shadow-2xs",
-                    card.iconColor
+                    card.iconColor,
                   )}
                 >
                   <Icon className="h-4.5 w-4.5" />

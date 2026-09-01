@@ -59,11 +59,7 @@ export function AuthHeroPanel({ role, companyName }: AuthHeroPanelProps) {
     <div className="relative hidden flex-col justify-between bg-[#061229] py-10 lg:py-14 pr-10 lg:pr-14 pl-12 lg:pl-20 text-white md:flex select-none overflow-hidden">
       {/* Professional Smooth S-Curve Divider (Clean 2-Color Transition, No Border/Stroke) */}
       <div className="absolute inset-y-0 left-0 w-12 sm:w-16 lg:w-20 h-full z-20 pointer-events-none hidden md:block">
-        <svg
-          viewBox="0 0 100 1000"
-          preserveAspectRatio="none"
-          className="h-full w-full"
-        >
+        <svg viewBox="0 0 100 1000" preserveAspectRatio="none" className="h-full w-full">
           <path
             d="M 0 0 
                L 40 0 
@@ -107,9 +103,7 @@ export function AuthHeroPanel({ role, companyName }: AuthHeroPanelProps) {
           {heading}
         </h2>
 
-        <p className="mt-3.5 text-sm sm:text-base text-slate-300 leading-relaxed">
-          {description}
-        </p>
+        <p className="mt-3.5 text-sm sm:text-base text-slate-300 leading-relaxed">{description}</p>
 
         {/* Feature points */}
         <div className="mt-6 space-y-3 text-xs sm:text-sm text-slate-200">
@@ -133,9 +127,7 @@ export function AuthHeroPanel({ role, companyName }: AuthHeroPanelProps) {
               Active
             </span>
           </div>
-          <p className="text-xs text-slate-300 mt-2 font-medium">
-            {cardStats}
-          </p>
+          <p className="text-xs text-slate-300 mt-2 font-medium">{cardStats}</p>
         </div>
       </div>
 

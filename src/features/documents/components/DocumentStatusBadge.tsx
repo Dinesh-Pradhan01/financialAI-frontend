@@ -65,9 +65,7 @@ export function DocumentStatusBadge({ state, className }: DocumentStatusBadgePro
   if (state.status === "pending_review") {
     return (
       <span title="Uploaded" className="inline-flex items-center">
-        <CheckCircle2
-          className={cn("h-4 w-4 text-emerald-700 dark:text-emerald-500", className)}
-        />
+        <CheckCircle2 className={cn("h-4 w-4 text-emerald-700 dark:text-emerald-500", className)} />
       </span>
     );
   }

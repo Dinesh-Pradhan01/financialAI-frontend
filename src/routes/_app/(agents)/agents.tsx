@@ -139,9 +139,7 @@ function Agents() {
 
       {/* Extraction Pipeline Visualization */}
       <section className="mt-8">
-        <h2 className="mb-2 font-display text-lg font-semibold">
-          Upload & Extraction Pipeline
-        </h2>
+        <h2 className="mb-2 font-display text-lg font-semibold">Upload & Extraction Pipeline</h2>
         <p className="mb-5 text-sm text-text-secondary">
           Here's exactly what happens when you drop a bank statement into Spotlite — every step,
           transparent and traceable.
@@ -222,11 +220,7 @@ function Agents() {
                   className="flex items-center gap-3 rounded-xl bg-surface-alt px-3 py-2.5"
                 >
                   <StIcon
-                    className={cn(
-                      "h-4 w-4 shrink-0",
-                      st.color,
-                      isSpinning && "animate-spin"
-                    )}
+                    className={cn("h-4 w-4 shrink-0", st.color, isSpinning && "animate-spin")}
                   />
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-medium">{doc.original_name}</p>

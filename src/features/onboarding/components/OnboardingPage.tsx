@@ -323,7 +323,7 @@ export function OnboardingPage() {
     setBusinessModel("B2B");
     setPrimaryProductService("Financial Analytics Software");
     setBusinessDescription(
-      "A leading fintech company providing AI-powered financial analytics solutions."
+      "A leading fintech company providing AI-powered financial analytics solutions.",
     );
 
     setPrimaryBank("HDFC Bank");
@@ -355,10 +355,8 @@ export function OnboardingPage() {
 
   const isTeamInfoValid = ceoName.trim().length > 0;
 
-  const isDocUploaded = (typeKey: string) =>
-    uploadedDocs.some((d) => d.document_type === typeKey);
-  const isDocsValid =
-    isDocUploaded("business_pan") && isDocUploaded("registration_proof");
+  const isDocUploaded = (typeKey: string) => uploadedDocs.some((d) => d.document_type === typeKey);
+  const isDocsValid = isDocUploaded("business_pan") && isDocUploaded("registration_proof");
 
   const isCurrentStepValid = (function () {
     if (step === 1) return isDocsValid;
@@ -396,7 +394,8 @@ export function OnboardingPage() {
     if (!validationResult.success) {
       const fieldErrors = parseApiValidationErrors(validationResult.error);
       setGeneralErrors(fieldErrors);
-      const firstMsg = Object.values(fieldErrors)[0] || "Please fill all required fields correctly.";
+      const firstMsg =
+        Object.values(fieldErrors)[0] || "Please fill all required fields correctly.";
       toast.error(firstMsg);
       return false;
     }
@@ -405,10 +404,9 @@ export function OnboardingPage() {
     try {
       const res = await api.post<{ completion_percentage?: number }>(
         "/api/business/onboarding/step/1",
-        payload
+        payload,
       );
-      if (res.completion_percentage !== undefined)
-        setCompletionPct(res.completion_percentage);
+      if (res.completion_percentage !== undefined) setCompletionPct(res.completion_percentage);
       return true;
     } catch (err: any) {
       const fieldErrors = parseApiValidationErrors(err);
@@ -468,10 +466,9 @@ export function OnboardingPage() {
     try {
       const res = await api.post<{ completion_percentage?: number; team_invites?: TeamInvite[] }>(
         "/api/business/onboarding/step/2",
-        payload
+        payload,
       );
-      if (res.completion_percentage !== undefined)
-        setCompletionPct(res.completion_percentage);
+      if (res.completion_percentage !== undefined) setCompletionPct(res.completion_percentage);
       if (res.team_invites) setTeamInvites(res.team_invites);
       return true;
     } catch (err: any) {
@@ -527,10 +524,9 @@ export function OnboardingPage() {
     try {
       const res = await api.post<{ completion_percentage?: number }>(
         "/api/business/onboarding/step/3",
-        payload
+        payload,
       );
-      if (res.completion_percentage !== undefined)
-        setCompletionPct(res.completion_percentage);
+      if (res.completion_percentage !== undefined) setCompletionPct(res.completion_percentage);
       return true;
     } catch (err: any) {
       if (
@@ -559,11 +555,7 @@ export function OnboardingPage() {
   };
 
   // Upload Document
-  const handleFileUpload = async (
-    file: File,
-    documentType: string,
-    documentCategory: string
-  ) => {
+  const handleFileUpload = async (file: File, documentType: string, documentCategory: string) => {
     if (!file || uploadingDocType || deletingDocId) return;
 
     const validation = validateFile(file);
@@ -579,13 +571,9 @@ export function OnboardingPage() {
       formData.append("document_type", documentType);
       formData.append("document_category", documentCategory);
 
-      const res = await api.upload<any>(
-        "/api/business/onboarding/documents/upload",
-        formData
-      );
+      const res = await api.upload<any>("/api/business/onboarding/documents/upload", formData);
       if (res.documents) setUploadedDocs(res.documents);
-      if (res.completion_percentage !== undefined)
-        setCompletionPct(res.completion_percentage);
+      if (res.completion_percentage !== undefined) setCompletionPct(res.completion_percentage);
       toast.success(`Uploaded ${file.name} successfully!`);
       // Invalidate so Documents page reflects this upload immediately.
       queryClient.invalidateQueries({ queryKey: queryKeys.company.documents() });
@@ -601,12 +589,9 @@ export function OnboardingPage() {
     if (deletingDocId || uploadingDocType) return;
     setDeletingDocId(docId);
     try {
-      const res = await api.delete<any>(
-        `/api/business/onboarding/documents/${docId}`
-      );
+      const res = await api.delete<any>(`/api/business/onboarding/documents/${docId}`);
       if (res.documents) setUploadedDocs(res.documents);
-      if (res.completion_percentage !== undefined)
-        setCompletionPct(res.completion_percentage);
+      if (res.completion_percentage !== undefined) setCompletionPct(res.completion_percentage);
       toast.success("Document removed.");
       // Invalidate so Documents page reflects this deletion immediately.
       queryClient.invalidateQueries({ queryKey: queryKeys.company.documents() });
@@ -624,16 +609,13 @@ export function OnboardingPage() {
     if (step === 1) {
       if (!isDocsValid) {
         toast.error(
-          "Please upload mandatory documents (Business PAN & Registration Proof) to proceed."
+          "Please upload mandatory documents (Business PAN & Registration Proof) to proceed.",
         );
         return;
       }
       setSavingDraft(true);
       try {
-        const res = await api.post<any>(
-          "/api/business/onboarding/step/extract-from-docs",
-          {}
-        );
+        const res = await api.post<any>("/api/business/onboarding/step/extract-from-docs", {});
         if (res.data) {
           const d = res.data;
           if (d.company_name) setCompanyName(d.company_name);
@@ -795,7 +777,7 @@ export function OnboardingPage() {
 
   const togglePaymentMethod = (method: string) => {
     setDigitalPaymentMethods((prev) =>
-      prev.includes(method) ? prev.filter((m) => m !== method) : [...prev, method]
+      prev.includes(method) ? prev.filter((m) => m !== method) : [...prev, method],
     );
   };
 

@@ -1,13 +1,27 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { Skeleton } from "@/shared/components/ui/skeleton";
-import { useCompanyDocuments, useUploadCompanyDocument, useDeleteCompanyDocument, isSetupRequiredError } from '../hooks/useCompanyAPI';
-import { FolderLock, FileText, Trash2, Plus, Loader2, AlertCircle, Sparkles, ArrowRight } from 'lucide-react';
+import {
+  useCompanyDocuments,
+  useUploadCompanyDocument,
+  useDeleteCompanyDocument,
+  isSetupRequiredError,
+} from "../hooks/useCompanyAPI";
+import {
+  FolderLock,
+  FileText,
+  Trash2,
+  Plus,
+  Loader2,
+  AlertCircle,
+  Sparkles,
+  ArrowRight,
+} from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
 import { Badge } from "@/shared/components/ui/badge";
-import { Link, useNavigate } from '@tanstack/react-router';
-import { toast } from 'sonner';
-import { validateFile, ACCEPTED_FILE_FORMATS_STRING } from '@/features/documents/lib/uploadHelpers';
+import { Link, useNavigate } from "@tanstack/react-router";
+import { toast } from "sonner";
+import { validateFile, ACCEPTED_FILE_FORMATS_STRING } from "@/features/documents/lib/uploadHelpers";
 
 interface Props {
   hasProfile?: boolean;
@@ -15,12 +29,19 @@ interface Props {
 
 export const DocumentVaultCard = ({ hasProfile = true }: Props) => {
   const navigate = useNavigate();
-  const { data: documents, isLoading, isError, error, refetch, isFetching } = useCompanyDocuments({
+  const {
+    data: documents,
+    isLoading,
+    isError,
+    error,
+    refetch,
+    isFetching,
+  } = useCompanyDocuments({
     enabled: hasProfile,
   });
   const uploadMutation = useUploadCompanyDocument();
   const deleteMutation = useDeleteCompanyDocument();
-  
+
   const [isUploading, setIsUploading] = useState(false);
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, category: string) => {
@@ -30,42 +51,42 @@ export const DocumentVaultCard = ({ hasProfile = true }: Props) => {
     const validation = validateFile(file);
     if (!validation.valid) {
       toast.error(validation.error || "Invalid file. Only PDF files are supported.");
-      if (e.target) e.target.value = '';
+      if (e.target) e.target.value = "";
       return;
     }
 
     setIsUploading(true);
     const formData = new FormData();
-    formData.append('file', file);
-    formData.append('document_type', file.name.split('.')[0]);
-    formData.append('document_category', category);
+    formData.append("file", file);
+    formData.append("document_type", file.name.split(".")[0]);
+    formData.append("document_category", category);
 
     uploadMutation.mutate(formData, {
       onSettled: () => {
         setIsUploading(false);
-        if (e.target) e.target.value = '';
-      }
+        if (e.target) e.target.value = "";
+      },
     });
   };
 
   // Default categories to show even if empty (except Other which shows if empty anyway)
-  const defaultCategories = ['Financial', 'Compliance', 'Insurance', 'Verification'];
-  
+  const defaultCategories = ["Financial", "Compliance", "Insurance", "Verification"];
+
   // Extract any additional categories from the documents (e.g., 'mandatory' from onboarding)
   const allCategories = new Set(defaultCategories);
   if (documents) {
-    documents.forEach(doc => {
+    documents.forEach((doc) => {
       if (doc.document_category) {
-        if (doc.document_category.toLowerCase() === 'mandatory') {
-          doc.document_category = 'Verification';
+        if (doc.document_category.toLowerCase() === "mandatory") {
+          doc.document_category = "Verification";
         } else {
           allCategories.add(doc.document_category);
         }
       }
     });
   }
-  allCategories.add('Other');
-  
+  allCategories.add("Other");
+
   const categories = Array.from(allCategories);
 
   if (isLoading) {
@@ -102,7 +123,8 @@ export const DocumentVaultCard = ({ hasProfile = true }: Props) => {
               <div>
                 <h4 className="text-sm font-semibold text-foreground">Secure document storage</h4>
                 <p className="text-xs text-muted-foreground mt-0.5 max-w-xl">
-                  Upload verification documents, GST/PAN certificates, and statements to enrich your company intelligence.
+                  Upload verification documents, GST/PAN certificates, and statements to enrich your
+                  company intelligence.
                 </p>
               </div>
             </div>
@@ -164,11 +186,20 @@ export const DocumentVaultCard = ({ hasProfile = true }: Props) => {
             id="vault-upload"
             accept={ACCEPTED_FILE_FORMATS_STRING}
             className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
-            onChange={(e) => handleFileUpload(e, 'Other')}
+            onChange={(e) => handleFileUpload(e, "Other")}
             disabled={isUploading}
           />
-          <Button variant="outline" size="sm" disabled={isUploading} className="cursor-pointer text-xs rounded-pill">
-            {isUploading ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> : <Plus className="w-3.5 h-3.5 mr-1.5" />}
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={isUploading}
+            className="cursor-pointer text-xs rounded-pill"
+          >
+            {isUploading ? (
+              <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+            ) : (
+              <Plus className="w-3.5 h-3.5 mr-1.5" />
+            )}
             Upload
           </Button>
         </div>
@@ -176,18 +207,25 @@ export const DocumentVaultCard = ({ hasProfile = true }: Props) => {
       <CardContent>
         <div className="space-y-5 max-h-100 overflow-y-auto pr-1 custom-scrollbar">
           {categories.map((category) => {
-            const catDocs = documents?.filter(d => d.document_category === category) || [];
-            if (catDocs.length === 0 && category !== 'Other') return null;
-            
+            const catDocs = documents?.filter((d) => d.document_category === category) || [];
+            if (catDocs.length === 0 && category !== "Other") return null;
+
             return (
               <div key={category} className="space-y-2.5">
-                <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">{category}</h4>
+                <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                  {category}
+                </h4>
                 {catDocs.length === 0 ? (
-                  <p className="text-xs text-muted-foreground italic pl-1">No documents in this category.</p>
+                  <p className="text-xs text-muted-foreground italic pl-1">
+                    No documents in this category.
+                  </p>
                 ) : (
                   <div className="space-y-2">
-                    {catDocs.map(doc => (
-                      <div key={doc.id} className="flex items-center justify-between p-3 rounded-lg border border-border/50 bg-muted/20 hover:bg-muted/50 transition-colors">
+                    {catDocs.map((doc) => (
+                      <div
+                        key={doc.id}
+                        className="flex items-center justify-between p-3 rounded-lg border border-border/50 bg-muted/20 hover:bg-muted/50 transition-colors"
+                      >
                         <div className="flex items-center gap-3 overflow-hidden">
                           <div className="p-2 bg-background rounded shadow-2xs shrink-0">
                             <FileText className="w-4 h-4 text-primary" />

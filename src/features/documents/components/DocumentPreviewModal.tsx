@@ -1,12 +1,7 @@
 import React, { useState, useEffect } from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { X, Download, Loader2, AlertCircle, FileText } from "lucide-react";
-import {
-  Dialog,
-  DialogPortal,
-  DialogHeader,
-  DialogTitle,
-} from "@/shared/components/ui/dialog";
+import { Dialog, DialogPortal, DialogHeader, DialogTitle } from "@/shared/components/ui/dialog";
 import { Button } from "@/shared/components/ui/button";
 import { Badge } from "@/shared/components/ui/badge";
 import { api } from "@/shared/lib/api";
@@ -20,11 +15,7 @@ export interface DocumentPreviewModalProps {
   document: CompanyDocument | null;
 }
 
-export function DocumentPreviewModal({
-  open,
-  onOpenChange,
-  document,
-}: DocumentPreviewModalProps) {
+export function DocumentPreviewModal({ open, onOpenChange, document }: DocumentPreviewModalProps) {
   const [objectUrl, setObjectUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -50,9 +41,7 @@ export function DocumentPreviewModal({
         .catch((err) => {
           if (!isCancelled) {
             setIsLoading(false);
-            setErrorMessage(
-              err instanceof Error ? err.message : "Failed to load document preview"
-            );
+            setErrorMessage(err instanceof Error ? err.message : "Failed to load document preview");
           }
         });
     }
@@ -127,18 +116,14 @@ export function DocumentPreviewModal({
             {isLoading && (
               <div className="flex flex-col items-center justify-center p-12 space-y-3">
                 <Loader2 className="h-8 w-8 animate-spin text-brand" />
-                <p className="text-xs text-text-secondary font-medium">
-                  Loading document preview…
-                </p>
+                <p className="text-xs text-text-secondary font-medium">Loading document preview…</p>
               </div>
             )}
 
             {!isLoading && errorMessage && (
               <div className="p-8 text-center space-y-3 max-w-sm mx-auto">
                 <AlertCircle className="mx-auto h-8 w-8 text-destructive" />
-                <p className="text-xs font-semibold text-text-primary">
-                  {errorMessage}
-                </p>
+                <p className="text-xs font-semibold text-text-primary">{errorMessage}</p>
                 <p className="text-[11px] text-text-secondary">
                   Preview is unavailable in browser for this file. You can download it directly.
                 </p>

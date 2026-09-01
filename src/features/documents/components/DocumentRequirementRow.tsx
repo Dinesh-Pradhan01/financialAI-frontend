@@ -176,7 +176,8 @@ export function DocumentRequirementRow({
           : "border-dashed border-border-c bg-surface hover:border-brand/40 hover:bg-brand/2",
         showDropHint && "cursor-pointer",
         isDraggingOver && "border-solid border-brand bg-brand/10 ring-2 ring-brand/20 shadow-sm",
-        rejectionReason && "border-solid border-destructive/40 bg-destructive/5 ring-1 ring-destructive/20",
+        rejectionReason &&
+          "border-solid border-destructive/40 bg-destructive/5 ring-1 ring-destructive/20",
         className,
       )}
     >
@@ -209,7 +210,9 @@ export function DocumentRequirementRow({
               <h4 className="font-semibold text-xs text-text-primary leading-snug tracking-tight">
                 {taxonomyDocument.label}
                 {taxonomyDocument.requirement === "required" && (
-                  <span className="text-destructive font-bold ml-1" title="Required">*</span>
+                  <span className="text-destructive font-bold ml-1" title="Required">
+                    *
+                  </span>
                 )}
               </h4>
               <DocumentInfoPopover

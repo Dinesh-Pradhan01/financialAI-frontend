@@ -19,7 +19,8 @@ export const Route = createFileRoute("/(auth)/signup")({
       { title: "Sign up · SpotLite Intelligence" },
       {
         name: "description",
-        content: "Create your SpotLite account for unified workforce risk and financial intelligence.",
+        content:
+          "Create your SpotLite account for unified workforce risk and financial intelligence.",
       },
     ],
   }),
@@ -79,8 +80,7 @@ function Signup() {
       });
       nav({ to: "/verify-email" });
     } catch (err: unknown) {
-      const msg =
-        err instanceof Error ? err.message : "Signup failed. Please try again.";
+      const msg = err instanceof Error ? err.message : "Signup failed. Please try again.";
 
       if (msg.includes("auth/email-already-in-use")) {
         toast.error("An account with this email already exists.");
@@ -131,7 +131,10 @@ function Signup() {
           <form onSubmit={handleSubmit} className="mt-6 space-y-4">
             {/* Email */}
             <div className="space-y-1.5">
-              <label htmlFor="signup-email" className="block text-xs font-semibold text-text-secondary">
+              <label
+                htmlFor="signup-email"
+                className="block text-xs font-semibold text-text-secondary"
+              >
                 Work Email address
               </label>
               <input
@@ -148,7 +151,10 @@ function Signup() {
 
             {/* Password */}
             <div className="space-y-1.5">
-              <label htmlFor="signup-password" className="block text-xs font-semibold text-text-secondary">
+              <label
+                htmlFor="signup-password"
+                className="block text-xs font-semibold text-text-secondary"
+              >
                 Password
               </label>
               <div className="relative">
@@ -207,7 +213,10 @@ function Signup() {
 
             {/* Confirm Password */}
             <div className="space-y-1.5">
-              <label htmlFor="signup-confirm" className="block text-xs font-semibold text-text-secondary">
+              <label
+                htmlFor="signup-confirm"
+                className="block text-xs font-semibold text-text-secondary"
+              >
                 Confirm Password
               </label>
               <input
@@ -248,11 +257,7 @@ function Signup() {
           {/* Login link */}
           <p className="mt-8 text-center text-sm text-text-secondary">
             Already have an account?{" "}
-            <Link
-              to="/login"
-              preload="intent"
-              className="font-semibold text-brand hover:underline"
-            >
+            <Link to="/login" preload="intent" className="font-semibold text-brand hover:underline">
               Sign in
             </Link>
           </p>

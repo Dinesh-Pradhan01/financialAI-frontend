@@ -227,7 +227,7 @@ function Apply() {
   const t = spotlightById(id);
   const cfg = useMemo(() => configFor(id), [id]);
   const [vals, setVals] = useState<Record<string, number>>(() =>
-    Object.fromEntries(cfg.controls.map((c) => [c.id, c.value]))
+    Object.fromEntries(cfg.controls.map((c) => [c.id, c.value])),
   );
   const [done, setDone] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -239,7 +239,9 @@ function Apply() {
         <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-surface-alt border border-border text-text-secondary mb-4 shadow-xs">
           <AlertCircle className="h-6 w-6" />
         </div>
-        <h1 className="font-display text-xl font-bold text-foreground">Spotlight Opportunity Not Found</h1>
+        <h1 className="font-display text-xl font-bold text-foreground">
+          Spotlight Opportunity Not Found
+        </h1>
         <p className="mt-2 text-sm text-text-secondary">
           The requested opportunity ID could not be loaded or is no longer available.
         </p>

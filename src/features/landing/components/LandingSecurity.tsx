@@ -48,7 +48,9 @@ export function LandingSecurity() {
                 >
                   <div className="flex items-center gap-2">
                     <ShieldCheck size={16} className="text-emerald-600 shrink-0" />
-                    <p className="text-xs sm:text-sm font-bold font-display text-foreground tracking-[-0.01em]">{badge.title}</p>
+                    <p className="text-xs sm:text-sm font-bold font-display text-foreground tracking-[-0.01em]">
+                      {badge.title}
+                    </p>
                   </div>
                   <p className="mt-1 text-xs text-slate-600 leading-relaxed">{badge.desc}</p>
                 </motion.div>

@@ -25,7 +25,7 @@ export interface ParsedApiError {
  */
 export function parseApiError(
   error: unknown,
-  fallbackMessage = "Something went wrong. Please try again."
+  fallbackMessage = "Something went wrong. Please try again.",
 ): ParsedApiError {
   const fieldErrors: Record<string, string> = {};
   let status: number | undefined;
@@ -165,7 +165,7 @@ export function parseApiError(
  */
 export function getApiErrorMessage(
   error: unknown,
-  fallbackMessage = "Something went wrong. Please try again."
+  fallbackMessage = "Something went wrong. Please try again.",
 ): string {
   return parseApiError(error, fallbackMessage).message;
 }

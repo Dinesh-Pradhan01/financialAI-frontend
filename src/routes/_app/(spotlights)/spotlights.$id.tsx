@@ -6,7 +6,11 @@ import { evidenceBase } from "@/shared/data/agentic";
 import { formatINR } from "@/shared/lib/format";
 import { SeverityBadge } from "@/features/spotlights/components/spotlight-card";
 import { IconChip, channelKey } from "@/shared/lib/icons";
-import { AgentBadge, ConfidenceMeter, AgentNarration } from "@/features/agents/components/agent-narration";
+import {
+  AgentBadge,
+  ConfidenceMeter,
+  AgentNarration,
+} from "@/features/agents/components/agent-narration";
 import { FinancialFuture } from "@/features/spotlights/components/financial-future";
 import { useAppDispatch, useAppSelector } from "@/shared/store";
 import { selectIsApplied } from "@/shared/store/selectors";
@@ -37,7 +41,9 @@ function SpotlightDetail() {
         <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-surface-alt border border-border text-text-secondary mb-4 shadow-xs">
           <ArrowLeft className="h-6 w-6" />
         </div>
-        <h1 className="font-display text-xl font-bold text-foreground">Spotlight Opportunity Not Found</h1>
+        <h1 className="font-display text-xl font-bold text-foreground">
+          Spotlight Opportunity Not Found
+        </h1>
         <p className="mt-2 text-sm text-text-secondary">
           The requested opportunity ID could not be loaded or is no longer available.
         </p>

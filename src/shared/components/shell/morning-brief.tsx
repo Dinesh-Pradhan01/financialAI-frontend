@@ -30,7 +30,9 @@ export function MorningBriefHero({
     <header className="relative overflow-hidden bg-brand px-5 pb-9 pt-10 text-on-brand md:rounded-bl-3xl md:px-10">
       <div className="flex items-start justify-between">
         <div>
-          <p className="font-display text-2xl font-bold leading-tight">{greetingPrefix}, {name}</p>
+          <p className="font-display text-2xl font-bold leading-tight">
+            {greetingPrefix}, {name}
+          </p>
           <p className="mt-1 text-sm opacity-80">
             {hasData
               ? "Last night, Spotlite analyzed your money."
@@ -83,13 +85,11 @@ export function MorningBriefHero({
             <p>Drop in your bank statements below and let our AI agents do the rest.</p>
           </div>
           <div className="mt-4 flex flex-wrap gap-2 text-xs">
-            {["Multi-bank support", "AI-powered extraction", "Auto-categorization"].map(
-              (chip) => (
-                <span key={chip} className="rounded-pill bg-white/12 px-3 py-1 font-medium">
-                  {chip}
-                </span>
-              )
-            )}
+            {["Multi-bank support", "AI-powered extraction", "Auto-categorization"].map((chip) => (
+              <span key={chip} className="rounded-pill bg-white/12 px-3 py-1 font-medium">
+                {chip}
+              </span>
+            ))}
           </div>
         </div>
       )}

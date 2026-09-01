@@ -1,9 +1,5 @@
 import { combineReducers, configureStore } from "@reduxjs/toolkit";
-import {
-  useDispatch,
-  useSelector,
-  type TypedUseSelectorHook,
-} from "react-redux";
+import { useDispatch, useSelector, type TypedUseSelectorHook } from "react-redux";
 import {
   persistStore,
   persistReducer,
@@ -19,6 +15,7 @@ import preferencesReducer from "./slices/preferencesSlice";
 import notificationsReducer from "./slices/notificationsSlice";
 import coachReducer from "./slices/coachSlice";
 import tourReducer from "./slices/tourSlice";
+import hrReducer from "./slices/hrSlice";
 
 const createSessionStorage = () => {
   if (typeof window === "undefined") {
@@ -64,12 +61,32 @@ const createSessionStorage = () => {
 
 const storage = createSessionStorage();
 
+import localforage from "localforage";
+
+// SSR-safe localforage wrapper: localforage requires browser globals (IndexedDB/localStorage).
+// During SSR window is undefined, so we return a no-op storage in that case.
+const hrStorage =
+  typeof window !== "undefined"
+    ? localforage
+    : {
+        getItem: (_key: string) => Promise.resolve(null),
+        setItem: (_key: string, _value: any) => Promise.resolve(),
+        removeItem: (_key: string) => Promise.resolve(),
+      };
+
+const hrPersistConfig = {
+  key: "hr",
+  version: 3, // bump version to migrate from old sessionStorage entries
+  storage: hrStorage,
+};
+
 const rootReducer = combineReducers({
   spotlights: spotlightsReducer,
   preferences: preferencesReducer,
   notifications: notificationsReducer,
   coach: coachReducer,
   tour: tourReducer,
+  hr: persistReducer(hrPersistConfig, hrReducer),
 });
 
 const persistConfig = {

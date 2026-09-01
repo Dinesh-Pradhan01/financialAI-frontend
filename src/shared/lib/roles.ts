@@ -18,3 +18,8 @@ export function isCeoOrAdmin(role: string | null | undefined): boolean {
   const normalized = role.trim().toLowerCase();
   return (PRIVILEGED_TEAM_ROLES as readonly string[]).includes(normalized);
 }
+
+export function isHR(role: string | null | undefined): boolean {
+  if (!role || typeof role !== "string") return false;
+  return role.trim().toLowerCase() === "hr";
+}

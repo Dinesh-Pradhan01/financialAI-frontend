@@ -39,7 +39,13 @@ import {
   DialogFooter,
 } from "@/shared/components/ui/dialog";
 import { Button } from "@/shared/components/ui/button";
-import { MODULES, ROLES, type Currency, type ModuleItem, type RoleItem } from "../data/landing-data";
+import {
+  MODULES,
+  ROLES,
+  type Currency,
+  type ModuleItem,
+  type RoleItem,
+} from "../data/landing-data";
 import { LandingInteractiveSandbox } from "./LandingInteractiveSandbox";
 import { cn } from "@/shared/lib/utils";
 
@@ -133,7 +139,9 @@ export function LandingPreviewModal({
                       key={kpi.label}
                       className="rounded-xl border border-border-c bg-surface p-3.5 shadow-2xs"
                     >
-                      <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">{kpi.label}</p>
+                      <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
+                        {kpi.label}
+                      </p>
                       <p className="text-lg sm:text-xl font-bold font-mono tabular-nums text-foreground mt-1 tracking-tight">
                         {currency === "INR" ? kpi.valueINR : kpi.valueUSD}
                       </p>
@@ -172,10 +180,19 @@ export function LandingPreviewModal({
               </div>
 
               <DialogFooter className="gap-2 sm:gap-0 pt-2 border-t border-border/60">
-                <Button variant="outline" size="sm" onClick={onClose} className="text-xs font-semibold">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={onClose}
+                  className="text-xs font-semibold"
+                >
                   Close Preview
                 </Button>
-                <Button asChild size="sm" className="text-xs font-semibold tracking-[-0.005em] gap-1.5">
+                <Button
+                  asChild
+                  size="sm"
+                  className="text-xs font-semibold tracking-[-0.005em] gap-1.5"
+                >
                   <Link to="/signup" onClick={onClose}>
                     Book Executive Demo
                     <ArrowRight className="h-3.5 w-3.5" />
@@ -214,7 +231,9 @@ export function LandingPreviewModal({
                 </p>
                 <div className="flex items-center justify-between rounded-xl border border-border-c bg-surface p-4">
                   <div>
-                    <p className="text-xs text-slate-500 font-semibold uppercase tracking-wider">{selectedModule.sampleMetric.label}</p>
+                    <p className="text-xs text-slate-500 font-semibold uppercase tracking-wider">
+                      {selectedModule.sampleMetric.label}
+                    </p>
                     <p className="text-xl font-bold font-mono tabular-nums text-foreground mt-0.5 tracking-tight">
                       {selectedModule.sampleMetric.value}
                     </p>
@@ -249,10 +268,19 @@ export function LandingPreviewModal({
               </div>
 
               <DialogFooter className="gap-2 sm:gap-0 pt-2 border-t border-border/60">
-                <Button variant="outline" size="sm" onClick={onClose} className="text-xs font-semibold">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={onClose}
+                  className="text-xs font-semibold"
+                >
                   Close Specs
                 </Button>
-                <Button asChild size="sm" className="text-xs font-semibold tracking-[-0.005em] gap-1.5">
+                <Button
+                  asChild
+                  size="sm"
+                  className="text-xs font-semibold tracking-[-0.005em] gap-1.5"
+                >
                   <Link to="/signup" onClick={onClose}>
                     Book Executive Demo
                     <ArrowRight className="h-3.5 w-3.5" />
@@ -289,19 +317,24 @@ export function LandingPreviewModal({
               <div className="space-y-3">
                 <div className="rounded-xl border border-border-c bg-surface-alt/30 p-4 space-y-1">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-foreground">1. Bank Statement OCR & Tokenization</span>
+                    <span className="text-xs font-bold text-foreground">
+                      1. Bank Statement OCR & Tokenization
+                    </span>
                     <span className="text-[10px] font-mono bg-blue-100 text-primary px-2 py-0.5 rounded font-bold">
                       AES-256 GCM
                     </span>
                   </div>
                   <p className="text-xs text-slate-600 leading-relaxed">
-                    Direct integration with SBI, HDFC, ICICI, and custom CSV/PDF uploads with automated PII redaction.
+                    Direct integration with SBI, HDFC, ICICI, and custom CSV/PDF uploads with
+                    automated PII redaction.
                   </p>
                 </div>
 
                 <div className="rounded-xl border border-border-c bg-surface-alt/30 p-4 space-y-1">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-foreground">2. Continuous Ledger Reconciliation</span>
+                    <span className="text-xs font-bold text-foreground">
+                      2. Continuous Ledger Reconciliation
+                    </span>
                     <span className="text-[10px] font-mono bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold">
                       Zero-Knowledge
                     </span>
@@ -313,13 +346,16 @@ export function LandingPreviewModal({
 
                 <div className="rounded-xl border border-border-c bg-surface-alt/30 p-4 space-y-1">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-foreground">3. Role-Scoped Intelligence Delivery</span>
+                    <span className="text-xs font-bold text-foreground">
+                      3. Role-Scoped Intelligence Delivery
+                    </span>
                     <span className="text-[10px] font-mono bg-purple-100 text-purple-800 px-2 py-0.5 rounded font-bold">
                       RBAC Partitioning
                     </span>
                   </div>
                   <p className="text-xs text-slate-600 leading-relaxed">
-                    Each executive receives only authorized telemetry (CEO, CFO, HR Director, Ops Lead).
+                    Each executive receives only authorized telemetry (CEO, CFO, HR Director, Ops
+                    Lead).
                   </p>
                 </div>
               </div>
@@ -329,16 +365,26 @@ export function LandingPreviewModal({
                 <div className="text-xs text-emerald-950">
                   <p className="font-bold">SOC2 Type II & ISO 27001 Certified Infrastructure</p>
                   <p className="text-emerald-800 mt-0.5 leading-relaxed">
-                    Data residency in Indian data centers (MeitY empaneled) or US-East regions with zero model retraining on client financial records.
+                    Data residency in Indian data centers (MeitY empaneled) or US-East regions with
+                    zero model retraining on client financial records.
                   </p>
                 </div>
               </div>
 
               <DialogFooter className="gap-2 sm:gap-0 pt-2 border-t border-border/60">
-                <Button variant="outline" size="sm" onClick={onClose} className="text-xs font-semibold">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={onClose}
+                  className="text-xs font-semibold"
+                >
                   Close
                 </Button>
-                <Button asChild size="sm" className="text-xs font-semibold tracking-[-0.005em] gap-1.5">
+                <Button
+                  asChild
+                  size="sm"
+                  className="text-xs font-semibold tracking-[-0.005em] gap-1.5"
+                >
                   <Link to="/signup" onClick={onClose}>
                     Book Executive Demo
                     <ArrowRight className="h-3.5 w-3.5" />

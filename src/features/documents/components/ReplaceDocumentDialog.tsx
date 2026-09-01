@@ -1,14 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
-import {
-  X,
-  Upload,
-  FileText,
-  AlertTriangle,
-  CheckCircle2,
-  Loader2,
-  FileUp,
-} from "lucide-react";
+import { X, Upload, FileText, AlertTriangle, CheckCircle2, Loader2, FileUp } from "lucide-react";
 import { toast } from "sonner";
 import {
   Dialog,
@@ -77,7 +69,8 @@ export function ReplaceDocumentDialog({
   if (!targetDocument) return null;
 
   const taxonomy = getTaxonomyDocument(targetDocument.document_type);
-  const displayLabel = targetLabel || taxonomy?.label || targetDocument.document_type.replace(/[-_]/g, " ");
+  const displayLabel =
+    targetLabel || taxonomy?.label || targetDocument.document_type.replace(/[-_]/g, " ");
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -169,8 +162,8 @@ export function ReplaceDocumentDialog({
                   You are replacing: <span className="capitalize">{displayLabel}</span>
                 </p>
                 <p>
-                  Uploading a new version will overwrite the current file on file and trigger a fresh
-                  verification and compliance check.
+                  Uploading a new version will overwrite the current file on file and trigger a
+                  fresh verification and compliance check.
                 </p>
               </div>
             </div>
@@ -181,9 +174,7 @@ export function ReplaceDocumentDialog({
                 <span className="font-semibold uppercase tracking-wider text-[10px]">
                   Current Document On File
                 </span>
-                <span className="font-mono">
-                  {formatDocumentDate(targetDocument.created_at)}
-                </span>
+                <span className="font-mono">{formatDocumentDate(targetDocument.created_at)}</span>
               </div>
               <div className="flex items-center gap-2.5">
                 <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-surface border border-border-c text-text-secondary">
@@ -197,7 +188,8 @@ export function ReplaceDocumentDialog({
                     {targetDocument.original_name}
                   </p>
                   <p className="text-[11px] text-text-secondary font-mono">
-                    {formatFileSize(targetDocument.file_size_bytes)} • {targetDocument.document_type}
+                    {formatFileSize(targetDocument.file_size_bytes)} •{" "}
+                    {targetDocument.document_type}
                   </p>
                 </div>
               </div>
@@ -282,7 +274,9 @@ export function ReplaceDocumentDialog({
                   </div>
                   <div className="space-y-0.5">
                     <p className="text-xs font-semibold text-text-primary">
-                      {isDraggingOver ? "Drop replacement file here" : "Click to browse or drag file here"}
+                      {isDraggingOver
+                        ? "Drop replacement file here"
+                        : "Click to browse or drag file here"}
                     </p>
                     <p className="text-[10px] text-text-secondary font-mono">
                       {UPLOAD_CONSTRAINTS_LABEL}

@@ -29,16 +29,23 @@ function UploadPage() {
       {isLoading ? (
         <div className="mt-12 flex flex-col items-center justify-center gap-3 py-16 text-center">
           <Loader2 className="h-8 w-8 animate-spin text-brand" />
-          <p className="text-sm font-medium text-text-secondary">Loading statement extraction hub…</p>
+          <p className="text-sm font-medium text-text-secondary">
+            Loading statement extraction hub…
+          </p>
         </div>
       ) : isError ? (
         <div className="mt-8 rounded-2xl border border-destructive/20 bg-destructive/5 p-6 text-center">
           <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10 text-destructive">
             <AlertCircle className="h-6 w-6" />
           </div>
-          <h3 className="mt-3 text-base font-semibold text-foreground">Failed to load statements</h3>
+          <h3 className="mt-3 text-base font-semibold text-foreground">
+            Failed to load statements
+          </h3>
           <p className="mt-1 text-sm text-text-secondary">
-            {getApiErrorMessage(error, "An unexpected error occurred while fetching your bank statements.")}
+            {getApiErrorMessage(
+              error,
+              "An unexpected error occurred while fetching your bank statements.",
+            )}
           </p>
           <button
             onClick={() => refetch()}
@@ -50,10 +57,7 @@ function UploadPage() {
         </div>
       ) : (
         <div className="mt-6">
-          <ExtractionHub 
-            documents={documents} 
-            onDocumentsChange={refetch} 
-          />
+          <ExtractionHub documents={documents} onDocumentsChange={refetch} />
         </div>
       )}
     </div>

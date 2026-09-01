@@ -9,7 +9,10 @@ interface LandingCTAProps {
 
 export function LandingCTA({ onOpenArchitecture, onOpenSandbox }: LandingCTAProps) {
   return (
-    <section id="demo" className="bg-[#071329] py-10 sm:py-12 lg:py-14 text-white overflow-hidden relative">
+    <section
+      id="demo"
+      className="bg-[#071329] py-10 sm:py-12 lg:py-14 text-white overflow-hidden relative"
+    >
       <div className="mx-auto max-w-5xl 2xl:max-w-6xl px-4 text-center sm:px-6 lg:px-8 2xl:px-12 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 16 }}

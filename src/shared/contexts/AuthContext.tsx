@@ -103,14 +103,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const promise = (async () => {
       // Get fresh token directly from the resolved Firebase user object
       const token = await fbUser.getIdToken();
-      const backendUser = await api.post<UserResponse>(
-        "/api/auth/sync",
-        undefined,
-        {
-          headers: token ? { Authorization: `Bearer ${token}` } : {},
-          useFirebaseToken: false,
-        }
-      );
+      const backendUser = await api.post<UserResponse>("/api/auth/sync", undefined, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        useFirebaseToken: false,
+      });
       setUser(backendUser);
       setFirebaseUser(fbUser);
       currentAuthSnapshot = { user: backendUser, firebaseUser: fbUser, loading: false };
@@ -190,11 +186,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // ---- Stable callbacks ----
 
-  const login = useCallback(async (email: string, password: string) => {
-    const fbUser = await loginWithEmail(email, password);
-    setFirebaseUser(fbUser);
-    await syncUserWithBackend(fbUser);
-  }, [syncUserWithBackend]);
+  const login = useCallback(
+    async (email: string, password: string) => {
+      const fbUser = await loginWithEmail(email, password);
+      setFirebaseUser(fbUser);
+      await syncUserWithBackend(fbUser);
+    },
+    [syncUserWithBackend],
+  );
 
   const loginWithGoogle = useCallback(async (): Promise<UserResponse> => {
     const fbUser = await signInWithGoogle();

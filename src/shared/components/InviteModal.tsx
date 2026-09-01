@@ -96,8 +96,12 @@ export function InviteModal({ isOpen, onClose, invitesEndpoint }: InviteModalPro
                 <UserPlus className="h-5 w-5" />
               </div>
               <div>
-                <h2 className="font-display text-lg font-bold text-text-primary">Invite HR or CFO</h2>
-                <p className="text-xs text-text-secondary">Send a 24-hour invitation link to your executive team</p>
+                <h2 className="font-display text-lg font-bold text-text-primary">
+                  Invite HR or CFO
+                </h2>
+                <p className="text-xs text-text-secondary">
+                  Send a 24-hour invitation link to your executive team
+                </p>
               </div>
             </div>
             <button
@@ -127,9 +131,13 @@ export function InviteModal({ isOpen, onClose, invitesEndpoint }: InviteModalPro
                   >
                     <div className="flex items-center justify-between w-full mb-1">
                       <span className="font-bold text-sm text-text-primary">CFO</span>
-                      <Shield className={`h-4 w-4 ${role === "cfo" ? "text-brand" : "text-text-secondary"}`} />
+                      <Shield
+                        className={`h-4 w-4 ${role === "cfo" ? "text-brand" : "text-text-secondary"}`}
+                      />
                     </div>
-                    <span className="text-[0.6875rem] text-text-secondary">Chief Financial Officer</span>
+                    <span className="text-[0.6875rem] text-text-secondary">
+                      Chief Financial Officer
+                    </span>
                   </button>
 
                   <button
@@ -143,7 +151,9 @@ export function InviteModal({ isOpen, onClose, invitesEndpoint }: InviteModalPro
                   >
                     <div className="flex items-center justify-between w-full mb-1">
                       <span className="font-bold text-sm text-text-primary">HR</span>
-                      <Shield className={`h-4 w-4 ${role === "hr" ? "text-brand" : "text-text-secondary"}`} />
+                      <Shield
+                        className={`h-4 w-4 ${role === "hr" ? "text-brand" : "text-text-secondary"}`}
+                      />
                     </div>
                     <span className="text-[0.6875rem] text-text-secondary">Human Resources</span>
                   </button>
@@ -201,7 +211,8 @@ export function InviteModal({ isOpen, onClose, invitesEndpoint }: InviteModalPro
             {lastInviteLink && (
               <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-text-primary space-y-2">
                 <div className="flex items-center gap-2 text-xs font-bold text-emerald-600">
-                  <Sparkles className="h-4 w-4" /> Invitation Link Has Been Sent. (Valid for 24 hours)
+                  <Sparkles className="h-4 w-4" /> Invitation Link Has Been Sent. (Valid for 24
+                  hours)
                 </div>
               </div>
             )}
@@ -217,7 +228,9 @@ export function InviteModal({ isOpen, onClose, invitesEndpoint }: InviteModalPro
                   <Loader2 className="h-4 w-4 animate-spin" /> Loading team invites...
                 </div>
               ) : invites.length === 0 ? (
-                <p className="text-xs text-text-secondary py-2 italic text-center">No pending or previous invites.</p>
+                <p className="text-xs text-text-secondary py-2 italic text-center">
+                  No pending or previous invites.
+                </p>
               ) : (
                 <div className="space-y-2">
                   {invites.map((inv) => (
@@ -228,7 +241,8 @@ export function InviteModal({ isOpen, onClose, invitesEndpoint }: InviteModalPro
                       <div>
                         <p className="font-semibold text-text-primary">{inv.email}</p>
                         <p className="text-text-secondary capitalize">
-                          Role: <span className="font-medium text-brand">{inv.role?.toUpperCase()}</span>
+                          Role:{" "}
+                          <span className="font-medium text-brand">{inv.role?.toUpperCase()}</span>
                         </p>
                       </div>
                       <div className="flex items-center gap-2">
@@ -237,8 +251,8 @@ export function InviteModal({ isOpen, onClose, invitesEndpoint }: InviteModalPro
                             inv.status === "accepted"
                               ? "bg-emerald-500/10 text-emerald-600 border border-emerald-500/20"
                               : inv.status === "expired"
-                              ? "bg-red-500/10 text-red-500 border border-red-500/20"
-                              : "bg-amber-500/10 text-amber-600 border border-amber-500/20"
+                                ? "bg-red-500/10 text-red-500 border border-red-500/20"
+                                : "bg-amber-500/10 text-amber-600 border border-amber-500/20"
                           }`}
                         >
                           {inv.status}
@@ -246,7 +260,9 @@ export function InviteModal({ isOpen, onClose, invitesEndpoint }: InviteModalPro
                         {inv.invite_token && inv.status === "pending" && (
                           <button
                             onClick={() =>
-                              copyToClipboard(`${window.location.origin}/accept-invite/${inv.invite_token}`)
+                              copyToClipboard(
+                                `${window.location.origin}/accept-invite/${inv.invite_token}`,
+                              )
                             }
                             title="Copy invitation link"
                             className="p-1 rounded hover:bg-surface-alt text-text-secondary hover:text-text-primary"

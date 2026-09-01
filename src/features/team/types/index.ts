@@ -1,11 +1,6 @@
 export type TeamInviteRole = "cfo" | "hr";
 
-export type TeamInviteStatus =
-  | "pending"
-  | "accepted"
-  | "expired"
-  | "revoked"
-  | "removed";
+export type TeamInviteStatus = "pending" | "accepted" | "expired" | "revoked" | "removed";
 
 /**
  * Core team invite entity representing a member invitation record.

@@ -1,23 +1,11 @@
 import React, { useRef } from "react";
-import {
-  CheckCircle2,
-  Download,
-  Eye,
-  FileText,
-  Loader2,
-  Trash2,
-  Upload,
-} from "lucide-react";
+import { CheckCircle2, Download, Eye, FileText, Loader2, Trash2, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/shared/components/ui/button";
 import { cn } from "@/shared/lib/utils";
 import { DocumentQualityBadge } from "./DocumentQualityBadge";
 import { DocumentInfoPopover } from "./DocumentInfoPopover";
-import {
-  formatFileSize,
-  formatDocumentDate,
-  isDocumentUpdated,
-} from "../lib/documentPresentation";
+import { formatFileSize, formatDocumentDate, isDocumentUpdated } from "../lib/documentPresentation";
 import {
   validateFile,
   ACCEPTED_FILE_FORMATS_STRING,
@@ -87,7 +75,7 @@ export function DocumentListRow({
         "rounded-xl border p-3 sm:p-3.5 transition-all duration-150 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3",
         document
           ? "border-border-c bg-surface hover:border-brand/30"
-          : "border-dashed border-border-c bg-surface hover:border-brand/40"
+          : "border-dashed border-border-c bg-surface hover:border-brand/40",
       )}
     >
       {/* Hidden file input for Upload and Replace */}
@@ -105,9 +93,7 @@ export function DocumentListRow({
         <div
           className={cn(
             "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl font-bold text-sm transition-colors mt-0.5",
-            document
-              ? "bg-success/15 text-success"
-              : "bg-brand/10 text-brand"
+            document ? "bg-success/15 text-success" : "bg-brand/10 text-brand",
           )}
         >
           {document ? (
@@ -119,9 +105,7 @@ export function DocumentListRow({
 
         <div className="min-w-0 flex-1 space-y-0.5">
           <div className="flex items-center gap-1.5 flex-wrap">
-            <h4 className="font-semibold text-xs text-text-primary">
-              {slot.label}
-            </h4>
+            <h4 className="font-semibold text-xs text-text-primary">{slot.label}</h4>
 
             {/* Guidance Info Popover */}
             <DocumentInfoPopover
@@ -143,9 +127,7 @@ export function DocumentListRow({
               >
                 {document.original_name}
               </span>
-              <span className="font-mono">
-                • {formatFileSize(document.file_size_bytes)}
-              </span>
+              <span className="font-mono">• {formatFileSize(document.file_size_bytes)}</span>
               <span>
                 •{" "}
                 {isDocumentUpdated(document.created_at, document.updated_at)
@@ -172,9 +154,7 @@ export function DocumentListRow({
               <p className="text-[11px] text-text-secondary leading-tight line-clamp-1">
                 {slot.description}
               </p>
-              <p className="text-[10px] text-text-tertiary font-mono">
-                {UPLOAD_CONSTRAINTS_LABEL}
-              </p>
+              <p className="text-[10px] text-text-tertiary font-mono">{UPLOAD_CONSTRAINTS_LABEL}</p>
             </div>
           )}
         </div>

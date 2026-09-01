@@ -56,8 +56,7 @@ export function RemoveMemberDialog({
               • The member will immediately lose access to this company workspace.
               <br />
               • All active application login sessions are invalidated immediately.
-              <br />
-              • Access can only be restored by creating a brand-new invitation.
+              <br />• Access can only be restored by creating a brand-new invitation.
             </div>
           </AlertDialogDescription>
         </AlertDialogHeader>

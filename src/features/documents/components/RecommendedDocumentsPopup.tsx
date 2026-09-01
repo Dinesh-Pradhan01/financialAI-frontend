@@ -53,10 +53,10 @@ export function RecommendedDocumentsPopup({
   const [previewDoc, setPreviewDoc] = useState<CompanyDocument | null>(null);
 
   const recommendedSlots = KNOWN_DOCUMENT_SLOTS.filter(
-    (s) => s.category === "optional" || s.category === "recommended"
+    (s) => s.category === "optional" || s.category === "recommended",
   );
   const completedCount = recommendedSlots.filter((slot) =>
-    documents.some((d) => d.document_type === slot.typeKey)
+    documents.some((d) => d.document_type === slot.typeKey),
   ).length;
   const totalCount = recommendedSlots.length;
   const percent =
@@ -97,7 +97,7 @@ export function RecommendedDocumentsPopup({
           toast.error(getApiErrorMessage(err, "Replacement failed"));
           setReplacingDocId(null);
         },
-      }
+      },
     );
   };
 
@@ -150,9 +150,7 @@ export function RecommendedDocumentsPopup({
               </DialogTitle>
               <DialogDescription className="text-xs text-text-secondary mt-0.5">
                 {completedCount} of {totalCount} recommended documents uploaded •{" "}
-                <span className="font-semibold text-brand font-num">
-                  {percent}% Completed
-                </span>
+                <span className="font-semibold text-brand font-num">{percent}% Completed</span>
               </DialogDescription>
             </DialogHeader>
 
@@ -197,19 +195,12 @@ export function RecommendedDocumentsPopup({
                       isReplacing={latestDoc ? replacingDocId === latestDoc.id : false}
                       isDeleting={latestDoc ? deletingDocId === latestDoc.id : false}
                       isDownloading={latestDoc ? downloadingDocId === latestDoc.id : false}
-                      onUpload={(file) =>
-                        handleUpload(file, slot.typeKey, slot.category)
-                      }
+                      onUpload={(file) => handleUpload(file, slot.typeKey, slot.category)}
                       onRequestReplace={(stagedFile) =>
-                        latestDoc &&
-                        setReplacingTarget({ document: latestDoc, slot, stagedFile })
+                        latestDoc && setReplacingTarget({ document: latestDoc, slot, stagedFile })
                       }
-                      onReplace={(file) =>
-                        latestDoc && handleReplace(file, latestDoc.id)
-                      }
-                      onDelete={(docId) =>
-                        handleDelete(docId, latestDoc?.original_name)
-                      }
+                      onReplace={(file) => latestDoc && handleReplace(file, latestDoc.id)}
+                      onDelete={(docId) => handleDelete(docId, latestDoc?.original_name)}
                       onPreview={(d) => setPreviewDoc(d)}
                       onDownload={(d) => handleDownload(d)}
                     />

@@ -194,7 +194,8 @@ export function CategoryDocumentsPopup({
                 {category?.answers}
               </DialogDescription>
               <p className="text-xs text-text-secondary mt-1.5 font-mono">
-                <span className="tabular-nums">{uploadedCount}</span> of <span className="tabular-nums">{totalCount}</span> uploaded •{" "}
+                <span className="tabular-nums">{uploadedCount}</span> of{" "}
+                <span className="tabular-nums">{totalCount}</span> uploaded •{" "}
                 <span
                   className={cn(
                     "font-semibold font-num tabular-nums",
@@ -209,7 +210,9 @@ export function CategoryDocumentsPopup({
                     <span className="font-semibold font-num text-text-primary tabular-nums">
                       {requiredUploaded}/{requiredRows.length}
                     </span>
-                    <span className="text-destructive font-bold ml-0.5" title="Required">*</span>
+                    <span className="text-destructive font-bold ml-0.5" title="Required">
+                      *
+                    </span>
                   </>
                 )}
               </p>
@@ -219,7 +222,9 @@ export function CategoryDocumentsPopup({
               {category?.note && (
                 <div className="flex items-start gap-2.5 rounded-xl border border-border-c bg-surface-alt p-3">
                   <Info aria-hidden="true" className="h-4 w-4 shrink-0 text-brand mt-0.5" />
-                  <p className="text-[11px] text-text-secondary leading-relaxed max-w-prose">{category.note}</p>
+                  <p className="text-[11px] text-text-secondary leading-relaxed max-w-prose">
+                    {category.note}
+                  </p>
                 </div>
               )}
 

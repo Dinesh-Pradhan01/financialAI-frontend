@@ -18,12 +18,7 @@ export const Business360Page = () => {
 
   // Auto-prompt to /onboarding on initial session load if user profile is incomplete
   useEffect(() => {
-    if (
-      user &&
-      !user.profile_completed &&
-      onboardingData &&
-      !onboardingData.onboarding_completed
-    ) {
+    if (user && !user.profile_completed && onboardingData && !onboardingData.onboarding_completed) {
       const hasDismissed =
         typeof window !== "undefined"
           ? sessionStorage.getItem("spotlite_onboarding_dismissed")
@@ -43,7 +38,8 @@ export const Business360Page = () => {
       <div>
         <h1 className="text-3xl font-bold tracking-tight text-foreground">Business 360</h1>
         <p className="text-muted-foreground mt-1 text-sm">
-          Unified executive intelligence hub for workforce risk, financial health, and company compliance.
+          Unified executive intelligence hub for workforce risk, financial health, and company
+          compliance.
         </p>
       </div>
 

@@ -11,12 +11,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  HERO_DATA,
-  ROLES,
-  SANDBOX_ROLES_DATA,
-  type Currency,
-} from "../data/landing-data";
+import { HERO_DATA, ROLES, SANDBOX_ROLES_DATA, type Currency } from "../data/landing-data";
 import { cn } from "@/shared/lib/utils";
 
 interface LandingHeroProps {
@@ -83,19 +78,16 @@ export function LandingHero({ currency, onOpenSandbox }: LandingHeroProps) {
                 className="font-display text-2xl sm:text-3xl lg:text-[2.375rem] xl:text-[2.75rem] font-bold tracking-[-0.03em] text-foreground leading-[1.15] text-balance"
               >
                 One unified view of your company's{" "}
-                <span className="text-primary font-bold">
-                  financial health
-                </span>{" "}
-                and workforce risk.
+                <span className="text-primary font-bold">financial health</span> and workforce risk.
               </motion.h1>
 
               <motion.p
                 variants={fadeUp}
                 className="mt-3 text-sm sm:text-base leading-relaxed text-slate-600 max-w-[56ch]"
               >
-                SpotLite connects bank statements, verified HR rosters, and market indicators — turning
-                raw transactions into real-time executive dashboards, peer benchmarks, and anomaly
-                alerts your leadership can act on immediately.
+                SpotLite connects bank statements, verified HR rosters, and market indicators —
+                turning raw transactions into real-time executive dashboards, peer benchmarks, and
+                anomaly alerts your leadership can act on immediately.
               </motion.p>
 
               {/* Standardized Hero CTAs */}
@@ -109,7 +101,10 @@ export function LandingHero({ currency, onOpenSandbox }: LandingHeroProps) {
                     className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold tracking-[-0.005em] text-white shadow-md shadow-primary/25 transition-all hover:bg-primary-hover hover:shadow-lg hover:shadow-primary/35 active:scale-[0.98] w-full sm:w-auto group"
                   >
                     <span>Book Executive Demo</span>
-                    <ArrowRight size={15} className="transition-transform duration-200 group-hover:translate-x-0.5" />
+                    <ArrowRight
+                      size={15}
+                      className="transition-transform duration-200 group-hover:translate-x-0.5"
+                    />
                   </Link>
                 </motion.div>
 
@@ -119,7 +114,10 @@ export function LandingHero({ currency, onOpenSandbox }: LandingHeroProps) {
                   onClick={() => onOpenSandbox?.(activeHeroRole)}
                   className="inline-flex items-center justify-center gap-2 rounded-xl border border-border-c bg-white px-5 py-3 text-sm font-semibold tracking-[-0.005em] text-foreground shadow-xs transition-all hover:bg-muted hover:border-slate-300 w-full sm:w-auto cursor-pointer group"
                 >
-                  <Sparkles size={15} className="text-primary group-hover:rotate-12 transition-transform duration-300" />
+                  <Sparkles
+                    size={15}
+                    className="text-primary group-hover:rotate-12 transition-transform duration-300"
+                  />
                   <span>Launch 60s Live Sandbox</span>
                 </motion.button>
               </motion.div>
@@ -179,7 +177,9 @@ export function LandingHero({ currency, onOpenSandbox }: LandingHeroProps) {
                           <span
                             className={cn(
                               "relative z-10 transition-colors",
-                              isSelected ? "text-primary font-bold" : "text-slate-600 hover:text-foreground",
+                              isSelected
+                                ? "text-primary font-bold"
+                                : "text-slate-600 hover:text-foreground",
                             )}
                           >
                             {r.role.split(" ")[0]}
@@ -325,4 +325,3 @@ export function LandingHero({ currency, onOpenSandbox }: LandingHeroProps) {
     </section>
   );
 }
-

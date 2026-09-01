@@ -27,7 +27,11 @@ function CategoryDetail() {
         </div>
         <h1 className="font-display text-xl font-bold text-foreground">Category Not Found</h1>
         <p className="mt-2 text-sm text-text-secondary leading-relaxed">
-          The spending category <code className="rounded bg-surface-alt px-1.5 py-0.5 font-mono text-xs text-brand font-semibold">"{category}"</code> could not be found or has no recorded transactions.
+          The spending category{" "}
+          <code className="rounded bg-surface-alt px-1.5 py-0.5 font-mono text-xs text-brand font-semibold">
+            "{category}"
+          </code>{" "}
+          could not be found or has no recorded transactions.
         </p>
         <div className="mt-6 flex justify-center">
           <Link

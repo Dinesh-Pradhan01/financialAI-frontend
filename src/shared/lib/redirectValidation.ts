@@ -27,7 +27,7 @@ export const ALLOWED_REDIRECT_PREFIXES = [
  */
 export function getSafeRedirectPath(
   rawParam: string | undefined | null,
-  fallback: string = "/home"
+  fallback: string = "/home",
 ): string {
   if (!rawParam || typeof rawParam !== "string") {
     return fallback;
@@ -53,7 +53,7 @@ export function getSafeRedirectPath(
 
   // Match against known internal route prefixes
   const isAllowed = ALLOWED_REDIRECT_PREFIXES.some(
-    (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`)
+    (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
   );
 
   if (!isAllowed) {

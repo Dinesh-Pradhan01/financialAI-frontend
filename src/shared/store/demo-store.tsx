@@ -105,15 +105,21 @@ export function useDemo(): DemoContextValue {
   const snoozeTrigger = useCallback((id: string) => dispatch(snoozeTriggerAction(id)), [dispatch]);
   const setLanguage = useCallback((code: string) => dispatch(setLanguageAction(code)), [dispatch]);
   const setChannel = useCallback((c: string) => dispatch(setChannelAction(c)), [dispatch]);
-  const setNotificationsOn = useCallback((v: boolean) => dispatch(setNotificationsOnAction(v)), [dispatch]);
+  const setNotificationsOn = useCallback(
+    (v: boolean) => dispatch(setNotificationsOnAction(v)),
+    [dispatch],
+  );
   const setTimeframe = useCallback((t: string) => dispatch(setTimeframeAction(t)), [dispatch]);
-  const markNotificationsRead = useCallback(() => dispatch(markNotificationsReadAction()), [dispatch]);
+  const markNotificationsRead = useCallback(
+    () => dispatch(markNotificationsReadAction()),
+    [dispatch],
+  );
 
   const setConversation = useCallback(
     (updater: (prev: CoachMsg[]) => CoachMsg[]) => {
       dispatch(setConversationAction(updater(conversation)));
     },
-    [dispatch, conversation]
+    [dispatch, conversation],
   );
 
   const dismissIntro = useCallback(() => dispatch(dismissIntroAction()), [dispatch]);

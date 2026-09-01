@@ -45,7 +45,7 @@ export function DocumentCategoryNavTabs({
       const timeoutId = setTimeout(() => {
         if (!scrollRef.current) return;
         const activeElement = scrollRef.current.querySelector(
-          `[data-category-id="${activeCategoryId}"]`
+          `[data-category-id="${activeCategoryId}"]`,
         ) as HTMLElement;
         if (activeElement) {
           const container = scrollRef.current;

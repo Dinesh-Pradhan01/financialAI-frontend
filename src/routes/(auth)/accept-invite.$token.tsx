@@ -32,7 +32,8 @@ export const Route = createFileRoute("/(auth)/accept-invite/$token")({
       { title: "Accept Workspace Invitation · SpotLite" },
       {
         name: "description",
-        content: "Set up your executive account to join your company workspace on SpotLite Intelligence.",
+        content:
+          "Set up your executive account to join your company workspace on SpotLite Intelligence.",
       },
     ],
   }),
@@ -59,9 +60,7 @@ function AcceptInvitePage() {
   useEffect(() => {
     async function verifyInvite() {
       try {
-        const res = await api.get<InviteVerifyResponse>(
-          `/api/auth/invite/verify/${token}`
-        );
+        const res = await api.get<InviteVerifyResponse>(`/api/auth/invite/verify/${token}`);
         setInviteData(res);
         if (res.email) setEmail(res.email);
         if (res.full_name) setFullName(res.full_name);
@@ -91,10 +90,7 @@ function AcceptInvitePage() {
   const allRulesPassed = rules.every((r) => r.test(password));
   const passwordsMatch = confirmPassword.length > 0 && password === confirmPassword;
   const isFormValid =
-    fullName.trim().length >= 2 &&
-    email.trim().includes("@") &&
-    allRulesPassed &&
-    passwordsMatch;
+    fullName.trim().length >= 2 && email.trim().includes("@") && allRulesPassed && passwordsMatch;
 
   // Flow A: Logged-in user accepting invite with their current session
   const handleAcceptLoggedIn = async () => {
@@ -103,7 +99,7 @@ function AcceptInvitePage() {
     try {
       await api.post(`/api/invite/accept/${token}`, {});
       toast.success(
-        `Workspace invitation accepted for ${inviteData?.company_name || "your company"}!`
+        `Workspace invitation accepted for ${inviteData?.company_name || "your company"}!`,
       );
       await refreshUser();
       nav({ to: "/home" });
@@ -157,9 +153,7 @@ function AcceptInvitePage() {
         await refreshUser();
       }
 
-      toast.success(
-        `Account created as ${inviteData.role?.toUpperCase()}!`,
-      );
+      toast.success(`Account created as ${inviteData.role?.toUpperCase()}!`);
       nav({ to: "/verify-email" });
     } catch (err: any) {
       console.error(err);
@@ -199,8 +193,8 @@ function AcceptInvitePage() {
     inviteData.role === "cfo"
       ? "Chief Financial Officer (CFO)"
       : inviteData.role === "hr"
-      ? "Human Resources (HR)"
-      : inviteData.role?.toUpperCase() || "Executive";
+        ? "Human Resources (HR)"
+        : inviteData.role?.toUpperCase() || "Executive";
 
   return (
     <div className="relative grid min-h-screen md:grid-cols-2 bg-white overflow-hidden">
@@ -225,7 +219,8 @@ function AcceptInvitePage() {
                 Join your workspace
               </h1>
               <p className="mt-1 text-xs sm:text-sm text-text-secondary">
-                Invited to join <strong className="text-text-primary">{inviteData.company_name}</strong>
+                Invited to join{" "}
+                <strong className="text-text-primary">{inviteData.company_name}</strong>
               </p>
             </div>
 
@@ -249,9 +244,7 @@ function AcceptInvitePage() {
               <span className="block text-[10px] font-bold uppercase tracking-wider text-brand">
                 Designated Executive Role
               </span>
-              <span className="text-xs sm:text-sm font-bold text-foreground">
-                {roleLabel}
-              </span>
+              <span className="text-xs sm:text-sm font-bold text-foreground">{roleLabel}</span>
             </div>
           </div>
 
@@ -260,10 +253,13 @@ function AcceptInvitePage() {
             <div className="mt-5 rounded-2xl border border-brand/30 bg-brand/5 p-4 space-y-2.5">
               <div className="flex items-center gap-2 text-xs font-semibold text-text-primary">
                 <UserCheck className="h-4 w-4 text-brand" />
-                <span>Signed in as <strong className="text-brand">{user.email}</strong></span>
+                <span>
+                  Signed in as <strong className="text-brand">{user.email}</strong>
+                </span>
               </div>
               <p className="text-xs text-text-secondary">
-                You can directly join <strong>{inviteData.company_name}</strong> with your active account:
+                You can directly join <strong>{inviteData.company_name}</strong> with your active
+                account:
               </p>
               <button
                 type="button"
@@ -280,7 +276,10 @@ function AcceptInvitePage() {
           <form onSubmit={handleSubmit} className="mt-6 space-y-4">
             {/* Work Email */}
             <div className="space-y-1.5">
-              <label htmlFor="invite-email" className="block text-xs font-semibold text-text-secondary">
+              <label
+                htmlFor="invite-email"
+                className="block text-xs font-semibold text-text-secondary"
+              >
                 Work Email address
               </label>
               <input
@@ -297,7 +296,10 @@ function AcceptInvitePage() {
 
             {/* Full Name */}
             <div className="space-y-1.5">
-              <label htmlFor="invite-name" className="block text-xs font-semibold text-text-secondary">
+              <label
+                htmlFor="invite-name"
+                className="block text-xs font-semibold text-text-secondary"
+              >
                 Full Name
               </label>
               <input
@@ -314,7 +316,10 @@ function AcceptInvitePage() {
 
             {/* Create Password */}
             <div className="space-y-1.5">
-              <label htmlFor="invite-password" className="block text-xs font-semibold text-text-secondary">
+              <label
+                htmlFor="invite-password"
+                className="block text-xs font-semibold text-text-secondary"
+              >
                 Create Password
               </label>
               <div className="relative">
@@ -372,7 +377,10 @@ function AcceptInvitePage() {
 
             {/* Confirm Password */}
             <div className="space-y-1.5">
-              <label htmlFor="invite-confirm" className="block text-xs font-semibold text-text-secondary">
+              <label
+                htmlFor="invite-confirm"
+                className="block text-xs font-semibold text-text-secondary"
+              >
                 Confirm Password
               </label>
               <div className="relative">
@@ -415,11 +423,7 @@ function AcceptInvitePage() {
           {/* Login fallback link */}
           <p className="mt-8 text-center text-sm text-text-secondary">
             Already have an account?{" "}
-            <Link
-              to="/login"
-              preload="intent"
-              className="font-semibold text-brand hover:underline"
-            >
+            <Link to="/login" preload="intent" className="font-semibold text-brand hover:underline">
               Sign in
             </Link>
           </p>

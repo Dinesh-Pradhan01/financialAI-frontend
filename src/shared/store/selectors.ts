@@ -15,12 +15,12 @@ export const selectTourState = (state: RootState) => state.tour;
 // Spotlight Selectors
 export const selectApplied = createSelector(
   [selectSpotlightsState],
-  (spotlights) => spotlights.applied
+  (spotlights) => spotlights.applied,
 );
 
 export const selectSnoozed = createSelector(
   [selectSpotlightsState],
-  (spotlights) => spotlights.snoozed
+  (spotlights) => spotlights.snoozed,
 );
 
 export const selectIsApplied = (id: string) =>
@@ -29,69 +29,48 @@ export const selectIsApplied = (id: string) =>
 export const selectMoneyFound = createSelector([selectApplied], (applied) =>
   rohan.spotlights
     .filter((t) => FOUND_IDS.includes(t.id) && !applied.includes(t.id))
-    .reduce((sum, t) => sum + Math.abs(t.amount), 0)
+    .reduce((sum, t) => sum + Math.abs(t.amount), 0),
 );
 
 export const selectWellness = createSelector([selectApplied], (applied) =>
-  Math.min(92, BASE_WELLNESS + applied.length * 2)
+  Math.min(92, BASE_WELLNESS + applied.length * 2),
 );
 
 export const selectHighPriorityCount = createSelector(
   [selectApplied, selectSnoozed],
   (applied, snoozed) =>
     rohan.spotlights.filter(
-      (t) =>
-        t.severity === "high" &&
-        !applied.includes(t.id) &&
-        !snoozed.includes(t.id)
-    ).length
+      (t) => t.severity === "high" && !applied.includes(t.id) && !snoozed.includes(t.id),
+    ).length,
 );
 
 // Preference Selectors
-export const selectLanguage = createSelector(
-  [selectPreferencesState],
-  (p) => p.language
-);
+export const selectLanguage = createSelector([selectPreferencesState], (p) => p.language);
 
-export const selectChannel = createSelector(
-  [selectPreferencesState],
-  (p) => p.channel
-);
+export const selectChannel = createSelector([selectPreferencesState], (p) => p.channel);
 
 export const selectNotificationsOn = createSelector(
   [selectPreferencesState],
-  (p) => p.notificationsOn
+  (p) => p.notificationsOn,
 );
 
-export const selectTimeframe = createSelector(
-  [selectPreferencesState],
-  (p) => p.timeframe
-);
+export const selectTimeframe = createSelector([selectPreferencesState], (p) => p.timeframe);
 
 // Notification Selectors
 export const selectNotifications = createSelector(
   [selectNotificationsState],
-  (n) => n.notifications
+  (n) => n.notifications,
 );
 
 export const selectNotificationsRead = createSelector(
   [selectNotificationsState],
-  (n) => n.notificationsRead
+  (n) => n.notificationsRead,
 );
 
 // Coach Selectors
-export const selectConversation = createSelector(
-  [selectCoachState],
-  (c) => c.conversation
-);
+export const selectConversation = createSelector([selectCoachState], (c) => c.conversation);
 
 // Tour Selectors
-export const selectSeenIntro = createSelector(
-  [selectTourState],
-  (t) => t.seenIntro
-);
+export const selectSeenIntro = createSelector([selectTourState], (t) => t.seenIntro);
 
-export const selectTourStep = createSelector(
-  [selectTourState],
-  (t) => t.tourStep
-);
+export const selectTourStep = createSelector([selectTourState], (t) => t.tourStep);

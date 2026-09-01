@@ -7,7 +7,8 @@ export const Route = createFileRoute("/_app/(documents)/documents/other")({
       { title: "Other Documents · Spotlite" },
       {
         name: "description",
-        content: "Upload and manage miscellaneous documents that do not belong to predefined categories.",
+        content:
+          "Upload and manage miscellaneous documents that do not belong to predefined categories.",
       },
     ],
   }),

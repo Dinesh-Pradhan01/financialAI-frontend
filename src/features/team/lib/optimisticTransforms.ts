@@ -3,10 +3,7 @@ import type { TeamInvite, SendInvitePayload } from "../types";
 /**
  * Optimistically update an invite record to "revoked".
  */
-export function applyRevokeOptimistic(
-  cache: TeamInvite[],
-  inviteId: string
-): TeamInvite[] {
+export function applyRevokeOptimistic(cache: TeamInvite[], inviteId: string): TeamInvite[] {
   return cache.map((inv) =>
     inv.id === inviteId
       ? {
@@ -14,17 +11,14 @@ export function applyRevokeOptimistic(
           status: "revoked",
           updated_at: new Date().toISOString(),
         }
-      : inv
+      : inv,
   );
 }
 
 /**
  * Optimistically update an accepted member record to "removed".
  */
-export function applyRemoveOptimistic(
-  cache: TeamInvite[],
-  memberId: string
-): TeamInvite[] {
+export function applyRemoveOptimistic(cache: TeamInvite[], memberId: string): TeamInvite[] {
   return cache.map((inv) =>
     inv.id === memberId
       ? {
@@ -32,17 +26,14 @@ export function applyRemoveOptimistic(
           status: "removed",
           updated_at: new Date().toISOString(),
         }
-      : inv
+      : inv,
   );
 }
 
 /**
  * Optimistically update an invite record to "pending" upon resend.
  */
-export function applyResendOptimistic(
-  cache: TeamInvite[],
-  inviteId: string
-): TeamInvite[] {
+export function applyResendOptimistic(cache: TeamInvite[], inviteId: string): TeamInvite[] {
   return cache.map((inv) =>
     inv.id === inviteId
       ? {
@@ -50,7 +41,7 @@ export function applyResendOptimistic(
           status: "pending",
           updated_at: new Date().toISOString(),
         }
-      : inv
+      : inv,
   );
 }
 
@@ -60,7 +51,7 @@ export function applyResendOptimistic(
 export function applySendInviteOptimistic(
   cache: TeamInvite[],
   payload: SendInvitePayload,
-  tempId: string = `temp-${Date.now()}`
+  tempId: string = `temp-${Date.now()}`,
 ): TeamInvite[] {
   const now = new Date().toISOString();
   const optimisticInvite: TeamInvite = {

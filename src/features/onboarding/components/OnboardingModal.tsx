@@ -59,11 +59,7 @@ const SECTION_ICONS: Record<number, React.ReactNode> = {
   4: <Landmark size={18} />,
 };
 
-export function OnboardingModal({
-  isOpen,
-  onClose,
-  section,
-}: OnboardingModalProps) {
+export function OnboardingModal({ isOpen, onClose, section }: OnboardingModalProps) {
   const { user, loading: authLoading } = useAuth();
   const queryClient = useQueryClient();
 
@@ -285,10 +281,8 @@ export function OnboardingModal({
 
   const isTeamInfoValid = ceoName.trim().length > 0;
 
-  const isDocUploaded = (typeKey: string) =>
-    uploadedDocs.some((d) => d.document_type === typeKey);
-  const isDocsValid =
-    isDocUploaded("business_pan") && isDocUploaded("registration_proof");
+  const isDocUploaded = (typeKey: string) => uploadedDocs.some((d) => d.document_type === typeKey);
+  const isDocsValid = isDocUploaded("business_pan") && isDocUploaded("registration_proof");
 
   const isCurrentStepValid = (function () {
     if (step === 1) return isDocsValid;
@@ -324,7 +318,8 @@ export function OnboardingModal({
     if (!validationResult.success) {
       const fieldErrors = parseApiValidationErrors(validationResult.error);
       setGeneralErrors(fieldErrors);
-      const firstMsg = Object.values(fieldErrors)[0] || "Please fill all required fields correctly.";
+      const firstMsg =
+        Object.values(fieldErrors)[0] || "Please fill all required fields correctly.";
       toast.error(firstMsg);
       return false;
     }
@@ -333,10 +328,9 @@ export function OnboardingModal({
     try {
       const res = await api.post<{ completion_percentage?: number }>(
         "/api/business/onboarding/step/1",
-        payload
+        payload,
       );
-      if (res.completion_percentage !== undefined)
-        setCompletionPct(res.completion_percentage);
+      if (res.completion_percentage !== undefined) setCompletionPct(res.completion_percentage);
       return true;
     } catch (err: any) {
       const fieldErrors = parseApiValidationErrors(err);
@@ -395,10 +389,9 @@ export function OnboardingModal({
     try {
       const res = await api.post<{ completion_percentage?: number; team_invites?: TeamInvite[] }>(
         "/api/business/onboarding/step/2",
-        payload
+        payload,
       );
-      if (res.completion_percentage !== undefined)
-        setCompletionPct(res.completion_percentage);
+      if (res.completion_percentage !== undefined) setCompletionPct(res.completion_percentage);
       if (res.team_invites) setTeamInvites(res.team_invites);
       return true;
     } catch (err: any) {
@@ -443,10 +436,9 @@ export function OnboardingModal({
     try {
       const res = await api.post<{ completion_percentage?: number }>(
         "/api/business/onboarding/step/3",
-        payload
+        payload,
       );
-      if (res.completion_percentage !== undefined)
-        setCompletionPct(res.completion_percentage);
+      if (res.completion_percentage !== undefined) setCompletionPct(res.completion_percentage);
       return true;
     } catch (err: any) {
       const fieldErrors = parseApiValidationErrors(err);
@@ -528,9 +520,7 @@ export function OnboardingModal({
 
     if (step === 1) {
       if (!isDocsValid) {
-        toast.error(
-          "Please upload mandatory documents (Business PAN & Registration Proof)."
-        );
+        toast.error("Please upload mandatory documents (Business PAN & Registration Proof).");
         return;
       }
       toast.success("Verification documents updated!");
@@ -558,7 +548,7 @@ export function OnboardingModal({
 
   const togglePaymentMethod = (method: string) => {
     setDigitalPaymentMethods((prev) =>
-      prev.includes(method) ? prev.filter((m) => m !== method) : [...prev, method]
+      prev.includes(method) ? prev.filter((m) => m !== method) : [...prev, method],
     );
   };
 
@@ -660,9 +650,7 @@ export function OnboardingModal({
     clearError: clearFinancialError,
   };
 
-  const isBusy = Boolean(
-    savingDraft || submitting || uploadingDocType || deletingDocId
-  );
+  const isBusy = Boolean(savingDraft || submitting || uploadingDocType || deletingDocId);
   const isActionDisabled = isBusy || !isCurrentStepValid;
 
   return (

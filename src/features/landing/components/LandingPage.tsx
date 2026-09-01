@@ -76,7 +76,9 @@ export function LandingPage() {
         <div className="bg-primary text-white px-4 py-2 text-xs font-medium flex items-center justify-between gap-3 relative z-50">
           <div className="mx-auto flex items-center gap-2 flex-wrap justify-center">
             <span className="flex h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="tracking-tight">Interactive Demo: Test SpotLite's multi-bank OCR audit & AI Copilot in 60 seconds.</span>
+            <span className="tracking-tight">
+              Interactive Demo: Test SpotLite's multi-bank OCR audit & AI Copilot in 60 seconds.
+            </span>
             <button
               type="button"
               onClick={() => handleOpenSandbox()}
@@ -112,10 +114,7 @@ export function LandingPage() {
           onOpenModuleSpecs={handleOpenModuleSpecs}
           onOpenSandbox={handleOpenSandbox}
         />
-        <LandingRoles
-          currency={currency}
-          onOpenRolePreview={handleOpenRolePreview}
-        />
+        <LandingRoles currency={currency} onOpenRolePreview={handleOpenRolePreview} />
         <LandingHowItWorks />
         <LandingTestimonials />
         <LandingPricing
@@ -126,10 +125,7 @@ export function LandingPage() {
           onOpenSandbox={handleOpenSandbox}
         />
         <LandingSecurity />
-        <LandingCTA
-          onOpenArchitecture={handleOpenArchitecture}
-          onOpenSandbox={handleOpenSandbox}
-        />
+        <LandingCTA onOpenArchitecture={handleOpenArchitecture} onOpenSandbox={handleOpenSandbox} />
       </main>
       <LandingFooter />
 

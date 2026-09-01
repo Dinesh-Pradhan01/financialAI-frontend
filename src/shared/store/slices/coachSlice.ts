@@ -30,10 +30,6 @@ export const coachSlice = createSlice({
   },
 });
 
-export const {
-  addMessage,
-  setConversation,
-  clearConversation,
-} = coachSlice.actions;
+export const { addMessage, setConversation, clearConversation } = coachSlice.actions;
 
 export default coachSlice.reducer;

@@ -12,7 +12,8 @@ export const Route = createFileRoute("/_app/(team)/team")({
       { title: "Team & Access Management · Spotlite" },
       {
         name: "description",
-        content: "Manage executive leadership team, dispatch invitations, and oversee workspace governance.",
+        content:
+          "Manage executive leadership team, dispatch invitations, and oversee workspace governance.",
       },
     ],
   }),
@@ -75,7 +76,8 @@ function TeamPage() {
             Access Restricted
           </h1>
           <p className="text-sm text-text-secondary leading-relaxed">
-            Team &amp; User Management is strictly restricted to company Chief Executive Officers (CEO) and Workspace Administrators.
+            Team &amp; User Management is strictly restricted to company Chief Executive Officers
+            (CEO) and Workspace Administrators.
           </p>
           <p className="text-xs font-mono text-text-tertiary">
             Current signed-in role:{" "}
@@ -115,7 +117,8 @@ function TeamPage() {
           </h1>
         </div>
         <p className="text-sm text-text-secondary">
-          Manage executive leadership access, dispatch secure verification invitations, and oversee role-based workspace permissions.
+          Manage executive leadership access, dispatch secure verification invitations, and oversee
+          role-based workspace permissions.
         </p>
       </motion.div>
 

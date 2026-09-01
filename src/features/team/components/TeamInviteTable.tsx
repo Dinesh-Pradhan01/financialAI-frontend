@@ -170,7 +170,12 @@ export function TeamInviteTable({ className }: TeamInviteTableProps) {
 
   if (isLoading) {
     return (
-      <div className={cn("rounded-2xl border border-border/80 bg-surface shadow-xs p-5 space-y-4", className)}>
+      <div
+        className={cn(
+          "rounded-2xl border border-border/80 bg-surface shadow-xs p-5 space-y-4",
+          className,
+        )}
+      >
         <div className="flex items-center justify-between border-b border-border/60 pb-3">
           <Skeleton className="h-5 w-40 rounded-md" />
           <Skeleton className="h-4 w-24 rounded-md" />
@@ -204,7 +209,7 @@ export function TeamInviteTable({ className }: TeamInviteTableProps) {
       <div
         className={cn(
           "rounded-2xl border border-destructive/30 bg-destructive/5 p-6 shadow-xs text-left flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4",
-          className
+          className,
         )}
       >
         <div className="flex items-center gap-3.5">
@@ -242,7 +247,7 @@ export function TeamInviteTable({ className }: TeamInviteTableProps) {
       <div
         className={cn(
           "rounded-2xl border border-dashed border-border-c bg-surface-alt/25 p-8 sm:p-12 text-center space-y-3",
-          className
+          className,
         )}
       >
         <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-brand/10 text-brand">
@@ -251,7 +256,8 @@ export function TeamInviteTable({ className }: TeamInviteTableProps) {
         <div className="space-y-1 max-w-sm mx-auto">
           <h4 className="text-sm font-bold text-text-primary">No Executive Members Yet</h4>
           <p className="text-xs text-text-secondary leading-relaxed">
-            Your executive directory is empty. Use the invite form above to dispatch invitations to your CFO or HR leadership.
+            Your executive directory is empty. Use the invite form above to dispatch invitations to
+            your CFO or HR leadership.
           </p>
         </div>
       </div>
@@ -263,13 +269,18 @@ export function TeamInviteTable({ className }: TeamInviteTableProps) {
   // ---------------------------------------------------------------------------
 
   return (
-    <div className={cn("rounded-2xl border border-border/80 bg-surface shadow-xs overflow-hidden text-left", className)}>
+    <div
+      className={cn(
+        "rounded-2xl border border-border/80 bg-surface shadow-xs overflow-hidden text-left",
+        className,
+      )}
+    >
       {/* Table Header / Subtitle */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-border/60 bg-surface-alt/30 px-5 py-3.5">
         <div>
-          
           <p className="text-[11px] text-text-tertiary">
-            {invites.length} {invites.length === 1 ? "record" : "records"} (members &amp; invitations)
+            {invites.length} {invites.length === 1 ? "record" : "records"} (members &amp;
+            invitations)
           </p>
         </div>
         <div className="flex items-center gap-2 text-[11px] text-text-secondary font-medium">
@@ -292,8 +303,8 @@ export function TeamInviteTable({ className }: TeamInviteTableProps) {
           // this client-side email comparison is solely for immediate UX feedback.
           const isSelf = Boolean(
             currentUser?.email &&
-              invite.email &&
-              currentUser.email.toLowerCase() === invite.email.toLowerCase()
+            invite.email &&
+            currentUser.email.toLowerCase() === invite.email.toLowerCase(),
           );
 
           const roleUpper = invite.role.toUpperCase();
@@ -316,8 +327,8 @@ export function TeamInviteTable({ className }: TeamInviteTableProps) {
                     isAccepted
                       ? "bg-brand text-white"
                       : isPending
-                      ? "bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/20"
-                      : "bg-surface-alt text-text-secondary border border-border"
+                        ? "bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/20"
+                        : "bg-surface-alt text-text-secondary border border-border",
                   )}
                 >
                   {initials}
@@ -338,7 +349,7 @@ export function TeamInviteTable({ className }: TeamInviteTableProps) {
                         "inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold border",
                         invite.role.toLowerCase() === "cfo"
                           ? "bg-brand/10 text-brand border-brand/20"
-                          : "bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20"
+                          : "bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20",
                       )}
                     >
                       {invite.role.toLowerCase() === "cfo" ? (
@@ -350,9 +361,7 @@ export function TeamInviteTable({ className }: TeamInviteTableProps) {
                     </span>
                   </div>
 
-                  <p className="text-xs text-text-secondary font-mono truncate">
-                    {invite.email}
-                  </p>
+                  <p className="text-xs text-text-secondary font-mono truncate">{invite.email}</p>
                 </div>
               </div>
 
@@ -362,7 +371,7 @@ export function TeamInviteTable({ className }: TeamInviteTableProps) {
                   <span
                     className={cn(
                       "inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold border",
-                      statusInfo.badgeColor
+                      statusInfo.badgeColor,
                     )}
                   >
                     <StatusIcon className="h-3.5 w-3.5" />
@@ -375,10 +384,10 @@ export function TeamInviteTable({ className }: TeamInviteTableProps) {
                       {isAccepted
                         ? `Joined ${formatInviteDate(invite.created_at)}`
                         : isPending
-                        ? `Invited ${formatInviteDate(invite.created_at)}`
-                        : isExpired
-                        ? `Expired ${formatInviteDate(invite.expires_at || invite.created_at)}`
-                        : `Updated ${formatInviteDate(invite.updated_at || invite.created_at)}`}
+                          ? `Invited ${formatInviteDate(invite.created_at)}`
+                          : isExpired
+                            ? `Expired ${formatInviteDate(invite.expires_at || invite.created_at)}`
+                            : `Updated ${formatInviteDate(invite.updated_at || invite.created_at)}`}
                     </span>
                   </p>
                 </div>
@@ -402,7 +411,10 @@ export function TeamInviteTable({ className }: TeamInviteTableProps) {
                           )}
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="w-48 rounded-xl p-1 shadow-lg text-xs">
+                      <DropdownMenuContent
+                        align="end"
+                        className="w-48 rounded-xl p-1 shadow-lg text-xs"
+                      >
                         {/* Pending Invite Actions */}
                         {isPending && (
                           <>

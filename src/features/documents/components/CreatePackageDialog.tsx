@@ -53,7 +53,7 @@ export function CreatePackageDialog({
 
   const toggleSelectDoc = (id: string) => {
     setSelectedDocIds((prev) =>
-      prev.includes(id) ? prev.filter((dId) => dId !== id) : [...prev, id]
+      prev.includes(id) ? prev.filter((dId) => dId !== id) : [...prev, id],
     );
   };
 
@@ -62,8 +62,7 @@ export function CreatePackageDialog({
     if (!q) return documents;
     return documents.filter(
       (doc) =>
-        doc.original_name.toLowerCase().includes(q) ||
-        doc.document_type.toLowerCase().includes(q)
+        doc.original_name.toLowerCase().includes(q) || doc.document_type.toLowerCase().includes(q),
     );
   }, [documents, searchQuery]);
 
@@ -99,12 +98,15 @@ export function CreatePackageDialog({
         onError: (err) => {
           toast.error(getApiErrorMessage(err, "Failed to create package"));
         },
-      }
+      },
     );
   };
 
   return (
-    <Dialog open={open} onOpenChange={(val) => !createPackageMutation.isPending && onOpenChange(val)}>
+    <Dialog
+      open={open}
+      onOpenChange={(val) => !createPackageMutation.isPending && onOpenChange(val)}
+    >
       <DialogContent className="sm:max-w-lg max-h-[85vh] flex flex-col p-6">
         <DialogHeader>
           <div className="flex items-center gap-2.5">

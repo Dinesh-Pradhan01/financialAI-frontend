@@ -33,8 +33,7 @@ export function PackagesSection({ documents }: PackagesSectionProps) {
   const [disbandingPkgId, setDisbandingPkgId] = useState<string | null>(null);
 
   // Add documents dialog state (for existing package)
-  const [targetPackageForAdd, setTargetPackageForAdd] =
-    useState<PackageResponse | null>(null);
+  const [targetPackageForAdd, setTargetPackageForAdd] = useState<PackageResponse | null>(null);
 
   // Create package dialog state
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
@@ -56,7 +55,7 @@ export function PackagesSection({ documents }: PackagesSectionProps) {
           toast.error(getApiErrorMessage(err, "Failed to rename package"));
           setRenamingPkgId(null);
         },
-      }
+      },
     );
   };
 
@@ -84,14 +83,14 @@ export function PackagesSection({ documents }: PackagesSectionProps) {
           toast.success(
             `Added ${selectedDocIds.length} document${
               selectedDocIds.length === 1 ? "" : "s"
-            } to "${targetPackageForAdd.name}".`
+            } to "${targetPackageForAdd.name}".`,
           );
           setTargetPackageForAdd(null);
         },
         onError: (err) => {
           toast.error(getApiErrorMessage(err, "Failed to add documents to package"));
         },
-      }
+      },
     );
   };
 
@@ -104,15 +103,13 @@ export function PackagesSection({ documents }: PackagesSectionProps) {
           toast.success(
             docIds.length === 1
               ? "Document removed from package."
-              : `Removed ${docIds.length} documents from package.`
+              : `Removed ${docIds.length} documents from package.`,
           );
         },
         onError: (err) => {
-          toast.error(
-            getApiErrorMessage(err, "Failed to remove documents from package")
-          );
+          toast.error(getApiErrorMessage(err, "Failed to remove documents from package"));
         },
-      }
+      },
     );
   };
 
@@ -155,11 +152,10 @@ export function PackagesSection({ documents }: PackagesSectionProps) {
             <PackageIcon className="h-4 w-4" />
           </div>
           <div>
-            <h2 className="text-base font-bold text-text-primary">
-              Document Packages
-            </h2>
+            <h2 className="text-base font-bold text-text-primary">Document Packages</h2>
             <p className="text-xs text-text-secondary mt-0.5">
-              Organize documents into curated bundles for due diligence, audits, or investor reviews.
+              Organize documents into curated bundles for due diligence, audits, or investor
+              reviews.
             </p>
           </div>
         </div>

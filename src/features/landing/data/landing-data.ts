@@ -490,8 +490,14 @@ export interface SandboxPersonaData {
   };
   step3: {
     presetPrompts: string[];
-    qaINR: Record<string, { summary: string; reasoning: string[]; impactDelta: string; action: string }>;
-    qaUSD: Record<string, { summary: string; reasoning: string[]; impactDelta: string; action: string }>;
+    qaINR: Record<
+      string,
+      { summary: string; reasoning: string[]; impactDelta: string; action: string }
+    >;
+    qaUSD: Record<
+      string,
+      { summary: string; reasoning: string[]; impactDelta: string; action: string }
+    >;
   };
 }
 
@@ -511,7 +517,12 @@ export const SANDBOX_ROLES_DATA: Record<"ceo" | "cfo" | "hr" | "coo", SandboxPer
       matchRate: "99.8%",
       clearedBalanceINR: "₹3.84 Cr",
       clearedBalanceUSD: "$4.62M",
-      sourcesList: ["HDFC Primary Current A/c", "SBI Operational A/c", "ICICI Reserve Line", "Razorpay Inflow"],
+      sourcesList: [
+        "HDFC Primary Current A/c",
+        "SBI Operational A/c",
+        "ICICI Reserve Line",
+        "Razorpay Inflow",
+      ],
     },
     step2: {
       anomalyTitle: "Runway Sensitivity Alert: Q3 Burn Acceleration",
@@ -535,24 +546,28 @@ export const SANDBOX_ROLES_DATA: Record<"ceo" | "cfo" | "hr" | "coo", SandboxPer
       ],
       qaINR: {
         "What happens to our runway if we hire 12 engineers in Q3?": {
-          summary: "Runway adjusts from 18.4 to 14.1 months (-4.3 months) with ₹8.4L monthly payroll delta.",
+          summary:
+            "Runway adjusts from 18.4 to 14.1 months (-4.3 months) with ₹8.4L monthly payroll delta.",
           reasoning: [
             "Current cash reserves stand at ₹3.84 Cr with ₹42.8L/mo baseline burn.",
             "12 senior engineers add ₹8.40L/mo in salary + statutory benefits (PF, Gratuity, ESI).",
             "Breakeven on this cohort requires +₹12.2L incremental ARR by Month 5.",
           ],
           impactDelta: "Runway: 18.4mo → 14.1mo (₹8.4L/mo added burn)",
-          action: "Recommendation: Stagger hiring into 2 tranches (6 in Jul, 6 in Sep) to protect 16+ mo runway.",
+          action:
+            "Recommendation: Stagger hiring into 2 tranches (6 in Jul, 6 in Sep) to protect 16+ mo runway.",
         },
         "How does our EBITDA margin compare to top decile peers?": {
-          summary: "Your 18.2% EBITDA margin ranks at the 68th percentile (peer median is 16.4%, top decile is 24.1%).",
+          summary:
+            "Your 18.2% EBITDA margin ranks at the 68th percentile (peer median is 16.4%, top decile is 24.1%).",
           reasoning: [
             "Gross margins are healthy at 74.2% (Top 15% in Mid-tier IT/SaaS).",
             "Sales & marketing efficiency is high (CAC payback: 7.8 months vs peer avg 11.2 months).",
             "General & Admin expenses are 4.2% higher than top decile due to unmanaged SaaS sprawl.",
           ],
           impactDelta: "Potential +₹18.6L annual EBITDA expansion via G&A optimization",
-          action: "Recommendation: Execute SaaS consolidation to reach top 15% EBITDA benchmark (21.5%).",
+          action:
+            "Recommendation: Execute SaaS consolidation to reach top 15% EBITDA benchmark (21.5%).",
         },
         "What are our 3 highest ROI capital optimization levers?": {
           summary: "Identified ₹28.4L annual capital unlock across 3 high-confidence levers.",
@@ -567,24 +582,28 @@ export const SANDBOX_ROLES_DATA: Record<"ceo" | "cfo" | "hr" | "coo", SandboxPer
       },
       qaUSD: {
         "What happens to our runway if we hire 12 engineers in Q3?": {
-          summary: "Runway adjusts from 18.4 to 14.1 months (-4.3 months) with $10.2K monthly payroll delta.",
+          summary:
+            "Runway adjusts from 18.4 to 14.1 months (-4.3 months) with $10.2K monthly payroll delta.",
           reasoning: [
             "Current cash reserves stand at $4.62M with $52.4K/mo baseline burn.",
             "12 senior engineers add $10.2K/mo in fully loaded payroll and benefits.",
             "Breakeven on this cohort requires +$15K incremental MRR by Month 5.",
           ],
           impactDelta: "Runway: 18.4mo → 14.1mo ($10.2K/mo added burn)",
-          action: "Recommendation: Stagger hiring into 2 tranches (6 in Jul, 6 in Sep) to protect 16+ mo runway.",
+          action:
+            "Recommendation: Stagger hiring into 2 tranches (6 in Jul, 6 in Sep) to protect 16+ mo runway.",
         },
         "How does our EBITDA margin compare to top decile peers?": {
-          summary: "Your 18.2% EBITDA margin ranks at the 68th percentile (peer median is 16.4%, top decile is 24.1%).",
+          summary:
+            "Your 18.2% EBITDA margin ranks at the 68th percentile (peer median is 16.4%, top decile is 24.1%).",
           reasoning: [
             "Gross margins are healthy at 74.2% (Top 15% in Mid-tier SaaS).",
             "Sales & marketing efficiency is high (CAC payback: 7.8 months vs peer avg 11.2 months).",
             "General & Admin expenses are 4.2% higher than top decile due to unmanaged SaaS sprawl.",
           ],
           impactDelta: "Potential +$22.5K annual EBITDA expansion via G&A optimization",
-          action: "Recommendation: Execute SaaS consolidation to reach top 15% EBITDA benchmark (21.5%).",
+          action:
+            "Recommendation: Execute SaaS consolidation to reach top 15% EBITDA benchmark (21.5%).",
         },
         "What are our 3 highest ROI capital optimization levers?": {
           summary: "Identified $34.2K annual capital unlock across 3 high-confidence levers.",
@@ -628,7 +647,8 @@ export const SANDBOX_ROLES_DATA: Record<"ceo" | "cfo" | "hr" | "coo", SandboxPer
       recommendation:
         "Automate cross-bank deduplication block and issue clawback request to vendor.",
       actionLabel: "Issue Immediate Clawback Notice",
-      actionDoneText: "Clawback notice generated with transaction audit hashes and emailed to vendor.",
+      actionDoneText:
+        "Clawback notice generated with transaction audit hashes and emailed to vendor.",
     },
     step3: {
       presetPrompts: [
@@ -638,14 +658,16 @@ export const SANDBOX_ROLES_DATA: Record<"ceo" | "cfo" | "hr" | "coo", SandboxPer
       ],
       qaINR: {
         "Reconcile HDFC vs SBI cash balances and flag variances": {
-          summary: "Multi-bank reconciliation complete: 4,890 transactions matched with ₹0 unexplained variance.",
+          summary:
+            "Multi-bank reconciliation complete: 4,890 transactions matched with ₹0 unexplained variance.",
           reasoning: [
             "HDFC Current Balance: ₹3.42 Cr (Verified against bank API hash).",
             "SBI Operating Balance: ₹1.28 Cr (Payroll & statutory tax accounts cleared).",
             "Axis Escrow: ₹42.0L (Client advance holdbacks reconciled).",
           ],
           impactDelta: "99.9% automated reconciliation match rate",
-          action: "Recommendation: Auto-export reconciliation certificate for statutory audit file.",
+          action:
+            "Recommendation: Auto-export reconciliation certificate for statutory audit file.",
         },
         "Summarize active GST/tax input credit mismatches": {
           summary: "Found ₹82,400 in unclaimed ITC due to vendor filing delay in GSTR-2B.",
@@ -654,29 +676,34 @@ export const SANDBOX_ROLES_DATA: Record<"ceo" | "cfo" | "hr" | "coo", SandboxPer
             "All invoice e-way bills and TDS deductions are strictly verified on our ledger.",
           ],
           impactDelta: "₹82,400 ITC eligible for recovery upon vendor filing",
-          action: "Recommendation: Trigger automated vendor reminder with GSTR-2B discrepancy report.",
+          action:
+            "Recommendation: Trigger automated vendor reminder with GSTR-2B discrepancy report.",
         },
         "Analyze monthly burn trend and vendor payment velocity": {
-          summary: "Current monthly burn is ₹42.8L (-4.2% MoM). Vendor spend velocity is normalized except Cloud Infra.",
+          summary:
+            "Current monthly burn is ₹42.8L (-4.2% MoM). Vendor spend velocity is normalized except Cloud Infra.",
           reasoning: [
             "Payroll: ₹28.2L (65.9% of total burn, consistent with target).",
             "Direct Vendor Spends: ₹10.4L (AWS + SaaS + Marketing).",
             "Statutory & G&A: ₹4.2L.",
           ],
           impactDelta: "Net burn savings of ₹1.8L achieved compared to prior quarter baseline",
-          action: "Recommendation: Set automated velocity alert threshold at +15% per vendor per month.",
+          action:
+            "Recommendation: Set automated velocity alert threshold at +15% per vendor per month.",
         },
       },
       qaUSD: {
         "Reconcile HDFC vs SBI cash balances and flag variances": {
-          summary: "Multi-bank reconciliation complete: 4,890 transactions matched with $0 unexplained variance.",
+          summary:
+            "Multi-bank reconciliation complete: 4,890 transactions matched with $0 unexplained variance.",
           reasoning: [
             "Chase Operating Balance: $4.12M (Verified against bank API hash).",
             "BofA Reserve Balance: $1.54M (Payroll & statutory tax accounts cleared).",
             "SVB Escrow: $520K (Client advance holdbacks reconciled).",
           ],
           impactDelta: "99.9% automated reconciliation match rate",
-          action: "Recommendation: Auto-export reconciliation certificate for statutory audit file.",
+          action:
+            "Recommendation: Auto-export reconciliation certificate for statutory audit file.",
         },
         "Summarize active GST/tax input credit mismatches": {
           summary: "Found $9,800 in unapplied sales tax credits due to vendor 1099 filing delays.",
@@ -688,14 +715,16 @@ export const SANDBOX_ROLES_DATA: Record<"ceo" | "cfo" | "hr" | "coo", SandboxPer
           action: "Recommendation: Trigger automated compliance reminder to vendor accounting.",
         },
         "Analyze monthly burn trend and vendor payment velocity": {
-          summary: "Current monthly burn is $52.4K (-4.2% MoM). Vendor spend velocity is within 3% tolerance.",
+          summary:
+            "Current monthly burn is $52.4K (-4.2% MoM). Vendor spend velocity is within 3% tolerance.",
           reasoning: [
             "Payroll: $34.5K (65.8% of total burn).",
             "Direct Vendor Spends: $12.8K (AWS + SaaS + Marketing).",
             "Statutory & G&A: $5.1K.",
           ],
           impactDelta: "Net burn savings of $2.2K achieved compared to prior quarter baseline",
-          action: "Recommendation: Set automated velocity alert threshold at +15% per vendor per month.",
+          action:
+            "Recommendation: Set automated velocity alert threshold at +15% per vendor per month.",
         },
       },
     },
@@ -739,27 +768,32 @@ export const SANDBOX_ROLES_DATA: Record<"ceo" | "cfo" | "hr" | "coo", SandboxPer
       ],
       qaINR: {
         "Audit headcount growth vs payroll budget for Engineering": {
-          summary: "Engineering headcount is 184 (Budget: 190). Payroll is ₹15.8L/mo (₹1.1L below planned budget).",
+          summary:
+            "Engineering headcount is 184 (Budget: 190). Payroll is ₹15.8L/mo (₹1.1L below planned budget).",
           reasoning: [
             "14 new hires onboarded in Q1 with zero ghost-entry or duplicate PAN records.",
             "Average time-to-productivity: 18 days (Industry benchmark: 26 days).",
             "Contractor-to-full-time ratio is optimal at 12%.",
           ],
           impactDelta: "Payroll variance: +0.2% (Within safe green band)",
-          action: "Recommendation: Reallocate remaining ₹1.1L surplus to Q3 retention & bonus pool.",
+          action:
+            "Recommendation: Reallocate remaining ₹1.1L surplus to Q3 retention & bonus pool.",
         },
         "Compare our senior developer salaries against India P50/P75 market benchmark": {
-          summary: "Senior Engineering salaries are at the 52nd percentile (P50: ₹24L-28L CTC; SpotLite avg: ₹26.2L).",
+          summary:
+            "Senior Engineering salaries are at the 52nd percentile (P50: ₹24L-28L CTC; SpotLite avg: ₹26.2L).",
           reasoning: [
             "Compensation is highly competitive and prevents key employee attrition.",
             "ESOP grant participation is 64% across senior ICs.",
             "Sales compensation has 8% higher variable component than market average.",
           ],
           impactDelta: "Retention risk score: Low (94% retention rate over last 12 months)",
-          action: "Recommendation: Maintain current compensation bands for upcoming appraisal cycle.",
+          action:
+            "Recommendation: Maintain current compensation bands for upcoming appraisal cycle.",
         },
         "Check statutory PF/ESI/TDS compliance status across all 342 employees": {
-          summary: "100% compliant: All PF/ESI remittances and TDS 24Q deduplication verified against bank records.",
+          summary:
+            "100% compliant: All PF/ESI remittances and TDS 24Q deduplication verified against bank records.",
           reasoning: [
             "342 of 342 active employee PAN cards validated via NSDL verification.",
             "EPFO electronic challan receipt generated and cross-matched with bank debit.",
@@ -770,7 +804,8 @@ export const SANDBOX_ROLES_DATA: Record<"ceo" | "cfo" | "hr" | "coo", SandboxPer
       },
       qaUSD: {
         "Audit headcount growth vs payroll budget for Engineering": {
-          summary: "Engineering headcount is 184 (Budget: 190). Payroll is $22.4K/mo ($1.4K below budget).",
+          summary:
+            "Engineering headcount is 184 (Budget: 190). Payroll is $22.4K/mo ($1.4K below budget).",
           reasoning: [
             "14 new hires onboarded in Q1 with zero compliance flags.",
             "Average ramp time: 18 days (Benchmark: 26 days).",
@@ -780,7 +815,8 @@ export const SANDBOX_ROLES_DATA: Record<"ceo" | "cfo" | "hr" | "coo", SandboxPer
           action: "Recommendation: Reallocate remaining surplus to Q3 retention bonus pool.",
         },
         "Compare our senior developer salaries against India P50/P75 market benchmark": {
-          summary: "Senior Engineering salaries are at the 52nd percentile (Market median: $140K; SpotLite avg: $143K).",
+          summary:
+            "Senior Engineering salaries are at the 52nd percentile (Market median: $140K; SpotLite avg: $143K).",
           reasoning: [
             "Compensation is competitive and prevents key employee attrition.",
             "Equity grant participation is 64% across senior ICs.",
@@ -789,7 +825,8 @@ export const SANDBOX_ROLES_DATA: Record<"ceo" | "cfo" | "hr" | "coo", SandboxPer
           action: "Recommendation: Maintain current compensation bands for upcoming cycle.",
         },
         "Check statutory PF/ESI/TDS compliance status across all 342 employees": {
-          summary: "100% compliant: All payroll tax withholdings and W-2 records cross-matched with bank debits.",
+          summary:
+            "100% compliant: All payroll tax withholdings and W-2 records cross-matched with bank debits.",
           reasoning: [
             "342 employee tax filings and direct deposit verifications cleared.",
             "Zero payroll audit flags or tax discrepancies.",
@@ -815,7 +852,12 @@ export const SANDBOX_ROLES_DATA: Record<"ceo" | "cfo" | "hr" | "coo", SandboxPer
       matchRate: "99.7%",
       clearedBalanceINR: "₹14.6L / mo",
       clearedBalanceUSD: "$18.2K / mo",
-      sourcesList: ["AWS Billing Console", "Google Workspace", "Zoho Books", "Vendor Contract Vault"],
+      sourcesList: [
+        "AWS Billing Console",
+        "Google Workspace",
+        "Zoho Books",
+        "Vendor Contract Vault",
+      ],
     },
     step2: {
       anomalyTitle: "Vendor Opportunity Radar: 4 Duplicate SaaS Subscriptions Detected",
@@ -829,7 +871,8 @@ export const SANDBOX_ROLES_DATA: Record<"ceo" | "cfo" | "hr" | "coo", SandboxPer
       recommendation:
         "Consolidate onto single enterprise license and eliminate 18 unused seat allocations.",
       actionLabel: "Generate Tool Consolidation Plan",
-      actionDoneText: "Consolidation plan created: Assigned to IT admin with 18 identified orphan seats.",
+      actionDoneText:
+        "Consolidation plan created: Assigned to IT admin with 18 identified orphan seats.",
     },
     step3: {
       presetPrompts: [
@@ -839,7 +882,8 @@ export const SANDBOX_ROLES_DATA: Record<"ceo" | "cfo" | "hr" | "coo", SandboxPer
       ],
       qaINR: {
         "Identify our top 5 vendor contracts up for renewal in next 60 days": {
-          summary: "5 contracts up for renewal totalling ₹24.2L. 2 have dynamic early-payment discounts.",
+          summary:
+            "5 contracts up for renewal totalling ₹24.2L. 2 have dynamic early-payment discounts.",
           reasoning: [
             "1. AWS Cloud Enterprise: ₹11.6L/mo (Eligible for 18% savings with 1-yr Savings Plan).",
             "2. Salesforce CRM: ₹4.8L/yr (12 unused seats identified).",
@@ -849,7 +893,8 @@ export const SANDBOX_ROLES_DATA: Record<"ceo" | "cfo" | "hr" | "coo", SandboxPer
           action: "Recommendation: Send pre-negotiation terms 30 days ahead of renewal date.",
         },
         "Benchmark our working capital cash conversion cycle vs industry peers": {
-          summary: "Your cash cycle is 38 days (12 days faster than peer sector median of 50 days).",
+          summary:
+            "Your cash cycle is 38 days (12 days faster than peer sector median of 50 days).",
           reasoning: [
             "Days Sales Outstanding (DSO): 34 days (High collection efficiency).",
             "Days Payable Outstanding (DPO): 42 days (Favorable credit terms).",
@@ -859,18 +904,21 @@ export const SANDBOX_ROLES_DATA: Record<"ceo" | "cfo" | "hr" | "coo", SandboxPer
           action: "Recommendation: Keep DSO below 40-day target to ensure uninterrupted runway.",
         },
         "Detect untracked auto-renewing software subscriptions": {
-          summary: "Found 6 auto-renewing micro-subscriptions (₹34,000/mo) billed on corporate credit cards.",
+          summary:
+            "Found 6 auto-renewing micro-subscriptions (₹34,000/mo) billed on corporate credit cards.",
           reasoning: [
             "Include unused Figma seats, expired Zoom webinars, and duplicate AI translation APIs.",
             "Cards have auto-debit enabled without procurement PO approval.",
           ],
           impactDelta: "₹4.08 Lakhs annual recurring savings",
-          action: "Recommendation: Issue virtual single-use cards with hard spend limits for SaaS tools.",
+          action:
+            "Recommendation: Issue virtual single-use cards with hard spend limits for SaaS tools.",
         },
       },
       qaUSD: {
         "Identify our top 5 vendor contracts up for renewal in next 60 days": {
-          summary: "5 contracts up for renewal totalling $29.5K. 2 have dynamic early-payment discounts.",
+          summary:
+            "5 contracts up for renewal totalling $29.5K. 2 have dynamic early-payment discounts.",
           reasoning: [
             "1. AWS Cloud Enterprise: $14.1K/mo (Eligible for 18% savings with 1-yr Savings Plan).",
             "2. Salesforce CRM: $5.8K/yr (12 unused seats identified).",

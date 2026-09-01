@@ -1,11 +1,18 @@
-import React from 'react';
+import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { Skeleton } from "@/shared/components/ui/skeleton";
-import { useCompanyNews, isSetupRequiredError } from '../hooks/useCompanyAPI';
-import { Newspaper, ExternalLink, RefreshCw, AlertCircle, Sparkles, ArrowRight } from 'lucide-react';
+import { useCompanyNews, isSetupRequiredError } from "../hooks/useCompanyAPI";
+import {
+  Newspaper,
+  ExternalLink,
+  RefreshCw,
+  AlertCircle,
+  Sparkles,
+  ArrowRight,
+} from "lucide-react";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
-import { Link, useNavigate } from '@tanstack/react-router';
+import { Link, useNavigate } from "@tanstack/react-router";
 
 interface Props {
   hasProfile?: boolean;
@@ -26,13 +33,13 @@ export const CompanyNewsCard = ({ hasProfile = true }: Props) => {
             Company News
           </div>
           {hasProfile && !isLoading && (
-            <button 
-              onClick={() => refetch()} 
+            <button
+              onClick={() => refetch()}
               disabled={isFetching}
               className="p-1 rounded-md hover:bg-muted transition-colors text-muted-foreground hover:text-foreground cursor-pointer"
               title="Refresh News"
             >
-              <RefreshCw className={`w-4 h-4 ${isFetching ? 'animate-spin' : ''}`} />
+              <RefreshCw className={`w-4 h-4 ${isFetching ? "animate-spin" : ""}`} />
             </button>
           )}
         </CardTitle>
@@ -52,7 +59,8 @@ export const CompanyNewsCard = ({ hasProfile = true }: Props) => {
             <div className="space-y-1.5 max-w-xs">
               <h3 className="font-bold text-base text-foreground">Curated Industry News</h3>
               <p className="text-xs text-muted-foreground leading-relaxed">
-                Market trends and relevant company news will be aggregated automatically once your industry is configured.
+                Market trends and relevant company news will be aggregated automatically once your
+                industry is configured.
               </p>
             </div>
             <Button
@@ -72,9 +80,16 @@ export const CompanyNewsCard = ({ hasProfile = true }: Props) => {
             </div>
             <div className="space-y-1">
               <h3 className="font-semibold text-sm text-foreground">Could not load news</h3>
-              <p className="text-xs text-muted-foreground">Server error while fetching news feeds.</p>
+              <p className="text-xs text-muted-foreground">
+                Server error while fetching news feeds.
+              </p>
             </div>
-            <Button size="sm" variant="outline" onClick={() => refetch()} className="cursor-pointer">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => refetch()}
+              className="cursor-pointer"
+            >
               Try again
             </Button>
           </div>
@@ -87,7 +102,10 @@ export const CompanyNewsCard = ({ hasProfile = true }: Props) => {
               </div>
             ) : (
               data.map((news) => (
-                <div key={news.id} className="group p-3.5 rounded-xl border border-border/50 bg-card hover:bg-muted/30 transition-colors">
+                <div
+                  key={news.id}
+                  className="group p-3.5 rounded-xl border border-border/50 bg-card hover:bg-muted/30 transition-colors"
+                >
                   <div className="flex items-center justify-between mb-1.5">
                     <Badge variant="outline" className="text-[10px] font-normal px-2 py-0">
                       {news.source}

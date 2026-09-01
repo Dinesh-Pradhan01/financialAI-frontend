@@ -9,7 +9,15 @@ import { tourSteps, agentByKey, type TourPhase } from "@/shared/data/agentic";
 import { useAuth } from "@/shared/contexts/AuthContext";
 
 const PHASES: TourPhase[] = ["Understand", "Reason", "Act", "Learn"];
-const ONBOARDING = ["/", "/login", "/signup", "/verify-email", "/consent", "/upload", "/processing"];
+const ONBOARDING = [
+  "/",
+  "/login",
+  "/signup",
+  "/verify-email",
+  "/consent",
+  "/upload",
+  "/processing",
+];
 
 export function DemoTour() {
   const nav = useNavigate();
@@ -119,7 +127,9 @@ export function DemoTour() {
                   </button>
                 )}
                 <button
-                  onClick={() => (isLast ? dispatch(endTour()) : dispatch(setTourStep(tourStep + 1)))}
+                  onClick={() =>
+                    isLast ? dispatch(endTour()) : dispatch(setTourStep(tourStep + 1))
+                  }
                   className="inline-flex items-center gap-1 rounded-pill bg-brand-gradient px-4 py-2 text-xs font-semibold text-on-brand shadow-brand"
                 >
                   {isLast ? "Finish" : "Next"} <ArrowRight className="h-3.5 w-3.5" />
@@ -154,7 +164,10 @@ export function IntroModal() {
 
   return (
     <div className="fixed inset-0 z-55 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/45 backdrop-blur-sm" onClick={() => dispatch(dismissIntro())} />
+      <div
+        className="absolute inset-0 bg-black/45 backdrop-blur-sm"
+        onClick={() => dispatch(dismissIntro())}
+      />
       <motion.div
         initial={{ opacity: 0, scale: 0.95, y: 12 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}

@@ -1,10 +1,6 @@
 import { Badge } from "@/shared/components/ui/badge";
 import { ShieldCheck, HelpCircle, Info } from "lucide-react";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/shared/components/ui/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "@/shared/components/ui/popover";
 import { getQualityPresentation } from "../lib/documentPresentation";
 import type { CompanyDocument } from "@/shared/types/api";
 
@@ -13,10 +9,7 @@ export interface DocumentQualityBadgeProps {
   showTooltip?: boolean;
 }
 
-export function DocumentQualityBadge({
-  document,
-  showTooltip = true,
-}: DocumentQualityBadgeProps) {
+export function DocumentQualityBadge({ document, showTooltip = true }: DocumentQualityBadgeProps) {
   const quality = getQualityPresentation(document);
   const notes = document.verification_notes?.trim() || null;
 

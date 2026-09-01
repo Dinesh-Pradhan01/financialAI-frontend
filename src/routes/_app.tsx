@@ -21,7 +21,9 @@ export const Route = createFileRoute("/_app")({
           search: { redirect: currentPath },
         });
       }
-      const isVerified = auth.currentUser ? auth.currentUser.emailVerified : snapshot.user.email_verified;
+      const isVerified = auth.currentUser
+        ? auth.currentUser.emailVerified
+        : snapshot.user.email_verified;
       if (!isVerified) {
         throw redirect({
           to: "/verify-email",
@@ -59,7 +61,12 @@ function AppLayout() {
   }, [user, loading, navigate]);
 
   if (loading) {
-    return <SpotliteLoader message="Restoring secure session…" subMessage="SpotLite Executive Intelligence" />;
+    return (
+      <SpotliteLoader
+        message="Restoring secure session…"
+        subMessage="SpotLite Executive Intelligence"
+      />
+    );
   }
 
   return (

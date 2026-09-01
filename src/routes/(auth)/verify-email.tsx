@@ -57,7 +57,8 @@ function VerifyEmail() {
   const [cooldown, setCooldown] = useState(0);
   const [loggingOut, setLoggingOut] = useState(false);
 
-  const displayEmail = user?.email || firebaseUser?.email || auth.currentUser?.email || "your email";
+  const displayEmail =
+    user?.email || firebaseUser?.email || auth.currentUser?.email || "your email";
 
   // ---- Resend with cooldown ----
   const handleResend = useCallback(async () => {
@@ -103,7 +104,8 @@ function VerifyEmail() {
 
       if (!currentUser.emailVerified) {
         toast.error("Email not verified yet", {
-          description: "Please check your inbox, click the verification link in the email, and then click this button again.",
+          description:
+            "Please check your inbox, click the verification link in the email, and then click this button again.",
         });
         return;
       }

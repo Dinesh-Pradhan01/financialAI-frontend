@@ -23,7 +23,9 @@ function AcceptInviteIndexPage() {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center p-6 text-center">
         <h1 className="text-xl font-bold mb-2">No Invitation Token Provided</h1>
-        <p className="text-sm text-text-secondary">Please check your email link or request a new invitation link from your CEO/Admin.</p>
+        <p className="text-sm text-text-secondary">
+          Please check your email link or request a new invitation link from your CEO/Admin.
+        </p>
       </div>
     );
   }

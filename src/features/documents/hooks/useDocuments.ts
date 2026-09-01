@@ -1,11 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/shared/lib/api";
 import { queryKeys } from "@/shared/lib/queryKeys";
-import type {
-  CompanyDocument,
-  PackageResponse,
-  PackageRequest,
-} from "@/shared/types/api";
+import type { CompanyDocument, PackageResponse, PackageRequest } from "@/shared/types/api";
 import {
   applyDeleteDocumentOptimistic,
   applyReplaceDocumentOptimistic,
@@ -58,23 +54,19 @@ export const useReplaceDocument = () => {
       await queryClient.cancelQueries({ queryKey: queryKeys.company.rating() });
 
       const previousDocuments = queryClient.getQueryData<CompanyDocument[]>(
-        queryKeys.company.documents()
+        queryKeys.company.documents(),
       );
 
       // Optimistically update updated_at timestamp on the replacing document
-      queryClient.setQueryData<CompanyDocument[]>(
-        queryKeys.company.documents(),
-        (old = []) => applyReplaceDocumentOptimistic(old, docId)
+      queryClient.setQueryData<CompanyDocument[]>(queryKeys.company.documents(), (old = []) =>
+        applyReplaceDocumentOptimistic(old, docId),
       );
 
       return { previousDocuments };
     },
     onError: (_err, _variables, context) => {
       if (context?.previousDocuments) {
-        queryClient.setQueryData(
-          queryKeys.company.documents(),
-          context.previousDocuments
-        );
+        queryClient.setQueryData(queryKeys.company.documents(), context.previousDocuments);
       }
     },
     onSettled: () => {
@@ -92,8 +84,7 @@ export const useReplaceDocument = () => {
 export const useDeleteDocument = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (docId: string) =>
-      api.delete(`/api/company/documents/${docId}`),
+    mutationFn: (docId: string) => api.delete(`/api/company/documents/${docId}`),
     onMutate: async (docId: string) => {
       // Cancel all affected queries to prevent in-flight GETs from stomping optimistic state
       await queryClient.cancelQueries({ queryKey: queryKeys.company.documents() });
@@ -101,23 +92,19 @@ export const useDeleteDocument = () => {
       await queryClient.cancelQueries({ queryKey: queryKeys.company.rating() });
 
       const previousDocuments = queryClient.getQueryData<CompanyDocument[]>(
-        queryKeys.company.documents()
+        queryKeys.company.documents(),
       );
 
       // Instantly remove document from cache
-      queryClient.setQueryData<CompanyDocument[]>(
-        queryKeys.company.documents(),
-        (old = []) => applyDeleteDocumentOptimistic(old, docId)
+      queryClient.setQueryData<CompanyDocument[]>(queryKeys.company.documents(), (old = []) =>
+        applyDeleteDocumentOptimistic(old, docId),
       );
 
       return { previousDocuments };
     },
     onError: (_err, _variables, context) => {
       if (context?.previousDocuments) {
-        queryClient.setQueryData(
-          queryKeys.company.documents(),
-          context.previousDocuments
-        );
+        queryClient.setQueryData(queryKeys.company.documents(), context.previousDocuments);
       }
     },
     onSettled: () => {
@@ -193,8 +180,7 @@ export const useRenamePackage = () => {
 export const useDisbandPackage = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (pkgId: string) =>
-      api.delete(`/api/company/packages/${pkgId}`),
+    mutationFn: (pkgId: string) => api.delete(`/api/company/packages/${pkgId}`),
     onSettled: () => {
       queryClient.refetchQueries({ queryKey: queryKeys.company.packages() });
     },

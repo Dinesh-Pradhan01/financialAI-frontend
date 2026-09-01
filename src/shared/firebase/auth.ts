@@ -47,15 +47,8 @@ export async function signInWithGoogle(): Promise<User> {
  * Create a new user with email/password and immediately send a verification email.
  * Returns the Firebase User object.
  */
-export async function signUpWithEmail(
-  email: string,
-  password: string,
-): Promise<User> {
-  const credential = await createUserWithEmailAndPassword(
-    auth,
-    email,
-    password,
-  );
+export async function signUpWithEmail(email: string, password: string): Promise<User> {
+  const credential = await createUserWithEmailAndPassword(auth, email, password);
   // Send verification email right after account creation
   await sendEmailVerification(credential.user);
   return credential.user;
@@ -65,10 +58,7 @@ export async function signUpWithEmail(
  * Sign in an existing user with email/password.
  * Returns the Firebase User object.
  */
-export async function loginWithEmail(
-  email: string,
-  password: string,
-): Promise<User> {
+export async function loginWithEmail(email: string, password: string): Promise<User> {
   const credential = await signInWithEmailAndPassword(auth, email, password);
   return credential.user;
 }
@@ -105,9 +95,7 @@ export async function resendVerification(): Promise<void> {
  * Automatically refreshes if the token is expired.
  * Returns null if no user is signed in.
  */
-export async function getIdToken(
-  forceRefresh = false,
-): Promise<string | null> {
+export async function getIdToken(forceRefresh = false): Promise<string | null> {
   if (typeof auth.authStateReady === "function") {
     await auth.authStateReady();
   }

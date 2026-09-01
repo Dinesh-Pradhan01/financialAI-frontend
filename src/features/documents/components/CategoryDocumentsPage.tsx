@@ -168,7 +168,11 @@ export function CategoryDocumentsPage({ categoryId }: CategoryDocumentsPageProps
         </div>
         <h1 className="font-display text-xl font-bold text-foreground">Category Not Found</h1>
         <p className="mt-2 text-sm text-text-secondary leading-relaxed">
-          The requested document category <code className="rounded bg-surface-alt px-1.5 py-0.5 font-mono text-xs text-brand font-semibold">"{categoryId}"</code> does not exist.
+          The requested document category{" "}
+          <code className="rounded bg-surface-alt px-1.5 py-0.5 font-mono text-xs text-brand font-semibold">
+            "{categoryId}"
+          </code>{" "}
+          does not exist.
         </p>
         <div className="mt-6 flex justify-center">
           <Button
@@ -224,7 +228,10 @@ export function CategoryDocumentsPage({ categoryId }: CategoryDocumentsPageProps
                   Category {category?.number}
                 </span>
                 <span className="text-xs text-text-secondary font-mono">
-                  <span className="tabular-nums font-semibold text-text-primary">{uploadedCount}</span> of <span className="tabular-nums">{totalCount}</span> uploaded
+                  <span className="tabular-nums font-semibold text-text-primary">
+                    {uploadedCount}
+                  </span>{" "}
+                  of <span className="tabular-nums">{totalCount}</span> uploaded
                 </span>
               </div>
               <h1 className="mt-1 text-lg sm:text-xl font-bold font-display text-text-primary tracking-tight">
@@ -238,7 +245,9 @@ export function CategoryDocumentsPage({ categoryId }: CategoryDocumentsPageProps
 
           <div className="shrink-0 flex items-center gap-3">
             <div className="text-right">
-              <p className="text-[10px] uppercase font-mono text-text-secondary font-bold">Category Completion</p>
+              <p className="text-[10px] uppercase font-mono text-text-secondary font-bold">
+                Category Completion
+              </p>
               <p className="text-base sm:text-lg font-bold font-mono text-brand tabular-nums">
                 {percent}%
               </p>
@@ -318,7 +327,8 @@ export function CategoryDocumentsPage({ categoryId }: CategoryDocumentsPageProps
                   Every required document in this category is on record.
                 </p>
                 <p className="text-[11px] text-text-secondary leading-relaxed">
-                  Optional documents here still strengthen verification and scoring where they apply to your entity.
+                  Optional documents here still strengthen verification and scoring where they apply
+                  to your entity.
                 </p>
               </div>
             </motion.div>
