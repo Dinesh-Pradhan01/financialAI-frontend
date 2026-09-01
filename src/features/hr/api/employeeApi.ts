@@ -97,4 +97,17 @@ export const employeeApi = {
   }) => {
     return hrApi.get("/employees", { params });
   },
+
+  getById: (id: string) => {
+    return hrApi.get(`/employees/${id}`);
+  },
+
+  updateEmployee: (id: string, patch: Partial<EmployeeRecord>) => {
+    return hrApi.put(`/employees/${id}`, sanitizeEmployeeRecord(patch));
+  },
+
+  deleteEmployee: (id: string) => {
+    return hrApi.delete(`/employees/${id}`);
+  },
 };
+

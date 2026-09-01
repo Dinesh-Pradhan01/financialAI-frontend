@@ -13,7 +13,15 @@ import {
   TrendingUp,
   FolderLock,
   BriefcaseBusiness,
+  PanelLeftClose,
+  PanelLeftOpen,
 } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/shared/components/ui/tooltip";
 import { cn } from "@/shared/lib/utils";
 import { useAppSelector } from "@/shared/store";
 import { selectHighPriorityCount, selectLanguage } from "@/shared/store/selectors";
@@ -77,6 +85,7 @@ export function BottomTabBar() {
 }
 
 export function DesktopSidebar() {
+  const [isCollapsed, setIsCollapsed] = useState(false);
   const isActive = useActive();
   const highPriorityCount = useAppSelector(selectHighPriorityCount);
   const language = useAppSelector(selectLanguage);
@@ -85,141 +94,213 @@ export function DesktopSidebar() {
   const canManageTeam = isCeoOrAdmin(user?.role);
 
   return (
-    <aside className="sticky top-0 hidden h-screen w-60 shrink-0 flex-col border-r border-border bg-surface px-4 py-6 md:flex">
-      <Link to="/home" className="mb-6 flex items-center gap-2.5 px-2">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-white shadow-sm">
-          <Zap size={18} className="fill-current text-white" />
+    <TooltipProvider delayDuration={200}>
+      <aside
+        className={cn(
+          "sticky top-0 hidden h-screen shrink-0 flex-col border-r border-border bg-surface py-6 md:flex transition-all duration-300",
+          isCollapsed ? "w-20 px-2" : "w-60 px-4",
+        )}
+      >
+        <div className="flex items-center justify-between mb-6 px-2">
+          <Link
+            to="/home"
+            className={cn("flex items-center gap-2.5", isCollapsed && "justify-center w-full")}
+          >
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary text-white shadow-sm">
+              <Zap size={18} className="fill-current text-white" />
+            </div>
+            {!isCollapsed && (
+              <div className="flex flex-col">
+                <span className="font-display text-lg font-bold tracking-tight text-foreground">
+                  Spot<span className="text-primary">Lite</span>
+                </span>
+                <span className="text-[9px] font-bold uppercase tracking-widest text-text-tertiary -mt-1">
+                  Intelligence
+                </span>
+              </div>
+            )}
+          </Link>
+          {!isCollapsed && (
+            <div className="flex items-center ml-auto">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    onClick={() => setIsCollapsed(true)}
+                    className="flex h-8 w-8 items-center justify-center rounded-lg text-text-tertiary hover:bg-surface-alt hover:text-text-secondary transition"
+                  >
+                    <PanelLeftClose size={18} />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="right">Close sidebar</TooltipContent>
+              </Tooltip>
+            </div>
+          )}
         </div>
-        <div className="flex flex-col">
-          <span className="font-display text-lg font-bold tracking-tight text-foreground">
-            Spot<span className="text-primary">Lite</span>
-          </span>
-          <span className="text-[9px] font-bold uppercase tracking-widest text-text-tertiary -mt-1">
-            Intelligence
-          </span>
-        </div>
-      </Link>
-      <ul className="space-y-1">
-        {items.map((it) => {
-          const Icon = it.icon;
-          const active = isActive(it.to);
-          const badge = it.to === "/spotlights" ? highPriorityCount : 0;
-          return (
-            <li key={it.to}>
+
+        {isCollapsed && (
+          <div className="flex flex-col items-center mb-4">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={() => setIsCollapsed(false)}
+                  className="flex h-10 w-10 items-center justify-center rounded-lg text-text-tertiary hover:bg-surface-alt hover:text-text-secondary transition"
+                >
+                  <PanelLeftOpen size={20} />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="right">Open sidebar</TooltipContent>
+            </Tooltip>
+          </div>
+        )}
+        <ul className="space-y-1">
+          {items.map((it) => {
+            const Icon = it.icon;
+            const active = isActive(it.to);
+            const badge = it.to === "/spotlights" ? highPriorityCount : 0;
+            return (
+              <li key={it.to}>
+                <Link
+                  to={it.to}
+                  title={isCollapsed ? it.label : undefined}
+                  className={cn(
+                    "flex items-center rounded-lg py-2 text-sm font-medium transition-all duration-200",
+                    isCollapsed ? "justify-center px-0" : "px-3 gap-3",
+                    active
+                      ? "bg-brand text-on-brand shadow-e1"
+                      : "text-text-secondary hover:bg-surface-alt",
+                  )}
+                >
+                  <Icon className="h-4 w-4 shrink-0" />
+                  {!isCollapsed && <span>{it.label}</span>}
+                  {badge > 0 && !isCollapsed && (
+                    <span className="ml-auto rounded-pill bg-severity-high px-1.5 py-0.5 text-[10px] font-bold text-white">
+                      {badge}
+                    </span>
+                  )}
+                  {badge > 0 && isCollapsed && (
+                    <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-severity-high" />
+                  )}
+                </Link>
+              </li>
+            );
+          })}
+          {canManageTeam && (
+            <li>
               <Link
-                to={it.to}
+                to="/team"
+                title={isCollapsed ? "Team" : undefined}
                 className={cn(
-                  "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium",
-                  active
+                  "flex items-center rounded-lg py-2 text-sm font-medium transition-all duration-200",
+                  isCollapsed ? "justify-center px-0" : "px-3 gap-3",
+                  isActive("/team")
                     ? "bg-brand text-on-brand shadow-e1"
                     : "text-text-secondary hover:bg-surface-alt",
                 )}
               >
-                <Icon className="h-4 w-4" />
-                <span>{it.label}</span>
-                {badge > 0 && (
-                  <span className="ml-auto rounded-pill bg-severity-high px-1.5 py-0.5 text-[10px] font-bold text-white">
-                    {badge}
-                  </span>
-                )}
+                <Users className="h-4 w-4 shrink-0" />
+                {!isCollapsed && <span>Team</span>}
               </Link>
             </li>
-          );
-        })}
-        {canManageTeam && (
-          <li>
-            <Link
-              to="/team"
+          )}
+
+          {isHR(user?.role) && (
+            <li>
+              <Link
+                to="/hr"
+                title={isCollapsed ? "HR Ops" : undefined}
+                className={cn(
+                  "flex items-center rounded-lg py-2 text-sm font-medium transition-all duration-200",
+                  isCollapsed ? "justify-center px-0" : "px-3 gap-3",
+                  isActive("/hr")
+                    ? "bg-brand text-on-brand shadow-e1"
+                    : "text-text-secondary hover:bg-surface-alt",
+                )}
+              >
+                <BriefcaseBusiness className="h-4 w-4 shrink-0" />
+                {!isCollapsed && <span>HR Ops</span>}
+              </Link>
+            </li>
+          )}
+        </ul>
+
+        <div className="my-4 border-t border-border" />
+        <Link
+          to="/settings"
+          title={isCollapsed ? "Settings" : undefined}
+          className={cn(
+            "flex items-center rounded-lg py-2 text-sm font-medium transition-all duration-200",
+            isCollapsed ? "justify-center px-0" : "px-3 gap-3",
+            isActive("/settings")
+              ? "bg-surface-alt text-text-primary"
+              : "text-text-secondary hover:bg-surface-alt",
+          )}
+        >
+          <Settings className="h-4 w-4 shrink-0" />
+          {!isCollapsed && <span>Settings</span>}
+        </Link>
+
+        {/* User Profile Card & Logout */}
+        {user && (
+          <div className="mt-auto pt-4 border-t border-border space-y-3">
+            <div
               className={cn(
-                "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium",
-                isActive("/team")
-                  ? "bg-brand text-on-brand shadow-e1"
-                  : "text-text-secondary hover:bg-surface-alt",
+                "flex items-center rounded-xl bg-surface-alt border border-border/50",
+                isCollapsed ? "p-1 justify-center flex-col gap-2" : "justify-between gap-2 p-2",
               )}
             >
-              <Users className="h-4 w-4" />
-              <span>Team</span>
-            </Link>
-          </li>
-        )}
-
-        {isHR(user?.role) && (
-          <li>
-            <Link
-              to="/hr"
-              className={cn(
-                "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium",
-                isActive("/hr")
-                  ? "bg-brand text-on-brand shadow-e1"
-                  : "text-text-secondary hover:bg-surface-alt",
-              )}
-            >
-              <BriefcaseBusiness className="h-4 w-4" />
-              <span>HR Ops</span>
-            </Link>
-          </li>
-        )}
-      </ul>
-
-      <div className="my-4 border-t border-border" />
-      <Link
-        to="/settings"
-        className={cn(
-          "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium",
-          isActive("/settings")
-            ? "bg-surface-alt text-text-primary"
-            : "text-text-secondary hover:bg-surface-alt",
-        )}
-      >
-        <Settings className="h-4 w-4" />
-        Settings
-      </Link>
-
-      {/* User Profile Card & Logout */}
-      {user && (
-        <div className="mt-auto pt-4 border-t border-border space-y-3">
-          <div className="flex items-center justify-between gap-2 p-2 rounded-xl bg-surface-alt border border-border/50">
-            <div className="flex items-center gap-2 min-w-0">
-              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-brand text-white font-bold text-xs uppercase shadow-xs">
-                {user.full_name
-                  ? user.full_name
-                      .split(" ")
-                      .filter(Boolean)
-                      .map((n) => n[0])
-                      .join("")
-                      .slice(0, 2)
-                      .toUpperCase()
-                  : user.email.slice(0, 2).toUpperCase()}
+              <div
+                className={cn(
+                  "flex items-center min-w-0",
+                  isCollapsed ? "justify-center" : "gap-2",
+                )}
+              >
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-brand text-white font-bold text-xs uppercase shadow-xs">
+                  {user.full_name
+                    ? user.full_name
+                        .split(" ")
+                        .filter(Boolean)
+                        .map((n) => n[0])
+                        .join("")
+                        .slice(0, 2)
+                        .toUpperCase()
+                    : user.email.slice(0, 2).toUpperCase()}
+                </div>
+                {!isCollapsed && (
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-xs font-semibold text-text-primary">
+                      {user.full_name || user.email.split("@")[0]}
+                    </p>
+                    <span className="inline-block rounded-full bg-brand/10 px-1.5 py-0.2 text-[9px] font-bold text-brand uppercase tracking-wider">
+                      {user.role}
+                    </span>
+                  </div>
+                )}
               </div>
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-xs font-semibold text-text-primary">
-                  {user.full_name || user.email.split("@")[0]}
-                </p>
-                <span className="inline-block rounded-full bg-brand/10 px-1.5 py-0.2 text-[9px] font-bold text-brand uppercase tracking-wider">
-                  {user.role}
-                </span>
-              </div>
+              <button
+                type="button"
+                onClick={handleLogout}
+                disabled={loggingOut}
+                title={loggingOut ? "Signing out…" : "Log out"}
+                className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-text-secondary hover:bg-destructive/10 hover:text-destructive transition cursor-pointer disabled:opacity-50"
+              >
+                {loggingOut ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin text-destructive" />
+                ) : (
+                  <LogOut className="h-3.5 w-3.5 shrink-0" />
+                )}
+              </button>
             </div>
-            <button
-              type="button"
-              onClick={handleLogout}
-              disabled={loggingOut}
-              title={loggingOut ? "Signing out…" : "Log out"}
-              className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-text-secondary hover:bg-destructive/10 hover:text-destructive transition cursor-pointer disabled:opacity-50"
-            >
-              {loggingOut ? (
-                <Loader2 className="h-3.5 w-3.5 animate-spin text-destructive" />
-              ) : (
-                <LogOut className="h-3.5 w-3.5" />
-              )}
-            </button>
+            {!isCollapsed && (
+              <div className="px-1 text-[11px] text-text-secondary">
+                <p>{languages.find((l) => l.code === language)?.label ?? "English"}</p>
+                <p className="mt-0.5 text-[10px] text-text-secondary/70">
+                  Trust Center · DPDP-ready
+                </p>
+              </div>
+            )}
           </div>
-          <div className="px-1 text-[11px] text-text-secondary">
-            <p>{languages.find((l) => l.code === language)?.label ?? "English"}</p>
-            <p className="mt-0.5 text-[10px] text-text-secondary/70">Trust Center · DPDP-ready</p>
-          </div>
-        </div>
-      )}
-    </aside>
+        )}
+      </aside>
+    </TooltipProvider>
   );
 }

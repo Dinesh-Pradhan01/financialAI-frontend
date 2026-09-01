@@ -115,6 +115,39 @@ const hrSlice = createSlice({
       if (field === "ifsc_code") target.ifscCode = value;
       if (field === "ifscCode") target.ifsc_code = value;
     },
+    addEmployeeRow: (state) => {
+      if (!state.employee.backendPreview || !state.employee.backendPreview.records) return;
+      const snapshot = JSON.parse(JSON.stringify(current(state.employee.backendPreview)));
+      state.employee.pastPreviews.push(snapshot);
+      if (state.employee.pastPreviews.length > 50) state.employee.pastPreviews.shift();
+      state.employee.isDirtySinceValidation = true;
+
+      const newRowId = `row_${Math.random().toString(36).substring(2, 9)}`;
+      
+      // Initialize an empty record dynamically based on schema_def if available
+      const newRecord: any = { rowId: newRowId };
+      if (state.employee.backendPreview.schema_def?.fields) {
+        state.employee.backendPreview.schema_def.fields.forEach((field: any) => {
+          newRecord[field.name] = field.name === "status" ? "Active" : "";
+        });
+      } else {
+        // Fallback if schema_def is missing
+        Object.assign(newRecord, {
+          employeeId: "",
+          employeeName: "",
+          department: "",
+          designation: "",
+          status: "Active",
+          salary: "",
+          paymentMode: "",
+        });
+      }
+
+      state.employee.backendPreview.records.push(newRecord);
+      
+      // Optionally focus the new row
+      state.employee.focusedRowId = newRowId;
+    },
     undoEmployeeEdit: (state) => {
       if (state.employee.pastPreviews.length > 0) {
         const prev = state.employee.pastPreviews.pop();
@@ -178,6 +211,39 @@ const hrSlice = createSlice({
       if (field === "pan_number") target.panNumber = value;
       if (field === "panNumber") target.pan_number = value;
     },
+    addVendorRow: (state) => {
+      if (!state.vendor.backendPreview || !state.vendor.backendPreview.records) return;
+      const snapshot = JSON.parse(JSON.stringify(current(state.vendor.backendPreview)));
+      state.vendor.pastPreviews.push(snapshot);
+      if (state.vendor.pastPreviews.length > 50) state.vendor.pastPreviews.shift();
+      state.vendor.isDirtySinceValidation = true;
+
+      const newRowId = `row_${Math.random().toString(36).substring(2, 9)}`;
+      
+      // Initialize an empty record dynamically based on schema_def if available
+      const newRecord: any = { rowId: newRowId };
+      if (state.vendor.backendPreview.schema_def?.fields) {
+        state.vendor.backendPreview.schema_def.fields.forEach((field: any) => {
+          newRecord[field.name] = field.name === "status" ? "Active" : "";
+        });
+      } else {
+        // Fallback if schema_def is missing
+        Object.assign(newRecord, {
+          vendorId: "",
+          vendorName: "",
+          contractId: "",
+          industry: "",
+          status: "Active",
+          contractType: "",
+          currency: "",
+        });
+      }
+
+      state.vendor.backendPreview.records.push(newRecord);
+
+      // Optionally focus the new row
+      state.vendor.focusedRowId = newRowId;
+    },
     undoVendorEdit: (state) => {
       if (state.vendor.pastPreviews.length > 0) {
         const prev = state.vendor.pastPreviews.pop();
@@ -207,6 +273,7 @@ export const {
   setEmployeeStep,
   setEmployeePreview,
   updateEmployeeField,
+  addEmployeeRow,
   undoEmployeeEdit,
   discardEmployeePreview,
   setEmployeeFilters,
@@ -215,6 +282,7 @@ export const {
   setVendorStep,
   setVendorPreview,
   updateVendorField,
+  addVendorRow,
   undoVendorEdit,
   discardVendorPreview,
   setVendorFilters,

@@ -226,17 +226,17 @@ export function ManualEntryGrid() {
           <thead className="bg-surface-alt/40 text-xs text-text-secondary border-b border-border">
             <tr>
               <th className="px-4 py-2.5 font-semibold w-10 text-center text-text-tertiary">#</th>
-              <th className="px-4 py-2.5 font-semibold min-w-[130px]">
+              <th className="px-4 py-2.5 font-semibold min-w-32.5">
                 Employee ID <span className="text-destructive">*</span>
               </th>
-              <th className="px-4 py-2.5 font-semibold min-w-[180px]">
+              <th className="px-4 py-2.5 font-semibold min-w-45">
                 Full Name <span className="text-destructive">*</span>
               </th>
-              <th className="px-4 py-2.5 font-semibold min-w-[200px]">
+              <th className="px-4 py-2.5 font-semibold min-w-50">
                 Email <span className="text-destructive">*</span>
               </th>
-              <th className="px-4 py-2.5 font-semibold min-w-[140px]">Department</th>
-              <th className="px-4 py-2.5 font-semibold min-w-[160px]">Designation</th>
+              <th className="px-4 py-2.5 font-semibold min-w-35">Department</th>
+              <th className="px-4 py-2.5 font-semibold min-w-40">Designation</th>
               <th className="px-4 py-2.5 font-semibold w-10" />
             </tr>
           </thead>

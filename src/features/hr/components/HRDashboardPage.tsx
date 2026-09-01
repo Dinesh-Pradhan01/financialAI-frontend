@@ -11,11 +11,13 @@ import {
   ArrowUpRight,
   CircleCheck,
   CircleDot,
+  ChevronDown,
 } from "lucide-react";
 import { Card } from "@/shared/components/ui/card";
+import { Button } from "@/shared/components/ui/button";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { Badge } from "@/shared/components/ui/badge";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useHRDashboard } from "../hooks/useDashboard";
 import { UploadPreviewModal } from "./UploadPreviewModal";
 import { cn } from "@/shared/lib/utils";
@@ -46,39 +48,48 @@ const STAGGER = {
 export function HRDashboardPage() {
   const { employeeMetrics, vendorMetrics, history, isLoading } = useHRDashboard();
   const [previewUploadId, setPreviewUploadId] = useState<string | null>(null);
+  const [isUploadsCollapsed, setIsUploadsCollapsed] = useState(false);
 
   const kpis = [
     {
       label: "Total Employees",
       value: employeeMetrics?.totalEmployees ?? 0,
+      href: "/hr/employees",
       icon: Users,
       iconClass: "bg-primary/10 text-primary border-primary/20",
       ambient: "from-primary/8",
-      delta: null,
+      hoverBorder: "hover:border-primary/40",
+      subtext: "View all employee records",
     },
     {
       label: "Active Headcount",
       value: employeeMetrics?.activeEmployees ?? 0,
+      href: "/hr/employees?status=Active",
       icon: TrendingUp,
       iconClass: "bg-teal-500/10 text-teal-600 border-teal-500/20",
       ambient: "from-teal-500/8",
-      delta: null,
+      hoverBorder: "hover:border-teal-500/40",
+      subtext: "Filter by active status",
     },
     {
       label: "Total Vendors",
       value: vendorMetrics?.totalVendors ?? 0,
+      href: "/hr/vendors",
       icon: Building2,
       iconClass: "bg-violet-500/10 text-violet-600 border-violet-500/20",
       ambient: "from-violet-500/8",
-      delta: null,
+      hoverBorder: "hover:border-violet-500/40",
+      subtext: "View vendor portfolio",
     },
     {
       label: "Recurring Vendors",
       value: vendorMetrics?.recurringVendors ?? 0,
+      href: "/hr/vendors?recurring=true",
       icon: RefreshCw,
       iconClass: "bg-indigo-500/10 text-indigo-600 border-indigo-500/20",
       ambient: "from-indigo-500/8",
-      delta: null,
+      hoverBorder: "hover:border-indigo-500/40",
+      subtext: "Filter by recurring contracts",
     },
   ];
 
@@ -128,9 +139,12 @@ export function HRDashboardPage() {
 
       {/* ── KPI row ───────────────────────────────────────────────────── */}
       <section>
-        <h2 className="text-sm font-semibold uppercase tracking-wider text-text-secondary mb-3">
-          Overview
-        </h2>
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-sm font-semibold uppercase tracking-wider text-text-secondary">
+            Overview
+          </h2>
+          <span className="text-xs text-text-tertiary">Click any card to view full directory</span>
+        </div>
         <motion.div
           className="grid gap-3.5 sm:grid-cols-2 xl:grid-cols-4"
           initial="initial"
@@ -141,40 +155,50 @@ export function HRDashboardPage() {
             const Icon = kpi.icon;
             return (
               <motion.div key={kpi.label} variants={STAGGER.child}>
-                <div
-                  className={cn(
-                    "relative overflow-hidden rounded-2xl border border-border/80 bg-gradient-to-br from-surface via-surface to-surface-alt/20 p-4 shadow-xs transition-all duration-200 hover:border-border hover:shadow-sm group",
-                  )}
+                <Link
+                  to={kpi.href as any}
+                  className="block group select-none cursor-pointer focus:outline-none"
                 >
                   <div
                     className={cn(
-                      "absolute inset-0 pointer-events-none bg-gradient-to-br via-transparent to-transparent opacity-70 group-hover:opacity-100 transition-opacity duration-300",
-                      kpi.ambient,
+                      "relative overflow-hidden rounded-2xl border border-border/80 bg-linear-to-br from-surface via-surface to-surface-alt/20 p-4 shadow-xs transition-all duration-200 hover:shadow-md",
+                      kpi.hoverBorder,
                     )}
-                  />
-                  <div className="relative z-10 flex items-start justify-between gap-3">
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-wider text-text-secondary">
-                        {kpi.label}
-                      </p>
-                      <div className="mt-2 font-display text-3xl font-extrabold tracking-tight text-foreground">
-                        {isLoading ? (
-                          <Skeleton className="mt-1 h-8 w-14 rounded-md" />
-                        ) : (
-                          kpi.value.toLocaleString()
-                        )}
-                      </div>
-                    </div>
+                  >
                     <div
                       className={cn(
-                        "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border shadow-2xs transition-transform duration-200 group-hover:scale-105",
-                        kpi.iconClass,
+                        "absolute inset-0 pointer-events-none bg-linear-to-br via-transparent to-transparent opacity-70 group-hover:opacity-100 transition-opacity duration-300",
+                        kpi.ambient,
                       )}
-                    >
-                      <Icon className="h-4 w-4" />
+                    />
+                    <div className="relative z-10 flex items-start justify-between gap-3">
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-wider text-text-secondary group-hover:text-foreground transition-colors">
+                          {kpi.label}
+                        </p>
+                        <div className="mt-2 font-display text-3xl font-extrabold tracking-tight text-foreground tabular-nums">
+                          {isLoading ? (
+                            <Skeleton className="mt-1 h-8 w-14 rounded-md" />
+                          ) : (
+                            kpi.value.toLocaleString()
+                          )}
+                        </div>
+                        <div className="mt-2.5 flex items-center gap-1 text-[11px] font-medium text-text-tertiary group-hover:text-text-secondary transition-colors">
+                          <span>{kpi.subtext}</span>
+                          <ArrowUpRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                        </div>
+                      </div>
+                      <div
+                        className={cn(
+                          "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border shadow-2xs transition-transform duration-200 group-hover:scale-110",
+                          kpi.iconClass,
+                        )}
+                      >
+                        <Icon className="h-4 w-4" />
+                      </div>
                     </div>
                   </div>
-                </div>
+                </Link>
               </motion.div>
             );
           })}
@@ -183,116 +207,151 @@ export function HRDashboardPage() {
 
       {/* ── Recent upload activity ────────────────────────────────────── */}
       <section>
-        <h2 className="text-sm font-semibold uppercase tracking-wider text-text-secondary mb-3">
-          Recent Uploads
-        </h2>
-        <Card className="border-border/80 shadow-xs overflow-hidden">
-          {isLoading ? (
-            <div className="divide-y divide-border">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="flex items-center gap-4 px-5 py-4">
-                  <Skeleton className="h-9 w-9 rounded-xl shrink-0" />
-                  <div className="flex-1 space-y-2">
-                    <Skeleton className="h-3.5 w-40" />
-                    <Skeleton className="h-3 w-56" />
-                  </div>
-                  <Skeleton className="h-7 w-20 rounded-lg" />
-                </div>
-              ))}
+        <div className="flex items-center justify-between mb-3">
+          <button
+            type="button"
+            onClick={() => setIsUploadsCollapsed((prev) => !prev)}
+            className="group flex items-center gap-2 text-left select-none cursor-pointer focus:outline-none"
+            aria-expanded={!isUploadsCollapsed}
+          >
+            <h2 className="text-xs font-bold uppercase tracking-wider text-text-secondary group-hover:text-foreground transition-colors">
+              Recent Uploads
+            </h2>
+            {history.length > 0 && (
+              <span className="font-mono text-xs font-medium text-text-tertiary tabular-nums">
+                ({history.length})
+              </span>
+            )}
+            <div className="flex h-5 w-5 items-center justify-center rounded-md text-text-tertiary group-hover:bg-surface-alt group-hover:text-text-secondary transition">
+              <ChevronDown
+                className={cn(
+                  "h-4 w-4 transition-transform duration-200",
+                  isUploadsCollapsed && "-rotate-90",
+                )}
+              />
             </div>
-          ) : history.length > 0 ? (
-            <ul className="divide-y divide-border">
-              {history.map((item, idx) => {
-                const isEmployee = item.upload_type === "Employee";
-                return (
-                  <motion.li
-                    key={item.upload_id || idx}
-                    initial={{ opacity: 0, x: -6 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.2, delay: idx * 0.04 }}
-                    className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-5 py-4 hover:bg-surface-alt/40 transition-colors"
-                  >
-                    <div className="flex items-center gap-3.5 min-w-0">
-                      {/* Use UploadCloud (neutral upload icon) — NOT CheckCircle2 which
+          </button>
+        </div>
+
+        <AnimatePresence initial={false}>
+          {!isUploadsCollapsed && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.2, ease: "easeInOut" }}
+              className="overflow-hidden"
+            >
+              <Card className="border-border/80 shadow-xs overflow-hidden">
+                {isLoading ? (
+                  <div className="divide-y divide-border">
+                    {[1, 2, 3].map((i) => (
+                      <div key={i} className="flex items-center gap-4 px-5 py-4">
+                        <Skeleton className="h-9 w-9 rounded-xl shrink-0" />
+                        <div className="flex-1 space-y-2">
+                          <Skeleton className="h-3.5 w-40" />
+                          <Skeleton className="h-3 w-56" />
+                        </div>
+                        <Skeleton className="h-7 w-20 rounded-lg" />
+                      </div>
+                    ))}
+                  </div>
+                ) : history.length > 0 ? (
+                  <ul className="divide-y divide-border">
+                    {history.map((item, idx) => {
+                      const isEmployee = item.upload_type === "Employee";
+                      return (
+                        <motion.li
+                          key={item.upload_id || idx}
+                          initial={{ opacity: 0, x: -6 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ duration: 0.2, delay: idx * 0.04 }}
+                          className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-5 py-4 hover:bg-surface-alt/40 transition-colors"
+                        >
+                          <div className="flex items-center gap-3.5 min-w-0">
+                            {/* Use UploadCloud (neutral upload icon) — NOT CheckCircle2 which
                           means "accepted member" in Team. Color is type-specific, not
                           status-specific, to avoid semantic clash. */}
-                      <div
-                        className={cn(
-                          "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border",
-                          isEmployee
-                            ? "bg-primary/10 text-primary border-primary/20"
-                            : "bg-violet-500/10 text-violet-600 border-violet-500/20",
-                        )}
-                      >
-                        <UploadCloud className="h-4 w-4" />
-                      </div>
+                            <div
+                              className={cn(
+                                "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border",
+                                isEmployee
+                                  ? "bg-primary/10 text-primary border-primary/20"
+                                  : "bg-violet-500/10 text-violet-600 border-violet-500/20",
+                              )}
+                            >
+                              <UploadCloud className="h-4 w-4" />
+                            </div>
 
-                      <div className="min-w-0">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <span className="text-sm font-semibold text-foreground truncate">
-                            {item.file_name}
-                          </span>
-                          <Badge
-                            variant="outline"
-                            className={cn(
-                              "text-[10px] font-semibold shrink-0 h-5 px-1.5",
-                              isEmployee
-                                ? "border-primary/30 text-primary bg-primary/5"
-                                : "border-violet-500/30 text-violet-600 bg-violet-500/5",
-                            )}
-                          >
-                            {item.upload_type}
-                          </Badge>
-                        </div>
-                        <p className="text-xs text-text-secondary mt-0.5">
-                          {(item.record_count ?? 0).toLocaleString()} records ·{" "}
-                          {item.uploaded_at
-                            ? (() => {
-                                try {
-                                  const d = new Date(item.uploaded_at);
-                                  return isNaN(d.getTime())
-                                    ? "Recently"
-                                    : formatDistanceToNow(d, { addSuffix: true });
-                                } catch {
-                                  return "Recently";
-                                }
-                              })()
-                            : "Recently"}
-                        </p>
-                      </div>
-                    </div>
+                            <div className="min-w-0">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span className="text-xs font-semibold text-foreground tracking-tight truncate">
+                                  {item.file_name}
+                                </span>
+                                <Badge
+                                  variant="outline"
+                                  className={cn(
+                                    "text-[10px] font-bold uppercase tracking-wider shrink-0 h-5 px-1.5",
+                                    isEmployee
+                                      ? "border-primary/30 text-primary bg-primary/5"
+                                      : "border-violet-500/30 text-violet-600 bg-violet-500/5",
+                                  )}
+                                >
+                                  {item.upload_type}
+                                </Badge>
+                              </div>
+                              <p className="text-xs text-text-secondary mt-0.5 tabular-nums">
+                                {(item.record_count ?? 0).toLocaleString()} records ·{" "}
+                                {item.uploaded_at
+                                  ? (() => {
+                                      try {
+                                        const d = new Date(item.uploaded_at);
+                                        return isNaN(d.getTime())
+                                          ? "Recently"
+                                          : formatDistanceToNow(d, { addSuffix: true });
+                                      } catch {
+                                        return "Recently";
+                                      }
+                                    })()
+                                  : "Recently"}
+                              </p>
+                            </div>
+                          </div>
 
-                    <div className="flex items-center gap-2 shrink-0 pl-[52px] sm:pl-0">
-                      {/* Completion indicator — use CircleCheck (distinct from CheckCircle2
+                          <div className="flex items-center gap-2 shrink-0 pl-13 sm:pl-0">
+                            {/* Completion indicator — use CircleCheck (distinct from CheckCircle2
                           used by Team) to avoid icon-reuse semantic conflict */}
-                      <div className="flex items-center gap-1 text-xs text-teal-600 font-medium">
-                        <CircleCheck className="h-3.5 w-3.5" />
-                        Imported
-                      </div>
-                      <button
-                        onClick={() => setPreviewUploadId(item.upload_id)}
-                        className="inline-flex items-center gap-1 rounded-lg border border-border px-2.5 py-1.5 text-xs font-semibold text-text-secondary transition-colors hover:bg-surface-alt hover:text-foreground"
-                      >
-                        Preview
-                        <ArrowUpRight className="h-3 w-3" />
-                      </button>
+                            <div className="flex items-center gap-1 text-xs text-teal-600 font-medium tracking-tight">
+                              <CircleCheck className="h-3.5 w-3.5" />
+                              Imported
+                            </div>
+                            <button
+                              onClick={() => setPreviewUploadId(item.upload_id)}
+                              className="inline-flex items-center gap-1 rounded-lg border border-border px-2.5 py-1.5 text-xs font-semibold text-text-secondary transition-colors hover:bg-surface-alt hover:text-foreground"
+                            >
+                              Preview
+                              <ArrowUpRight className="h-3 w-3" />
+                            </button>
+                          </div>
+                        </motion.li>
+                      );
+                    })}
+                  </ul>
+                ) : (
+                  <div className="flex flex-col items-center justify-center py-14 text-center px-6">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-surface-alt text-text-tertiary mb-4">
+                      <CircleDot className="h-5 w-5" />
                     </div>
-                  </motion.li>
-                );
-              })}
-            </ul>
-          ) : (
-            <div className="flex flex-col items-center justify-center py-14 text-center px-6">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-surface-alt text-text-tertiary mb-4">
-                <CircleDot className="h-5 w-5" />
-              </div>
-              <p className="text-sm font-medium text-text-secondary">No uploads yet</p>
-              <p className="text-xs text-text-tertiary mt-1">
-                Import your first employee or vendor list to see activity here.
-              </p>
-            </div>
+                    <p className="text-sm font-semibold text-text-secondary">No uploads yet</p>
+                    <p className="text-xs text-text-tertiary mt-1">
+                      Import your first employee or vendor list to see activity here.
+                    </p>
+                  </div>
+                )}
+              </Card>
+            </motion.div>
           )}
-        </Card>
+        </AnimatePresence>
       </section>
 
       <UploadPreviewModal uploadId={previewUploadId} onClose={() => setPreviewUploadId(null)} />
@@ -327,7 +386,7 @@ function ModuleCard({
         {/* Ambient glow */}
         <div
           className={cn(
-            "absolute inset-0 pointer-events-none bg-gradient-to-br via-transparent to-transparent opacity-50 group-hover:opacity-80 transition-opacity duration-300",
+            "absolute inset-0 pointer-events-none bg-linear-to-br via-transparent to-transparent opacity-50 group-hover:opacity-80 transition-opacity duration-300",
             glowClass,
           )}
         />
@@ -343,17 +402,20 @@ function ModuleCard({
           </div>
 
           <div className="flex-1">
-            <h2 className="text-lg font-bold text-foreground">{title}</h2>
-            <p className="mt-1.5 text-sm leading-6 text-text-secondary">{description}</p>
+            <h2 className="font-display text-base sm:text-lg font-bold text-foreground tracking-tight">
+              {title}
+            </h2>
+            <p className="mt-1.5 text-xs sm:text-sm leading-relaxed text-text-secondary">
+              {description}
+            </p>
           </div>
 
-          <Link
-            to={href}
-            className="inline-flex w-fit items-center gap-1.5 rounded-lg bg-foreground/90 px-4 py-2 text-sm font-semibold text-background shadow-sm transition hover:bg-foreground"
-          >
-            {buttonLabel}
-            <ArrowUpRight className="h-3.5 w-3.5" />
-          </Link>
+          <Button asChild size="sm" className="w-fit gap-1.5 shadow-xs">
+            <Link to={href}>
+              {buttonLabel}
+              <ArrowUpRight className="h-3.5 w-3.5" />
+            </Link>
+          </Button>
         </div>
       </Card>
     </motion.div>

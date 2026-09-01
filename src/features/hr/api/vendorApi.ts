@@ -112,10 +112,36 @@ export const vendorApi = {
   getAll: (params?: {
     page?: number;
     size?: number;
+    skip?: number;
+    limit?: number;
     search?: string;
     industry?: string;
     status?: string;
+    recurring?: boolean;
+    currency?: string;
+    contract_type?: string;
+    payment_type?: string;
   }) => {
-    return hrApi.get("/vendors", { params });
+    const queryParams: any = { ...params };
+    if (queryParams.page !== undefined && queryParams.size !== undefined) {
+      queryParams.skip = (queryParams.page - 1) * queryParams.size;
+      queryParams.limit = queryParams.size;
+      delete queryParams.page;
+      delete queryParams.size;
+    }
+    return hrApi.get("/vendors", { params: queryParams });
+  },
+
+  getById: (id: string) => {
+    return hrApi.get(`/vendors/${id}`);
+  },
+
+  updateVendor: (id: string, patch: Partial<VendorRecord>) => {
+    return hrApi.put(`/vendors/${id}`, sanitizeVendorRecord(patch));
+  },
+
+  deleteVendor: (id: string) => {
+    return hrApi.delete(`/vendors/${id}`);
   },
 };
+

@@ -109,9 +109,9 @@ export function EmployeeStickyFooter({
 
   return (
     <>
-      <div className="fixed bottom-[env(safe-area-inset-bottom,0)] left-0 right-0 z-30 md:left-60 bg-surface border-t border-border shadow-[0_-4px_12px_rgba(0,0,0,0.05)]">
-        <div className="max-w-7xl mx-auto px-4 pr-20 md:px-6 md:pr-28 py-4 flex items-center justify-between">
-          <div>
+      <div className="sticky bottom-6 z-30 mx-auto w-full max-w-4xl bg-surface/95 backdrop-blur-md border border-border shadow-2xl rounded-2xl mt-12">
+        <div className="px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="text-center sm:text-left">
             <p className="font-semibold text-foreground">{recordCount} employees ready</p>
             {hasErrors ? (
               <p className="text-sm text-destructive font-medium mt-0.5">
@@ -121,17 +121,17 @@ export function EmployeeStickyFooter({
               <p className="text-sm text-text-secondary mt-0.5">All validations passed</p>
             )}
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 w-full sm:w-auto">
             <button
               onClick={handleCancel}
-              className="inline-flex h-11 items-center justify-center rounded-lg border border-border bg-surface px-6 text-sm font-semibold text-text-secondary hover:bg-surface-alt transition"
+              className="flex-1 sm:flex-none inline-flex h-11 items-center justify-center rounded-xl border border-border bg-surface px-6 text-sm font-semibold text-text-secondary hover:bg-surface-alt transition shadow-sm"
             >
               Cancel
             </button>
             <button
               onClick={handleImport}
               disabled={hasErrors || isPending}
-              className="inline-flex h-11 items-center justify-center rounded-lg bg-primary px-8 text-sm font-semibold text-white shadow-brand transition hover:bg-primary-hover disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 sm:flex-none inline-flex h-11 items-center justify-center rounded-xl bg-primary px-8 text-sm font-semibold text-white shadow-brand transition hover:bg-primary-hover disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isPending ? (
                 <>

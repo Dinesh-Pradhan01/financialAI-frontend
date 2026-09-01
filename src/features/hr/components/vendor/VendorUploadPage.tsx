@@ -31,10 +31,10 @@ export function VendorUploadPage() {
           <ArrowLeft className="h-5 w-5" />
         </button>
         <div>
-          <h1 className="font-display text-3xl font-bold tracking-tight text-foreground">
+          <h1 className="font-display text-2xl font-bold tracking-tight text-foreground">
             Upload Vendor Portfolio
           </h1>
-          <p className="text-muted-foreground mt-1 text-sm">
+          <p className="text-text-secondary mt-0.5 text-xs sm:text-sm leading-relaxed">
             Import your vendor master data via Excel or manual entry.
           </p>
         </div>
