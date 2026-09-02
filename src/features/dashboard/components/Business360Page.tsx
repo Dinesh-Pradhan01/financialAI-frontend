@@ -6,7 +6,6 @@ import { IndustryLeadershipCard } from "./IndustryLeadershipCard";
 import { CompanyRatingCard } from "./CompanyRatingCard";
 import { CompanyNewsCard } from "./CompanyNewsCard";
 import { AIViewCard } from "./AIViewCard";
-import { UploadTransactionsCard } from "./UploadTransactionsCard";
 import { useCompanyProfile, useOnboardingStatus } from "../hooks/useCompanyAPI";
 import { useAuth } from "@/shared/contexts/AuthContext";
 
@@ -68,10 +67,6 @@ export const Business360Page = () => {
           <AIViewCard hasProfile={hasProfile} />
         </div>
 
-        {/* Row 4: Upload Transactions */}
-        <div className="md:col-span-12">
-          <UploadTransactionsCard />
-        </div>
       </div>
     </div>
   );

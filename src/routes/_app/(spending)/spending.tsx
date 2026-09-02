@@ -6,6 +6,7 @@ import { AgentNarration } from "@/features/agents/components/agent-narration";
 import { ExplainTip } from "@/features/spotlights/components/explain-tip";
 import { BalanceTrend } from "@/features/spending/components/BalanceTrend";
 import { SpendingDonut } from "@/features/spending/components/SpendingDonut";
+import { UploadTransactionsCard } from "@/features/dashboard/components/UploadTransactionsCard";
 import { useAppDispatch, useAppSelector } from "@/shared/store";
 import { selectTimeframe } from "@/shared/store/selectors";
 import { setTimeframe } from "@/shared/store/slices/preferencesSlice";
@@ -64,6 +65,10 @@ function Spending() {
           ))}
         </div>
       </header>
+
+      <div className="mb-5">
+        <UploadTransactionsCard />
+      </div>
 
       <div className="mb-5">
         <AgentNarration agent="intelligence">
