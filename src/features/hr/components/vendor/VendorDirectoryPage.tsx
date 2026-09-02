@@ -512,12 +512,7 @@ export function VendorDirectoryPage() {
                             className="min-w-50 bg-surface border border-border rounded px-2 py-1 outline-none text-xs focus:border-violet-500"
                           />
                         ) : (
-                          <div className="flex items-center gap-2">
-                            <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-violet-500/10 text-[10px] font-bold text-violet-600">
-                              {displayName.charAt(0) || "V"}
-                            </div>
-                            <span className="whitespace-nowrap">{displayName || "—"}</span>
-                          </div>
+                          displayName || "—"
                         )}
                       </td>
 

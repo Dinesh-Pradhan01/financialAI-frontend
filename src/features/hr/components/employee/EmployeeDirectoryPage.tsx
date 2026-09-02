@@ -49,7 +49,7 @@ const DEPARTMENTS = [
 
 const STATUSES = ["All Statuses", "Active", "Inactive", "Notice Period", "Resigned"];
 
-const EMPLOYMENT_TYPES = ["All Types", "Full Time", "Part Time", "Contractor", "Intern"];
+const EMPLOYMENT_TYPES = ["All Types", "Full Time", "Part Time", "Contract", "Intern"];
 
 const EXPORT_COLUMNS: ExportColumn[] = [
   { header: "Employee ID", key: "employee_id", width: 16 },
@@ -455,12 +455,7 @@ export function EmployeeDirectoryPage() {
                             className="min-w-45 bg-surface border border-border rounded px-2 py-1 outline-none text-xs focus:border-primary"
                           />
                         ) : (
-                          <div className="flex items-center gap-2">
-                            <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-[10px] font-bold text-primary">
-                              {displayName.charAt(0) || "E"}
-                            </div>
-                            <span className="whitespace-nowrap">{displayName || "—"}</span>
-                          </div>
+                          displayName || "—"
                         )}
                       </td>
 
