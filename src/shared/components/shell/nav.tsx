@@ -48,11 +48,21 @@ function useActive() {
 export function BottomTabBar() {
   const isActive = useActive();
   const highPriorityCount = useAppSelector(selectHighPriorityCount);
+  const { user } = useAuth();
+  const isHrUser = isHR(user?.role);
+  const visibleItems = isHrUser
+    ? items.filter((it) => it.to !== "/profile")
+    : items;
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-40 border-t border-border bg-surface/95 backdrop-blur md:hidden">
-      <ul className="grid grid-cols-5">
-        {items.map((it) => {
+      <ul
+        className="grid"
+        style={{
+          gridTemplateColumns: `repeat(${visibleItems.length + (isHrUser ? 1 : 0)}, minmax(0, 1fr))`,
+        }}
+      >
+        {visibleItems.map((it) => {
           const Icon = it.icon;
           const active = isActive(it.to);
           const badge = it.to === "/spotlights" ? highPriorityCount : 0;
@@ -78,6 +88,22 @@ export function BottomTabBar() {
             </li>
           );
         })}
+        {isHrUser && (
+          <li>
+            <Link
+              to="/hr"
+              className={cn(
+                "flex flex-col items-center gap-0.5 py-2 text-[11px] font-medium",
+                isActive("/hr") ? "text-brand" : "text-text-secondary",
+              )}
+            >
+              <span className="relative">
+                <BriefcaseBusiness className={cn("h-5 w-5", isActive("/hr") && "stroke-[2.4]")} />
+              </span>
+              HR Ops
+            </Link>
+          </li>
+        )}
       </ul>
       <div className="h-[env(safe-area-inset-bottom)]" />
     </nav>
@@ -92,6 +118,10 @@ export function DesktopSidebar() {
   const { user } = useAuth();
   const { handleLogout, loggingOut } = useLogout();
   const canManageTeam = isCeoOrAdmin(user?.role);
+  const isHrUser = isHR(user?.role);
+  const visibleItems = isHrUser
+    ? items.filter((it) => it.to !== "/profile")
+    : items;
 
   return (
     <TooltipProvider delayDuration={200}>
@@ -153,7 +183,7 @@ export function DesktopSidebar() {
           </div>
         )}
         <ul className="space-y-1">
-          {items.map((it) => {
+          {visibleItems.map((it) => {
             const Icon = it.icon;
             const active = isActive(it.to);
             const badge = it.to === "/spotlights" ? highPriorityCount : 0;

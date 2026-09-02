@@ -1,5 +1,5 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { Sparkles, ShieldCheck } from "lucide-react";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { Sparkles, ShieldCheck, ShieldAlert, ArrowLeft } from "lucide-react";
 import { rohan } from "@/shared/data/rohan";
 import { explainers } from "@/shared/data/agentic";
 import { formatINR } from "@/shared/lib/format";
@@ -12,6 +12,7 @@ import { DonutChart } from "@/shared/components/charts/DonutChart";
 import { IconChip } from "@/shared/lib/icons";
 import { cn } from "@/shared/lib/utils";
 import { useAuth } from "@/shared/contexts/AuthContext";
+import { isHR } from "@/shared/lib/roles";
 
 export const Route = createFileRoute("/_app/(profile)/profile")({
   head: () => ({
@@ -56,6 +57,39 @@ function Insight({ children }: { children: React.ReactNode }) {
 
 function Profile() {
   const { user } = useAuth();
+
+  if (isHR(user?.role)) {
+    return (
+      <div className="mx-auto max-w-lg px-4 py-16 text-center space-y-5">
+        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-destructive/10 text-destructive border border-destructive/20 shadow-xs">
+          <ShieldAlert className="h-7 w-7" />
+        </div>
+        <div className="space-y-2">
+          <h1 className="text-xl font-bold font-display text-text-primary tracking-tight">
+            Access Restricted
+          </h1>
+          <p className="text-sm text-text-secondary leading-relaxed">
+            Personal &amp; Customer 360 profile is restricted for HR role accounts.
+          </p>
+          <p className="text-xs font-mono text-text-tertiary">
+            Current signed-in role:{" "}
+            <span className="font-semibold text-text-secondary uppercase">
+              {user?.role || "HR"}
+            </span>
+          </p>
+        </div>
+        <div className="pt-2">
+          <Link
+            to="/hr"
+            className="inline-flex items-center gap-2 rounded-xl bg-brand px-5 py-2.5 text-xs font-semibold text-white shadow-brand hover:opacity-90 transition cursor-pointer"
+          >
+            <ArrowLeft className="h-4 w-4" /> Go to HR Operations
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   const id = rohan.identity;
   const nw = rohan.netWorth;
   const assetTotal = nw.assets.reduce((s, a) => s + a.amount, 0);
