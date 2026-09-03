@@ -47,13 +47,10 @@ export const FormField = React.forwardRef<HTMLInputElement, FormFieldProps>(
             className="text-xs font-semibold text-text-primary tracking-tight"
           >
             {label}{" "}
-            {!optional && (required || required === undefined) && (
+            {required && (
               <span className="text-destructive font-bold">*</span>
             )}
           </label>
-          {optional && (
-            <span className="text-[0.6875rem] font-normal text-text-tertiary">Optional</span>
-          )}
         </div>
 
         <div className="relative flex items-center">
@@ -127,13 +124,10 @@ export const FormTextarea = React.forwardRef<HTMLTextAreaElement, FormTextareaPr
             className="text-xs font-semibold text-text-primary tracking-tight"
           >
             {label}{" "}
-            {!optional && (required || required === undefined) && (
+            {required && (
               <span className="text-destructive font-bold">*</span>
             )}
           </label>
-          {optional && (
-            <span className="text-[0.6875rem] font-normal text-text-tertiary">Optional</span>
-          )}
         </div>
 
         <div className="relative">
@@ -209,13 +203,10 @@ export function FormSelect({
       <div className="flex justify-between items-center">
         <label className="text-xs font-semibold text-text-primary tracking-tight">
           {label}{" "}
-          {!optional && (required || required === undefined) && (
+          {required && (
             <span className="text-destructive font-bold">*</span>
           )}
         </label>
-        {optional && (
-          <span className="text-[0.6875rem] font-normal text-text-tertiary">Optional</span>
-        )}
       </div>
 
       <Select value={value} onValueChange={onValueChange} disabled={disabled}>

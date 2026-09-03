@@ -81,18 +81,15 @@ export function DocumentUploadCard({
           </div>
           <div>
             <div className="flex items-center gap-2 flex-wrap">
-              <h4 className="font-semibold text-sm text-text-primary">{req.label}</h4>
-              <span
-                className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${
-                  existingDoc
-                    ? "bg-success/20 text-success"
-                    : req.isOptional
-                      ? "bg-surface-alt text-text-secondary border border-border-c/60"
-                      : "bg-brand/10 text-brand font-bold"
-                }`}
-              >
-                {existingDoc ? "Uploaded" : req.isOptional ? "Optional" : "Required"}
-              </span>
+              <h4 className="font-semibold text-sm text-text-primary">
+                {req.label}
+                {!req.isOptional && <span className="text-destructive font-bold ml-1">*</span>}
+              </h4>
+              {existingDoc && (
+                <span className="rounded-full px-2.5 py-0.5 text-xs font-semibold bg-success/20 text-success">
+                  Uploaded
+                </span>
+              )}
             </div>
             <p className="text-xs text-text-secondary mt-1 leading-relaxed">{req.why}</p>
             {!existingDoc && (
