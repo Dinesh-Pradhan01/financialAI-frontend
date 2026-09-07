@@ -119,30 +119,28 @@ export function DocumentCategorySummaryCard({
         </div>
 
         {/* Status Pill Badge */}
-        <div className="shrink-0 pt-0.5">
-          {badgeLabel ? (
-            <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-surface-alt text-text-secondary font-medium text-[10px] border border-border-c">
-              {badgeLabel}
-            </span>
-          ) : isComplete ? (
-            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 font-semibold text-[10px] border border-emerald-500/25">
-              <CheckCircle2 aria-hidden="true" className="h-3 w-3" /> Complete
-            </span>
-          ) : hasRequired ? (
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-brand/10 text-brand font-semibold text-[10px] border border-brand/20">
-              <span className="font-num font-bold tabular-nums">
-                {requiredCompleted}/{requiredTotal}
+        {(badgeLabel || isComplete || hasRequired) && (
+          <div className="shrink-0 pt-0.5">
+            {badgeLabel ? (
+              <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-surface-alt text-text-secondary font-medium text-[10px] border border-border-c">
+                {badgeLabel}
               </span>
-              <span className="text-destructive font-bold text-xs leading-none" title="Required">
-                *
+            ) : isComplete ? (
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 font-semibold text-[10px] border border-emerald-500/25">
+                <CheckCircle2 aria-hidden="true" className="h-3 w-3" /> Complete
               </span>
-            </span>
-          ) : (
-            <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-surface-alt text-text-secondary font-medium text-[10px] border border-border-c">
-              Optional
-            </span>
-          )}
-        </div>
+            ) : hasRequired ? (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-brand/10 text-brand font-semibold text-[10px] border border-brand/20">
+                <span className="font-num font-bold tabular-nums">
+                  {requiredCompleted}/{requiredTotal}
+                </span>
+                <span className="text-destructive font-bold text-xs leading-none" title="Required">
+                  *
+                </span>
+              </span>
+            ) : null}
+          </div>
+        )}
       </div>
 
       {/* Bottom Area: Progress Bar or Description + Manage */}

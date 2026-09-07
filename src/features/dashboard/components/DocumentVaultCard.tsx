@@ -18,8 +18,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
-import { Badge } from "@/shared/components/ui/badge";
-import { Link, useNavigate } from "@tanstack/react-router";
+import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { validateFile, ACCEPTED_FILE_FORMATS_STRING } from "@/features/documents/lib/uploadHelpers";
 

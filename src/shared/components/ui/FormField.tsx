@@ -8,7 +8,6 @@ import {
   SelectValue,
 } from "@/shared/components/ui/select";
 
-// TODO(phase-2): Wire with dynamic schema validation (e.g. Zod / React Hook Form) in later phase
 
 export interface FormFieldProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label: string;
@@ -193,7 +192,7 @@ export function FormSelect({
   helperText,
   disabled,
   className = "",
-}: FormSelectProps) {
+}: Readonly<FormSelectProps>) {
   const normalizedOptions: SelectOption[] = options.map((opt) =>
     typeof opt === "string" ? { label: opt, value: opt } : opt,
   );

@@ -59,7 +59,7 @@ function sanitizeVendorRecord(r: any) {
     if (clean[field] !== undefined && clean[field] !== null) {
       if (typeof clean[field] === "string") {
         const trimmed = clean[field].trim();
-        clean[field] = trimmed === "" ? null : isNaN(Number(trimmed)) ? null : Number(trimmed);
+        clean[field] = trimmed === "" ? null : Number.isNaN(Number(trimmed)) ? null : Number(trimmed);
       }
     }
   }

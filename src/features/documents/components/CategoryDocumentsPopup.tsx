@@ -279,7 +279,7 @@ export function CategoryDocumentsPopup({
                       Every required document in this category is on record.
                     </p>
                     <p className="text-[11px] text-text-secondary leading-relaxed">
-                      Optional documents here still strengthen verification and scoring where they
+                      Standard documents here still strengthen verification and scoring where they
                       apply to your entity.
                     </p>
                   </div>

@@ -38,7 +38,6 @@ import {
 } from "../lib/uploadHelpers";
 import { formatFileSize, formatDocumentDate, isDocumentUpdated } from "../lib/documentPresentation";
 import { DocumentQualityBadge } from "./DocumentQualityBadge";
-import { DocumentRequirementBadge } from "./DocumentRequirementBadge";
 import { DocumentStatusBadge } from "./DocumentStatusBadge";
 import { DocumentPreviewModal } from "./DocumentPreviewModal";
 import { Button } from "@/shared/components/ui/button";
@@ -52,7 +51,7 @@ export interface DocumentUploadPageProps {
   docId: string;
 }
 
-export function DocumentUploadPage({ categoryId, docId }: DocumentUploadPageProps) {
+export function DocumentUploadPage({ categoryId, docId }: Readonly<DocumentUploadPageProps>) {
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const dragDepth = useRef(0);
@@ -260,16 +259,15 @@ export function DocumentUploadPage({ categoryId, docId }: DocumentUploadPageProp
                 <span className="text-[10px] uppercase font-bold font-mono tracking-wider px-2 py-0.5 rounded-full bg-surface-alt text-text-secondary border border-border">
                   Category {category?.number} • {category?.shortLabel}
                 </span>
-                {taxonomyDoc && (
-                  <DocumentRequirementBadge
-                    requirement={taxonomyDoc.requirement}
-                    sourceStatus={taxonomyDoc.sourceStatus}
-                  />
-                )}
                 {existingDoc && <DocumentStatusBadge state={rowState} />}
               </div>
               <h1 className="mt-1 text-lg sm:text-xl font-bold font-display text-text-primary tracking-tight">
                 {taxonomyDoc?.label}
+                {taxonomyDoc?.requirement === "required" && (
+                  <span className="text-destructive font-bold ml-1" title="Required">
+                    *
+                  </span>
+                )}
               </h1>
               <p className="mt-1 text-xs text-text-secondary leading-relaxed max-w-2xl">
                 {taxonomyDoc?.detail}

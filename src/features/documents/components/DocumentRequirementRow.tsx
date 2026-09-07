@@ -4,7 +4,6 @@ import { toast } from "sonner";
 import { Button } from "@/shared/components/ui/button";
 import { cn } from "@/shared/lib/utils";
 import { DocumentInfoPopover } from "./DocumentInfoPopover";
-import { DocumentRequirementBadge } from "./DocumentRequirementBadge";
 import { DocumentStatusBadge } from "./DocumentStatusBadge";
 import { formatFileSize, formatDocumentDate, isDocumentUpdated } from "../lib/documentPresentation";
 import {
@@ -58,7 +57,7 @@ export function DocumentRequirementRow({
   onDownload,
   onDismissRejection,
   className,
-}: DocumentRequirementRowProps) {
+}: Readonly<DocumentRequirementRowProps>) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   /**
    * Depth counter rather than a boolean: dragleave fires when the pointer crosses
@@ -238,10 +237,6 @@ export function DocumentRequirementRow({
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
-          <DocumentRequirementBadge
-            requirement={taxonomyDocument.requirement}
-            sourceStatus={taxonomyDocument.sourceStatus}
-          />
           <DocumentStatusBadge state={rowState} />
         </div>
       </div>

@@ -4,7 +4,7 @@ import { Skeleton } from "@/shared/components/ui/skeleton";
 import { useIndustryLeaders, isSetupRequiredError } from "../hooks/useCompanyAPI";
 import { Trophy, TrendingUp, AlertCircle, RefreshCw, Sparkles, ArrowRight } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
-import { Link, useNavigate } from "@tanstack/react-router";
+import { useNavigate } from "@tanstack/react-router";
 
 interface Props {
   hasProfile?: boolean;

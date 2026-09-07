@@ -1,5 +1,5 @@
-import { Link, useNavigate } from "@tanstack/react-router";
-import { ArrowRight, Sparkles, ShieldAlert, CheckCircle2, ChevronRight } from "lucide-react";
+import { useNavigate } from "@tanstack/react-router";
+import { ArrowRight, Sparkles } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
 import { useOnboardingStatus } from "../hooks/useCompanyAPI";
 import { useAuth } from "@/shared/contexts/AuthContext";
@@ -8,7 +8,7 @@ interface OnboardingProgressBannerProps {
   onOpenOnboarding?: () => void;
 }
 
-export function OnboardingProgressBanner({ onOpenOnboarding }: OnboardingProgressBannerProps) {
+export function OnboardingProgressBanner({ onOpenOnboarding }: Readonly<OnboardingProgressBannerProps>) {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { data: onboardingData } = useOnboardingStatus();

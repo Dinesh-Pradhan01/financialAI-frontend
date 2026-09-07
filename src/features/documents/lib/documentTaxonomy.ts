@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 
 /**
- * SpotLite document taxonomy — 8 categories.
+ * SpotLite document taxonomy 8 categories.
  *
  * Transcribed verbatim from `SpotLite-Category-selection-v2-verified.docx`
  * ("Verified India-focused version | 25 August 2026"), which is the single
@@ -31,7 +31,7 @@ export interface TaxonomyDocument {
   /**
    * Stable slug sent to the backend as `document_type`. Six keys are inherited
    * from the previous `KNOWN_DOCUMENT_SLOTS` taxonomy so that already-uploaded
-   * documents keep resolving to a row instead of orphaning — see
+   * documents keep resolving to a row instead of orphaning see
    * `LEGACY_TYPE_KEYS` below. Never rename a key that has shipped.
    */
   key: string;
@@ -46,7 +46,7 @@ export interface TaxonomyDocument {
   sourceStatus: string | null;
   /**
    * One line of row-level guidance, verbatim from the docx. Which column this
-   * came from depends on the category — see `DocumentCategory.detailLabel`.
+   * came from depends on the category see `DocumentCategory.detailLabel`.
    */
   detail: string;
   /** Reference marker from the docx (e.g. "R9"). `null` where the source has "—". */
@@ -82,8 +82,8 @@ export interface DocumentCategory {
  * The brief pinned three cases: "Required" → Required, and both "Required if
  * applicable" and "Recommended" → Optional. The docx contains five further
  * conditional strings ("Required if exists", "Required if material", etc.).
- * All of them share the shape of "Required if applicable" — a requirement
- * gated on a triggering condition — and the docx's own Applicability-rules
+ * All of them share the shape of "Required if applicable" a requirement
+ * gated on a triggering condition and the docx's own Applicability-rules
  * table groups them together as conditional. So the rule is: only an
  * unconditional "Required" blocks completion; every conditional or
  * recommended status is Optional.
@@ -207,7 +207,7 @@ const CATEGORIES: DocumentCategory[] = [
     feeds: "Legal-existence checks, entity-risk scoring, eligibility signals",
     detailLabel: "Applies to",
     icon: Building2,
-    note: "Constitutional documents are entity-type specific — a company will never hold an LLP Agreement, and an LLP will never hold an MOA. Upload the ones that match how your entity is constituted.",
+    note: "Constitutional documents are entity-type specific a company will never hold an LLP Agreement, and an LLP will never hold an MOA. Upload the ones that match how your entity is constituted.",
     documents: [
       doc(
         "certificate_of_incorporation",
@@ -460,7 +460,7 @@ const CATEGORIES: DocumentCategory[] = [
     feeds: "Operating-legality and regulatory-risk flags",
     detailLabel: "Approvals to capture",
     icon: ScrollText,
-    note: "Grouped by business activity — upload the approvals that match what your entity actually does. The source document does not assign a required/optional status to these rows, so all are Optional.",
+    note: "Grouped by business activity upload the approvals that match what your entity actually does. The source document does not assign a required/optional status to these rows, so all are Optional.",
     documents: [
       doc(
         "license_retail",
@@ -568,7 +568,7 @@ const CATEGORIES: DocumentCategory[] = [
     feeds: "Trust, assurance, partner/investor-readiness signals",
     detailLabel: "Certification / assurance",
     icon: Award,
-    note: "Regulatory approvals, professional registrations and government recognitions do not belong here — they live in Registration & Structure or Licenses & Permits. The source document does not assign a required/optional status to these rows, so all are Optional.",
+    note: "Regulatory approvals, professional registrations and government recognitions do not belong here they live in Registration & Structure or Licenses & Permits. The source document does not assign a required/optional status to these rows, so all are Optional.",
     documents: [
       doc(
         "cert_manufacturing_quality",
@@ -824,7 +824,7 @@ export function isUnmappedDocumentType(typeKey: string | null | undefined) {
   return !typeKey || !DOCUMENTS_BY_KEY.has(typeKey);
 }
 
-/** Required rows across the whole taxonomy — the set that gates completion. */
+/** Required rows across the whole taxonomy the set that gates completion. */
 export const REQUIRED_DOCUMENT_COUNT = ALL_TAXONOMY_DOCUMENTS.filter(
   (document) => document.requirement === "required",
 ).length;

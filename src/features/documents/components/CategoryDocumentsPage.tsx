@@ -264,7 +264,7 @@ export function CategoryDocumentsPage({ categoryId }: CategoryDocumentsPageProps
         )}
 
         {/* Document Requirements List */}
-        <section aria-label="Required and Optional Documents" className="space-y-3">
+        <section aria-label="Document Checklist" className="space-y-3">
           <div className="flex items-center justify-between">
             <h2 className="text-sm font-bold text-text-primary uppercase tracking-wider text-[11px]">
               Document Checklist & Upload Slots
@@ -327,7 +327,7 @@ export function CategoryDocumentsPage({ categoryId }: CategoryDocumentsPageProps
                   Every required document in this category is on record.
                 </p>
                 <p className="text-[11px] text-text-secondary leading-relaxed">
-                  Optional documents here still strengthen verification and scoring where they apply
+                  Standard documents here still strengthen verification and scoring where they apply
                   to your entity.
                 </p>
               </div>

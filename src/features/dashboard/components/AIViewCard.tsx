@@ -6,7 +6,7 @@ import { useCompanyAIView, isSetupRequiredError } from "../hooks/useCompanyAPI";
 import { Sparkles, BrainCircuit, RefreshCw, AlertCircle, ArrowRight } from "lucide-react";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
-import { Link, useNavigate } from "@tanstack/react-router";
+import { useNavigate } from "@tanstack/react-router";
 
 interface Props {
   hasProfile?: boolean;

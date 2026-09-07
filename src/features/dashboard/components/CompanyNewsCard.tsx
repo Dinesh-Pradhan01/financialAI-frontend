@@ -4,15 +4,13 @@ import { Skeleton } from "@/shared/components/ui/skeleton";
 import { useCompanyNews, isSetupRequiredError } from "../hooks/useCompanyAPI";
 import {
   Newspaper,
-  ExternalLink,
   RefreshCw,
   AlertCircle,
-  Sparkles,
   ArrowRight,
 } from "lucide-react";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
-import { Link, useNavigate } from "@tanstack/react-router";
+import { useNavigate } from "@tanstack/react-router";
 
 interface Props {
   hasProfile?: boolean;

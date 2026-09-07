@@ -579,7 +579,7 @@ export function DocumentsPage() {
                         : "text-text-secondary hover:text-text-primary",
                     )}
                   >
-                    {cat}
+                    {cat === "optional" ? "Standard" : cat}
                   </button>
                 ))}
               </div>
@@ -685,6 +685,11 @@ export function DocumentsPage() {
                             )}
                           >
                             {taxonomyDocument?.label ?? doc.document_type.replace(/[-_]/g, " ")}
+                            {taxonomyDocument?.requirement === "required" && (
+                              <span className="text-destructive font-bold ml-1" title="Required">
+                                *
+                              </span>
+                            )}
                           </span>
                         </TableCell>
 
