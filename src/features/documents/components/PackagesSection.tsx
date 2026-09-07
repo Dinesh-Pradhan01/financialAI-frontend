@@ -14,13 +14,15 @@ import { PackageDocumentPicker } from "./PackageDocumentPicker";
 import { CreatePackageDialog } from "./CreatePackageDialog";
 import { Button } from "@/shared/components/ui/button";
 import { Skeleton } from "@/shared/components/ui/skeleton";
+import { cn } from "@/shared/lib/utils";
 import type { CompanyDocument, PackageResponse } from "@/shared/types/api";
 
 export interface PackagesSectionProps {
   documents: CompanyDocument[];
+  className?: string;
 }
 
-export function PackagesSection({ documents }: PackagesSectionProps) {
+export function PackagesSection({ documents, className }: PackagesSectionProps) {
   const { data: packages = [], isLoading, isError, error } = usePackages();
 
   const renamePackageMutation = useRenamePackage();
@@ -119,7 +121,7 @@ export function PackagesSection({ documents }: PackagesSectionProps) {
 
   if (isLoading) {
     return (
-      <section className="space-y-4">
+      <section className={cn("space-y-4", className)}>
         <div className="space-y-1">
           <Skeleton className="h-5 w-32" />
           <Skeleton className="h-3.5 w-72" />
@@ -134,7 +136,7 @@ export function PackagesSection({ documents }: PackagesSectionProps) {
 
   if (isError) {
     return (
-      <section className="space-y-4">
+      <section className={cn("space-y-4", className)}>
         <div className="rounded-2xl border border-destructive/20 bg-destructive/5 p-4 text-xs text-destructive flex items-center gap-2">
           <AlertCircle className="h-4 w-4 shrink-0" />
           <span>{getApiErrorMessage(error, "Failed to load document packages.")}</span>
@@ -144,7 +146,7 @@ export function PackagesSection({ documents }: PackagesSectionProps) {
   }
 
   return (
-    <section className="space-y-4">
+    <section className={cn("space-y-4", className)}>
       {/* Section Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex items-center gap-2.5">

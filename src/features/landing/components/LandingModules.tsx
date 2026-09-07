@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import {
   ArrowRight,
   Bot,
@@ -11,6 +11,8 @@ import {
   Users,
   Activity,
   Layers,
+  ChevronsLeft,
+  ChevronsRight,
 } from "lucide-react";
 import { MODULES, HERO_DATA, type Currency, type ModuleItem } from "../data/landing-data";
 import { motion, AnimatePresence } from "framer-motion";
@@ -30,6 +32,83 @@ export function LandingModules({
   const [activeTab, setActiveTab] = useState<string>("c360");
   const activeModule = MODULES.find((m) => m.id === activeTab) || MODULES[0];
   const copilotData = HERO_DATA[currency];
+
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+
+  const checkScroll = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const hasMoreRight = el.scrollWidth - el.clientWidth - el.scrollLeft > 3;
+    const hasMoreLeft = el.scrollLeft > 3;
+    setCanScrollRight((prev) => (prev !== hasMoreRight ? hasMoreRight : prev));
+    setCanScrollLeft((prev) => (prev !== hasMoreLeft ? hasMoreLeft : prev));
+  }, []);
+
+  useEffect(() => {
+    if (activeTab && scrollRef.current) {
+      const timeoutId = setTimeout(() => {
+        if (!scrollRef.current) return;
+        const activeElement = scrollRef.current.querySelector(
+          `[data-module-id="${activeTab}"]`,
+        ) as HTMLElement;
+        if (activeElement) {
+          const container = scrollRef.current;
+          const leftOffset = activeElement.offsetLeft - container.offsetLeft;
+          const rightOffset = leftOffset + activeElement.offsetWidth;
+          const visibleLeft = container.scrollLeft;
+          const visibleRight = container.scrollLeft + container.clientWidth;
+
+          if (leftOffset < visibleLeft + 30) {
+            container.scrollTo({ left: Math.max(0, leftOffset - 30), behavior: "smooth" });
+          } else if (rightOffset > visibleRight - 30) {
+            container.scrollTo({
+              left: rightOffset - container.clientWidth + 30,
+              behavior: "smooth",
+            });
+          }
+        }
+      }, 50);
+      return () => clearTimeout(timeoutId);
+    }
+  }, [activeTab]);
+
+  const handleScrollLeft = () => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const step = Math.max(200, Math.floor(el.clientWidth * 0.6));
+    el.scrollBy({ left: -step, behavior: "smooth" });
+  };
+
+  const handleScrollRight = () => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const step = Math.max(200, Math.floor(el.clientWidth * 0.6));
+    el.scrollBy({ left: step, behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+
+    checkScroll();
+
+    el.addEventListener("scroll", checkScroll, { passive: true });
+    window.addEventListener("resize", checkScroll);
+
+    let resizeObserver: ResizeObserver | null = null;
+    if (typeof ResizeObserver !== "undefined") {
+      resizeObserver = new ResizeObserver(() => checkScroll());
+      resizeObserver.observe(el);
+    }
+
+    return () => {
+      el.removeEventListener("scroll", checkScroll);
+      window.removeEventListener("resize", checkScroll);
+      resizeObserver?.disconnect();
+    };
+  }, [checkScroll]);
 
   return (
     <section id="modules" className="bg-[#f8fafc] py-10 sm:py-12 lg:py-14 border-b border-border">
@@ -60,91 +139,148 @@ export function LandingModules({
 
         {/* Tabbed Explorer Container */}
         <div className="mt-6 sm:mt-8 rounded-3xl border border-border-c bg-white p-4 sm:p-6 lg:p-7 shadow-sm">
-          {/* Module Selector Navigation Tabs */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-2.5 border-b border-border-c no-scrollbar">
-            {MODULES.map((mod) => {
-              const Icon = mod.icon;
-              const isActive = mod.id === activeTab;
-              return (
-                <button
-                  key={mod.id}
-                  type="button"
-                  onClick={() => setActiveTab(mod.id)}
-                  className="relative flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs sm:text-sm font-semibold tracking-[-0.005em] transition-colors whitespace-nowrap cursor-pointer select-none shrink-0"
-                >
-                  {isActive && (
-                    <motion.div
-                      layoutId="activeModuleTabPill"
-                      className="absolute inset-0 rounded-xl bg-primary shadow-xs"
-                      transition={{ type: "spring", stiffness: 420, damping: 32 }}
-                    />
-                  )}
-                  <Icon
-                    size={15}
-                    className={cn(
-                      "relative z-10 transition-colors",
-                      isActive ? "text-white" : "text-primary",
-                    )}
-                  />
-                  <span
-                    className={cn(
-                      "relative z-10 transition-colors",
-                      isActive ? "text-white font-bold" : "text-slate-600 hover:text-foreground",
-                    )}
-                  >
-                    {mod.title}
-                  </span>
-                  <span
-                    className={cn(
-                      "relative z-10 text-[10px] uppercase font-bold tracking-wider rounded px-1.5 py-0.5 font-mono transition-colors",
-                      isActive ? "bg-white/20 text-white" : "bg-slate-100 text-slate-500",
-                    )}
-                  >
-                    {mod.tag}
-                  </span>
-                </button>
-              );
-            })}
-
-            {/* 6th Tab: AI Copilot */}
-            <button
-              type="button"
-              onClick={() => setActiveTab("copilot")}
-              className="relative flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs sm:text-sm font-semibold tracking-[-0.005em] transition-colors whitespace-nowrap cursor-pointer select-none shrink-0"
+          {/* Module Selector Navigation Tabs Container */}
+          <div className="relative border-b border-border-c">
+            <div
+              ref={scrollRef}
+              className="flex items-center gap-2 overflow-x-auto pb-2.5 no-scrollbar scroll-smooth"
             >
-              {activeTab === "copilot" && (
-                <motion.div
-                  layoutId="activeModuleTabPill"
-                  className="absolute inset-0 rounded-xl bg-linear-to-r from-blue-900 to-primary shadow-xs"
-                  transition={{ type: "spring", stiffness: 420, damping: 32 }}
+              {MODULES.map((mod) => {
+                const Icon = mod.icon;
+                const isActive = mod.id === activeTab;
+                return (
+                  <button
+                    key={mod.id}
+                    data-module-id={mod.id}
+                    type="button"
+                    onClick={() => setActiveTab(mod.id)}
+                    className="relative flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs sm:text-sm font-semibold tracking-[-0.005em] transition-colors whitespace-nowrap cursor-pointer select-none shrink-0"
+                  >
+                    {isActive && (
+                      <motion.div
+                        layoutId="activeModuleTabPill"
+                        className="absolute inset-0 rounded-xl bg-primary shadow-xs"
+                        transition={{ type: "spring", stiffness: 420, damping: 32 }}
+                      />
+                    )}
+                    <Icon
+                      size={15}
+                      className={cn(
+                        "relative z-10 transition-colors",
+                        isActive ? "text-white" : "text-primary",
+                      )}
+                    />
+                    <span
+                      className={cn(
+                        "relative z-10 transition-colors",
+                        isActive ? "text-white font-bold" : "text-slate-600 hover:text-foreground",
+                      )}
+                    >
+                      {mod.title}
+                    </span>
+                    <span
+                      className={cn(
+                        "relative z-10 text-[10px] uppercase font-bold tracking-wider rounded px-1.5 py-0.5 font-mono transition-colors",
+                        isActive ? "bg-white/20 text-white" : "bg-slate-100 text-slate-500",
+                      )}
+                    >
+                      {mod.tag}
+                    </span>
+                  </button>
+                );
+              })}
+
+              {/* 6th Tab: AI Copilot */}
+              <button
+                data-module-id="copilot"
+                type="button"
+                onClick={() => setActiveTab("copilot")}
+                className="relative flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs sm:text-sm font-semibold tracking-[-0.005em] transition-colors whitespace-nowrap cursor-pointer select-none shrink-0"
+              >
+                {activeTab === "copilot" && (
+                  <motion.div
+                    layoutId="activeModuleTabPill"
+                    className="absolute inset-0 rounded-xl bg-linear-to-r from-blue-900 to-primary shadow-xs"
+                    transition={{ type: "spring", stiffness: 420, damping: 32 }}
+                  />
+                )}
+                <Bot
+                  size={15}
+                  className={cn(
+                    "relative z-10 transition-colors",
+                    activeTab === "copilot" ? "text-white" : "text-primary",
+                  )}
                 />
+                <span
+                  className={cn(
+                    "relative z-10 transition-colors",
+                    activeTab === "copilot" ? "text-white font-bold" : "text-primary",
+                  )}
+                >
+                  AI Financial Copilot
+                </span>
+                <span
+                  className={cn(
+                    "relative z-10 text-[10px] uppercase font-mono rounded px-1.5 py-0.5 font-bold transition-colors",
+                    activeTab === "copilot"
+                      ? "bg-emerald-400/30 text-emerald-200"
+                      : "bg-emerald-500/20 text-emerald-800",
+                  )}
+                >
+                  Agentic
+                </span>
+              </button>
+            </div>
+
+            {/* Left-edge horizontal scroll affordance & button */}
+            <div
+              className={cn(
+                "pointer-events-none absolute left-0 top-0 bottom-2.5 w-16 sm:w-20",
+                "flex items-center justify-start pl-0.5",
+                "bg-linear-to-r from-white via-white/90 to-transparent",
+                "transition-opacity duration-300 ease-out z-20",
+                canScrollLeft ? "opacity-100" : "opacity-0",
               )}
-              <Bot
-                size={15}
+            >
+              <button
+                type="button"
+                onClick={handleScrollLeft}
+                aria-label="Scroll modules left"
+                tabIndex={canScrollLeft ? 0 : -1}
                 className={cn(
-                  "relative z-10 transition-colors",
-                  activeTab === "copilot" ? "text-white" : "text-primary",
-                )}
-              />
-              <span
-                className={cn(
-                  "relative z-10 transition-colors",
-                  activeTab === "copilot" ? "text-white font-bold" : "text-primary",
-                )}
-              >
-                AI Financial Copilot
-              </span>
-              <span
-                className={cn(
-                  "relative z-10 text-[10px] uppercase font-mono rounded px-1.5 py-0.5 font-bold transition-colors",
-                  activeTab === "copilot"
-                    ? "bg-emerald-400/30 text-emerald-200"
-                    : "bg-emerald-500/20 text-emerald-800",
+                  "flex items-center justify-center h-7 w-7 rounded-full bg-white border border-border-c shadow-sm text-slate-500 hover:text-foreground hover:border-slate-300 active:scale-90 transition-all",
+                  canScrollLeft ? "pointer-events-auto cursor-pointer" : "pointer-events-none",
+                  "animate-scroll-hint-left motion-reduce:animate-none",
                 )}
               >
-                Agentic
-              </span>
-            </button>
+                <ChevronsLeft className="h-4 w-4" />
+              </button>
+            </div>
+
+            {/* Right-edge horizontal scroll affordance & button */}
+            <div
+              className={cn(
+                "pointer-events-none absolute right-0 top-0 bottom-2.5 w-16 sm:w-20",
+                "flex items-center justify-end pr-0.5",
+                "bg-linear-to-l from-white via-white/90 to-transparent",
+                "transition-opacity duration-300 ease-out z-20",
+                canScrollRight ? "opacity-100" : "opacity-0",
+              )}
+            >
+              <button
+                type="button"
+                onClick={handleScrollRight}
+                aria-label="Scroll modules right"
+                tabIndex={canScrollRight ? 0 : -1}
+                className={cn(
+                  "flex items-center justify-center h-7 w-7 rounded-full bg-white border border-border-c shadow-sm text-slate-500 hover:text-foreground hover:border-slate-300 active:scale-90 transition-all",
+                  canScrollRight ? "pointer-events-auto cursor-pointer" : "pointer-events-none",
+                  "animate-scroll-hint motion-reduce:animate-none",
+                )}
+              >
+                <ChevronsRight className="h-4 w-4" />
+              </button>
+            </div>
           </div>
 
           {/* Tab Content Display Area */}
