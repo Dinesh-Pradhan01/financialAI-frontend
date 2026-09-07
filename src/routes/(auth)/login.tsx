@@ -4,8 +4,7 @@ import { toast } from "sonner";
 import { Lock, Eye, EyeOff, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useAuth, getAuthSnapshot } from "@/shared/contexts/AuthContext";
-import { auth } from "@/shared/firebase/firebase";
-import { waitForAuth } from "@/shared/firebase/auth";
+
 import { GoogleSignInButton } from "@/features/auth/components/GoogleSignInButton";
 import { AuthHeroPanel } from "@/features/auth/components/AuthHeroPanel";
 import { SpotLiteBrand } from "@/shared/components/SpotLiteBrand";
@@ -74,7 +73,7 @@ function Login() {
     return <SpotliteLoader message="Verifying session…" subMessage="SpotLite Intelligence" />;
   }
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.SubmitEvent) {
     e.preventDefault();
     if (!email.trim() || !password) return;
 
