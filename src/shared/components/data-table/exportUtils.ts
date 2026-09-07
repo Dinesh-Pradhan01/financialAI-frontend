@@ -12,17 +12,19 @@ export async function exportToExcel({
   filename,
   sheetName = "Sheet1",
   title,
+  creator = "Spotlite Operations",
   columns,
   data,
 }: {
   filename: string;
   sheetName?: string;
   title?: string;
+  creator?: string;
   columns: ExportColumn[];
   data: Record<string, any>[];
 }) {
   const workbook = new ExcelJS.Workbook();
-  workbook.creator = "Spotlite HR Operations";
+  workbook.creator = creator;
   workbook.created = new Date();
 
   const worksheet = workbook.addWorksheet(sheetName, {

@@ -5,7 +5,7 @@ import {
   updateEmployeeField,
   addEmployeeRow,
 } from "@/shared/store/slices/hrSlice";
-import { DynamicPreviewTable } from "../shared/DynamicPreviewTable";
+import { DynamicPreviewTable } from "@/shared/components/data-table/DynamicPreviewTable";
 import type { EmployeeRecord } from "../../types/employee";
 
 export function EmployeePreviewTable({
@@ -58,5 +58,5 @@ export function EmployeePreviewTable({
   );
 }
 
-export { validateDynamicField, formatHeaderName } from "../shared/previewTableUtils";
-export { EditableCell } from "../shared/EditableCell";
+export { validateDynamicField, formatHeaderName } from "@/shared/components/data-table/previewTableUtils";
+export { EditableCell } from "@/shared/components/data-table/EditableCell";

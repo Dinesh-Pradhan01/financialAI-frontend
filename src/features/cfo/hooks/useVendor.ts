@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { queryKeys } from "@/shared/lib/queryKeys";
+import { cfoKeys } from "../api/queryKeys";
 import { vendorApi } from "../api/vendorApi";
 import type { VendorRecord, VendorPreviewResponse } from "../types/vendor";
 import type { AxiosProgressEvent } from "axios";
@@ -30,6 +30,8 @@ export function useVendorImport() {
     mutationFn: (previewData: VendorPreviewResponse | unknown) =>
       vendorApi.importVendors(previewData),
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["cfo", "dashboard"] });
+      queryClient.invalidateQueries({ queryKey: ["cfo", "vendors"] });
       queryClient.invalidateQueries({ queryKey: ["hr", "dashboard"] });
       queryClient.invalidateQueries({ queryKey: ["hr", "vendors"] });
     },
@@ -44,7 +46,7 @@ export function useGetVendors(params?: {
   status?: string;
 }) {
   return useQuery({
-    queryKey: queryKeys.hr.vendors.all(params),
+    queryKey: cfoKeys.vendors.all(params),
     queryFn: () => vendorApi.getAll(params),
   });
 }

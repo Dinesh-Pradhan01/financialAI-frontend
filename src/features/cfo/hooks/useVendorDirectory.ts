@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { queryKeys } from "@/shared/lib/queryKeys";
+import { cfoKeys } from "../api/queryKeys";
 import { vendorApi } from "../api/vendorApi";
 import type { VendorRecord } from "../types/vendor";
 
@@ -54,7 +54,7 @@ export function useVendorDirectory(initialFilters?: VendorDirectoryFilters) {
   }, [page, size, search, industry, status, recurring, contractType, currency]);
 
   const query = useQuery({
-    queryKey: queryKeys.hr.vendors.all(queryParams),
+    queryKey: cfoKeys.vendors.all(queryParams),
     queryFn: async () => {
       const res = await vendorApi.getAll(queryParams);
       const data = res?.data?.data ?? res?.data ?? {};
@@ -73,8 +73,10 @@ export function useVendorDirectory(initialFilters?: VendorDirectoryFilters) {
       return vendorApi.updateVendor(id, patch);
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["cfo", "vendors"] });
+      queryClient.invalidateQueries({ queryKey: ["cfo", "dashboard"] });
       queryClient.invalidateQueries({ queryKey: ["hr", "vendors"] });
-      queryClient.invalidateQueries({ queryKey: queryKeys.hr.dashboard.vendor() });
+      queryClient.invalidateQueries({ queryKey: ["hr", "dashboard"] });
     },
   });
 
@@ -83,8 +85,10 @@ export function useVendorDirectory(initialFilters?: VendorDirectoryFilters) {
       return vendorApi.deleteVendor(id);
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["cfo", "vendors"] });
+      queryClient.invalidateQueries({ queryKey: ["cfo", "dashboard"] });
       queryClient.invalidateQueries({ queryKey: ["hr", "vendors"] });
-      queryClient.invalidateQueries({ queryKey: queryKeys.hr.dashboard.vendor() });
+      queryClient.invalidateQueries({ queryKey: ["hr", "dashboard"] });
     },
   });
 
@@ -104,8 +108,10 @@ export function useVendorDirectory(initialFilters?: VendorDirectoryFilters) {
       }
     }
 
+    queryClient.invalidateQueries({ queryKey: ["cfo", "vendors"] });
+    queryClient.invalidateQueries({ queryKey: ["cfo", "dashboard"] });
     queryClient.invalidateQueries({ queryKey: ["hr", "vendors"] });
-    queryClient.invalidateQueries({ queryKey: queryKeys.hr.dashboard.vendor() });
+    queryClient.invalidateQueries({ queryKey: ["hr", "dashboard"] });
 
     if (errorCount === 0) {
       toast.success(`Successfully saved ${successCount} vendor record${successCount > 1 ? "s" : ""}.`);
@@ -129,8 +135,10 @@ export function useVendorDirectory(initialFilters?: VendorDirectoryFilters) {
       }
     }
 
+    queryClient.invalidateQueries({ queryKey: ["cfo", "vendors"] });
+    queryClient.invalidateQueries({ queryKey: ["cfo", "dashboard"] });
     queryClient.invalidateQueries({ queryKey: ["hr", "vendors"] });
-    queryClient.invalidateQueries({ queryKey: queryKeys.hr.dashboard.vendor() });
+    queryClient.invalidateQueries({ queryKey: ["hr", "dashboard"] });
 
     if (errorCount === 0) {
       toast.success(`Deleted ${successCount} vendor record${successCount > 1 ? "s" : ""}.`);

@@ -23,3 +23,9 @@ export function isHR(role: string | null | undefined): boolean {
   if (!role || typeof role !== "string") return false;
   return role.trim().toLowerCase() === "hr";
 }
+
+export function isCFO(role: string | null | undefined): boolean {
+  if (!role || typeof role !== "string") return false;
+  return role.trim().toLowerCase() === "cfo";
+}
+

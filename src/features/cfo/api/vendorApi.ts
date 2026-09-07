@@ -1,3 +1,4 @@
+// Base URL still points to /hr for backend-compatibility reasons pending a future backend change.
 import { hrApi } from "@/shared/lib/hrAxios";
 import type { AxiosProgressEvent } from "axios";
 import type { VendorRecord, VendorPreviewResponse } from "../types/vendor";
@@ -144,4 +145,3 @@ export const vendorApi = {
     return hrApi.delete(`/vendors/${id}`);
   },
 };
-

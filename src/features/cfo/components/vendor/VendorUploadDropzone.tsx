@@ -3,7 +3,7 @@ import { UploadCloud, BriefcaseBusiness, Loader2, AlertTriangle, FileX, FileSpre
 import { cn } from "@/shared/lib/utils";
 import { useVendorUpload } from "../../hooks/useVendor";
 import { useAppDispatch, useAppSelector } from "@/shared/store";
-import { setVendorPreview, setVendorStep, discardVendorPreview } from "@/shared/store/slices/hrSlice";
+import { setVendorPreview, setVendorStep, discardVendorPreview } from "@/shared/store/slices/cfoSlice";
 import { VendorManualEntryGrid } from "./VendorManualEntryGrid";
 import {
   Dialog,
@@ -25,7 +25,7 @@ export function VendorUploadDropzone() {
 
   const uploadMutation = useVendorUpload();
   const dispatch = useAppDispatch();
-  const backendPreview = useAppSelector((state) => state.hr.vendor.backendPreview);
+  const backendPreview = useAppSelector((state) => state.cfo.vendor.backendPreview);
 
   const handleDrag = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -119,29 +119,39 @@ export function VendorUploadDropzone() {
               response?: {
                 status?: number;
                 data?: {
-                  missing_columns?: string[];
-                  unsupported_columns?: string[];
+                  detail?: {
+                    message?: string;
+                    missing_columns?: string[];
+                    unsupported_columns?: string[];
+                  } | string;
                   message?: string;
                 };
               };
               message?: string;
             };
-            const status = axiosErr.response?.status;
-            const data = axiosErr.response?.data;
 
-            if (status === 400 && data?.missing_columns) {
-              setInvalidTemplate({
-                missing: data.missing_columns || [],
-                unsupported: data.unsupported_columns || [],
-              });
-            } else {
-              setUploadError(data?.message || axiosErr.message || "Failed to upload file");
+            const detail = axiosErr.response?.data?.detail;
+            if (typeof detail === "object" && detail !== null) {
+              const missing = detail.missing_columns || [];
+              const unsupported = detail.unsupported_columns || [];
+              if (missing.length > 0 || unsupported.length > 0) {
+                setInvalidTemplate({ missing, unsupported });
+                return;
+              }
             }
+
+            const errorMsg =
+              typeof detail === "string"
+                ? detail
+                : axiosErr.response?.data?.message ||
+                  axiosErr.message ||
+                  "An error occurred while uploading the file.";
+            setUploadError(errorMsg);
           },
         },
       );
     },
-    [dispatch, uploadMutation],
+    [uploadMutation, dispatch],
   );
 
   const handleDrop = useCallback(
@@ -149,9 +159,9 @@ export function VendorUploadDropzone() {
       e.preventDefault();
       e.stopPropagation();
       setIsDragging(false);
-      const files = e.dataTransfer.files;
-      if (files && files.length > 0) {
-        processFile(files[0]);
+
+      if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+        processFile(e.dataTransfer.files[0]);
       }
     },
     [processFile],
@@ -161,36 +171,38 @@ export function VendorUploadDropzone() {
 
   return (
     <div className="space-y-6">
+      {/* Existing draft alert */}
       {backendPreview && (
-        <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 rounded-xl border border-violet-500/20 bg-violet-500/5">
           <div className="flex items-center gap-3">
-            <div className="rounded-full bg-primary/10 p-2 text-primary">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-violet-500/10 text-violet-600">
               <FileSpreadsheet className="h-5 w-5" />
             </div>
             <div>
-              <h3 className="font-semibold text-foreground text-sm">Unsaved edits detected</h3>
+              <p className="text-sm font-semibold text-foreground">You have a draft preview available</p>
               <p className="text-xs text-text-secondary mt-0.5">
-                You have a pending import for <strong>{(backendPreview as any).file_meta?.name || "manual data"}</strong> with unsaved changes.
+                Continue working on your previously validated vendor dataset.
               </p>
             </div>
           </div>
           <div className="flex items-center gap-2 w-full sm:w-auto">
             <button
               onClick={() => dispatch(discardVendorPreview())}
-              className="flex-1 sm:flex-none h-9 px-4 rounded-lg border border-border bg-surface text-xs font-semibold text-text-secondary hover:bg-surface-alt transition"
+              className="flex-1 sm:flex-none inline-flex h-9 items-center justify-center rounded-lg border border-border px-3 text-xs font-semibold text-text-secondary hover:bg-surface-alt transition"
             >
               Discard
             </button>
             <button
               onClick={() => dispatch(setVendorStep("preview"))}
-              className="flex-1 sm:flex-none h-9 px-4 rounded-lg bg-primary text-xs font-semibold text-white shadow-brand hover:bg-primary-hover transition"
+              className="flex-1 sm:flex-none inline-flex h-9 items-center justify-center rounded-lg bg-primary px-4 text-xs font-semibold text-white shadow-brand hover:bg-primary-hover transition"
             >
-              Resume Session
+              Resume Preview
             </button>
           </div>
         </div>
       )}
 
+      {/* Dropzone Container */}
       <div
         onDragEnter={handleDrag}
         onDragLeave={handleDrag}

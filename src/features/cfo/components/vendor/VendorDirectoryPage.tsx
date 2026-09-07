@@ -28,9 +28,9 @@ import {
   DialogTitle,
 } from "@/shared/components/ui/dialog";
 import { useVendorDirectory } from "../../hooks/useVendorDirectory";
-import { DirectoryToolbar } from "../shared/DirectoryToolbar";
-import { StatusBadge } from "../shared/StatusBadge";
-import { exportToExcel, ExportColumn } from "../shared/exportUtils";
+import { DirectoryToolbar } from "@/shared/components/data-table/DirectoryToolbar";
+import { StatusBadge } from "@/shared/components/data-table/StatusBadge";
+import { exportToExcel, ExportColumn } from "@/shared/components/data-table/exportUtils";
 import { cn } from "@/shared/lib/utils";
 import type { VendorRecord } from "../../types/vendor";
 
@@ -228,6 +228,7 @@ export function VendorDirectoryPage() {
         filename: `Vendor_Directory_${new Date().toISOString().split("T")[0]}`,
         title: "Spotlite Vendor Directory Master",
         sheetName: "Vendors",
+        creator: "Spotlite CFO Operations",
         columns: EXPORT_COLUMNS,
         data: dataToExport,
       });
@@ -257,7 +258,7 @@ export function VendorDirectoryPage() {
         <div className="space-y-1">
           <div className="flex items-center gap-2">
             <Link
-              to="/hr"
+              to="/cfo"
               className="inline-flex items-center gap-1 text-xs font-semibold text-text-secondary hover:text-foreground transition-colors group"
             >
               <ChevronLeft className="h-3.5 w-3.5 transition-transform group-hover:-translate-x-0.5" />

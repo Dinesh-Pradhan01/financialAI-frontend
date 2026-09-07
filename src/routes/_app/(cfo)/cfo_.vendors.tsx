@@ -1,37 +1,37 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { EmployeeDirectoryPage } from "@/features/hr/components/employee/EmployeeDirectoryPage";
 import { z } from "zod";
 import { useAuth } from "@/shared/contexts/AuthContext";
-import { isHR } from "@/shared/lib/roles";
+import { isCFO } from "@/shared/lib/roles";
 import { SpotliteLoader } from "@/shared/components/ui/SpotliteLoader";
 import { AccessRestrictedScreen } from "@/shared/components/ui/AccessRestrictedScreen";
+import { VendorDirectoryPage } from "@/features/cfo/components/vendor/VendorDirectoryPage";
 
 const searchSchema = z
   .object({
     status: z.string().optional().catch(undefined),
-    department: z.string().optional().catch(undefined),
+    industry: z.string().optional().catch(undefined),
+    recurring: z.union([z.boolean(), z.string()]).optional().catch(undefined),
     search: z.string().optional().catch(undefined),
-    employment_type: z.string().optional().catch(undefined),
     page: z.union([z.number(), z.string()]).optional().catch(undefined),
     size: z.union([z.number(), z.string()]).optional().catch(undefined),
   })
   .passthrough();
 
-export const Route = createFileRoute("/_app/(hr)/hr_/employees")({
+export const Route = createFileRoute("/_app/(cfo)/cfo_/vendors")({
   validateSearch: searchSchema,
   head: () => ({
-    meta: [{ title: "Employee Directory · HR · Spotlite" }],
+    meta: [{ title: "Vendor Directory · CFO · Spotlite" }],
   }),
-  component: HREmployeesRouteComponent,
+  component: CFOVendorsRouteComponent,
 });
 
-function HREmployeesRouteComponent() {
+function CFOVendorsRouteComponent() {
   const { user, loading } = useAuth();
 
   if (loading) {
     return (
       <SpotliteLoader
-        message="Loading employee directory…"
+        message="Loading vendor directory…"
         subMessage="SpotLite Executive Intelligence"
       />
     );
@@ -39,16 +39,17 @@ function HREmployeesRouteComponent() {
 
   if (!user) return null;
 
-  const authorized = isHR(user.role);
+  const authorized = isCFO(user.role);
   if (!authorized) {
     return (
       <AccessRestrictedScreen
         title="Access Restricted"
-        description="Employee Directory is strictly restricted to Human Resources (HR) personnel."
+        description="CFO Operations is strictly restricted to Chief Financial Officers (CFO)."
         currentRole={user.role}
       />
     );
   }
 
-  return <EmployeeDirectoryPage />;
+  return <VendorDirectoryPage />;
 }
+

@@ -3,21 +3,21 @@ import { useNavigate } from "@tanstack/react-router";
 import { ArrowLeft } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAppDispatch, useAppSelector } from "@/shared/store";
-import { setVendorStep, resetVendor } from "@/shared/store/slices/hrSlice";
+import { setVendorStep, resetVendor } from "@/shared/store/slices/cfoSlice";
 import { VendorUploadDropzone } from "./VendorUploadDropzone";
 import { VendorPreviewStep } from "./VendorPreviewStep";
 
 export function VendorUploadPage() {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const step = useAppSelector((state) => state.hr.vendor.step);
+  const step = useAppSelector((state) => state.cfo.vendor.step);
 
   const handleBack = () => {
     if (step === "preview") {
       dispatch(setVendorStep("upload"));
     } else {
       dispatch(resetVendor());
-      navigate({ to: "/hr" });
+      navigate({ to: "/cfo" });
     }
   };
 

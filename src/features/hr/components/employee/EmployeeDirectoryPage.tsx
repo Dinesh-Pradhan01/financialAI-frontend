@@ -28,9 +28,9 @@ import {
   DialogTitle,
 } from "@/shared/components/ui/dialog";
 import { useEmployeeDirectory } from "../../hooks/useEmployeeDirectory";
-import { DirectoryToolbar } from "../shared/DirectoryToolbar";
-import { StatusBadge } from "../shared/StatusBadge";
-import { exportToExcel, ExportColumn } from "../shared/exportUtils";
+import { DirectoryToolbar } from "@/shared/components/data-table/DirectoryToolbar";
+import { StatusBadge } from "@/shared/components/data-table/StatusBadge";
+import { exportToExcel, ExportColumn } from "@/shared/components/data-table/exportUtils";
 import { cn } from "@/shared/lib/utils";
 import type { EmployeeRecord } from "../../types/employee";
 
@@ -69,6 +69,25 @@ const EXPORT_COLUMNS: ExportColumn[] = [
   { header: "IFSC Code", key: "ifsc_code", width: 16 },
   { header: "Payment Mode", key: "payment_mode", width: 16 },
 ];
+
+function formatDateOnly(val: unknown): string {
+  if (!val) return "";
+  if (typeof val === "string") {
+    const trimmed = val.trim();
+    if (!trimmed) return "";
+    if (trimmed.includes(" ")) {
+      return trimmed.split(" ")[0];
+    }
+    if (trimmed.includes("T")) {
+      return trimmed.split("T")[0];
+    }
+    return trimmed;
+  }
+  if (val instanceof Date && !isNaN(val.getTime())) {
+    return val.toISOString().split("T")[0];
+  }
+  return String(val);
+}
 
 export function EmployeeDirectoryPage() {
   // Read search params if TanStack router supports it
@@ -184,7 +203,7 @@ export function EmployeeDirectoryPage() {
         ...emp,
         employee_id: emp.employee_id || emp.employeeId,
         employee_name: emp.employee_name || emp.employeeName,
-        joining_date: emp.joining_date || emp.joiningDate,
+        joining_date: formatDateOnly(emp.joining_date || emp.joiningDate),
         employment_type: emp.employment_type || emp.employmentType,
         payment_mode: emp.payment_mode || emp.paymentMode,
         account_number: emp.account_number || emp.accountNumber,
@@ -196,6 +215,7 @@ export function EmployeeDirectoryPage() {
         filename: `Employee_Directory_${new Date().toISOString().split("T")[0]}`,
         title: "Spotlite Employee Directory Master",
         sheetName: "Employees",
+        creator: "Spotlite HR Operations",
         columns: EXPORT_COLUMNS,
         data: dataToExport,
       });
@@ -410,7 +430,7 @@ export function EmployeeDirectoryPage() {
                   const displayType = emp.employment_type ?? emp.employmentType ?? "Full Time";
                   const displaySalary = emp.salary ?? "";
                   const displayPaymentMode = emp.payment_mode ?? emp.paymentMode ?? "";
-                  const displayJoiningDate = emp.joining_date ?? emp.joiningDate ?? "";
+                  const displayJoiningDate = formatDateOnly(emp.joining_date ?? emp.joiningDate);
 
                   return (
                     <tr

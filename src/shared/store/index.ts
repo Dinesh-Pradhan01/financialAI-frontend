@@ -16,6 +16,7 @@ import notificationsReducer from "./slices/notificationsSlice";
 import coachReducer from "./slices/coachSlice";
 import tourReducer from "./slices/tourSlice";
 import hrReducer from "./slices/hrSlice";
+import cfoReducer from "./slices/cfoSlice";
 
 const createSessionStorage = () => {
   if (typeof window === "undefined") {
@@ -80,6 +81,49 @@ const hrPersistConfig = {
   storage: hrStorage,
 };
 
+const cfoStorage =
+  typeof window !== "undefined"
+    ? {
+        async getItem(key: string) {
+          const value = await localforage.getItem<string>(key);
+          if (value) return value;
+          // Migration fallback: do not drop persisted vendor drafts users may have in progress under hr
+          try {
+            const hrRaw = await localforage.getItem<any>("hr");
+            if (hrRaw) {
+              const parsed = typeof hrRaw === "string" ? JSON.parse(hrRaw) : hrRaw;
+              const vendorPart = parsed?.vendor
+                ? typeof parsed.vendor === "string"
+                  ? JSON.parse(parsed.vendor)
+                  : parsed.vendor
+                : null;
+              if (vendorPart && (vendorPart.backendPreview || vendorPart.step === "preview")) {
+                return JSON.stringify({
+                  vendor: vendorPart,
+                  _persist: { version: 1, rehydrated: true },
+                });
+              }
+            }
+          } catch {
+            // Ignore error
+          }
+          return null;
+        },
+        setItem: (key: string, value: any) => localforage.setItem(key, value),
+        removeItem: (key: string) => localforage.removeItem(key),
+      }
+    : {
+        getItem: (_key: string) => Promise.resolve(null),
+        setItem: (_key: string, _value: any) => Promise.resolve(),
+        removeItem: (_key: string) => Promise.resolve(),
+      };
+
+const cfoPersistConfig = {
+  key: "cfo",
+  version: 1,
+  storage: cfoStorage,
+};
+
 const rootReducer = combineReducers({
   spotlights: spotlightsReducer,
   preferences: preferencesReducer,
@@ -87,6 +131,7 @@ const rootReducer = combineReducers({
   coach: coachReducer,
   tour: tourReducer,
   hr: persistReducer(hrPersistConfig, hrReducer),
+  cfo: persistReducer(cfoPersistConfig, cfoReducer),
 });
 
 const persistConfig = {

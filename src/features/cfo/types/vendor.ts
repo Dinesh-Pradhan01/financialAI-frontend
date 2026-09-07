@@ -80,6 +80,5 @@ export interface VendorPreviewResponse {
   };
 }
 
-// VendorFilters lives in shared/types/hr.ts (so Redux slice can import it
-// without a shared→features circular dependency). Re-export here for convenience.
-export type { VendorFilters } from "@/shared/types/hr";
+// VendorFilters lives in shared/types/cfo.ts (and re-exported in shared/types/hr.ts)
+export type { VendorFilters } from "@/shared/types/cfo";

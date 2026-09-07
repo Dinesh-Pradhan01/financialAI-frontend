@@ -4,8 +4,8 @@ import {
   setVendorFocusedRow,
   updateVendorField,
   addVendorRow,
-} from "@/shared/store/slices/hrSlice";
-import { DynamicPreviewTable } from "../shared/DynamicPreviewTable";
+} from "@/shared/store/slices/cfoSlice";
+import { DynamicPreviewTable } from "@/shared/components/data-table/DynamicPreviewTable";
 import type { VendorRecord } from "../../types/vendor";
 
 export function VendorPreviewTable({
@@ -22,8 +22,8 @@ export function VendorPreviewTable({
   readOnly?: boolean;
 }) {
   const dispatch = useAppDispatch();
-  const focusedRowId = useAppSelector((state) => state.hr.vendor.focusedRowId);
-  const reduxSchemaDef = useAppSelector((state) => state.hr.vendor.backendPreview?.schema_def);
+  const focusedRowId = useAppSelector((state) => state.cfo.vendor.focusedRowId);
+  const reduxSchemaDef = useAppSelector((state) => state.cfo.vendor.backendPreview?.schema_def);
   const schemaDef = propSchemaDef || reduxSchemaDef;
 
   const handleClearFocusedRow = useCallback(() => {
@@ -58,5 +58,5 @@ export function VendorPreviewTable({
   );
 }
 
-export { validateDynamicField, formatHeaderName } from "../shared/previewTableUtils";
-export { EditableCell } from "../shared/EditableCell";
+export { validateDynamicField, formatHeaderName } from "@/shared/components/data-table/previewTableUtils";
+export { EditableCell } from "@/shared/components/data-table/EditableCell";

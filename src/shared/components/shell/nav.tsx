@@ -15,6 +15,7 @@ import {
   BriefcaseBusiness,
   PanelLeftClose,
   PanelLeftOpen,
+  Landmark,
 } from "lucide-react";
 import {
   Tooltip,
@@ -28,7 +29,7 @@ import { selectHighPriorityCount, selectLanguage } from "@/shared/store/selector
 import { languages } from "@/shared/data/agentic";
 import { useAuth } from "@/shared/contexts/AuthContext";
 import { useLogout } from "@/shared/hooks/useLogout";
-import { isCeoOrAdmin, isHR } from "@/shared/lib/roles";
+import { isCeoOrAdmin, isHR, isCFO } from "@/shared/lib/roles";
 
 const items = [
   { to: "/home", label: "Business 360", icon: Home },
@@ -50,7 +51,10 @@ export function BottomTabBar() {
   const highPriorityCount = useAppSelector(selectHighPriorityCount);
   const { user } = useAuth();
   const isHrUser = isHR(user?.role);
+  const isCfoUser = isCFO(user?.role);
   const visibleItems = isHrUser
+    ? items.filter((it) => it.to !== "/profile" && it.to !== "/spending")
+    : isCfoUser
     ? items.filter((it) => it.to !== "/profile")
     : items;
 
@@ -59,7 +63,7 @@ export function BottomTabBar() {
       <ul
         className="grid"
         style={{
-          gridTemplateColumns: `repeat(${visibleItems.length + (isHrUser ? 1 : 0)}, minmax(0, 1fr))`,
+          gridTemplateColumns: `repeat(${visibleItems.length + (isHrUser ? 1 : 0) + (isCfoUser ? 1 : 0)}, minmax(0, 1fr))`,
         }}
       >
         {visibleItems.map((it) => {
@@ -104,6 +108,22 @@ export function BottomTabBar() {
             </Link>
           </li>
         )}
+        {isCfoUser && (
+          <li>
+            <Link
+              to="/cfo"
+              className={cn(
+                "flex flex-col items-center gap-0.5 py-2 text-[11px] font-medium",
+                isActive("/cfo") ? "text-brand" : "text-text-secondary",
+              )}
+            >
+              <span className="relative">
+                <Landmark className={cn("h-5 w-5", isActive("/cfo") && "stroke-[2.4]")} />
+              </span>
+              CFO Ops
+            </Link>
+          </li>
+        )}
       </ul>
       <div className="h-[env(safe-area-inset-bottom)]" />
     </nav>
@@ -119,7 +139,10 @@ export function DesktopSidebar() {
   const { handleLogout, loggingOut } = useLogout();
   const canManageTeam = isCeoOrAdmin(user?.role);
   const isHrUser = isHR(user?.role);
+  const isCfoUser = isCFO(user?.role);
   const visibleItems = isHrUser
+    ? items.filter((it) => it.to !== "/profile" && it.to !== "/spending")
+    : isCfoUser
     ? items.filter((it) => it.to !== "/profile")
     : items;
 
@@ -248,6 +271,25 @@ export function DesktopSidebar() {
               >
                 <BriefcaseBusiness className="h-4 w-4 shrink-0" />
                 {!isCollapsed && <span>HR Ops</span>}
+              </Link>
+            </li>
+          )}
+
+          {isCFO(user?.role) && (
+            <li>
+              <Link
+                to="/cfo"
+                title={isCollapsed ? "CFO Ops" : undefined}
+                className={cn(
+                  "flex items-center rounded-lg py-2 text-sm font-medium transition-all duration-200",
+                  isCollapsed ? "justify-center px-0" : "px-3 gap-3",
+                  isActive("/cfo")
+                    ? "bg-brand text-on-brand shadow-e1"
+                    : "text-text-secondary hover:bg-surface-alt",
+                )}
+              >
+                <Landmark className="h-4 w-4 shrink-0" />
+                {!isCollapsed && <span>CFO Ops</span>}
               </Link>
             </li>
           )}

@@ -1,24 +1,24 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { VendorUploadPage } from "@/features/cfo/components/vendor/VendorUploadPage";
 import { useAuth } from "@/shared/contexts/AuthContext";
-import { isHR } from "@/shared/lib/roles";
+import { isCFO } from "@/shared/lib/roles";
 import { SpotliteLoader } from "@/shared/components/ui/SpotliteLoader";
 import { AccessRestrictedScreen } from "@/shared/components/ui/AccessRestrictedScreen";
+import { CFODashboardPage } from "@/features/cfo/components/CFODashboardPage";
 
-export const Route = createFileRoute("/_app/(hr)/hr_/vendor/upload")({
+export const Route = createFileRoute("/_app/(cfo)/cfo")({
   head: () => ({
-    meta: [{ title: "Upload Vendors · HR · Spotlite" }],
+    meta: [{ title: "CFO Operations Center · Spotlite" }],
   }),
-  component: HRVendorUploadRouteComponent,
+  component: CFORouteComponent,
 });
 
-function HRVendorUploadRouteComponent() {
+function CFORouteComponent() {
   const { user, loading } = useAuth();
 
   if (loading) {
     return (
       <SpotliteLoader
-        message="Loading vendor upload…"
+        message="Loading CFO workspace…"
         subMessage="SpotLite Executive Intelligence"
       />
     );
@@ -26,17 +26,17 @@ function HRVendorUploadRouteComponent() {
 
   if (!user) return null;
 
-  const authorized = isHR(user.role);
+  const authorized = isCFO(user.role);
   if (!authorized) {
     return (
       <AccessRestrictedScreen
         title="Access Restricted"
-        description="Vendor Upload is strictly restricted to Human Resources (HR) personnel."
+        description="CFO Operations is strictly restricted to Chief Financial Officers (CFO)."
         currentRole={user.role}
       />
     );
   }
 
-  return <VendorUploadPage />;
+  return <CFODashboardPage />;
 }
 

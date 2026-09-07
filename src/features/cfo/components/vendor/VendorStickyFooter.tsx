@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { useAppDispatch } from "@/shared/store";
-import { resetVendor, setVendorPreview } from "@/shared/store/slices/hrSlice";
+import { resetVendor, setVendorPreview } from "@/shared/store/slices/cfoSlice";
 import { useVendorImport } from "../../hooks/useVendor";
 import { vendorApi } from "../../api/vendorApi";
-import { CheckCircle2, Loader2, Undo2 } from "lucide-react";
+import { CheckCircle2, Loader2 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/shared/components/ui/dialog";
 import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
@@ -27,18 +27,18 @@ export function VendorStickyFooter({
 
   const handleCancel = () => {
     dispatch(resetVendor());
-    navigate({ to: "/hr" });
+    navigate({ to: "/cfo" });
   };
 
   const handleImport = async () => {
     if (!backendPreview || !backendPreview.records) return;
-    
+
     try {
       setIsRevalidating(true);
       const res = await vendorApi.previewManual(backendPreview.records);
       const resData = res.data;
       const data = resData?.data || resData;
-      
+
       const rawRecords = Array.isArray(data.records) ? data.records : [];
       const records = rawRecords.map((r: any) => ({
         ...r,
@@ -47,17 +47,25 @@ export function VendorStickyFooter({
         contractId: r.contractId || r.contract_id || "",
         status: r.status || "Active",
       }));
-      
+
       const rawSummary = data.summary || data.validation;
       const summary = {
-        validVendors: typeof rawSummary?.validVendors === "number" ? rawSummary.validVendors : typeof rawSummary?.validRecords === "number" ? rawSummary.validRecords : records.length,
+        validVendors:
+          typeof rawSummary?.validVendors === "number"
+            ? rawSummary.validVendors
+            : typeof rawSummary?.validRecords === "number"
+              ? rawSummary.validRecords
+              : records.length,
         warnings: typeof rawSummary?.warnings === "number" ? rawSummary.warnings : 0,
         errors: typeof rawSummary?.errors === "number" ? rawSummary.errors : 0,
         issues: Array.isArray(rawSummary?.issues) ? rawSummary.issues : [],
         errorRowIds: Array.isArray(rawSummary?.errorRowIds) ? rawSummary.errorRowIds : [],
         warningRowIds: Array.isArray(rawSummary?.warningRowIds) ? rawSummary.warningRowIds : [],
         duplicateIds: typeof rawSummary?.duplicateIds === "number" ? rawSummary.duplicateIds : 0,
-        missingRequiredFields: typeof rawSummary?.missingRequiredFields === "number" ? rawSummary.missingRequiredFields : 0,
+        missingRequiredFields:
+          typeof rawSummary?.missingRequiredFields === "number"
+            ? rawSummary.missingRequiredFields
+            : 0,
       };
 
       const freshPreview = {
@@ -66,11 +74,13 @@ export function VendorStickyFooter({
         summary,
         validation: summary,
       };
-      
+
       dispatch(setVendorPreview(freshPreview));
-      
+
       if (freshPreview.summary.errors > 0) {
-        toast.error(`Found ${freshPreview.summary.errors} errors during validation. Please fix them.`);
+        toast.error(
+          `Found ${freshPreview.summary.errors} errors during validation. Please fix them.`,
+        );
         setIsRevalidating(false);
         return;
       }
