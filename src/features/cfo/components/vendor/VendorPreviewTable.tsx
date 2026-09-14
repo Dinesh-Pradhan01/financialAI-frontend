@@ -1,11 +1,15 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useMemo } from "react";
 import { useAppSelector, useAppDispatch } from "@/shared/store";
 import {
   setVendorFocusedRow,
   updateVendorField,
   addVendorRow,
 } from "@/shared/store/slices/cfoSlice";
-import { DynamicPreviewTable } from "@/shared/components/data-table/DynamicPreviewTable";
+import {
+  DynamicPreviewTable,
+  type CustomTableColumn,
+} from "@/shared/components/data-table/DynamicPreviewTable";
+import { ContractUploadCell } from "../agreement/ContractUploadCell";
 import type { VendorRecord } from "../../types/vendor";
 
 export function VendorPreviewTable({
@@ -23,7 +27,9 @@ export function VendorPreviewTable({
 }) {
   const dispatch = useAppDispatch();
   const focusedRowId = useAppSelector((state) => state.cfo.vendor.focusedRowId);
-  const reduxSchemaDef = useAppSelector((state) => state.cfo.vendor.backendPreview?.schema_def);
+  const backendPreview = useAppSelector((state) => state.cfo.vendor.backendPreview);
+  const uploadId = backendPreview?.upload_id;
+  const reduxSchemaDef = backendPreview?.schema_def;
   const schemaDef = propSchemaDef || reduxSchemaDef;
 
   const handleClearFocusedRow = useCallback(() => {
@@ -41,6 +47,27 @@ export function VendorPreviewTable({
     dispatch(addVendorRow());
   }, [dispatch]);
 
+  const customColumns = useMemo<CustomTableColumn<VendorRecord>[]>(
+    () => [
+      {
+        id: "contract_agreement",
+        header: "Contract Agreement",
+        width: "240px",
+        position: "end",
+        renderCell: (record, rowId) => (
+          <ContractUploadCell
+            entityType="vendor"
+            uploadId={uploadId}
+            rowId={rowId}
+            record={record}
+            readOnly={readOnly}
+          />
+        ),
+      },
+    ],
+    [uploadId, readOnly],
+  );
+
   return (
     <DynamicPreviewTable
       records={vendors}
@@ -54,6 +81,7 @@ export function VendorPreviewTable({
       emptyMessage="No vendors match the current filters."
       addRowLabel="Add Row"
       readOnly={readOnly}
+      customColumns={customColumns}
     />
   );
 }

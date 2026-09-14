@@ -21,7 +21,8 @@ export function validateDynamicField(fieldConfig: any, value: string): string | 
   }
 
   if (fieldConfig.type === "number") {
-    const num = Number(value);
+    const cleaned = String(value).replace(/[$₹€£,\s]/g, "");
+    const num = Number(cleaned);
     if (isNaN(num)) return "Must be a number";
     if (fieldConfig.min !== undefined && num < fieldConfig.min) return `Min ${fieldConfig.min}`;
     if (fieldConfig.max !== undefined && num > fieldConfig.max) return `Max ${fieldConfig.max}`;

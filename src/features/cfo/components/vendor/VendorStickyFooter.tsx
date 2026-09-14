@@ -46,6 +46,8 @@ export function VendorStickyFooter({
         vendorName: r.vendorName || r.vendor_name || "",
         contractId: r.contractId || r.contract_id || "",
         status: r.status || "Active",
+        monthlyCost: r.monthlyCost ?? r.monthly_cost ?? "",
+        monthly_cost: r.monthly_cost ?? r.monthlyCost ?? "",
       }));
 
       const rawSummary = data.summary || data.validation;

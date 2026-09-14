@@ -1,27 +1,39 @@
 import React, { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/shared/components/ui/dialog";
-import { hrApi } from "@/shared/lib/hrAxios";
+import { cfoApi } from "@/shared/lib/cfoAxios";
 import { VendorPreviewTable } from "./vendor/VendorPreviewTable";
+import { ClientPreviewTable } from "./client/ClientPreviewTable";
 import type { VendorRecord } from "../types/vendor";
+import type { ClientRecord } from "../types/client";
 
 interface CFOUploadPreviewModalProps {
   uploadId: string | null;
+  uploadType?: "Vendor" | "Client";
   onClose: () => void;
 }
 
-export function CFOUploadPreviewModal({ uploadId, onClose }: CFOUploadPreviewModalProps) {
+export function CFOUploadPreviewModal({
+  uploadId,
+  uploadType = "Vendor",
+  onClose,
+}: CFOUploadPreviewModalProps) {
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState<{
-    records: VendorRecord[];
+    records: any[];
     schema_def?: any;
   } | null>(null);
 
   useEffect(() => {
     if (uploadId) {
       setLoading(true);
-      hrApi
-        .get(`/dashboard/history/${uploadId}/preview`)
+      const endpoint =
+        uploadType === "Client"
+          ? `/clients/dashboard/history/${uploadId}/preview`
+          : `/dashboard/history/${uploadId}/preview`;
+
+      cfoApi
+        .get(endpoint)
         .then((res: unknown) => {
           const rawPayload =
             (res as { data?: { data?: unknown } })?.data?.data ??
@@ -71,7 +83,7 @@ export function CFOUploadPreviewModal({ uploadId, onClose }: CFOUploadPreviewMod
       <DialogContent className="max-w-[85vw] w-full p-6 h-[85vh] flex flex-col">
         <DialogHeader>
           <DialogTitle className="font-display text-lg font-bold tracking-tight text-foreground">
-            Vendor Upload Preview
+            {uploadType === "Client" ? "Client Upload Preview" : "Vendor Upload Preview"}
           </DialogTitle>
         </DialogHeader>
 
@@ -82,13 +94,23 @@ export function CFOUploadPreviewModal({ uploadId, onClose }: CFOUploadPreviewMod
               <p className="text-xs font-medium text-text-secondary">Loading historical records...</p>
             </div>
           ) : data?.records?.length ? (
-            <VendorPreviewTable
-              vendors={data.records}
-              errorRowIds={emptySet}
-              warningRowIds={emptySet}
-              schemaDef={data.schema_def}
-              readOnly={true}
-            />
+            uploadType === "Client" ? (
+              <ClientPreviewTable
+                clients={data.records}
+                errorRowIds={emptySet}
+                warningRowIds={emptySet}
+                schemaDef={data.schema_def}
+                readOnly={true}
+              />
+            ) : (
+              <VendorPreviewTable
+                vendors={data.records}
+                errorRowIds={emptySet}
+                warningRowIds={emptySet}
+                schemaDef={data.schema_def}
+                readOnly={true}
+              />
+            )
           ) : (
             <div className="text-center py-20 text-text-tertiary flex items-center justify-center h-full text-xs font-medium">
               No records found for this upload.

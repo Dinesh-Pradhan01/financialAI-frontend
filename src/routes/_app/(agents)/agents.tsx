@@ -1,5 +1,4 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo } from "react";
 import {
   ArrowLeft,
   FileSearch,
@@ -10,17 +9,10 @@ import {
   Tags,
   Database,
   ArrowRight,
-  CheckCircle2,
-  Loader2,
-  Clock,
-  AlertCircle,
 } from "lucide-react";
 import { agents } from "@/shared/data/agentic";
 import { AgentLoop } from "@/features/agents/components/agent-activity";
 import { AgentNarration } from "@/features/agents/components/agent-narration";
-import { useStatements } from "@/shared/hooks/useStatements";
-import { cn } from "@/shared/lib/utils";
-import type { DocumentInfo } from "@/shared/types/documents";
 
 export const Route = createFileRoute("/_app/(agents)/agents")({
   head: () => ({
@@ -89,9 +81,6 @@ const pipelineSteps = [
 // ---------------------------------------------------------------------------
 
 function Agents() {
-  const { data: documents = [], isLoading } = useStatements();
-  const recentDocs = useMemo(() => documents.slice(0, 10), [documents]);
-
   return (
     <div className="px-5 py-6 md:px-10">
       <Link to="/home" className="flex items-center gap-2 text-sm text-text-secondary">
@@ -180,61 +169,21 @@ function Agents() {
         </div>
       </section>
 
-      {/* Real recent activity from backend */}
-      <section className="card-spot mt-6 p-5">
-        <h2 className="mb-4 font-display text-lg font-semibold">Recent extraction activity</h2>
-        {isLoading ? (
-          <div className="flex items-center justify-center py-8 text-sm text-text-secondary gap-2">
-            <Loader2 className="h-4 w-4 animate-spin text-brand" />
-            <span>Loading extraction activity...</span>
-          </div>
-        ) : recentDocs.length === 0 ? (
-          <div className="py-8 text-center">
-            <FileSearch className="mx-auto h-8 w-8 text-text-secondary/40" />
-            <p className="mt-3 text-sm text-text-secondary">
-              No extraction activity yet. Upload a statement to see it here.
-            </p>
-          </div>
-        ) : (
-          <ul className="space-y-2">
-            {recentDocs.map((doc) => {
-              const statusMap = {
-                PENDING: { icon: Clock, color: "text-text-secondary", label: "Pending" },
-                PROCESSING: { icon: Loader2, color: "text-brand", label: "Processing" },
-                COMPLETED: { icon: CheckCircle2, color: "text-success", label: "Extracted" },
-                FAILED: { icon: AlertCircle, color: "text-danger", label: "Failed" },
-              };
-              const st = statusMap[doc.status];
-              const StIcon = st.icon;
-              const isSpinning = doc.status === "PROCESSING" || doc.status === "PENDING";
-              const time = new Date(doc.created_at).toLocaleString("en-IN", {
-                month: "short",
-                day: "numeric",
-                hour: "2-digit",
-                minute: "2-digit",
-              });
-
-              return (
-                <li
-                  key={doc.id}
-                  className="flex items-center gap-3 rounded-xl bg-surface-alt px-3 py-2.5"
-                >
-                  <StIcon
-                    className={cn("h-4 w-4 shrink-0", st.color, isSpinning && "animate-spin")}
-                  />
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium">{doc.original_name}</p>
-                    <p className="text-[11px] text-text-secondary">
-                      <span className={cn("font-medium", st.color)}>{st.label}</span>
-                      {" · Extraction Agent · "}
-                      {time}
-                    </p>
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
-        )}
+      {/* Link to authoritative Document Extraction Hub */}
+      <section className="card-spot mt-6 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h2 className="font-display text-base font-semibold">Document Extraction Hub</h2>
+          <p className="mt-1 text-sm text-text-secondary">
+            View live processing status, statement audit trails, and document history in the extraction workspace.
+          </p>
+        </div>
+        <Link
+          to="/upload"
+          className="inline-flex items-center gap-1.5 rounded-xl bg-brand px-4 py-2 text-sm font-semibold text-on-brand shadow-e1 transition hover:opacity-90 shrink-0"
+        >
+          <span>Open Extraction Hub</span>
+          <ArrowRight className="h-4 w-4" />
+        </Link>
       </section>
     </div>
   );

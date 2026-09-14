@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 import { VendorUploadPage } from "@/features/cfo/components/vendor/VendorUploadPage";
 import { useAuth } from "@/shared/contexts/AuthContext";
 import { isHR } from "@/shared/lib/roles";
@@ -6,6 +6,11 @@ import { SpotliteLoader } from "@/shared/components/ui/SpotliteLoader";
 import { AccessRestrictedScreen } from "@/shared/components/ui/AccessRestrictedScreen";
 
 export const Route = createFileRoute("/_app/(hr)/hr_/vendor/upload")({
+  beforeLoad: () => {
+    throw redirect({
+      to: "/cfo/vendor/upload",
+    });
+  },
   head: () => ({
     meta: [{ title: "Upload Vendors · HR · Spotlite" }],
   }),

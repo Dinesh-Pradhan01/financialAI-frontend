@@ -27,13 +27,11 @@ export function useVendorManualPreview() {
 export function useVendorImport() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (previewData: VendorPreviewResponse | unknown) =>
+    mutationFn: (previewData: VendorPreviewResponse) =>
       vendorApi.importVendors(previewData),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["cfo", "dashboard"] });
       queryClient.invalidateQueries({ queryKey: ["cfo", "vendors"] });
-      queryClient.invalidateQueries({ queryKey: ["hr", "dashboard"] });
-      queryClient.invalidateQueries({ queryKey: ["hr", "vendors"] });
     },
   });
 }

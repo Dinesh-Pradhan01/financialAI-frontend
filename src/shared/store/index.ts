@@ -120,8 +120,19 @@ const cfoStorage =
 
 const cfoPersistConfig = {
   key: "cfo",
-  version: 1,
+  version: 2,
   storage: cfoStorage,
+  migrate: (state: any) => {
+    if (state) {
+      if (state.vendor && !state.vendor.agreements) {
+        state.vendor.agreements = {};
+      }
+      if (state.client && !state.client.agreements) {
+        state.client.agreements = {};
+      }
+    }
+    return Promise.resolve(state);
+  },
 };
 
 const rootReducer = combineReducers({

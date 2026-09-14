@@ -33,7 +33,15 @@ export function DonutChart({
 
   return (
     <div className={cn("relative shrink-0", className)} style={{ width: size, height: size }}>
-      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="-rotate-90">
+      <svg
+        width={size}
+        height={size}
+        viewBox={`0 0 ${size} ${size}`}
+        className="-rotate-90"
+        role="img"
+        aria-label="Spending distribution by category"
+      >
+        <title>Spending distribution by category</title>
         <circle
           cx={half}
           cy={half}
@@ -41,6 +49,7 @@ export function DonutChart({
           stroke={trackColor}
           strokeWidth={strokeWidth}
           fill="none"
+          aria-hidden="true"
         />
         {segments.map((seg, i) => {
           const portion = total > 0 ? Math.max(0, seg.value) / total : 0;
@@ -60,12 +69,16 @@ export function DonutChart({
               strokeDasharray={`${dash} ${circumference - dash}`}
               strokeDashoffset={offset}
               strokeLinecap="butt"
+              aria-label={`${seg.label}: ${seg.value}`}
             />
           );
         })}
       </svg>
       {centerLabel && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none">
+        <div
+          className="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none"
+          aria-hidden="true"
+        >
           {centerLabel}
         </div>
       )}

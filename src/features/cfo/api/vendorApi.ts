@@ -1,5 +1,4 @@
-// Base URL still points to /hr for backend-compatibility reasons pending a future backend change.
-import { hrApi } from "@/shared/lib/hrAxios";
+import { cfoApi } from "@/shared/lib/cfoAxios";
 import type { AxiosProgressEvent } from "axios";
 import type { VendorRecord, VendorPreviewResponse } from "../types/vendor";
 
@@ -46,6 +45,10 @@ function sanitizeVendorRecord(r: any) {
   // 3. Numeric fields
   const numFields = [
     "contract_value",
+    "contractValue",
+    "monthly_cost",
+    "monthlyCost",
+    "cost",
     "base_cost",
     "support_cost",
     "maintenance_cost",
@@ -59,13 +62,42 @@ function sanitizeVendorRecord(r: any) {
   for (const field of numFields) {
     if (clean[field] !== undefined && clean[field] !== null) {
       if (typeof clean[field] === "string") {
-        const trimmed = clean[field].trim();
-        clean[field] = trimmed === "" ? null : Number.isNaN(Number(trimmed)) ? null : Number(trimmed);
+        const cleaned = clean[field].replace(/[$₹€£,\s]/g, "").trim();
+        clean[field] = cleaned === "" ? null : Number.isNaN(Number(cleaned)) ? null : Number(cleaned);
       }
     }
   }
 
-  // 4. Ensure contract_id is set
+  // 4. Sync and auto-calculate monthly cost
+  const monthlyVal = clean.monthly_cost ?? clean.monthlyCost ?? clean.cost;
+  const contractVal = clean.contract_value ?? clean.contractValue;
+  const contractTypeStr = String(clean.contract_type || clean.contractType || "").toLowerCase();
+  const frequencyStr = String(clean.frequency || "").toLowerCase();
+  const isSubscription =
+    contractTypeStr.includes("sub") ||
+    frequencyStr.includes("sub") ||
+    clean.recurring === true ||
+    String(clean.recurring || "").toLowerCase() === "true" ||
+    String(clean.recurring || "").toLowerCase() === "yes";
+
+  if ((monthlyVal == null || monthlyVal === 0 || Number.isNaN(monthlyVal)) && isSubscription && contractVal > 0) {
+    const autoMonthly = Math.round((Number(contractVal) / 12) * 100) / 100;
+    clean.monthly_cost = autoMonthly;
+    clean.monthlyCost = autoMonthly;
+    clean.cost = autoMonthly;
+  } else if (monthlyVal != null) {
+    clean.monthly_cost = monthlyVal;
+    clean.monthlyCost = monthlyVal;
+  }
+
+  if (clean.contract_value != null && clean.contractValue == null) {
+    clean.contractValue = clean.contract_value;
+  }
+  if (clean.contractValue != null && clean.contract_value == null) {
+    clean.contract_value = clean.contractValue;
+  }
+
+  // 5. Ensure contract_id is set
   if (!clean.contract_id && clean.contractId) {
     clean.contract_id = clean.contractId;
   }
@@ -94,7 +126,7 @@ export const vendorApi = {
   uploadExcel: (file: File, onUploadProgress?: (progressEvent: AxiosProgressEvent) => void) => {
     const formData = new FormData();
     formData.append("file", file);
-    return hrApi.post("/vendors/upload", formData, {
+    return cfoApi.post("/vendors/upload", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
@@ -103,11 +135,11 @@ export const vendorApi = {
   },
 
   previewManual: (data: VendorRecord[]) => {
-    return hrApi.post("/vendors/manual", sanitizeVendorPayload(data));
+    return cfoApi.post("/vendors/manual", sanitizeVendorPayload(data));
   },
 
-  importVendors: (previewData: VendorPreviewResponse | unknown) => {
-    return hrApi.post("/vendors/import", sanitizeVendorPayload(previewData));
+  importVendors: (previewData: VendorPreviewResponse ) => {
+    return cfoApi.post("/vendors/import", sanitizeVendorPayload(previewData));
   },
 
   getAll: (params?: {
@@ -130,18 +162,46 @@ export const vendorApi = {
       delete queryParams.page;
       delete queryParams.size;
     }
-    return hrApi.get("/vendors", { params: queryParams });
+    return cfoApi.get("/vendors", { params: queryParams });
   },
 
   getById: (id: string) => {
-    return hrApi.get(`/vendors/${id}`);
+    return cfoApi.get(`/vendors/${id}`);
   },
 
   updateVendor: (id: string, patch: Partial<VendorRecord>) => {
-    return hrApi.put(`/vendors/${id}`, sanitizeVendorRecord(patch));
+    return cfoApi.put(`/vendors/${id}`, sanitizeVendorRecord(patch));
   },
 
   deleteVendor: (id: string) => {
-    return hrApi.delete(`/vendors/${id}`);
+    return cfoApi.delete(`/vendors/${id}`);
+  },
+
+  uploadAgreement: (
+    uploadId: string,
+    rowId: string,
+    file: File,
+    onUploadProgress?: (progressEvent: AxiosProgressEvent) => void,
+  ) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    return cfoApi.post(`/vendors/preview/${uploadId}/row/${rowId}/agreement`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+      onUploadProgress,
+    });
+  },
+
+  extractAgreement: (uploadId: string, rowId: string) => {
+    return cfoApi.post(`/vendors/preview/${uploadId}/row/${rowId}/agreement/extract`);
+  },
+
+  getAgreementExtraction: (uploadId: string, rowId: string) => {
+    return cfoApi.get(`/vendors/preview/${uploadId}/row/${rowId}/agreement/extraction`);
+  },
+
+  getAgreementFileUrl: (uploadId: string, rowId: string) => {
+    return `/api/v1/cfo/vendors/preview/${uploadId}/row/${rowId}/agreement/file`;
   },
 };

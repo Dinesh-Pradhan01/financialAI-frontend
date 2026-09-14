@@ -14,7 +14,7 @@ export function LandingFooter() {
             </span>
           </div>
           <p className="mt-4 max-w-md text-sm sm:text-base leading-relaxed text-slate-300">
-            The workforce & financial intelligence platform designed for fast-growing companies.
+            The workforce &amp; financial intelligence platform designed for fast-growing companies.
             Automate payroll audits, eliminate ghost payments, and align leadership.
           </p>
           <div className="mt-6 flex items-center gap-2">

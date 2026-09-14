@@ -14,7 +14,7 @@ export const UploadTransactionsCard = () => {
           <div>
             <CardTitle className="text-lg font-bold text-foreground">Upload Transactions</CardTitle>
             <CardDescription className="text-sm text-muted-foreground mt-1">
-              Upload bank statements (PDF, Excel, CSV) to enrich your company's real-time financial
+              Upload PDF bank statements (Excel &amp; CSV support coming soon) to enrich your company&apos;s real-time financial
               intelligence.
             </CardDescription>
           </div>

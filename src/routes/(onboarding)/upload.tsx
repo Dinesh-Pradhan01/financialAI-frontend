@@ -33,30 +33,36 @@ function UploadPage() {
             Loading statement extraction hub…
           </p>
         </div>
-      ) : isError ? (
-        <div className="mt-8 rounded-2xl border border-destructive/20 bg-destructive/5 p-6 text-center">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10 text-destructive">
-            <AlertCircle className="h-6 w-6" />
-          </div>
-          <h3 className="mt-3 text-base font-semibold text-foreground">
-            Failed to load statements
-          </h3>
-          <p className="mt-1 text-sm text-text-secondary">
-            {getApiErrorMessage(
-              error,
-              "An unexpected error occurred while fetching your bank statements.",
-            )}
-          </p>
-          <button
-            onClick={() => refetch()}
-            className="mt-4 inline-flex items-center gap-2 rounded-xl bg-surface px-4 py-2 text-xs font-semibold text-foreground border border-border shadow-xs hover:bg-surface-alt transition cursor-pointer"
-          >
-            <RefreshCw className="h-3.5 w-3.5" />
-            Retry
-          </button>
-        </div>
       ) : (
-        <div className="mt-6">
+        <div className="mt-6 space-y-4">
+          {isError && (
+            <div className="rounded-2xl border border-destructive/20 bg-destructive/5 p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-left">
+              <div className="flex items-center gap-3">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-destructive/10 text-destructive">
+                  <AlertCircle className="h-5 w-5" />
+                </div>
+                <div>
+                  <h4 className="text-xs font-semibold text-foreground">
+                    Notice: Could not sync existing statements list
+                  </h4>
+                  <p className="text-xs text-text-secondary">
+                    {getApiErrorMessage(
+                      error,
+                      "You can still upload new bank statements below while we reconnect.",
+                    )}
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => refetch()}
+                className="inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-surface px-3 py-1.5 text-xs font-semibold text-foreground border border-border shadow-xs hover:bg-surface-alt transition cursor-pointer"
+              >
+                <RefreshCw className="h-3 w-3" />
+                Retry Sync
+              </button>
+            </div>
+          )}
+
           <ExtractionHub documents={documents} onDocumentsChange={refetch} />
         </div>
       )}

@@ -4,6 +4,15 @@ import { cn } from "@/shared/lib/utils";
 import { EditableCell } from "./EditableCell";
 import { formatHeaderName, getVisibleFields } from "./previewTableUtils";
 
+export interface CustomTableColumn<T = any> {
+  id: string;
+  header: string;
+  width?: string;
+  className?: string;
+  position?: "start" | "end";
+  renderCell: (record: T, rowId: string, isFocused: boolean) => React.ReactNode;
+}
+
 export interface DynamicPreviewTableProps {
   records: Array<{ rowId: string; [key: string]: any }>;
   errorRowIds: Set<string>;
@@ -16,6 +25,7 @@ export interface DynamicPreviewTableProps {
   emptyMessage?: string;
   addRowLabel?: string;
   readOnly?: boolean;
+  customColumns?: CustomTableColumn[];
 }
 
 export function DynamicPreviewTable({
@@ -30,12 +40,23 @@ export function DynamicPreviewTable({
   emptyMessage = "No records match the current filters.",
   addRowLabel = "Add Row",
   readOnly = false,
+  customColumns,
 }: DynamicPreviewTableProps) {
   const rowRefs = useRef<{ [key: string]: HTMLTableRowElement | null }>({});
 
   const visibleFields = useMemo(() => {
     return getVisibleFields(schemaDef, records);
   }, [schemaDef, records]);
+
+  const startCustomColumns = useMemo(
+    () => (customColumns || []).filter((c) => c.position === "start"),
+    [customColumns],
+  );
+  const endCustomColumns = useMemo(
+    () => (customColumns || []).filter((c) => c.position !== "start"),
+    [customColumns],
+  );
+  const totalColumnCount = visibleFields.length + startCustomColumns.length + endCustomColumns.length;
 
   useEffect(() => {
     if (focusedRowId && rowRefs.current[focusedRowId]) {
@@ -48,7 +69,7 @@ export function DynamicPreviewTable({
     }
   }, [focusedRowId, onClearFocusedRow]);
 
-  if (!visibleFields.length) {
+  if (!visibleFields.length && !customColumns?.length) {
     return (
       <div className="w-full p-8 text-center text-muted-foreground border border-border rounded-xl bg-surface">
         No schema or columns available to display.
@@ -61,10 +82,28 @@ export function DynamicPreviewTable({
       <table className="w-full text-xs text-left border-collapse">
         <thead className="bg-surface-alt/80 text-[11px] font-semibold text-text-secondary border-b border-border sticky top-0 z-10 uppercase tracking-wider">
           <tr>
+            {startCustomColumns.map((col) => (
+              <th
+                key={`head-custom-${col.id}`}
+                className={cn("px-4 py-3 font-semibold whitespace-nowrap", col.className)}
+                style={col.width ? { width: col.width } : undefined}
+              >
+                {col.header}
+              </th>
+            ))}
             {visibleFields.map((field: any, colIdx: number) => (
               <th key={`head-${field.name || colIdx}-${colIdx}`} className="px-4 py-3 font-semibold whitespace-nowrap">
                 {formatHeaderName(field.name)}
                 {field.required && !readOnly && <span className="text-destructive font-bold ml-1">*</span>}
+              </th>
+            ))}
+            {endCustomColumns.map((col) => (
+              <th
+                key={`head-custom-${col.id}`}
+                className={cn("px-4 py-3 font-semibold whitespace-nowrap", col.className)}
+                style={col.width ? { width: col.width } : undefined}
+              >
+                {col.header}
               </th>
             ))}
           </tr>
@@ -94,6 +133,11 @@ export function DynamicPreviewTable({
                     isFocused && "ring-2 ring-inset ring-primary bg-primary/5",
                   )}
                 >
+                  {startCustomColumns.map((col) => (
+                    <td key={`cell-custom-${rowId}-${col.id}`} className="px-3 py-1 whitespace-nowrap">
+                      {col.renderCell(rec, rowId, isFocused)}
+                    </td>
+                  ))}
                   {visibleFields.map((field: any, colIdx: number) => {
                     const camelCaseName = field.name.replace(/_([a-z])/g, (_: string, g: string) => g.toUpperCase());
                     const snakeCaseName = field.name.replace(/[A-Z]/g, (letter: string) => `_${letter.toLowerCase()}`);
@@ -115,12 +159,17 @@ export function DynamicPreviewTable({
                       </td>
                     );
                   })}
+                  {endCustomColumns.map((col) => (
+                    <td key={`cell-custom-${rowId}-${col.id}`} className="px-3 py-1 whitespace-nowrap">
+                      {col.renderCell(rec, rowId, isFocused)}
+                    </td>
+                  ))}
                 </tr>
               );
             })
           ) : (
             <tr>
-              <td colSpan={visibleFields.length} className="px-4 py-8 text-center text-muted-foreground">
+              <td colSpan={totalColumnCount} className="px-4 py-8 text-center text-muted-foreground">
                 {emptyMessage}
               </td>
             </tr>
@@ -129,7 +178,7 @@ export function DynamicPreviewTable({
         {!readOnly && (
           <tfoot className="bg-surface/50 border-t border-border">
             <tr>
-              <td colSpan={visibleFields.length} className="px-4 py-3">
+              <td colSpan={totalColumnCount} className="px-4 py-3">
                 <button
                   onClick={onAddRow}
                   className="inline-flex items-center justify-center text-xs font-semibold text-primary hover:text-primary-hover transition gap-1.5 tracking-tight"

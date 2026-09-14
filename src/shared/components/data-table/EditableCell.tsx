@@ -31,7 +31,11 @@ export function EditableCell({
     const validationError = validateDynamicField(fieldConfig, val);
     setError(validationError);
     if (!validationError && val !== (value || "")) {
-      onUpdate(rowId, fieldConfig.name, val);
+      const sanitizedVal =
+        fieldConfig.type === "number"
+          ? String(val).replace(/[$₹€£,\s]/g, "").trim()
+          : val;
+      onUpdate(rowId, fieldConfig.name, sanitizedVal);
     }
   };
 

@@ -68,46 +68,98 @@ export function VendorUploadDropzone() {
             const resData = res.data;
             const data = resData?.data || resData;
             const rawRecords = Array.isArray(data.records) ? data.records : [];
-            const records = rawRecords.map((r: any) => ({
-              ...r,
-              vendorId: r.vendorId || r.vendor_id || "",
-              vendorName: r.vendorName || r.vendor_name || "",
-              vendor_id: r.vendor_id || r.vendorId || "",
-              vendor_name: r.vendor_name || r.vendorName || "",
-              contractId: r.contractId || r.contract_id || "",
-              contract_id: r.contract_id || r.contractId || "",
-              registrationNumber: r.registrationNumber || r.registration_number || "",
-              taxId: r.taxId || r.tax_id || "",
-              primaryContactName: r.primaryContactName || r.primary_contact_name || "",
-              postalCode: r.postalCode || r.postal_code || "",
-              contractStartDate: r.contractStartDate || r.contract_start_date || "",
-              contractEndDate: r.contractEndDate || r.contract_end_date || "",
-              contractType: r.contractType || r.contract_type || "",
-              paymentTerms: r.paymentTerms || r.payment_terms || "",
-              paymentType: r.paymentType || r.payment_type || "",
-              bankName: r.bankName || r.bank_name || "",
-              accountNumber: r.accountNumber || r.account_number || "",
-              ifscCode: r.ifscCode || r.ifsc_code || "",
-              swiftCode: r.swiftCode || r.swift_code || "",
-              status: r.status || "Active",
-            }));
+            const autoFixedRowIds = new Set<string>();
+            const records = rawRecords.map((r: any, idx: number) => {
+              const contractType = r.contractType || r.contract_type || "";
+              const isSub =
+                String(contractType).toLowerCase().includes("sub") ||
+                String(r.frequency || "").toLowerCase().includes("sub") ||
+                String(r.recurring || "").toLowerCase() === "true" ||
+                String(r.recurring || "").toLowerCase() === "yes" ||
+                String(r.recurring || "") === "1";
+
+              const contractVal = Number(r.contractValue ?? r.contract_value ?? 0);
+              let monthlyCostVal = r.monthlyCost ?? r.monthly_cost ?? r.cost;
+
+              // If monthly cost is missing and it's subscription: contract_value / 12
+              if (
+                (monthlyCostVal === "" ||
+                  monthlyCostVal == null ||
+                  Number(monthlyCostVal) === 0 ||
+                  isNaN(Number(monthlyCostVal))) &&
+                isSub &&
+                contractVal > 0
+              ) {
+                monthlyCostVal = Math.round((contractVal / 12) * 100) / 100;
+                autoFixedRowIds.add(String(r.rowId || `row_${idx + 1}`));
+              }
+
+              return {
+                ...r,
+                vendorId: r.vendorId || r.vendor_id || "",
+                vendorName: r.vendorName || r.vendor_name || "",
+                vendor_id: r.vendor_id || r.vendorId || "",
+                vendor_name: r.vendor_name || r.vendorName || "",
+                contractId: r.contractId || r.contract_id || "",
+                contract_id: r.contract_id || r.contractId || "",
+                registrationNumber: r.registrationNumber || r.registration_number || "",
+                taxId: r.taxId || r.tax_id || "",
+                primaryContactName: r.primaryContactName || r.primary_contact_name || "",
+                postalCode: r.postalCode || r.postal_code || "",
+                contractStartDate: r.contractStartDate || r.contract_start_date || "",
+                contractEndDate: r.contractEndDate || r.contract_end_date || "",
+                contractType,
+                contract_type: contractType,
+                contractValue: contractVal || r.contractValue || r.contract_value || "",
+                contract_value: contractVal || r.contract_value || r.contractValue || "",
+                monthlyCost: monthlyCostVal ?? "",
+                monthly_cost: monthlyCostVal ?? "",
+                cost: monthlyCostVal ?? "",
+                paymentTerms: r.paymentTerms || r.payment_terms || "",
+                paymentType: r.paymentType || r.payment_type || "",
+                bankName: r.bankName || r.bank_name || "",
+                accountNumber: r.accountNumber || r.account_number || "",
+                ifscCode: r.ifscCode || r.ifsc_code || "",
+                swiftCode: r.swiftCode || r.swift_code || "",
+                status: r.status || "Active",
+              };
+            });
+
             const rawSummary = data.summary || data.validation;
+            const rawIssues = Array.isArray(rawSummary?.issues) ? rawSummary.issues : [];
+            const filteredIssues = rawIssues.filter((issue: any) => {
+              if (autoFixedRowIds.has(String(issue.rowId))) {
+                const f = String(issue.field || "").toLowerCase().replace(/_/g, "");
+                if (f.includes("monthly") || f.includes("cost")) return false;
+              }
+              return true;
+            });
+            const remainingErrorRowIds = (
+              Array.isArray(rawSummary?.errorRowIds) ? rawSummary.errorRowIds : []
+            ).filter((rId: string) => {
+              return filteredIssues.some(
+                (issue: any) => String(issue.rowId) === String(rId) && issue.severity === "error",
+              );
+            });
+
             const summary = {
-              validVendors: typeof rawSummary?.validVendors === "number" ? rawSummary.validVendors : typeof rawSummary?.validRecords === "number" ? rawSummary.validRecords : records.length,
-              warnings: typeof rawSummary?.warnings === "number" ? rawSummary.warnings : 0,
-              errors: typeof rawSummary?.errors === "number" ? rawSummary.errors : 0,
-              issues: Array.isArray(rawSummary?.issues) ? rawSummary.issues : [],
-              errorRowIds: Array.isArray(rawSummary?.errorRowIds) ? rawSummary.errorRowIds : [],
+              validVendors: records.length - remainingErrorRowIds.length,
+              warnings: filteredIssues.filter((i: any) => i.severity === "warning").length,
+              errors: filteredIssues.filter((i: any) => i.severity === "error").length,
+              issues: filteredIssues,
+              errorRowIds: remainingErrorRowIds,
               warningRowIds: Array.isArray(rawSummary?.warningRowIds) ? rawSummary.warningRowIds : [],
               duplicateIds: typeof rawSummary?.duplicateIds === "number" ? rawSummary.duplicateIds : 0,
-              missingRequiredFields: typeof rawSummary?.missingRequiredFields === "number" ? rawSummary.missingRequiredFields : 0,
+              missingRequiredFields: remainingErrorRowIds.length,
             };
-            dispatch(setVendorPreview({
-              ...data,
-              records,
-              summary,
-              validation: summary
-            }));
+            dispatch(
+              setVendorPreview({
+                ...data,
+                records,
+                summary,
+                validation: summary,
+              }),
+            );
             
             // Wait briefly for the progress bar to show 100% before transitioning
             setTimeout(() => {

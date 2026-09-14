@@ -75,8 +75,6 @@ export function useVendorDirectory(initialFilters?: VendorDirectoryFilters) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["cfo", "vendors"] });
       queryClient.invalidateQueries({ queryKey: ["cfo", "dashboard"] });
-      queryClient.invalidateQueries({ queryKey: ["hr", "vendors"] });
-      queryClient.invalidateQueries({ queryKey: ["hr", "dashboard"] });
     },
   });
 
@@ -87,8 +85,6 @@ export function useVendorDirectory(initialFilters?: VendorDirectoryFilters) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["cfo", "vendors"] });
       queryClient.invalidateQueries({ queryKey: ["cfo", "dashboard"] });
-      queryClient.invalidateQueries({ queryKey: ["hr", "vendors"] });
-      queryClient.invalidateQueries({ queryKey: ["hr", "dashboard"] });
     },
   });
 
@@ -110,8 +106,6 @@ export function useVendorDirectory(initialFilters?: VendorDirectoryFilters) {
 
     queryClient.invalidateQueries({ queryKey: ["cfo", "vendors"] });
     queryClient.invalidateQueries({ queryKey: ["cfo", "dashboard"] });
-    queryClient.invalidateQueries({ queryKey: ["hr", "vendors"] });
-    queryClient.invalidateQueries({ queryKey: ["hr", "dashboard"] });
 
     if (errorCount === 0) {
       toast.success(`Successfully saved ${successCount} vendor record${successCount > 1 ? "s" : ""}.`);
@@ -137,8 +131,6 @@ export function useVendorDirectory(initialFilters?: VendorDirectoryFilters) {
 
     queryClient.invalidateQueries({ queryKey: ["cfo", "vendors"] });
     queryClient.invalidateQueries({ queryKey: ["cfo", "dashboard"] });
-    queryClient.invalidateQueries({ queryKey: ["hr", "vendors"] });
-    queryClient.invalidateQueries({ queryKey: ["hr", "dashboard"] });
 
     if (errorCount === 0) {
       toast.success(`Deleted ${successCount} vendor record${successCount > 1 ? "s" : ""}.`);

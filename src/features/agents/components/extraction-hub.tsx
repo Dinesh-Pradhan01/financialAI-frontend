@@ -7,11 +7,12 @@ import {
   Loader2,
   AlertCircle,
   Clock,
-  Bot,
   ArrowRight,
   Trash2,
   FileSearch,
   RefreshCw,
+  ChevronRight,
+  ShieldCheck,
 } from "lucide-react";
 import { toast } from "sonner";
 import { api } from "@/shared/lib/api";
@@ -19,6 +20,17 @@ import { cn } from "@/shared/lib/utils";
 import { isDuplicateError, getApiErrorMessage } from "@/shared/lib/apiError";
 import type { DocumentInfo } from "@/shared/types/documents";
 import type { ExtractedStatementResponse } from "@/shared/types/api";
+import { StatementDetail } from "@/features/spending/components/StatementDetail";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/shared/components/ui/alert-dialog";
 
 // ---------------------------------------------------------------------------
 // Types matching backend response shapes
@@ -58,6 +70,8 @@ export function ExtractionHub({
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [extractedCache, setExtractedCache] = useState<Record<string, ExtractedData>>({});
+  const [selectedDocumentId, setSelectedDocumentId] = useState<string | null>(null);
+  const [documentToDelete, setDocumentToDelete] = useState<{ id: string; name: string } | null>(null);
 
   // Poll for documents that are still processing via GET /api/statements/{id}/status
   useEffect(() => {
@@ -274,13 +288,12 @@ export function ExtractionHub({
               {completedDocs.length} extracted
             </span>
           )}
-          <Link
-            to="/agents"
-            className="inline-flex items-center gap-1.5 rounded-pill bg-brand/10 px-3 py-1.5 text-xs font-semibold text-brand ring-1 ring-inset ring-brand/20 transition hover:bg-brand/15"
-          >
-            <Bot className="h-3.5 w-3.5" />
-            View agents
-          </Link>
+          {processingDocs.length > 0 && (
+            <span className="inline-flex items-center gap-1.5 rounded-pill bg-blue-500/10 px-2.5 py-1 text-xs font-medium text-blue-600 dark:text-blue-400">
+              <Loader2 className="h-3 w-3 animate-spin" />
+              {processingDocs.length} processing
+            </span>
+          )}
         </div>
       </div>
 
@@ -339,28 +352,50 @@ export function ExtractionHub({
             )}
           </div>
 
-          {/* Documents list */}
+          {/* Dual-Mode Right Panel: Guidance when empty, Live Activity Feed when populated */}
           <div className="min-h-45">
             {documents.length === 0 ? (
-              <div className="flex h-full flex-col items-center justify-center rounded-2xl bg-surface-alt/50 px-4 py-8 text-center">
-                <FileText className="h-8 w-8 text-text-secondary/40" />
-                <p className="mt-3 text-sm font-medium text-text-secondary">No statements yet</p>
-                <p className="mt-1 text-xs text-text-secondary/80">
-                  Upload a bank statement PDF to see your financial data come alive
+              <div className="flex h-full flex-col justify-center rounded-2xl bg-surface-alt/40 p-6 text-left border border-border/60">
+                <div className="flex items-center gap-2.5 mb-2.5 text-foreground font-semibold text-sm">
+                  <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-brand/10 text-brand">
+                    <ShieldCheck className="h-4 w-4" />
+                  </span>
+                  <h3>Supported Formats & Banking Ingestion</h3>
+                </div>
+                <p className="text-xs text-text-secondary mb-4 leading-relaxed">
+                  Drop monthly bank statement PDFs to automatically parse ledgers, extract account numbers, and categorize outflows.
                 </p>
+                <ul className="space-y-2.5 text-xs text-text-secondary">
+                  <li className="flex items-start gap-2">
+                    <div className="h-1.5 w-1.5 rounded-full bg-brand mt-1.5 shrink-0" />
+                    <span><strong>Supported Banks:</strong> HDFC, SBI, ICICI, Axis, Kotak, Yes Bank, and standard bank PDF statements</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 mt-1.5 shrink-0" />
+                    <span><strong>Automated Field Capture:</strong> Opening & closing balance, dates, descriptions, cheque/ref numbers, and debit/credit splits</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <div className="h-1.5 w-1.5 rounded-full bg-blue-500 mt-1.5 shrink-0" />
+                    <span><strong>Bank-Grade Confidentiality:</strong> Data is encrypted at rest and strictly isolated to your business profile</span>
+                  </li>
+                </ul>
               </div>
             ) : (
               <div className="space-y-2">
-                <p className="text-xs font-semibold uppercase tracking-wider text-text-secondary">
-                  Your statements ({documents.length})
-                </p>
-                <ul className="max-h-70 space-y-1.5 overflow-y-auto pr-1">
+                <div className="flex items-center justify-between px-1">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-text-secondary">
+                    Recent Extraction Activity ({documents.length})
+                  </p>
+                  <span className="text-[11px] text-text-secondary font-medium">Click row to inspect ledger</span>
+                </div>
+                <ul className="max-h-80 space-y-2 overflow-y-auto pr-1">
                   {documents.map((doc) => (
                     <DocumentRow
                       key={doc.id}
                       doc={doc}
                       extracted={extractedCache[doc.id]}
-                      onDelete={handleDelete}
+                      onInspect={(id) => setSelectedDocumentId(id)}
+                      onRequestDelete={(id, name) => setDocumentToDelete({ id, name })}
                     />
                   ))}
                 </ul>
@@ -413,6 +448,44 @@ export function ExtractionHub({
           </div>
         )}
       </div>
+
+      {/* Statement Detail Ledger Drawer */}
+      <StatementDetail
+        documentId={selectedDocumentId}
+        onClose={() => {
+          setSelectedDocumentId(null);
+          onDocumentsChange();
+        }}
+      />
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog
+        open={!!documentToDelete}
+        onOpenChange={(open) => !open && setDocumentToDelete(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Bank Statement?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete <strong className="text-foreground">{documentToDelete?.name}</strong>? All parsed transactions, classifications, and account records associated with this statement will be permanently removed.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (documentToDelete) {
+                  handleDelete(documentToDelete.id);
+                  setDocumentToDelete(null);
+                }
+              }}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete Statement
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </section>
   );
 }
@@ -424,11 +497,13 @@ export function ExtractionHub({
 function DocumentRow({
   doc,
   extracted,
-  onDelete,
+  onInspect,
+  onRequestDelete,
 }: {
   doc: DocumentInfo;
   extracted?: ExtractedData;
-  onDelete: (id: string) => void;
+  onInspect?: (id: string) => void;
+  onRequestDelete: (id: string, name: string) => void;
 }) {
   const statusConfig = {
     PENDING: {
@@ -460,6 +535,7 @@ function DocumentRow({
   const st = statusConfig[doc.status];
   const StIcon = st.icon;
   const isSpinning = doc.status === "PROCESSING" || doc.status === "PENDING";
+  const isAuditAvailable = doc.status === "COMPLETED" || doc.status === "FAILED";
 
   const primaryAccount = extracted
     ? "accounts" in extracted && Array.isArray(extracted.accounts) && extracted.accounts.length > 0
@@ -474,8 +550,33 @@ function DocumentRow({
       ? extracted.transactions.length
       : 0;
 
+  const formattedTime = new Date(doc.created_at).toLocaleString("en-IN", {
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+
   return (
-    <li className="group flex items-center gap-3 rounded-xl bg-surface px-3 py-2.5 ring-1 ring-inset ring-border/60 transition hover:ring-border">
+    <li
+      onClick={() => {
+        if (isAuditAvailable) onInspect?.(doc.id);
+      }}
+      onKeyDown={(e) => {
+        if (isAuditAvailable && (e.key === "Enter" || e.key === " ")) {
+          e.preventDefault();
+          onInspect?.(doc.id);
+        }
+      }}
+      role={isAuditAvailable ? "button" : undefined}
+      tabIndex={isAuditAvailable ? 0 : undefined}
+      className={cn(
+        "group flex items-center gap-3 rounded-xl bg-surface px-3.5 py-2.5 ring-1 ring-inset ring-border/60 transition",
+        isAuditAvailable
+          ? "cursor-pointer hover:ring-brand/40 hover:bg-surface-alt/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+          : "hover:ring-border",
+      )}
+    >
       {/* Status icon */}
       <span className={cn("shrink-0 rounded-lg p-1.5", st.bg)}>
         <StIcon className={cn("h-4 w-4", st.color, isSpinning && "animate-spin")} />
@@ -484,36 +585,46 @@ function DocumentRow({
       {/* File info */}
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-medium text-text-primary">{doc.original_name}</p>
-        <div className="flex items-center gap-2 text-[11px] text-text-secondary">
-          <span className={cn("font-medium", st.color)}>{st.label}</span>
+        <div className="flex flex-wrap items-center gap-1.5 text-[11px] text-text-secondary mt-0.5">
+          <span className={cn("font-semibold", st.color)}>{st.label}</span>
+          <span>·</span>
+          <span>{formattedTime}</span>
           {primaryAccount && (
             <>
               <span>·</span>
-              <span className="font-medium">{primaryAccount.bank_name}</span>
+              <span className="font-medium text-foreground">{primaryAccount.bank_name}</span>
               <span>·</span>
-              <span>{txCount} txns</span>
+              <span className="font-semibold text-foreground">{txCount} txns</span>
             </>
           )}
           {!primaryAccount && doc.status === "COMPLETED" && (
             <>
               <span>·</span>
-              <span>Ready</span>
+              <span>Ready for audit</span>
             </>
           )}
           {doc.error_message && (
             <>
               <span>·</span>
-              <span className="text-danger truncate max-w-50">{doc.error_message}</span>
+              <span className="text-danger truncate max-w-40" title={doc.error_message}>{doc.error_message}</span>
             </>
           )}
         </div>
       </div>
 
       {/* Actions */}
-      <div className="flex shrink-0 items-center gap-1 opacity-0 transition group-hover:opacity-100">
+      <div className="flex shrink-0 items-center gap-1.5 opacity-80 group-hover:opacity-100 focus-within:opacity-100 transition">
+        {doc.status === "COMPLETED" && (
+          <span className="hidden sm:inline-flex items-center gap-1 text-[11px] font-semibold text-brand px-2 py-0.5 rounded-pill bg-brand/10 hover:bg-brand/15 transition">
+            <span>Inspect</span>
+            <ChevronRight className="h-3 w-3" />
+          </span>
+        )}
         {doc.status === "FAILED" && (
           <button
-            onClick={async () => {
+            type="button"
+            onClick={async (e) => {
+              e.stopPropagation();
               try {
                 await api.post(`/api/statements/${doc.id}/reprocess`);
                 toast.success("Reprocessing started…");
@@ -521,16 +632,22 @@ function DocumentRow({
                 toast.error("Reprocess failed.");
               }
             }}
-            className="rounded-lg p-1.5 text-text-secondary transition hover:bg-surface-alt hover:text-brand"
-            title="Reprocess"
+            className="rounded-lg p-1.5 text-text-secondary hover:bg-surface-alt hover:text-brand focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-brand focus-visible:outline-none transition cursor-pointer"
+            title="Reprocess statement"
+            aria-label="Reprocess statement"
           >
             <RefreshCw className="h-3.5 w-3.5" />
           </button>
         )}
         <button
-          onClick={() => onDelete(doc.id)}
-          className="rounded-lg p-1.5 text-text-secondary transition hover:bg-danger/10 hover:text-danger"
-          title="Delete"
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            onRequestDelete(doc.id, doc.original_name);
+          }}
+          className="rounded-lg p-1.5 text-text-secondary hover:bg-danger/10 hover:text-danger focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-danger focus-visible:outline-none transition cursor-pointer"
+          title="Delete statement"
+          aria-label="Delete statement"
         >
           <Trash2 className="h-3.5 w-3.5" />
         </button>

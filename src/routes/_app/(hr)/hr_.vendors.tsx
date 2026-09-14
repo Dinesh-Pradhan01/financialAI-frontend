@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 import { VendorDirectoryPage } from "@/features/cfo/components/vendor/VendorDirectoryPage";
 import { z } from "zod";
 import { useAuth } from "@/shared/contexts/AuthContext";
@@ -19,6 +19,12 @@ const searchSchema = z
 
 export const Route = createFileRoute("/_app/(hr)/hr_/vendors")({
   validateSearch: searchSchema,
+  beforeLoad: ({ search }) => {
+    throw redirect({
+      to: "/cfo/vendors",
+      search,
+    });
+  },
   head: () => ({
     meta: [{ title: "Vendor Directory · HR · Spotlite" }],
   }),

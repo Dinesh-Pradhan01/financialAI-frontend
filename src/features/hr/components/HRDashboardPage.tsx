@@ -86,31 +86,31 @@ export function HRDashboardPage() {
           </h1>
         </div>
         <p className="text-text-secondary text-sm pl-0.5">
-          Bulk-import and manage employee directory and organizational data through intelligent Excel workflows.
+          Bulk-import and manage employee directory and organizational data through intelligent
+          Excel workflows.
         </p>
       </header>
 
-      {/* ── Hero & Overview 2-column grid ────────────────────────────── */}
+      {/* ── Hero & Overview grid: Employee Management (left) + KPIs stacked vertically (right) ── */}
       <motion.section
-        className="grid grid-cols-[5fr_3fr] gap-4 items-stretch"
+        className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch"
         initial="initial"
         animate="animate"
         variants={{ animate: STAGGER.container }}
       >
-        <ModuleCard
-          title="Employee Management"
-          description="Upload employee master data, validate records, review information and import employees at scale."
-          href="/hr/employee/upload"
-          icon={Users}
-          buttonLabel="Manage Employees"
-          accentClass="bg-primary/10 text-primary border-primary/20"
-          glowClass="from-primary/12"
-        />
+        <div className="col-span-1 lg:col-span-7 xl:col-span-8 h-full">
+          <ModuleCard
+            title="Employee Management"
+            description="Upload employee master data, validate records, review information and import employees at scale."
+            href="/hr/employee/upload"
+            icon={Users}
+            buttonLabel="Manage Employees"
+            accentClass="bg-primary/10 text-primary border-primary/20"
+            glowClass="from-primary/12"
+          />
+        </div>
 
-        <motion.div
-          className="flex flex-col gap-3.5 h-full"
-          variants={{ animate: STAGGER.container }}
-        >
+        <div className="col-span-1 lg:col-span-5 xl:col-span-4 flex flex-col gap-3.5 h-full">
           {kpis.map((kpi) => {
             const Icon = kpi.icon;
             return (
@@ -121,7 +121,7 @@ export function HRDashboardPage() {
                 >
                   <div
                     className={cn(
-                      "relative h-full flex flex-col justify-center overflow-hidden rounded-2xl border border-border/80 bg-linear-to-br from-surface via-surface to-surface-alt/20 p-4 shadow-xs transition-all duration-200 hover:shadow-md",
+                      "relative h-full flex flex-col justify-between overflow-hidden rounded-2xl border border-border/80 bg-linear-to-br from-surface via-surface to-surface-alt/20 p-4 sm:p-4.5 shadow-xs transition-all duration-200 hover:shadow-md hover:border-border",
                       kpi.hoverBorder,
                     )}
                   >
@@ -131,38 +131,39 @@ export function HRDashboardPage() {
                         kpi.ambient,
                       )}
                     />
-                    <div className="relative z-10 flex items-start justify-between gap-3">
+                    <div className="relative z-10 flex items-center justify-between gap-3">
                       <div>
                         <p className="text-xs font-semibold uppercase tracking-wider text-text-secondary group-hover:text-foreground transition-colors">
                           {kpi.label}
                         </p>
-                        <div className="mt-2 font-display text-3xl font-extrabold tracking-tight text-foreground tabular-nums">
+                        <div className="mt-1 font-display text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground tabular-nums">
                           {isLoading ? (
-                            <Skeleton className="mt-1 h-8 w-14 rounded-md" />
+                            <Skeleton className="mt-1 h-8 w-16 rounded-md" />
                           ) : (
                             kpi.value.toLocaleString()
                           )}
                         </div>
-                        <div className="mt-2.5 flex items-center gap-1 text-[11px] font-medium text-text-tertiary group-hover:text-text-secondary transition-colors">
-                          <span>{kpi.subtext}</span>
-                          <ArrowUpRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-                        </div>
                       </div>
                       <div
                         className={cn(
-                          "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border shadow-2xs transition-transform duration-200 group-hover:scale-110",
+                          "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border shadow-2xs transition-transform duration-200 group-hover:scale-105",
                           kpi.iconClass,
                         )}
                       >
-                        <Icon className="h-4 w-4" />
+                        <Icon className="h-4.5 w-4.5" />
                       </div>
+                    </div>
+
+                    <div className="relative z-10 mt-3 flex items-center gap-1 text-[11px] font-medium text-text-tertiary group-hover:text-text-secondary transition-colors pt-2.5 border-t border-border/50">
+                      <span>{kpi.subtext}</span>
+                      <ArrowUpRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                     </div>
                   </div>
                 </Link>
               </motion.div>
             );
           })}
-        </motion.div>
+        </div>
       </motion.section>
 
       {/* ── Recent upload activity ────────────────────────────────────── */}
@@ -327,22 +328,26 @@ function ModuleCard({
   title,
   description,
   href,
+  directoryHref,
   buttonLabel,
+  directoryLabel,
   icon: Icon,
   accentClass,
   glowClass,
-}: {
+}: Readonly<{
   title: string;
   description: string;
   href: string;
+  directoryHref?: string;
   buttonLabel: string;
+  directoryLabel?: string;
   icon: React.ElementType;
   accentClass: string;
   glowClass: string;
-}) {
+}>) {
   return (
     <motion.div variants={STAGGER.child} className="h-full">
-      <Card className="group relative overflow-hidden border-border/80 p-6 shadow-xs transition-all duration-200 hover:border-border hover:shadow-sm h-full">
+      <Card className="group relative overflow-hidden border-border/80 p-6 shadow-xs transition-all duration-200 hover:border-border hover:shadow-sm h-full flex flex-col justify-between">
         {/* Ambient glow */}
         <div
           className={cn(
@@ -351,31 +356,40 @@ function ModuleCard({
           )}
         />
 
-        <div className="relative z-10 flex flex-col gap-5 h-full">
-          <div
-            className={cn(
-              "flex h-11 w-11 items-center justify-center rounded-xl border shadow-2xs transition-transform duration-200 group-hover:scale-105",
-              accentClass,
+        <div className="relative z-10 flex flex-col gap-4 h-full justify-between">
+          <div>
+            <div
+              className={cn(
+                "flex h-11 w-11 items-center justify-center rounded-xl border shadow-2xs transition-transform duration-200 group-hover:scale-105",
+                accentClass,
+              )}
+            >
+              <Icon className="h-5 w-5" />
+            </div>
+
+            <div className="mt-4">
+              <h2 className="font-display text-base sm:text-lg font-bold text-foreground tracking-tight">
+                {title}
+              </h2>
+              <p className="mt-1.5 text-xs sm:text-sm leading-relaxed text-text-secondary">
+                {description}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2.5 pt-2 flex-wrap">
+            <Button asChild size="default" className="gap-2 shadow-xs">
+              <Link to={href}>
+                {buttonLabel}
+                <ArrowUpRight className="h-4 w-4" />
+              </Link>
+            </Button>
+            {directoryHref && (
+              <Button asChild variant="outline" size="default" className="gap-2">
+                <Link to={directoryHref}>{directoryLabel || "Directory"}</Link>
+              </Button>
             )}
-          >
-            <Icon className="h-5 w-5" />
           </div>
-
-          <div className="flex-1">
-            <h2 className="font-display text-base sm:text-lg font-bold text-foreground tracking-tight">
-              {title}
-            </h2>
-            <p className="mt-1.5 text-xs sm:text-sm leading-relaxed text-text-secondary">
-              {description}
-            </p>
-          </div>
-
-          <Button asChild size="sm" className="w-fit gap-1.5 shadow-xs">
-            <Link to={href}>
-              {buttonLabel}
-              <ArrowUpRight className="h-3.5 w-3.5" />
-            </Link>
-          </Button>
         </div>
       </Card>
     </motion.div>
