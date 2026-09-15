@@ -9,6 +9,8 @@ import { SpendingDonut } from "@/features/spending/components/SpendingDonut";
 import { SpendingSkeleton } from "@/features/spending/components/SpendingSkeleton";
 import { UploadTransactionsCard } from "@/features/dashboard/components/UploadTransactionsCard";
 import { StatementsList } from "@/features/spending/components/StatementsList";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/shared/components/ui/tabs";
+import { FinancialIntelligenceTab } from "@/features/spending/components/FinancialIntelligenceTab";
 import {
   useTransactions,
   useTransactionDocuments,
@@ -134,6 +136,7 @@ function Spending() {
   const dispatch = useAppDispatch();
   const timeframe = useAppSelector(selectTimeframe);
   const shouldReduceMotion = useReducedMotion();
+  const [activeTab, setActiveTab] = useState<string>("overview");
 
   // Derive date bounds from selected timeframe
   const { date_from, date_to } = useMemo(
@@ -218,36 +221,60 @@ function Spending() {
               </Button>
             </Link>
           )}
-          <div className="inline-flex rounded-pill border border-border bg-surface p-0.5 shadow-xs">
-            {TIMEFRAMES.map((tf) => (
-              <button
-                key={tf}
-                type="button"
-                onClick={() => dispatch(setTimeframe(tf))}
-                className={cn(
-                  "relative rounded-pill px-3.5 py-1.5 text-xs font-semibold transition-colors cursor-pointer min-h-[32px] sm:min-h-0 flex items-center justify-center",
-                  timeframe === tf
-                    ? "text-on-brand"
-                    : "text-text-secondary hover:text-foreground",
-                )}
-              >
-                {timeframe === tf && (
-                  <motion.span
-                    layoutId="activeTimeframePill"
-                    className="absolute inset-0 rounded-pill bg-brand shadow-e1"
-                    transition={
-                      shouldReduceMotion
-                        ? { duration: 0 }
-                        : { type: "spring", stiffness: 500, damping: 35 }
-                    }
-                  />
-                )}
-                <span className="relative z-10">{tf}</span>
-              </button>
-            ))}
-          </div>
+          {activeTab === "overview" ? (
+            <div className="inline-flex rounded-pill border border-border bg-surface p-0.5 shadow-xs">
+              {TIMEFRAMES.map((tf) => (
+                <button
+                  key={tf}
+                  type="button"
+                  onClick={() => dispatch(setTimeframe(tf))}
+                  className={cn(
+                    "relative rounded-pill px-3.5 py-1.5 text-xs font-semibold transition-colors cursor-pointer min-h-[32px] sm:min-h-0 flex items-center justify-center",
+                    timeframe === tf
+                      ? "text-on-brand"
+                      : "text-text-secondary hover:text-foreground",
+                  )}
+                >
+                  {timeframe === tf && (
+                    <motion.span
+                      layoutId="activeTimeframePill"
+                      className="absolute inset-0 rounded-pill bg-brand shadow-e1"
+                      transition={
+                        shouldReduceMotion
+                          ? { duration: 0 }
+                          : { type: "spring", stiffness: 500, damping: 35 }
+                      }
+                    />
+                  )}
+                  <span className="relative z-10">{tf}</span>
+                </button>
+              ))}
+            </div>
+          ) : (
+            <span className="text-[0.7rem] font-medium text-text-secondary px-3 py-1.5 rounded-pill bg-surface border border-border shadow-xs">
+              All-time · full statement history
+            </span>
+          )}
         </div>
       </header>
+
+      <Tabs defaultValue="overview" value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="h-10 p-1 bg-surface-alt/70 border border-border/70 rounded-xl inline-flex self-start mb-6">
+          <TabsTrigger
+            value="overview"
+            className="rounded-lg px-4 py-1.5 text-xs font-semibold data-[state=active]:bg-surface data-[state=active]:text-foreground data-[state=active]:shadow-xs"
+          >
+            Overview
+          </TabsTrigger>
+          <TabsTrigger
+            value="intelligence"
+            className="rounded-lg px-4 py-1.5 text-xs font-semibold data-[state=active]:bg-surface data-[state=active]:text-foreground data-[state=active]:shadow-xs"
+          >
+            Financial Intelligence
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="overview" className="mt-0 focus-visible:outline-none">
 
       {/* Upload Callout Card - Only rendered when user has 0 statements uploaded */}
       {!isDocsLoading && documents.length === 0 && (
@@ -687,8 +714,17 @@ function Spending() {
         </>
       )}
 
-      {/* Section 2: Statements (Upload & Extracted Ledger) */}
-      <StatementsList />
-    </div>
+        {/* Section 2: Statements (Upload & Extracted Ledger) */}
+        <StatementsList />
+      </TabsContent>
+
+      <TabsContent value="intelligence" className="mt-0 focus-visible:outline-none">
+        <FinancialIntelligenceTab
+          isActive={activeTab === "intelligence"}
+          documentsCount={documents.length}
+        />
+      </TabsContent>
+    </Tabs>
+  </div>
   );
 }
