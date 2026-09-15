@@ -418,24 +418,87 @@ const cfoSlice = createSlice({
       state.vendor.isDirtySinceValidation = true;
 
       const rec = state.vendor.backendPreview.records[idx] as any;
-      if (extracted.contract_start_date) {
-        rec.contractStartDate = extracted.contract_start_date;
-        rec.contract_start_date = extracted.contract_start_date;
+      const backendPreview = state.vendor.backendPreview;
+
+      const clearIssue = (summaryObj: any, fieldKey: string) => {
+        if (!summaryObj || !Array.isArray(summaryObj.issues)) return;
+        const normKey = fieldKey.toLowerCase().replace(/_/g, "");
+        summaryObj.issues = summaryObj.issues.filter((issue: any) => {
+          const isSameRow = String(issue.rowId) === String(rowId) || (rec.sourceRow != null && String(issue.sourceRow) === String(rec.sourceRow));
+          if (!isSameRow) return true;
+          const issueFieldNorm = String(issue.field || "").toLowerCase().replace(/_/g, "");
+          const isMatch = issueFieldNorm === normKey || ((normKey.includes("monthly") || normKey.includes("cost")) && (issueFieldNorm.includes("monthly") || issueFieldNorm.includes("cost")));
+          return !isMatch;
+        });
+
+        const remainingErrors = summaryObj.issues.filter((i: any) => (String(i.rowId) === String(rowId) || (rec.sourceRow != null && String(i.sourceRow) === String(rec.sourceRow))) && i.severity === "error");
+
+        if (remainingErrors.length === 0 && Array.isArray(summaryObj.errorRowIds)) {
+          summaryObj.errorRowIds = summaryObj.errorRowIds.filter((id: string) => String(id) !== String(rowId));
+        }
+
+        summaryObj.errors = summaryObj.issues.filter((i: any) => i.severity === "error").length;
+        if (Array.isArray(backendPreview?.records) && Array.isArray(summaryObj.errorRowIds)) {
+          summaryObj.validVendors = backendPreview.records.length - summaryObj.errorRowIds.length;
+        }
+      };
+
+      const isEmpty = (val: any) => val === undefined || val === null || String(val).trim() === "" || String(val).trim() === "0";
+
+      const extStartDate = extracted.contract_start_date ?? (extracted as any).contractStartDate;
+      if (extStartDate != null && isEmpty(rec.contract_start_date) && isEmpty(rec.contractStartDate)) {
+        rec.contractStartDate = extStartDate;
+        rec.contract_start_date = extStartDate;
+        clearIssue(backendPreview.summary, "contract_start_date");
+        clearIssue(backendPreview.validation, "contract_start_date");
       }
-      if (extracted.contract_end_date) {
-        rec.contractEndDate = extracted.contract_end_date;
-        rec.contract_end_date = extracted.contract_end_date;
+
+      const extEndDate = extracted.contract_end_date ?? (extracted as any).contractEndDate;
+      if (extEndDate != null && isEmpty(rec.contract_end_date) && isEmpty(rec.contractEndDate)) {
+        rec.contractEndDate = extEndDate;
+        rec.contract_end_date = extEndDate;
+        clearIssue(backendPreview.summary, "contract_end_date");
+        clearIssue(backendPreview.validation, "contract_end_date");
       }
-      if (extracted.contract_value != null) {
-        rec.contractValue = extracted.contract_value;
-        rec.contract_value = extracted.contract_value;
+
+      const extValue = extracted.contract_value ?? (extracted as any).contractValue;
+      if (extValue != null && isEmpty(rec.contract_value) && isEmpty(rec.contractValue)) {
+        rec.contractValue = extValue;
+        rec.contract_value = extValue;
+        clearIssue(backendPreview.summary, "contract_value");
+        clearIssue(backendPreview.validation, "contract_value");
       }
-      if (extracted.currency) {
+
+      if (extracted.currency != null && isEmpty(rec.currency)) {
         rec.currency = extracted.currency;
+        clearIssue(backendPreview.summary, "currency");
+        clearIssue(backendPreview.validation, "currency");
       }
-      if (extracted.contract_type) {
-        rec.contractType = extracted.contract_type;
-        rec.contract_type = extracted.contract_type;
+
+      const extType = extracted.contract_type ?? (extracted as any).contractType;
+      if (extType != null && isEmpty(rec.contract_type) && isEmpty(rec.contractType)) {
+        rec.contractType = extType;
+        rec.contract_type = extType;
+        clearIssue(backendPreview.summary, "contract_type");
+        clearIssue(backendPreview.validation, "contract_type");
+      }
+
+      // Calculate monthly cost dynamically if contract value is updated and it's a subscription
+      const contractVal = Number(rec.contract_value ?? rec.contractValue ?? 0);
+      const isSub = String(rec.contract_type || rec.contractType || "").toLowerCase().includes("sub") || ["true", "yes", "1"].includes(String(rec.recurring || "").toLowerCase());
+      if (isSub && contractVal > 0 && isEmpty(rec.monthly_cost) && isEmpty(rec.monthlyCost)) {
+        const autoMonthlyCost = Math.round((contractVal / 12) * 100) / 100;
+        rec.monthly_cost = autoMonthlyCost;
+        rec.monthlyCost = autoMonthlyCost;
+        rec.cost = autoMonthlyCost;
+        clearIssue(backendPreview.summary, "monthly_cost");
+        clearIssue(backendPreview.validation, "monthly_cost");
+      }
+
+      if (Array.isArray(rec.validation_errors)) {
+        const issuesForRec = backendPreview.summary?.issues?.filter((i: any) => String(i.rowId) === String(rowId) || (rec.sourceRow != null && String(i.sourceRow) === String(rec.sourceRow))) || [];
+        rec.validation_errors = issuesForRec.map((i: any) => i.message);
+        rec.validation_status = rec.validation_errors.length > 0 ? "invalid" : "valid";
       }
 
       if (state.vendor.agreements?.[rowId]) {
@@ -457,24 +520,86 @@ const cfoSlice = createSlice({
       state.client.isDirtySinceValidation = true;
 
       const rec = state.client.backendPreview.records[idx] as any;
-      if (extracted.contract_start_date) {
-        rec.contractStartDate = extracted.contract_start_date;
-        rec.contract_start_date = extracted.contract_start_date;
+      const backendPreview = state.client.backendPreview;
+
+      const clearIssue = (summaryObj: any, fieldKey: string) => {
+        if (!summaryObj || !Array.isArray(summaryObj.issues)) return;
+        const normKey = fieldKey.toLowerCase().replace(/_/g, "");
+        summaryObj.issues = summaryObj.issues.filter((issue: any) => {
+          const isSameRow = String(issue.rowId) === String(rowId) || (rec.sourceRow != null && String(issue.sourceRow) === String(rec.sourceRow));
+          if (!isSameRow) return true;
+          const issueFieldNorm = String(issue.field || "").toLowerCase().replace(/_/g, "");
+          const isMatch = issueFieldNorm === normKey || ((normKey.includes("monthly") || normKey.includes("cost")) && (issueFieldNorm.includes("monthly") || issueFieldNorm.includes("cost")));
+          return !isMatch;
+        });
+
+        const remainingErrors = summaryObj.issues.filter((i: any) => (String(i.rowId) === String(rowId) || (rec.sourceRow != null && String(i.sourceRow) === String(rec.sourceRow))) && i.severity === "error");
+
+        if (remainingErrors.length === 0 && Array.isArray(summaryObj.errorRowIds)) {
+          summaryObj.errorRowIds = summaryObj.errorRowIds.filter((id: string) => String(id) !== String(rowId));
+        }
+
+        summaryObj.errors = summaryObj.issues.filter((i: any) => i.severity === "error").length;
+        if (Array.isArray(backendPreview?.records) && Array.isArray(summaryObj.errorRowIds)) {
+          summaryObj.validVendors = backendPreview.records.length - summaryObj.errorRowIds.length;
+        }
+      };
+
+      const isEmpty = (val: any) => val === undefined || val === null || String(val).trim() === "" || String(val).trim() === "0";
+
+      const extStartDate = extracted.contract_start_date ?? (extracted as any).contractStartDate;
+      if (extStartDate != null && isEmpty(rec.contract_start_date) && isEmpty(rec.contractStartDate)) {
+        rec.contractStartDate = extStartDate;
+        rec.contract_start_date = extStartDate;
+        clearIssue(backendPreview.summary, "contract_start_date");
+        clearIssue(backendPreview.validation, "contract_start_date");
       }
-      if (extracted.contract_end_date) {
-        rec.contractEndDate = extracted.contract_end_date;
-        rec.contract_end_date = extracted.contract_end_date;
+
+      const extEndDate = extracted.contract_end_date ?? (extracted as any).contractEndDate;
+      if (extEndDate != null && isEmpty(rec.contract_end_date) && isEmpty(rec.contractEndDate)) {
+        rec.contractEndDate = extEndDate;
+        rec.contract_end_date = extEndDate;
+        clearIssue(backendPreview.summary, "contract_end_date");
+        clearIssue(backendPreview.validation, "contract_end_date");
       }
-      if (extracted.contract_value != null) {
-        rec.contractValue = extracted.contract_value;
-        rec.contract_value = extracted.contract_value;
+
+      const extValue = extracted.contract_value ?? (extracted as any).contractValue;
+      if (extValue != null && isEmpty(rec.contract_value) && isEmpty(rec.contractValue)) {
+        rec.contractValue = extValue;
+        rec.contract_value = extValue;
+        clearIssue(backendPreview.summary, "contract_value");
+        clearIssue(backendPreview.validation, "contract_value");
       }
-      if (extracted.currency) {
+
+      if (extracted.currency != null && isEmpty(rec.currency)) {
         rec.currency = extracted.currency;
+        clearIssue(backendPreview.summary, "currency");
+        clearIssue(backendPreview.validation, "currency");
       }
-      if (extracted.contract_type) {
-        rec.contractType = extracted.contract_type;
-        rec.contract_type = extracted.contract_type;
+
+      const extType = extracted.contract_type ?? (extracted as any).contractType;
+      if (extType != null && isEmpty(rec.contract_type) && isEmpty(rec.contractType)) {
+        rec.contractType = extType;
+        rec.contract_type = extType;
+        clearIssue(backendPreview.summary, "contract_type");
+        clearIssue(backendPreview.validation, "contract_type");
+      }
+
+      const contractVal = Number(rec.contract_value ?? rec.contractValue ?? 0);
+      const isSub = String(rec.contract_type || rec.contractType || "").toLowerCase().includes("sub") || ["true", "yes", "1"].includes(String(rec.recurring || "").toLowerCase());
+      if (isSub && contractVal > 0 && isEmpty(rec.monthly_cost) && isEmpty(rec.monthlyCost)) {
+        const autoMonthlyCost = Math.round((contractVal / 12) * 100) / 100;
+        rec.monthly_cost = autoMonthlyCost;
+        rec.monthlyCost = autoMonthlyCost;
+        rec.cost = autoMonthlyCost;
+        clearIssue(backendPreview.summary, "monthly_cost");
+        clearIssue(backendPreview.validation, "monthly_cost");
+      }
+
+      if (Array.isArray(rec.validation_errors)) {
+        const issuesForRec = backendPreview.summary?.issues?.filter((i: any) => String(i.rowId) === String(rowId) || (rec.sourceRow != null && String(i.sourceRow) === String(rec.sourceRow))) || [];
+        rec.validation_errors = issuesForRec.map((i: any) => i.message);
+        rec.validation_status = rec.validation_errors.length > 0 ? "invalid" : "valid";
       }
 
       if (state.client.agreements?.[rowId]) {
