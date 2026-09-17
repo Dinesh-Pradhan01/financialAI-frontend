@@ -585,16 +585,7 @@ const cfoSlice = createSlice({
         clearIssue(backendPreview.validation, "contract_type");
       }
 
-      const contractVal = Number(rec.contract_value ?? rec.contractValue ?? 0);
-      const isSub = String(rec.contract_type || rec.contractType || "").toLowerCase().includes("sub") || ["true", "yes", "1"].includes(String(rec.recurring || "").toLowerCase());
-      if (isSub && contractVal > 0 && isEmpty(rec.monthly_cost) && isEmpty(rec.monthlyCost)) {
-        const autoMonthlyCost = Math.round((contractVal / 12) * 100) / 100;
-        rec.monthly_cost = autoMonthlyCost;
-        rec.monthlyCost = autoMonthlyCost;
-        rec.cost = autoMonthlyCost;
-        clearIssue(backendPreview.summary, "monthly_cost");
-        clearIssue(backendPreview.validation, "monthly_cost");
-      }
+
 
       if (Array.isArray(rec.validation_errors)) {
         const issuesForRec = backendPreview.summary?.issues?.filter((i: any) => String(i.rowId) === String(rowId) || (rec.sourceRow != null && String(i.sourceRow) === String(rec.sourceRow))) || [];
