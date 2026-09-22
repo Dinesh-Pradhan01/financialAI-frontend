@@ -11,6 +11,10 @@ import { UploadTransactionsCard } from "@/features/dashboard/components/UploadTr
 import { StatementsList } from "@/features/spending/components/StatementsList";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/shared/components/ui/tabs";
 import { FinancialIntelligenceTab } from "@/features/spending/components/FinancialIntelligenceTab";
+import { HeaderMetadataPanel } from "@/features/spending/components/HeaderMetadataPanel";
+import { SpendingIncomeTab } from "@/features/spending/components/SpendingIncomeTab";
+import { SpendingExpenditureTab } from "@/features/spending/components/SpendingExpenditureTab";
+import { useSpendingReport } from "@/features/spending/hooks/useSpendingReport";
 import {
   useTransactions,
   useTransactionDocuments,
@@ -152,6 +156,8 @@ function Spending() {
     limit: 1000,
   });
 
+  const { data: reportData } = useSpendingReport({ enabled: activeTab === "overview" });
+
   const transactions = data?.transactions ?? [];
 
   // Live document fetching to determine state context
@@ -259,7 +265,7 @@ function Spending() {
       </header>
 
       <Tabs defaultValue="overview" value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="h-10 p-1 bg-surface-alt/70 border border-border/70 rounded-xl inline-flex self-start mb-6">
+        <TabsList className="h-10 p-1 bg-surface-alt/70 border border-border/70 rounded-xl inline-flex self-start mb-6 overflow-x-auto max-w-full">
           <TabsTrigger
             value="overview"
             className="rounded-lg px-4 py-1.5 text-xs font-semibold data-[state=active]:bg-surface data-[state=active]:text-foreground data-[state=active]:shadow-xs"
@@ -267,10 +273,16 @@ function Spending() {
             Overview
           </TabsTrigger>
           <TabsTrigger
-            value="intelligence"
+            value="income"
             className="rounded-lg px-4 py-1.5 text-xs font-semibold data-[state=active]:bg-surface data-[state=active]:text-foreground data-[state=active]:shadow-xs"
           >
-            Financial Intelligence
+            Income
+          </TabsTrigger>
+          <TabsTrigger
+            value="expenditure"
+            className="rounded-lg px-4 py-1.5 text-xs font-semibold data-[state=active]:bg-surface data-[state=active]:text-foreground data-[state=active]:shadow-xs"
+          >
+            Expenditure
           </TabsTrigger>
         </TabsList>
 
@@ -311,6 +323,16 @@ function Spending() {
       {/* Active Content States */}
       {!isLoading && !isError && (
         <>
+          {/* Elevated Bank Statement Header Metadata Panel at the very top */}
+          {reportData?.section_1_header_metadata && (
+            <div className="mb-6">
+              <HeaderMetadataPanel
+                metadata={reportData.section_1_header_metadata}
+                documentsCount={documents.length}
+              />
+            </div>
+          )}
+
           {/* Agent Narration Dynamic Callout */}
           <div className="mb-6">
             <AgentNarration agent="intelligence">
@@ -446,83 +468,16 @@ function Spending() {
             )
           ) : (
             <>
-              {/* Section 1: Donut & Top Merchants */}
-              <div className="grid gap-6 md:grid-cols-2">
-                {/* Where Money Goes: Donut */}
-                <section className="card-spot p-5 flex flex-col justify-between">
-                  <div>
-                    <div className="mb-4 flex items-center justify-between gap-3">
-                      <p className="text-sm font-semibold">Where your money goes</p>
-                      <Tip k="spendingDonut" />
-                    </div>
-                    <SpendingDonut categories={categories} total={total} />
+              {/* Where Money Goes: Donut */}
+              <section className="card-spot p-5 flex flex-col justify-between mb-8">
+                <div>
+                  <div className="mb-4 flex items-center justify-between gap-3">
+                    <p className="text-sm font-semibold">Where your money goes</p>
+                    <Tip k="spendingDonut" />
                   </div>
-                </section>
-
-                {/* Top Merchants List */}
-                <section className="card-spot p-5 flex flex-col justify-between">
-                  <div>
-                    <div className="mb-4 flex items-center justify-between gap-3">
-                      <p className="text-sm font-semibold">Top merchants</p>
-                    </div>
-                    {topMerchants.length > 0 ? (
-                      <ul className="mt-4 space-y-3">
-                        {topMerchants.slice(0, 6).map((m) => (
-                          <li key={m.rank} className="flex items-center gap-3">
-                            <span className="w-5 text-xs font-num font-semibold text-text-secondary">
-                              #{m.rank}
-                            </span>
-                            <span className="flex-1 text-sm font-medium truncate" title={m.name}>
-                              {m.name}
-                            </span>
-                            <span className="font-num text-sm font-semibold">
-                              {formatINR(m.amount)}
-                            </span>
-                            <span className="ml-2 hidden h-1.5 w-20 overflow-hidden rounded-full bg-surface-alt md:block">
-                              <motion.span
-                                className="block h-full bg-brand rounded-full"
-                                initial={shouldReduceMotion ? false : { width: 0 }}
-                                animate={{
-                                  width: `${Math.min(100, (m.amount / maxMerchantAmount) * 100)}%`,
-                                }}
-                                transition={{
-                                  duration: 0.35,
-                                  ease: [0.16, 1, 0.3, 1],
-                                }}
-                              />
-                            </span>
-                          </li>
-                        ))}
-                      </ul>
-                    ) : (
-                      <p className="text-xs text-text-secondary mt-4">
-                        No merchant details parsed yet.
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Recommendation Callout */}
-                  {biggestCategory && (
-                    <div className="mt-6 flex items-start gap-3 rounded-2xl tint-brand p-4 text-sm">
-                      <IconChip keyName={biggestCategory.id} size="sm" />
-                      <p className="text-xs md:text-sm">
-                        <span className="font-medium text-foreground">
-                          {getDisplayCategoryLabel(biggestCategory.label)}
-                        </span>{" "}
-                        is your biggest expense category (
-                        {formatShare(biggestCategory.share, biggestCategory.amount)} of outflows). Consider reviewing supplier terms or rewards cards.
-                        <Link
-                          to="/spotlights"
-                          className="ml-1.5 inline-flex items-center gap-1 font-semibold text-brand hover:underline"
-                        >
-                          <span>See Spotlights</span>
-                          <ArrowRight className="h-3 w-3" />
-                        </Link>
-                      </p>
-                    </div>
-                  )}
-                </section>
-              </div>
+                  <SpendingDonut categories={categories} total={total} />
+                </div>
+              </section>
 
               {/* Category Grid Section */}
               <TooltipProvider delayDuration={150}>
@@ -696,19 +651,13 @@ function Spending() {
                 </section>
               </TooltipProvider>
 
-              {/* Monthly Balance Trend Section */}
-              <section className="card-spot mt-8 p-5">
-                <div className="flex items-center justify-between gap-3">
-                  <h2 className="font-display text-lg font-semibold">
-                    Monthly spend trend ({monthsCount} months)
-                  </h2>
-                  <Tip k="balanceTrend" />
-                </div>
-                <BalanceTrend values={trend} />
-                <p className="mt-3 text-xs text-text-secondary">
-                  Monthly aggregate debit outflows across active statements for this period.
-                </p>
-              </section>
+              {/* Merged Financial Intelligence Section */}
+              <div className="mt-8 pt-6 border-t border-border/60">
+                <FinancialIntelligenceTab
+                  isActive={activeTab === "overview"}
+                  documentsCount={documents.length}
+                />
+              </div>
             </>
           )}
         </>
@@ -718,11 +667,12 @@ function Spending() {
         <StatementsList />
       </TabsContent>
 
-      <TabsContent value="intelligence" className="mt-0 focus-visible:outline-none">
-        <FinancialIntelligenceTab
-          isActive={activeTab === "intelligence"}
-          documentsCount={documents.length}
-        />
+      <TabsContent value="income" className="mt-0 focus-visible:outline-none">
+        <SpendingIncomeTab isActive={activeTab === "income"} />
+      </TabsContent>
+
+      <TabsContent value="expenditure" className="mt-0 focus-visible:outline-none">
+        <SpendingExpenditureTab isActive={activeTab === "expenditure"} />
       </TabsContent>
     </Tabs>
   </div>

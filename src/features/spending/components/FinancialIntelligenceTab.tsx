@@ -1,12 +1,7 @@
 import { useSpendingReport } from "../hooks/useSpendingReport";
 import { IntelligenceSkeleton } from "./IntelligenceSkeleton";
-import { HeaderMetadataPanel } from "./HeaderMetadataPanel";
-import { ExecutiveSummaryGrid } from "./ExecutiveSummaryGrid";
-import { MacroCashFlowSection } from "./MacroCashFlowSection";
 import { ChannelDistributionSection } from "./ChannelDistributionSection";
 import { TemporalPatternsSection } from "./TemporalPatternsSection";
-import { EfficiencyProjectionsSection } from "./EfficiencyProjectionsSection";
-import { AnomaliesOutliersSection } from "./AnomaliesOutliersSection";
 import { AlertCircle, RefreshCw } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
 import { cn } from "@/shared/lib/utils";
@@ -18,7 +13,6 @@ interface FinancialIntelligenceTabProps {
 
 export function FinancialIntelligenceTab({
   isActive,
-  documentsCount = 1,
 }: FinancialIntelligenceTabProps) {
   const { data, isLoading, isError, error, refetch, isFetching } = useSpendingReport({
     enabled: isActive,
@@ -60,29 +54,11 @@ export function FinancialIntelligenceTab({
 
   return (
     <div className="space-y-6 sm:space-y-8 mt-4 animate-in fade-in duration-200">
-      {/* 1. Header Metadata Panel */}
-      <HeaderMetadataPanel
-        metadata={data.section_1_header_metadata}
-        documentsCount={documentsCount}
-      />
-
-      {/* 2. Executive Scorecard */}
-      <ExecutiveSummaryGrid items={data.executive_summary} />
-
-      {/* 3. Macro Cash Flow & Liquidity Diagnostics */}
-      <MacroCashFlowSection data={data.section_2_macro_cash_flow} />
-
-      {/* 4. Channel & Payment Method Distribution */}
+      {/* 1. Channel & Payment Method Distribution */}
       <ChannelDistributionSection data={data.section_4_channel_distribution} />
 
-      {/* 5. Temporal Patterns & Cyclicality */}
+      {/* 2. Temporal Patterns & Cyclicality */}
       <TemporalPatternsSection data={data.section_3_temporal_patterns} />
-
-      {/* 6. Efficiency & Projections */}
-      <EfficiencyProjectionsSection data={data.section_6_efficiency_projections} />
-
-      {/* 7. Anomalies & Outliers */}
-      <AnomaliesOutliersSection data={data.section_5_anomaly_risk} />
     </div>
   );
 }

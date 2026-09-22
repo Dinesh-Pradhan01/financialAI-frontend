@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
 import { Link, useSearch } from "@tanstack/react-router";
-import { Users, ChevronLeft, Trash2, MoreVertical, AlertTriangle } from "lucide-react";
+import { Users, ChevronLeft, Trash2, MoreVertical, AlertTriangle, BarChart3, Table as TableIcon } from "lucide-react";
 import { Card } from "@/shared/components/ui/card";
 import { Button } from "@/shared/components/ui/button";
 import { Badge } from "@/shared/components/ui/badge";
 import { Checkbox } from "@/shared/components/ui/checkbox";
 import { Skeleton } from "@/shared/components/ui/skeleton";
+import { SpotliteClientAnalytics } from "@/features/spotlights/components/spotlite-client-analytics";
+
 import {
   Select,
   SelectContent,
@@ -133,11 +135,13 @@ export function ClientDirectoryPage() {
     recurring: searchParams.recurring,
   });
 
+  const [viewMode, setViewMode] = useState<"analytics" | "table">("analytics");
   const [selectedKeys, setSelectedKeys] = useState<Set<string>>(new Set());
   const [isEditMode, setIsEditMode] = useState(false);
   const [dirtyMap, setDirtyMap] = useState<Record<string, Partial<ClientRecord>>>({});
   const [isSaving, setIsSaving] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
+
 
   // Single delete dialog state
   const [deleteTarget, setDeleteTarget] = useState<{ clientId: string; category: string; name: string } | null>(null);
@@ -284,6 +288,32 @@ export function ClientDirectoryPage() {
         </div>
 
         <div className="flex items-center gap-2">
+          <div className="inline-flex rounded-lg border border-border bg-surface p-1">
+            <button
+              onClick={() => setViewMode("analytics")}
+              className={cn(
+                "inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-all",
+                viewMode === "analytics"
+                  ? "bg-blue-600 text-white shadow-xs"
+                  : "text-text-secondary hover:text-foreground"
+              )}
+            >
+              <BarChart3 className="h-3.5 w-3.5" />
+              Analytics
+            </button>
+            <button
+              onClick={() => setViewMode("table")}
+              className={cn(
+                "inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-all",
+                viewMode === "table"
+                  ? "bg-blue-600 text-white shadow-xs"
+                  : "text-text-secondary hover:text-foreground"
+              )}
+            >
+              <TableIcon className="h-3.5 w-3.5" />
+              Table
+            </button>
+          </div>
           <Link
             to="/cfo/client/upload"
             className="inline-flex h-9 items-center justify-center rounded-lg bg-primary px-4 text-xs font-semibold text-white shadow-brand hover:bg-primary-hover transition"
@@ -293,8 +323,14 @@ export function ClientDirectoryPage() {
         </div>
       </div>
 
-      {/* ── Toolbar ────────────────────────────────────────────────────── */}
-      <Card className="border-border shadow-xs">
+      {/* ── View Content ────────────────────────────────────────────────── */}
+      {viewMode === "analytics" ? (
+        <SpotliteClientAnalytics />
+      ) : (
+        <>
+          {/* ── Toolbar ────────────────────────────────────────────────────── */}
+          <Card className="border-border shadow-xs">
+
         <DirectoryToolbar
           searchPlaceholder="Search clients by ID, name, or contract..."
           search={search}
@@ -614,6 +650,10 @@ export function ClientDirectoryPage() {
           </div>
         </div>
       </Card>
+        </>
+      )}
+
+
 
       {/* Single Delete Confirmation Dialog */}
       <Dialog open={!!deleteTarget} onOpenChange={() => setDeleteTarget(null)}>

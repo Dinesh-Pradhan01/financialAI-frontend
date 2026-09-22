@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
 import { Link, useSearch } from "@tanstack/react-router";
-import { Building2, ChevronLeft, Trash2, MoreVertical, AlertTriangle } from "lucide-react";
+import { Building2, ChevronLeft, Trash2, MoreVertical, AlertTriangle, BarChart3, Table as TableIcon } from "lucide-react";
 import { Card } from "@/shared/components/ui/card";
 import { Button } from "@/shared/components/ui/button";
 import { Badge } from "@/shared/components/ui/badge";
 import { Checkbox } from "@/shared/components/ui/checkbox";
 import { Skeleton } from "@/shared/components/ui/skeleton";
+import { SpotliteVendorAnalytics } from "@/features/spotlights/components/spotlite-vendor-analytics";
+
 import {
   Select,
   SelectContent,
@@ -131,6 +133,7 @@ export function VendorDirectoryPage() {
     search: searchParams.search,
   });
 
+  const [viewMode, setViewMode] = useState<"analytics" | "table">("analytics");
   const [isEditMode, setIsEditMode] = useState(false);
   const [dirtyMap, setDirtyMap] = useState<Record<string, Partial<VendorRecord>>>({});
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -138,6 +141,7 @@ export function VendorDirectoryPage() {
   const [isExporting, setIsExporting] = useState(false);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [singleDeleteId, setSingleDeleteId] = useState<string | null>(null);
+
 
   // Keyboard shortcut for edit mode
   useEffect(() => {
@@ -288,10 +292,44 @@ export function VendorDirectoryPage() {
             </div>
           </div>
         </div>
+        <div className="flex items-center gap-2">
+          <div className="inline-flex rounded-lg border border-border bg-surface p-1">
+            <button
+              onClick={() => setViewMode("analytics")}
+              className={cn(
+                "inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-all",
+                viewMode === "analytics"
+                  ? "bg-violet-500 text-white shadow-xs"
+                  : "text-text-secondary hover:text-foreground"
+              )}
+            >
+              <BarChart3 className="h-3.5 w-3.5" />
+              Analytics
+            </button>
+            <button
+              onClick={() => setViewMode("table")}
+              className={cn(
+                "inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-all",
+                viewMode === "table"
+                  ? "bg-violet-500 text-white shadow-xs"
+                  : "text-text-secondary hover:text-foreground"
+              )}
+            >
+              <TableIcon className="h-3.5 w-3.5" />
+              Table
+            </button>
+          </div>
+        </div>
       </div>
 
-      {/* ── Toolbar & Filters ────────────────────────────────────────────── */}
-      <Card className="border-border/80 p-4 shadow-xs">
+      {/* ── View Content ────────────────────────────────────────────────── */}
+      {viewMode === "analytics" ? (
+        <SpotliteVendorAnalytics />
+      ) : (
+        <>
+          {/* ── Toolbar & Filters ────────────────────────────────────────────── */}
+          <Card className="border-border/80 p-4 shadow-xs">
+
         <DirectoryToolbar
           search={search}
           onSearchChange={setSearch}
@@ -748,6 +786,10 @@ export function VendorDirectoryPage() {
           </div>
         )}
       </Card>
+        </>
+      )}
+
+
 
       {/* ── Delete Confirmation Modal ────────────────────────────────────── */}
       <Dialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>

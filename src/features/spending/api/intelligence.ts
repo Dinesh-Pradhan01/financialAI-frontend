@@ -9,5 +9,9 @@ export async function fetchSpendingReport(
   businessId?: string,
 ): Promise<SpendingFullReport> {
   const qs = businessId ? `?business_id=${encodeURIComponent(businessId)}` : "";
-  return api.get<SpendingFullReport>(`/api/v1/spending/report${qs}`);
+  try {
+    return await api.get<SpendingFullReport>(`/api/v1/analysis/overview${qs}`);
+  } catch (err) {
+    return api.get<SpendingFullReport>(`/api/v1/spending/report${qs}`);
+  }
 }

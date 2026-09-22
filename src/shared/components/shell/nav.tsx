@@ -69,7 +69,7 @@ export function BottomTabBar() {
         {visibleItems.map((it) => {
           const Icon = it.icon;
           const active = isActive(it.to);
-          const badge = it.to === "/spotlights" ? highPriorityCount : 0;
+          const badge = 0;
           return (
             <li key={it.to}>
               <Link
@@ -209,7 +209,7 @@ export function DesktopSidebar() {
           {visibleItems.map((it) => {
             const Icon = it.icon;
             const active = isActive(it.to);
-            const badge = it.to === "/spotlights" ? highPriorityCount : 0;
+            const badge = 0;
             return (
               <li key={it.to}>
                 <Link
