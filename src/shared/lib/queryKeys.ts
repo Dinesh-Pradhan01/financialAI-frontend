@@ -1,0 +1,52 @@
+export const queryKeys = {
+  auth: {
+    me: () => ["auth", "me"] as const,
+    invites: () => ["auth", "invites"] as const,
+    inviteVerify: (token: string) => ["auth", "invite", "verify", token] as const,
+  },
+  business: {
+    invites: () => ["business", "invites"] as const,
+  },
+  team: {
+    all: () => ["team"] as const,
+    invites: () => ["team", "invites"] as const,
+  },
+  company: {
+    all: () => ["company"] as const,
+    profile: () => ["company", "profile"] as const,
+    industryLeaders: () => ["company", "industry-leaders"] as const,
+    rating: () => ["company", "rating"] as const,
+    news: () => ["company", "news"] as const,
+    aiView: () => ["company", "ai-view"] as const,
+    documents: () => ["company", "documents"] as const,
+    packages: () => ["company", "packages"] as const,
+  },
+  statements: {
+    all: () => ["statements"] as const,
+    byId: (id: string) => ["statements", id] as const,
+  },
+  hr: {
+    dashboard: {
+      employee: () => ["hr", "dashboard", "employee"] as const,
+      vendor: () => ["hr", "dashboard", "vendor"] as const,
+      history: () => ["hr", "dashboard", "history"] as const,
+      preview: (id: string) => ["hr", "dashboard", "history", id] as const,
+    },
+    employees: {
+      all: (params?: object) => ["hr", "employees", params] as const,
+    },
+    vendors: {
+      all: (params?: object) => ["hr", "vendors", params] as const,
+    },
+  },
+  cfo: {
+    dashboard: {
+      vendor: () => ["cfo", "dashboard", "vendor"] as const,
+      history: () => ["cfo", "dashboard", "history"] as const,
+      preview: (id: string) => ["cfo", "dashboard", "history", id] as const,
+    },
+    vendors: {
+      all: (params?: object) => ["cfo", "vendors", params] as const,
+    },
+  },
+} as const;

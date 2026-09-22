@@ -1,20 +1,21 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
-import { sectorQueryOptions, top5StocksQueryOptions } from "@/hooks/useIndustryAPI";
-import { IndustryDashboard } from "@/components/industry/IndustryDashboard";
+import { sectorQueryOptions, top5StocksQueryOptions } from "@/features/industry/hooks/useIndustryAPI";
+import { IndustryDashboard } from "@/features/industry/components/IndustryDashboard";
 
 const industrySearchSchema = z.object({
-  sector_name: z.string().default("fast_moving_consumer_goods"),
+  sector_name: z.string().optional(),
 });
 
 export const Route = createFileRoute("/_app/industry")({
   validateSearch: (search) => industrySearchSchema.parse(search),
   loader: async ({ context: { queryClient }, search }) => {
-    const sector_name = search?.sector_name || "fast_moving_consumer_goods";
-    await Promise.all([
-      queryClient.ensureQueryData(sectorQueryOptions(sector_name)),
-      queryClient.ensureQueryData(top5StocksQueryOptions()),
-    ]);
+    if (search?.sector_name) {
+      await Promise.all([
+        queryClient.ensureQueryData(sectorQueryOptions(search.sector_name)),
+        queryClient.ensureQueryData(top5StocksQueryOptions(search.sector_name)),
+      ]);
+    }
   },
   head: () => ({
     meta: [

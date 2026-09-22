@@ -1,0 +1,397 @@
+import React, { useState } from "react";
+import { Link } from "@tanstack/react-router";
+import { formatDistanceToNow } from "date-fns";
+import {
+  Users,
+  Building2,
+  TrendingUp,
+  RefreshCw,
+  BriefcaseBusiness,
+  UploadCloud,
+  ArrowUpRight,
+  CircleCheck,
+  CircleDot,
+  ChevronDown,
+} from "lucide-react";
+import { Card } from "@/shared/components/ui/card";
+import { Button } from "@/shared/components/ui/button";
+import { Skeleton } from "@/shared/components/ui/skeleton";
+import { Badge } from "@/shared/components/ui/badge";
+import { motion, AnimatePresence } from "framer-motion";
+import { useHRDashboard } from "../hooks/useDashboard";
+import { UploadPreviewModal } from "./UploadPreviewModal";
+import { cn } from "@/shared/lib/utils";
+
+// ---------------------------------------------------------------------------
+// Semantic token map – kept consistent with the rest of the Spotlight product.
+//
+// In this product, emerald/UserCheck = "accepted / live member" (Team section).
+// We must NOT reuse that for a different concept in HR.
+//
+// HR semantic tokens:
+//   • Employees (headcount)  → primary blue
+//   • Vendors (partners)     → violet
+//   • Growth / trend         → teal
+//   • Recurrence / renewal   → indigo
+//   • Upload event           → slate (neutral action, not a status)
+// ---------------------------------------------------------------------------
+
+const STAGGER = {
+  container: { transition: { staggerChildren: 0.06 } },
+  child: {
+    initial: { opacity: 0, y: 10 },
+    animate: { opacity: 1, y: 0 },
+    transition: { duration: 0.22, ease: "easeOut" },
+  },
+};
+
+export function HRDashboardPage() {
+  const { employeeMetrics, history, isLoading } = useHRDashboard();
+  const [previewUploadId, setPreviewUploadId] = useState<string | null>(null);
+  const [isUploadsCollapsed, setIsUploadsCollapsed] = useState(false);
+
+  const kpis = [
+    {
+      label: "Total Employees",
+      value: employeeMetrics?.totalEmployees ?? 0,
+      href: "/hr/employees",
+      icon: Users,
+      iconClass: "bg-primary/10 text-primary border-primary/20",
+      ambient: "from-primary/8",
+      hoverBorder: "hover:border-primary/40",
+      subtext: "View all employee records",
+    },
+    {
+      label: "Active Headcount",
+      value: employeeMetrics?.activeEmployees ?? 0,
+      href: "/hr/employees?status=Active",
+      icon: TrendingUp,
+      iconClass: "bg-teal-500/10 text-teal-600 border-teal-500/20",
+      ambient: "from-teal-500/8",
+      hoverBorder: "hover:border-teal-500/40",
+      subtext: "Filter by active status",
+    },
+  ];
+
+  return (
+    <div className="w-full max-w-7xl mx-auto space-y-8 p-4 md:p-6 pb-24">
+      {/* ── Page header ──────────────────────────────────────────────── */}
+      <header className="flex flex-col gap-1.5">
+        <div className="flex items-center gap-2.5">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary border border-primary/20">
+            <BriefcaseBusiness className="h-4.5 w-4.5" />
+          </div>
+          <h1 className="font-display text-2xl font-bold tracking-tight text-foreground">
+            HR Operations
+          </h1>
+        </div>
+        <p className="text-text-secondary text-sm pl-0.5">
+          Bulk-import and manage employee directory and organizational data through intelligent
+          Excel workflows.
+        </p>
+      </header>
+
+      {/* ── Hero & Overview grid: Employee Management (left) + KPIs stacked vertically (right) ── */}
+      <motion.section
+        className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch"
+        initial="initial"
+        animate="animate"
+        variants={{ animate: STAGGER.container }}
+      >
+        <div className="col-span-1 lg:col-span-7 xl:col-span-8 h-full">
+          <ModuleCard
+            title="Employee Management"
+            description="Upload employee master data, validate records, review information and import employees at scale."
+            href="/hr/employee/upload"
+            icon={Users}
+            buttonLabel="Manage Employees"
+            accentClass="bg-primary/10 text-primary border-primary/20"
+            glowClass="from-primary/12"
+          />
+        </div>
+
+        <div className="col-span-1 lg:col-span-5 xl:col-span-4 flex flex-col gap-3.5 h-full">
+          {kpis.map((kpi) => {
+            const Icon = kpi.icon;
+            return (
+              <motion.div key={kpi.label} variants={STAGGER.child} className="flex-1">
+                <Link
+                  to={kpi.href as any}
+                  className="block h-full group select-none cursor-pointer focus:outline-none"
+                >
+                  <div
+                    className={cn(
+                      "relative h-full flex flex-col justify-between overflow-hidden rounded-2xl border border-border/80 bg-linear-to-br from-surface via-surface to-surface-alt/20 p-4 sm:p-4.5 shadow-xs transition-all duration-200 hover:shadow-md hover:border-border",
+                      kpi.hoverBorder,
+                    )}
+                  >
+                    <div
+                      className={cn(
+                        "absolute inset-0 pointer-events-none bg-linear-to-br via-transparent to-transparent opacity-70 group-hover:opacity-100 transition-opacity duration-300",
+                        kpi.ambient,
+                      )}
+                    />
+                    <div className="relative z-10 flex items-center justify-between gap-3">
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-wider text-text-secondary group-hover:text-foreground transition-colors">
+                          {kpi.label}
+                        </p>
+                        <div className="mt-1 font-display text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground tabular-nums">
+                          {isLoading ? (
+                            <Skeleton className="mt-1 h-8 w-16 rounded-md" />
+                          ) : (
+                            kpi.value.toLocaleString()
+                          )}
+                        </div>
+                      </div>
+                      <div
+                        className={cn(
+                          "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border shadow-2xs transition-transform duration-200 group-hover:scale-105",
+                          kpi.iconClass,
+                        )}
+                      >
+                        <Icon className="h-4.5 w-4.5" />
+                      </div>
+                    </div>
+
+                    <div className="relative z-10 mt-3 flex items-center gap-1 text-[11px] font-medium text-text-tertiary group-hover:text-text-secondary transition-colors pt-2.5 border-t border-border/50">
+                      <span>{kpi.subtext}</span>
+                      <ArrowUpRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                    </div>
+                  </div>
+                </Link>
+              </motion.div>
+            );
+          })}
+        </div>
+      </motion.section>
+
+      {/* ── Recent upload activity ────────────────────────────────────── */}
+      <section>
+        <div className="flex items-center justify-between mb-3">
+          <button
+            type="button"
+            onClick={() => setIsUploadsCollapsed((prev) => !prev)}
+            className="group flex items-center gap-2 text-left select-none cursor-pointer focus:outline-none"
+            aria-expanded={!isUploadsCollapsed}
+          >
+            <h2 className="text-xs font-bold uppercase tracking-wider text-text-secondary group-hover:text-foreground transition-colors">
+              Recent Uploads
+            </h2>
+            {history.length > 0 && (
+              <span className="font-mono text-xs font-medium text-text-tertiary tabular-nums">
+                ({history.length})
+              </span>
+            )}
+            <div className="flex h-5 w-5 items-center justify-center rounded-md text-text-tertiary group-hover:bg-surface-alt group-hover:text-text-secondary transition">
+              <ChevronDown
+                className={cn(
+                  "h-4 w-4 transition-transform duration-200",
+                  isUploadsCollapsed && "-rotate-90",
+                )}
+              />
+            </div>
+          </button>
+        </div>
+
+        <AnimatePresence initial={false}>
+          {!isUploadsCollapsed && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.2, ease: "easeInOut" }}
+              className="overflow-hidden"
+            >
+              <Card className="border-border/80 shadow-xs overflow-hidden">
+                {isLoading ? (
+                  <div className="divide-y divide-border">
+                    {[1, 2, 3].map((i) => (
+                      <div key={i} className="flex items-center gap-4 px-5 py-4">
+                        <Skeleton className="h-9 w-9 rounded-xl shrink-0" />
+                        <div className="flex-1 space-y-2">
+                          <Skeleton className="h-3.5 w-40" />
+                          <Skeleton className="h-3 w-56" />
+                        </div>
+                        <Skeleton className="h-7 w-20 rounded-lg" />
+                      </div>
+                    ))}
+                  </div>
+                ) : history.length > 0 ? (
+                  <ul className="divide-y divide-border">
+                    {history.map((item, idx) => {
+                      const isEmployee = item.upload_type === "Employee";
+                      return (
+                        <motion.li
+                          key={item.upload_id || idx}
+                          initial={{ opacity: 0, x: -6 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ duration: 0.2, delay: idx * 0.04 }}
+                          className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-5 py-4 hover:bg-surface-alt/40 transition-colors"
+                        >
+                          <div className="flex items-center gap-3.5 min-w-0">
+                            {/* Use UploadCloud (neutral upload icon) — NOT CheckCircle2 which
+                          means "accepted member" in Team. Color is type-specific, not
+                          status-specific, to avoid semantic clash. */}
+                            <div
+                              className={cn(
+                                "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border",
+                                isEmployee
+                                  ? "bg-primary/10 text-primary border-primary/20"
+                                  : "bg-violet-500/10 text-violet-600 border-violet-500/20",
+                              )}
+                            >
+                              <UploadCloud className="h-4 w-4" />
+                            </div>
+
+                            <div className="min-w-0">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span className="text-xs font-semibold text-foreground tracking-tight truncate">
+                                  {item.file_name}
+                                </span>
+                                <Badge
+                                  variant="outline"
+                                  className={cn(
+                                    "text-[10px] font-bold uppercase tracking-wider shrink-0 h-5 px-1.5",
+                                    isEmployee
+                                      ? "border-primary/30 text-primary bg-primary/5"
+                                      : "border-violet-500/30 text-violet-600 bg-violet-500/5",
+                                  )}
+                                >
+                                  {item.upload_type}
+                                </Badge>
+                              </div>
+                              <p className="text-xs text-text-secondary mt-0.5 tabular-nums">
+                                {(item.record_count ?? 0).toLocaleString()} records ·{" "}
+                                {item.uploaded_at
+                                  ? (() => {
+                                      try {
+                                        const d = new Date(item.uploaded_at);
+                                        return isNaN(d.getTime())
+                                          ? "Recently"
+                                          : formatDistanceToNow(d, { addSuffix: true });
+                                      } catch {
+                                        return "Recently";
+                                      }
+                                    })()
+                                  : "Recently"}
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-2 shrink-0 pl-13 sm:pl-0">
+                            {/* Completion indicator — use CircleCheck (distinct from CheckCircle2
+                          used by Team) to avoid icon-reuse semantic conflict */}
+                            <div className="flex items-center gap-1 text-xs text-teal-600 font-medium tracking-tight">
+                              <CircleCheck className="h-3.5 w-3.5" />
+                              Imported
+                            </div>
+                            <button
+                              onClick={() => setPreviewUploadId(item.upload_id)}
+                              className="inline-flex items-center gap-1 rounded-lg border border-border px-2.5 py-1.5 text-xs font-semibold text-text-secondary transition-colors hover:bg-surface-alt hover:text-foreground"
+                            >
+                              Preview
+                              <ArrowUpRight className="h-3 w-3" />
+                            </button>
+                          </div>
+                        </motion.li>
+                      );
+                    })}
+                  </ul>
+                ) : (
+                  <div className="flex flex-col items-center justify-center py-14 text-center px-6">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-surface-alt text-text-tertiary mb-4">
+                      <CircleDot className="h-5 w-5" />
+                    </div>
+                    <p className="text-sm font-semibold text-text-secondary">No uploads yet</p>
+                    <p className="text-xs text-text-tertiary mt-1">
+                      Import your first employee list to see activity here.
+                    </p>
+                  </div>
+                )}
+              </Card>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </section>
+
+      <UploadPreviewModal uploadId={previewUploadId} onClose={() => setPreviewUploadId(null)} />
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// ModuleCard
+// ---------------------------------------------------------------------------
+
+function ModuleCard({
+  title,
+  description,
+  href,
+  directoryHref,
+  buttonLabel,
+  directoryLabel,
+  icon: Icon,
+  accentClass,
+  glowClass,
+}: Readonly<{
+  title: string;
+  description: string;
+  href: string;
+  directoryHref?: string;
+  buttonLabel: string;
+  directoryLabel?: string;
+  icon: React.ElementType;
+  accentClass: string;
+  glowClass: string;
+}>) {
+  return (
+    <motion.div variants={STAGGER.child} className="h-full">
+      <Card className="group relative overflow-hidden border-border/80 p-6 shadow-xs transition-all duration-200 hover:border-border hover:shadow-sm h-full flex flex-col justify-between">
+        {/* Ambient glow */}
+        <div
+          className={cn(
+            "absolute inset-0 pointer-events-none bg-linear-to-br via-transparent to-transparent opacity-50 group-hover:opacity-80 transition-opacity duration-300",
+            glowClass,
+          )}
+        />
+
+        <div className="relative z-10 flex flex-col gap-4 h-full justify-between">
+          <div>
+            <div
+              className={cn(
+                "flex h-11 w-11 items-center justify-center rounded-xl border shadow-2xs transition-transform duration-200 group-hover:scale-105",
+                accentClass,
+              )}
+            >
+              <Icon className="h-5 w-5" />
+            </div>
+
+            <div className="mt-4">
+              <h2 className="font-display text-base sm:text-lg font-bold text-foreground tracking-tight">
+                {title}
+              </h2>
+              <p className="mt-1.5 text-xs sm:text-sm leading-relaxed text-text-secondary">
+                {description}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2.5 pt-2 flex-wrap">
+            <Button asChild size="default" className="gap-2 shadow-xs">
+              <Link to={href}>
+                {buttonLabel}
+                <ArrowUpRight className="h-4 w-4" />
+              </Link>
+            </Button>
+            {directoryHref && (
+              <Button asChild variant="outline" size="default" className="gap-2">
+                <Link to={directoryHref}>{directoryLabel || "Directory"}</Link>
+              </Button>
+            )}
+          </div>
+        </div>
+      </Card>
+    </motion.div>
+  );
+}
