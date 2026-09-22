@@ -38,10 +38,7 @@ export const selectWellness = createSelector([selectApplied], (applied) =>
 
 export const selectHighPriorityCount = createSelector(
   [selectApplied, selectSnoozed],
-  (applied, snoozed) =>
-    rohan.spotlights.filter(
-      (t) => t.severity === "high" && !applied.includes(t.id) && !snoozed.includes(t.id),
-    ).length,
+  () => 0,
 );
 
 // Preference Selectors
