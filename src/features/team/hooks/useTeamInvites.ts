@@ -20,15 +20,15 @@ import {
 // Endpoint URLs
 // ---------------------------------------------------------------------------
 
-export const GET_INVITES_URL = "/api/auth/invites";
-export const SEND_INVITE_URL = "/api/auth/invite";
+export const GET_INVITES_URL = "/api/v1/auth/invites";
+export const SEND_INVITE_URL = "/api/v1/auth/invite";
 
 // Canonical resend endpoint
 export const RESEND_INVITE_URL = (id: string) => `/api/business/onboarding/resend-invite/${id}`;
 
-export const REVOKE_INVITE_URL = (id: string) => `/api/auth/invite/${id}`;
+export const REVOKE_INVITE_URL = (id: string) => `/api/v1/auth/invite/${id}`;
 
-export const REMOVE_MEMBER_URL = (id: string) => `/api/auth/invite/${id}/remove`;
+export const REMOVE_MEMBER_URL = (id: string) => `/api/v1/auth/invite/${id}/remove`;
 
 // ---------------------------------------------------------------------------
 // Team Invite Hooks with Optimistic UI Updates

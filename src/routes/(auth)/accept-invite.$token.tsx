@@ -60,7 +60,7 @@ function AcceptInvitePage() {
   useEffect(() => {
     async function verifyInvite() {
       try {
-        const res = await api.get<InviteVerifyResponse>(`/api/auth/invite/verify/${token}`);
+        const res = await api.get<InviteVerifyResponse>(`/api/v1/auth/invite/verify/${token}`);
         setInviteData(res);
         if (res.email) setEmail(res.email);
         if (res.full_name) setFullName(res.full_name);
@@ -136,7 +136,7 @@ function AcceptInvitePage() {
       }
 
       // 2. Call dedicated auth password setup endpoint
-      await api.post("/api/auth/invite/accept-with-password", {
+      await api.post("/api/v1/auth/invite/accept-with-password", {
         token,
         password,
         email,

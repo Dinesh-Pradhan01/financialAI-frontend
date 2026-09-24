@@ -22,7 +22,7 @@ export function InviteModal({ isOpen, onClose, invitesEndpoint }: InviteModalPro
   const [copied, setCopied] = useState(false);
 
   const queryClient = useQueryClient();
-  const endpoint = invitesEndpoint || "/api/auth/invites";
+  const endpoint = invitesEndpoint || "/api/v1/auth/invites";
   const queryKey = invitesEndpoint ? queryKeys.business.invites() : queryKeys.auth.invites();
 
   const { data: invites = [], isLoading: loadingInvites } = useQuery({
@@ -34,7 +34,7 @@ export function InviteModal({ isOpen, onClose, invitesEndpoint }: InviteModalPro
 
   const sendInviteMutation = useMutation({
     mutationFn: (payload: InviteSendPayload) =>
-      api.post<InviteSendResponse>("/api/auth/invite", payload),
+      api.post<InviteSendResponse>("/api/v1/auth/invite", payload),
     onSuccess: (res, vars) => {
       toast.success(`Invitation sent to ${vars.email} as ${vars.role.toUpperCase()}`);
       if (res.invite_link) {

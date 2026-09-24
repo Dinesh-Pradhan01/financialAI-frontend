@@ -492,15 +492,15 @@ When judges ask "what next?":
 To ensure a seamless, ultra-fast user experience across registration, onboarding, and dashboard page transitions, the platform implements a high-performance integration model between the Vite/React frontend and FastAPI backend:
 
 ### 11.1 Non-Blocking Backend Token Verification
-- **Threadpool Execution (`asyncio.to_thread`)**: Firebase Admin SDK ID token verification (`verify_id_token` with `check_revoked=True`) performs synchronous HTTP network checks to Google servers. The backend executes this check inside `asyncio.to_thread` to avoid blocking FastAPI's main asyncio event loop, allowing concurrent API requests (`/api/auth/me`, `/api/persons/me`, `/api/statements`) to execute without delay.
+- **Threadpool Execution (`asyncio.to_thread`)**: Firebase Admin SDK ID token verification (`verify_id_token` with `check_revoked=True`) performs synchronous HTTP network checks to Google servers. The backend executes this check inside `asyncio.to_thread` to avoid blocking FastAPI's main asyncio event loop, allowing concurrent API requests (`/api/v1/auth/me`, `/api/persons/me`, `/api/statements`) to execute without delay.
 
 ### 11.2 Optimized TanStack Router Context & Route Guards
 - **In-Memory `AuthSnapshot`**: `AuthContext.tsx` maintains a synchronized, non-blocking `AuthSnapshot` containing `user`, `firebaseUser`, and `loading` state.
 - **Router Context Integration**: The router context in `router.tsx` and `__root.tsx` receives `auth: getAuthSnapshot()`.
-- **Zero-Latency Route Guards (`beforeLoad`)**: Route guards in `_app.tsx` and `onboarding.tsx` check the in-memory `AuthSnapshot` first. During client-side navigation between dashboard tabs (`/home`, `/spending`, `/profile`, `/coach`), route validation completes in 0ms without making blocking HTTP network calls (`/api/auth/me`) on every click.
+- **Zero-Latency Route Guards (`beforeLoad`)**: Route guards in `_app.tsx` and `onboarding.tsx` check the in-memory `AuthSnapshot` first. During client-side navigation between dashboard tabs (`/home`, `/spending`, `/profile`, `/coach`), route validation completes in 0ms without making blocking HTTP network calls (`/api/v1/auth/me`) on every click.
 
 ### 11.3 Synchronized Profile Metadata & Instant Dashboard Display
-- **Unified `UserResponse` Schema**: The backend (`/api/auth/me` and `/api/auth/sync`) joins `Person.full_name` with the `User` model and returns `full_name` directly in the auth response payload.
+- **Unified `UserResponse` Schema**: The backend (`/api/v1/auth/me` and `/api/v1/auth/sync`) joins `Person.full_name` with the `User` model and returns `full_name` directly in the auth response payload.
 - **Instant Name Display**: `AuthContext` stores `full_name` directly in `user`. Dashboard components (`_app.home.tsx`) use `user.full_name` as the primary greeting name immediately upon page mount, eliminating name fallback delays post-onboarding.
 
 ---

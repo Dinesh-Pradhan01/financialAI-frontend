@@ -103,7 +103,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const promise = (async () => {
       // Get fresh token directly from the resolved Firebase user object
       const token = await fbUser.getIdToken();
-      const backendUser = await api.post<UserResponse>("/api/auth/sync", undefined, {
+      const backendUser = await api.post<UserResponse>("/api/v1/auth/sync", undefined, {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
         useFirebaseToken: false,
       });
@@ -200,13 +200,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setFirebaseUser(fbUser);
     const token = await fbUser.getIdToken();
 
-    // 1. Call POST /api/auth/google with { token } in the body
-    await api.post<{ status: string; uid: string; email: string }>("/api/auth/google", {
+    // 1. Call POST /api/v1/auth/google with { token } in the body
+    await api.post<{ status: string; uid: string; email: string }>("/api/v1/auth/google", {
       token,
     });
 
-    // 2. Immediately follow with GET /api/auth/me to get the actual UserResponse
-    const backendUser = await api.get<UserResponse>("/api/auth/me");
+    // 2. Immediately follow with GET /api/v1/auth/me to get the actual UserResponse
+    const backendUser = await api.get<UserResponse>("/api/v1/auth/me");
     setUser(backendUser);
     currentAuthSnapshot = { user: backendUser, firebaseUser: fbUser, loading: false };
     return backendUser;
@@ -219,7 +219,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = useCallback(async () => {
     try {
-      await api.post("/api/auth/logout", undefined, { useFirebaseToken: false });
+      await api.post("/api/v1/auth/logout", undefined, { useFirebaseToken: false });
     } catch (e) {
       console.warn("Backend logout failed:", e);
     } finally {
@@ -244,7 +244,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const refreshUser = useCallback(async () => {
     try {
-      const backendUser = await api.get<UserResponse>("/api/auth/me");
+      const backendUser = await api.get<UserResponse>("/api/v1/auth/me");
       setUser(backendUser);
       currentAuthSnapshot = { user: backendUser, firebaseUser: auth.currentUser, loading: false };
     } catch (error) {

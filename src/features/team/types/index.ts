@@ -4,7 +4,7 @@ export type TeamInviteStatus = "pending" | "accepted" | "expired" | "revoked" | 
 
 /**
  * Core team invite entity representing a member invitation record.
- * Matches backend database model and GET /api/auth/invites response items.
+ * Matches backend database model and GET /api/v1/auth/invites response items.
  */
 export interface TeamInvite {
   id: string;
@@ -20,7 +20,7 @@ export interface TeamInvite {
 }
 
 /**
- * Payload for POST /api/auth/invite
+ * Payload for POST /api/v1/auth/invite
  */
 export interface SendInvitePayload {
   email: string;
@@ -29,7 +29,7 @@ export interface SendInvitePayload {
 }
 
 /**
- * Response for POST /api/auth/invite
+ * Response for POST /api/v1/auth/invite
  */
 export interface SendInviteResponse {
   message?: string;
@@ -47,7 +47,7 @@ export interface ResendInviteResponse {
 }
 
 /**
- * Response for DELETE /api/auth/invite/{invite_id}
+ * Response for DELETE /api/v1/auth/invite/{invite_id}
  */
 export interface RevokeInviteResponse {
   id: string;
@@ -63,7 +63,7 @@ export interface RevokeInviteResponse {
 }
 
 /**
- * Response for POST /api/auth/invite/{invite_id}/remove
+ * Response for POST /api/v1/auth/invite/{invite_id}/remove
  */
 export interface RemoveMemberResponse {
   id: string;

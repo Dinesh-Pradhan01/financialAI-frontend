@@ -113,7 +113,7 @@ function VerifyEmail() {
       // 2. User has verified email in Firebase! Inform backend to update DB record
       try {
         const { api } = await import("@/shared/lib/api");
-        await api.post("/api/auth/verify-email");
+        await api.post("/api/v1/auth/verify-email");
       } catch (e) {
         console.warn("Backend verify-email call warning:", e);
       }

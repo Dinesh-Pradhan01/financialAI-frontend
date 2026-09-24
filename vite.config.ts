@@ -16,7 +16,7 @@ export default defineConfig({
     server: {
       // Proxy /api/* to the FastAPI backend so the browser sees everything as
       // same-origin (localhost:8080). This fixes cross-origin cookie issues —
-      // the session cookie set by /api/auth/sync will be included in all
+      // the session cookie set by /api/v1/auth/sync will be included in all
       // subsequent /api/* requests automatically.
       proxy: {
         "/api": {

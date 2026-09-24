@@ -76,7 +76,7 @@ export async function fetchAPI<T = unknown>(path: string, options: FetchOptions 
         currentPath.startsWith("/verify-email") ||
         currentPath.startsWith("/accept-invite") ||
         currentPath === "/";
-      if (!isAuthPage && !path.includes("/api/auth/")) {
+      if (!isAuthPage && !path.includes("/api/v1/auth/")) {
         window.location.href = "/login";
       }
     }
