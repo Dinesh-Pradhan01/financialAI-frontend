@@ -91,9 +91,9 @@ export function CreatePackageDialog({
       { name, document_ids: selectedDocIds },
       {
         onSuccess: (createdPkg) => {
+          onSuccess?.(createdPkg);
           toast.success(`Created package "${name}" successfully.`);
           onOpenChange(false);
-          onSuccess?.(createdPkg);
         },
         onError: (err) => {
           toast.error(getApiErrorMessage(err, "Failed to create package"));

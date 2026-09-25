@@ -25,13 +25,23 @@ import { useSpendingReport } from "../hooks/useSpendingReport";
 
 interface SpendingIncomeTabProps {
   isActive: boolean;
+  timeframe?: string;
+  date_from?: string;
+  date_to?: string;
 }
 
 const INFLOW_COLORS = ["#10b981", "#059669", "#047857", "#10b981", "#34d399", "#6ee7b7"];
 
-export function SpendingIncomeTab({ isActive }: SpendingIncomeTabProps) {
-  // Fetch live income credit transactions
+export function SpendingIncomeTab({
+  isActive,
+  timeframe = "12M",
+  date_from,
+  date_to,
+}: SpendingIncomeTabProps) {
+  // Fetch live income credit transactions with active timeframe bounds
   const { data: txData } = useTransactions({
+    date_from,
+    date_to,
     classification: "income",
     limit: 1000,
   });
@@ -163,11 +173,11 @@ export function SpendingIncomeTab({ isActive }: SpendingIncomeTabProps) {
         {/* Card 1: Total Revenue (period) */}
         <Card className="p-4 border-border/80 bg-surface shadow-xs space-y-2">
           <div className="flex items-center justify-between text-xs text-text-tertiary">
-            <span>Total Revenue (Period)</span>
+            <span>Total Revenue ({timeframe})</span>
             <DollarSign size={16} className="text-emerald-500" />
           </div>
-          <div className="font-num text-2xl font-extrabold text-emerald-600 dark:text-emerald-400">
-            {formatINR(totalRevenue)}
+          <div className="font-num tabular-nums text-2xl font-extrabold text-emerald-600 dark:text-emerald-400">
+            +{formatINR(totalRevenue)}
           </div>
           <div className="text-[11px] text-text-secondary">
             Cumulative credit inflows recorded across statements
@@ -180,7 +190,7 @@ export function SpendingIncomeTab({ isActive }: SpendingIncomeTabProps) {
             <span>MoM Revenue Growth Rate</span>
             <ArrowUpRight size={16} className="text-emerald-500" />
           </div>
-          <div className="font-num text-2xl font-extrabold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+          <div className="font-num tabular-nums text-2xl font-extrabold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
             +{formatPct(momGrowth, 1)}
           </div>
           <div className="text-[11px] text-text-secondary">
@@ -194,8 +204,8 @@ export function SpendingIncomeTab({ isActive }: SpendingIncomeTabProps) {
             <span>Annualized Revenue Run-Rate</span>
             <Briefcase size={16} className="text-blue-500" />
           </div>
-          <div className="font-num text-2xl font-extrabold text-foreground">
-            {formatINR(annualizedRunRate, { compact: true })}
+          <div className="font-num tabular-nums text-2xl font-extrabold text-foreground">
+            +{formatINR(annualizedRunRate, { compact: true })}
           </div>
           <div className="text-[11px] text-text-secondary">
             Extrapolated 12-month revenue trajectory based on trailing average
@@ -267,11 +277,18 @@ export function SpendingIncomeTab({ isActive }: SpendingIncomeTabProps) {
                 <div key={item.category} className="space-y-1.5">
                   <div className="flex items-center justify-between text-xs">
                     <span className="font-semibold text-foreground truncate">{item.category}</span>
-                    <div className="font-num text-xs font-bold text-foreground shrink-0 ml-2">
-                      {formatINR(item.amount)} <span className="text-[10px] text-text-tertiary font-normal">({formatPct(item.pct, 1)})</span>
+                    <div className="font-num tabular-nums text-xs font-bold text-emerald-600 dark:text-emerald-400 shrink-0 ml-2">
+                      +{formatINR(item.amount)} <span className="text-[10px] text-text-tertiary font-normal">({formatPct(item.pct, 1)})</span>
                     </div>
                   </div>
-                  <div className="h-2 w-full rounded-full bg-surface-alt overflow-hidden border border-border/40">
+                  <div
+                    role="progressbar"
+                    aria-valuenow={Math.round(item.pct)}
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                    aria-label={`${item.category} share`}
+                    className="h-2 w-full rounded-full bg-surface-alt overflow-hidden border border-border/40"
+                  >
                     <div
                       className="h-full bg-emerald-500 rounded-full"
                       style={{ width: `${Math.min(100, item.pct)}%` }}
@@ -299,31 +316,31 @@ export function SpendingIncomeTab({ isActive }: SpendingIncomeTabProps) {
               Credits in single-ledger bank statements missing client entity metadata or requiring invoice allocation.
             </p>
           </div>
-          <Badge variant="outline" className="bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/20 text-xs font-bold">
+          <Badge variant="outline" className="bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/20 text-xs font-bold font-num tabular-nums">
             {unmatchedCredits.length} Action Items
           </Badge>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-xs text-left">
+        <div className="overflow-x-auto" tabIndex={0} role="region" aria-label="Unmatched credit transactions scrollable table">
+          <table className="w-full text-xs text-left" aria-label="Unmatched credit transactions list">
             <thead className="bg-surface-alt text-[11px] font-semibold text-text-secondary uppercase">
               <tr>
-                <th className="px-4 py-2.5">Date</th>
-                <th className="px-4 py-2.5">Statement Narration</th>
-                <th className="px-4 py-2.5">Credit Amount (₹)</th>
-                <th className="px-4 py-2.5">Data-Quality Issue</th>
-                <th className="px-4 py-2.5">Action Status</th>
+                <th scope="col" className="px-4 py-2.5">Date</th>
+                <th scope="col" className="px-4 py-2.5">Statement Narration</th>
+                <th scope="col" className="px-4 py-2.5 text-right">Credit Inflow (₹)</th>
+                <th scope="col" className="px-4 py-2.5">Data-Quality Issue</th>
+                <th scope="col" className="px-4 py-2.5">Action Status</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
               {unmatchedCredits.map((row: any, i: number) => (
-                <tr key={i} className="hover:bg-surface-alt/50">
+                <tr key={i} className="hover:bg-surface-alt/50 transition-colors">
                   <td className="px-4 py-3 font-mono text-text-secondary whitespace-nowrap">{row.date || "2026-03-12"}</td>
                   <td className="px-4 py-3 font-medium text-foreground max-w-xs truncate" title={row.narration}>
                     {row.narration}
                   </td>
-                  <td className="px-4 py-3 font-mono font-bold text-emerald-600 dark:text-emerald-400 whitespace-nowrap">
-                    {formatINR(row.amount || row.credit_amount || 0)}
+                  <td className="px-4 py-3 font-num tabular-nums font-bold text-emerald-600 dark:text-emerald-400 whitespace-nowrap text-right">
+                    +{formatINR(row.amount || row.credit_amount || 0)}
                   </td>
                   <td className="px-4 py-3 text-text-secondary">{row.issue || "Missing counterparty mapping"}</td>
                   <td className="px-4 py-3">

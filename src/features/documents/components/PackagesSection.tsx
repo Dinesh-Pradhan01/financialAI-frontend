@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Plus, Package as PackageIcon, AlertCircle } from "lucide-react";
+import { useState, useEffect, useMemo } from "react";
+import { Plus, Package as PackageIcon, AlertCircle, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { getApiErrorMessage } from "@/shared/lib/apiError";
 import {
@@ -10,6 +10,7 @@ import {
   useRemoveDocumentsFromPackage,
 } from "../hooks/useDocuments";
 import { PackageCard } from "./PackageCard";
+import { PackageCardSkeleton } from "./PackageCardSkeleton";
 import { PackageDocumentPicker } from "./PackageDocumentPicker";
 import { CreatePackageDialog } from "./CreatePackageDialog";
 import { Button } from "@/shared/components/ui/button";
@@ -23,7 +24,7 @@ export interface PackagesSectionProps {
 }
 
 export function PackagesSection({ documents, className }: PackagesSectionProps) {
-  const { data: packages = [], isLoading, isError, error } = usePackages();
+  const { data: packages = [], isLoading, isFetching, isError, error } = usePackages();
 
   const renamePackageMutation = useRenamePackage();
   const disbandPackageMutation = useDisbandPackage();
@@ -39,6 +40,35 @@ export function PackagesSection({ documents, className }: PackagesSectionProps) 
 
   // Create package dialog state
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
+
+  // New package syncing state (to cover the delay between creation and refetch)
+  const [syncingPackageName, setSyncingPackageName] = useState<string | null>(null);
+
+  const isNewPackageLoaded = useMemo(() => {
+    if (!syncingPackageName) return false;
+    return packages.some(
+      (p) => p.name.trim().toLowerCase() === syncingPackageName.trim().toLowerCase(),
+    );
+  }, [packages, syncingPackageName]);
+
+  // Clean up syncingPackageName once the new package arrives
+  useEffect(() => {
+    if (isNewPackageLoaded && syncingPackageName) {
+      setSyncingPackageName(null);
+    }
+  }, [isNewPackageLoaded, syncingPackageName]);
+
+  // Safety net timeout in case refetch finishes without matching name
+  useEffect(() => {
+    if (syncingPackageName) {
+      const timer = setTimeout(() => {
+        setSyncingPackageName(null);
+      }, 8000);
+      return () => clearTimeout(timer);
+    }
+  }, [syncingPackageName]);
+
+  const showLoadingCard = Boolean(syncingPackageName && !isNewPackageLoaded);
 
   // ---------------------------------------------------------------------------
   // Handlers
@@ -119,16 +149,21 @@ export function PackagesSection({ documents, className }: PackagesSectionProps) 
   // Render Loading & Error States
   // ---------------------------------------------------------------------------
 
-  if (isLoading) {
+  if (isLoading || (packages.length === 0 && (isFetching || showLoadingCard))) {
     return (
       <section className={cn("space-y-4", className)}>
-        <div className="space-y-1">
-          <Skeleton className="h-5 w-32" />
-          <Skeleton className="h-3.5 w-72" />
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="space-y-1">
+            <Skeleton className="h-5 w-32" />
+            <Skeleton className="h-3.5 w-72" />
+          </div>
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-brand/10 text-brand text-xs font-medium border border-brand/20 animate-pulse self-start sm:self-auto">
+            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            {syncingPackageName ? `Syncing "${syncingPackageName}"…` : "Updating packages…"}
+          </span>
         </div>
         <div className="grid gap-4">
-          <Skeleton className="h-32 w-full rounded-2xl" />
-          <Skeleton className="h-32 w-full rounded-2xl" />
+          <PackageCardSkeleton packageName={syncingPackageName ?? undefined} />
         </div>
       </section>
     );
@@ -154,7 +189,15 @@ export function PackagesSection({ documents, className }: PackagesSectionProps) 
             <PackageIcon className="h-4 w-4" />
           </div>
           <div>
-            <h2 className="text-base font-bold text-text-primary">Document Packages</h2>
+            <div className="flex items-center gap-2">
+              <h2 className="text-base font-bold text-text-primary">Document Packages</h2>
+              {(isFetching || showLoadingCard) && (
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-brand/10 text-brand text-xs font-medium border border-brand/20 animate-pulse">
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  {syncingPackageName ? `Syncing "${syncingPackageName}"…` : "Updating packages…"}
+                </span>
+              )}
+            </div>
             <p className="text-xs text-text-secondary mt-0.5">
               Organize documents into curated bundles for due diligence, audits, or investor
               reviews.
@@ -197,6 +240,9 @@ export function PackagesSection({ documents, className }: PackagesSectionProps) 
         </div>
       ) : (
         <div className="grid gap-4">
+          {showLoadingCard && (
+            <PackageCardSkeleton packageName={syncingPackageName ?? undefined} />
+          )}
           {packages.map((pkg) => (
             <PackageCard
               key={pkg.id}
@@ -235,6 +281,9 @@ export function PackagesSection({ documents, className }: PackagesSectionProps) 
         open={createDialogOpen}
         onOpenChange={setCreateDialogOpen}
         documents={documents}
+        onSuccess={(createdPkg) => {
+          setSyncingPackageName(createdPkg.name);
+        }}
       />
     </section>
   );

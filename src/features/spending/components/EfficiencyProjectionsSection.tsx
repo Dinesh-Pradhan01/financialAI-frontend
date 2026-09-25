@@ -101,86 +101,97 @@ export function EfficiencyProjectionsSection({
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-stretch">
         {/* Card 1: Operational Efficiency */}
-        <div className="card-spot p-5 rounded-2xl flex flex-col justify-between space-y-4 h-full">
+        <div className="card-spot p-5 rounded-2xl space-y-4">
           <div className="flex items-center gap-2.5">
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 shrink-0">
               <Gauge className="h-4 w-4" />
             </div>
             <div>
-              <h3 className="text-sm font-semibold text-foreground tracking-tight">Operational Efficiency Ratios</h3>
+              <h3 className="text-sm sm:text-base font-semibold text-foreground tracking-tight">Operational Efficiency Ratios</h3>
               <p className="text-xs text-text-secondary">Conversion and margin metrics</p>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+          <div className="space-y-2.5 pt-1">
             {efficiencyMetrics.map((m) => (
               <div
                 key={m.label}
-                className="bg-surface-alt/60 p-3.5 rounded-xl border border-border/50 flex flex-col justify-between hover:bg-surface-alt transition-colors min-w-0"
-                title={`${m.label}: ${m.value}`}
+                className="bg-surface-alt/60 p-3.5 sm:p-4 rounded-xl border border-border/50 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-4 hover:bg-surface-alt transition-colors min-w-0"
               >
-                <div className="flex items-center justify-between gap-1">
-                  <p className="text-[11px] font-semibold uppercase tracking-wider text-text-secondary/80 font-mono truncate">
-                    {m.label}
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-xs sm:text-sm font-semibold text-foreground tracking-tight">
+                      {m.label}
+                    </span>
+                    <span
+                      className={cn(
+                        "text-[10px] font-mono font-semibold px-2 py-0.5 rounded border shrink-0",
+                        m.badgeColor,
+                      )}
+                    >
+                      {m.statusLabel}
+                    </span>
+                  </div>
+                  <p className="text-xs text-text-secondary mt-0.5 leading-normal">
+                    {m.subtext}
                   </p>
-                  <span
-                    className={cn(
-                      "text-[10px] font-mono font-semibold px-1.5 py-0.5 rounded border shrink-0",
-                      m.badgeColor,
-                    )}
-                  >
-                    {m.statusLabel}
+                </div>
+                <div className="sm:text-right shrink-0">
+                  <span className={cn("font-num text-lg sm:text-xl font-bold tabular-nums tracking-tight", m.valueColor)}>
+                    {m.value}
                   </span>
                 </div>
-                <p className={cn("font-num text-lg sm:text-xl font-bold tabular-nums tracking-tight mt-1.5", m.valueColor)}>
-                  {m.value}
-                </p>
-                <p className="text-xs text-text-secondary mt-1 line-clamp-1 leading-normal">
-                  {m.subtext}
-                </p>
               </div>
             ))}
           </div>
         </div>
 
         {/* Card 2: Annualized Projections */}
-        <div className="card-spot p-5 rounded-2xl flex flex-col justify-between space-y-4 h-full">
+        <div className="card-spot p-5 rounded-2xl space-y-4">
           <div className="flex items-center gap-2.5">
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20 shrink-0">
               <TrendingUp className="h-4 w-4" />
             </div>
             <div>
-              <h3 className="text-sm font-semibold text-foreground tracking-tight">Annualized Run-Rate Projections</h3>
+              <h3 className="text-sm sm:text-base font-semibold text-foreground tracking-tight">Annualized Run-Rate Projections</h3>
               <p className="text-xs text-text-secondary">Extrapolated forward trajectory</p>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+          <div className="space-y-2.5 pt-1">
             {projectionMetrics.map((p) => (
               <div
                 key={p.label}
-                className="bg-surface-alt/60 p-3.5 rounded-xl border border-border/50 flex flex-col justify-between hover:bg-surface-alt transition-colors min-w-0"
-                title={`${p.label}: ${p.fullValue}`}
+                className="bg-surface-alt/60 p-3.5 sm:p-4 rounded-xl border border-border/50 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-4 hover:bg-surface-alt transition-colors min-w-0"
               >
-                <div className="flex items-center justify-between gap-1">
-                  <p className="text-[11px] font-semibold uppercase tracking-wider text-text-secondary/80 font-mono truncate">
-                    {p.label}
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-xs sm:text-sm font-semibold text-foreground tracking-tight">
+                      {p.label}
+                    </span>
+                    <span
+                      className={cn(
+                        "text-[10px] font-mono font-semibold px-2 py-0.5 rounded border shrink-0",
+                        p.badgeColor,
+                      )}
+                    >
+                      {p.badgeText}
+                    </span>
+                  </div>
+                  <p className="text-xs text-text-secondary mt-0.5 leading-normal">
+                    {p.subtext}
                   </p>
-                  <span
-                    className={cn(
-                      "text-[10px] font-mono font-semibold px-1.5 py-0.5 rounded border shrink-0",
-                      p.badgeColor,
-                    )}
-                  >
-                    {p.badgeText}
-                  </span>
                 </div>
-                <p className={cn("font-num text-lg sm:text-xl font-bold tabular-nums tracking-tight mt-1.5", p.valueColor)}>
-                  {p.value}
-                </p>
-                <p className="text-xs text-text-secondary mt-1 line-clamp-1 leading-normal">
-                  {p.subtext}
-                </p>
+                <div className="sm:text-right shrink-0">
+                  <span className={cn("font-num text-lg sm:text-xl font-bold tabular-nums tracking-tight", p.valueColor)}>
+                    {p.value}
+                  </span>
+                  {p.fullValue && p.fullValue !== p.value && (
+                    <span className="text-[11px] font-mono text-text-secondary block mt-0.5">
+                      {p.fullValue}
+                    </span>
+                  )}
+                </div>
               </div>
             ))}
           </div>

@@ -9,6 +9,9 @@ import {
   Receipt,
   Layers3,
   Brain,
+  Table,
+  Network,
+  FileText,
 } from "lucide-react";
 import { Card } from "@/shared/components/ui/card";
 import { Badge } from "@/shared/components/ui/badge";
@@ -81,6 +84,7 @@ export function SpotliteVendorBubbleGraph() {
   const [selectedVendor, setSelectedVendor] = useState<VendorBubbleNode | null>(null);
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const [searchTerm, setSearchTerm] = useState<string>("");
+  const [viewMode, setViewMode] = useState<"graph" | "table">("graph");
 
   useEffect(() => {
     async function fetchBubbleData() {
@@ -301,161 +305,299 @@ export function SpotliteVendorBubbleGraph() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-2 z-10 relative">
           <div>
             <div className="flex items-center gap-2">
-              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-violet-500/10 text-violet-600 dark:text-violet-400 border border-violet-500/20">
+              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-brand/10 text-brand border border-brand/20">
                 <Building2 size={16} />
               </div>
               <h3 className="font-display text-base font-bold text-foreground">
-                Counterparty Vendor Opex & Debits Ecosystem Graph
+                Vendor Spend Network
               </h3>
             </div>
             <p className="text-xs text-text-secondary mt-0.5">
-              Radial node diagram: Center = <strong>{centerCompany.company_name}</strong>. Node diameter scales by monthly spend. Dedicated <strong>Others</strong> node tracks unclassified debits without specific vendor mapping.
+              Radial node diagram: Center = <strong>{centerCompany.company_name}</strong>. Node diameter scales by monthly spend. Dedicated <strong>Others</strong> node tracks unclassified debits.
             </p>
           </div>
-          <Badge variant="outline" className="bg-violet-500/10 text-violet-600 border-violet-500/20 text-xs px-2.5 py-1 self-start sm:self-auto font-mono">
-            <Sparkles size={12} className="mr-1.5" /> Interactive Vendor Engine
-          </Badge>
+
+          <div className="flex items-center gap-2">
+            {/* ACCESSIBLE VIEW SWITCHER */}
+            <div className="flex items-center gap-1 p-1 bg-surface-alt rounded-lg border border-border/60" role="group" aria-label="Vendor View Options">
+              <button
+                type="button"
+                onClick={() => setViewMode("graph")}
+                className={`flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-md transition-colors ${
+                  viewMode === "graph"
+                    ? "bg-surface text-foreground shadow-xs"
+                    : "text-text-secondary hover:text-foreground"
+                }`}
+                aria-pressed={viewMode === "graph"}
+              >
+                <Network size={13} /> Radial Graph
+              </button>
+              <button
+                type="button"
+                onClick={() => setViewMode("table")}
+                className={`flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-md transition-colors ${
+                  viewMode === "table"
+                    ? "bg-surface text-foreground shadow-xs"
+                    : "text-text-secondary hover:text-foreground"
+                }`}
+                aria-pressed={viewMode === "table"}
+              >
+                <Table size={13} /> Table View
+              </button>
+            </div>
+          </div>
         </div>
 
-        {/* CANVAS SVG RADIAL NETWORK GRAPH */}
-        <div className="relative w-full overflow-x-auto flex justify-center py-4">
-          <svg viewBox="0 0 760 520" className="w-full max-w-3xl h-auto min-w-[650px] select-none">
-            <defs>
-              <radialGradient id="vendorCenterGlow" cx="50%" cy="50%" r="50%">
-                <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.35" />
-                <stop offset="100%" stopColor="#8b5cf6" stopOpacity="0" />
-              </radialGradient>
-              <filter id="vendorGlow" x="-20%" y="-20%" width="140%" height="140%">
-                <feGaussianBlur stdDeviation="4" result="blur" />
-                <feComposite in="SourceGraphic" in2="blur" operator="over" />
-              </filter>
-            </defs>
+        {/* CONDITIONAL RENDERING: GRAPH OR TABLE */}
+        {viewMode === "graph" ? (
+          <div className="relative w-full overflow-x-auto flex justify-center py-4">
+            <svg
+              viewBox="0 0 760 520"
+              className="w-full max-w-3xl h-auto select-none aspect-76/52"
+              role="img"
+              aria-label={`Interactive radial vendor network graph with ${vendorList.length} vendor nodes revolving around ${centerCompany.company_name}`}
+            >
+              <defs>
+                <style>{`
+                  @keyframes vendorBeamFlow {
+                    to { stroke-dashoffset: -18; }
+                  }
+                  .animate-vendor-beam {
+                    animation: vendorBeamFlow 2s linear infinite;
+                  }
+                  @media (prefers-reduced-motion: reduce) {
+                    .animate-vendor-beam {
+                      animation: none !important;
+                    }
+                  }
+                `}</style>
+                <radialGradient id="vendorCenterGlow" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.35" />
+                  <stop offset="100%" stopColor="#8b5cf6" stopOpacity="0" />
+                </radialGradient>
+                <filter id="vendorGlow" x="-20%" y="-20%" width="140%" height="140%">
+                  <feGaussianBlur stdDeviation="4" result="blur" />
+                  <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                </filter>
+              </defs>
 
-            {/* Orbit Background Circle */}
-            <circle
-              cx={centerPos.x}
-              cy={centerPos.y}
-              r={orbitRadius}
-              fill="none"
-              stroke="currentColor"
-              className="text-border/60"
-              strokeDasharray="4 4"
-              strokeWidth="1.5"
-            />
-
-            {/* Connecting Beams */}
-            {positions.map((node) => (
-              <g key={`beam-${node.vendor_id}`}>
-                <line
-                  x1={centerPos.x}
-                  y1={centerPos.y}
-                  x2={node.x}
-                  y2={node.y}
-                  stroke={node.color}
-                  strokeWidth={Math.max(1.5, node.spend_share_pct / 5)}
-                  strokeOpacity="0.45"
-                  strokeDasharray={node.is_others ? "3 3" : "6 3"}
-                />
-              </g>
-            ))}
-
-            {/* CENTER HUB: MY COMPANY */}
-            <g transform={`translate(${centerPos.x}, ${centerPos.y})`} className="cursor-pointer group">
-              <circle r="85" fill="url(#vendorCenterGlow)" className="animate-pulse" />
+              {/* Orbit Background Circle */}
               <circle
-                r="65"
-                fill="#8b5cf6"
-                className="shadow-lg transition-transform duration-300 group-hover:scale-105"
-                filter="url(#vendorGlow)"
+                cx={centerPos.x}
+                cy={centerPos.y}
+                r={orbitRadius}
+                fill="none"
+                stroke="currentColor"
+                className="text-border/60"
+                strokeDasharray="4 4"
+                strokeWidth="1.5"
               />
-              <circle r="60" fill="none" stroke="#a78bfa" strokeWidth="2.5" />
-              <text y="-18" textAnchor="middle" fill="#ffffff" fontSize="11" fontWeight="bold" fontFamily="sans-serif">
-                MY COMPANY
-              </text>
-              <text y="-2" textAnchor="middle" fill="#ffffff" fontSize="13" fontWeight="900" fontFamily="sans-serif">
-                {centerCompany.company_name}
-              </text>
-              <text y="16" textAnchor="middle" fill="#f3e8ff" fontSize="10" fontWeight="600" fontFamily="sans-serif">
-                {formatINR(centerCompany.total_monthly_vendor_spend)} / mo
-              </text>
-              <text y="30" textAnchor="middle" fill="#ddd6fe" fontSize="9" fontFamily="sans-serif">
-                {centerCompany.monitored_vendors_count} Monitored Debits
-              </text>
-            </g>
 
-            {/* RADIAL VENDOR BUBBLE NODES */}
-            {positions.map((node) => {
-              const radius = node.bubble_diameter_px / 2;
-              return (
-                <g
-                  key={node.vendor_id}
-                  transform={`translate(${node.x}, ${node.y})`}
-                  onClick={() => handleBubbleClick(node)}
-                  className="cursor-pointer group transition-transform duration-300 hover:scale-110"
-                >
-                  <circle
-                    r={radius + 4}
-                    fill="none"
+              {/* Connecting Beams */}
+              {positions.map((node) => (
+                <g key={`beam-${node.vendor_id}`}>
+                  <line
+                    x1={centerPos.x}
+                    y1={centerPos.y}
+                    x2={node.x}
+                    y2={node.y}
                     stroke={node.color}
-                    strokeWidth="1.5"
-                    strokeOpacity="0.4"
-                    className="group-hover:stroke-opacity-100 transition"
+                    strokeWidth={Math.max(1.5, node.spend_share_pct / 5)}
+                    strokeOpacity="0.45"
+                    strokeDasharray={node.is_others ? "3 3" : "6 3"}
+                    className="animate-vendor-beam"
                   />
-                  <circle
-                    r={radius}
-                    fill={node.color}
-                    fillOpacity="0.88"
-                    stroke="#ffffff"
-                    strokeWidth="2"
-                    className="drop-shadow-md group-hover:fill-opacity-100 transition"
-                  />
+                </g>
+              ))}
 
-                  <text
-                    y={radius > 35 ? "-6" : "0"}
-                    textAnchor="middle"
-                    fill="#ffffff"
-                    fontSize={radius > 45 ? "11" : "9"}
-                    fontWeight="bold"
-                    fontFamily="sans-serif"
-                    className="pointer-events-none drop-shadow-sm"
+              {/* CENTER HUB: MY COMPANY */}
+              <g
+                transform={`translate(${centerPos.x}, ${centerPos.y})`}
+                className="cursor-default group"
+                tabIndex={0}
+                role="region"
+                aria-label={`Central corporate entity: ${centerCompany.company_name}, total monthly vendor spend ${formatINR(centerCompany.total_monthly_vendor_spend)}, with ${centerCompany.monitored_vendors_count} monitored debits`}
+              >
+                <circle r="85" fill="url(#vendorCenterGlow)" className="opacity-75 group-hover:opacity-100 transition-opacity" />
+                <circle
+                  r="65"
+                  fill="#8b5cf6"
+                  className="shadow-lg transition-transform duration-300 group-hover:scale-105"
+                  filter="url(#vendorGlow)"
+                />
+                <circle r="60" fill="none" stroke="#a78bfa" strokeWidth="2.5" />
+                <text y="-18" textAnchor="middle" fill="#ffffff" fontSize="11" fontWeight="bold" fontFamily="sans-serif">
+                  MY COMPANY
+                </text>
+                <text y="-2" textAnchor="middle" fill="#ffffff" fontSize="13" fontWeight="900" fontFamily="sans-serif">
+                  {centerCompany.company_name}
+                </text>
+                <text y="16" textAnchor="middle" fill="#f3e8ff" fontSize="10" fontWeight="600" fontFamily="sans-serif">
+                  {formatINR(centerCompany.total_monthly_vendor_spend)} / mo
+                </text>
+                <text y="30" textAnchor="middle" fill="#ddd6fe" fontSize="9" fontFamily="sans-serif">
+                  {centerCompany.monitored_vendors_count} Monitored Debits
+                </text>
+              </g>
+
+              {/* RADIAL VENDOR BUBBLE NODES */}
+              {positions.map((node) => {
+                const radius = node.bubble_diameter_px / 2;
+                return (
+                  <g
+                    key={node.vendor_id}
+                    transform={`translate(${node.x}, ${node.y})`}
+                    onClick={() => handleBubbleClick(node)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        handleBubbleClick(node);
+                      }
+                    }}
+                    tabIndex={0}
+                    role="button"
+                    aria-label={`View ledger for ${node.vendor_name}, monthly spend ${formatINR(node.monthly_spend)}, spend share ${node.spend_share_pct.toFixed(1)}%`}
+                    className="cursor-pointer group transition-transform duration-300 hover:scale-110 focus:outline-hidden focus:ring-2 focus:ring-brand focus:ring-offset-2"
                   >
-                    {node.is_others
-                      ? "OTHERS"
-                      : node.vendor_name.length > 14
-                      ? node.vendor_name.split(" ")[0]
-                      : node.vendor_name}
-                  </text>
+                    <circle
+                      r={radius + 4}
+                      fill="none"
+                      stroke={node.color}
+                      strokeWidth="1.5"
+                      strokeOpacity="0.4"
+                      className="group-hover:stroke-opacity-100 transition"
+                    />
+                    <circle
+                      r={radius}
+                      fill={node.color}
+                      fillOpacity="0.88"
+                      stroke="#ffffff"
+                      strokeWidth="2"
+                      className="drop-shadow-md group-hover:fill-opacity-100 transition"
+                    />
 
-                  {radius > 30 && (
                     <text
-                      y="10"
+                      y={radius > 35 ? "-6" : "0"}
                       textAnchor="middle"
                       fill="#ffffff"
-                      fontSize="9"
-                      fontWeight="600"
-                      fontFamily="monospace"
-                      className="pointer-events-none opacity-90"
-                    >
-                      {formatINR(node.monthly_spend)}
-                    </text>
-                  )}
-                  {radius > 40 && (
-                    <text
-                      y="22"
-                      textAnchor="middle"
-                      fill="#e2e8f0"
-                      fontSize="8"
+                      fontSize={radius > 45 ? "11" : "9"}
+                      fontWeight="bold"
                       fontFamily="sans-serif"
-                      className="pointer-events-none opacity-80"
+                      className="pointer-events-none drop-shadow-sm"
                     >
-                      ({node.spend_share_pct.toFixed(1)}%)
+                      {node.is_others
+                        ? "OTHERS"
+                        : node.vendor_name.length > 14
+                        ? node.vendor_name.split(" ")[0]
+                        : node.vendor_name}
                     </text>
-                  )}
-                </g>
-              );
-            })}
-          </svg>
-        </div>
+
+                    {radius > 30 && (
+                      <text
+                        y="10"
+                        textAnchor="middle"
+                        fill="#ffffff"
+                        fontSize="9"
+                        fontWeight="600"
+                        fontFamily="monospace"
+                        className="pointer-events-none opacity-90"
+                      >
+                        {formatINR(node.monthly_spend)}
+                      </text>
+                    )}
+                    {radius > 40 && (
+                      <text
+                        y="22"
+                        textAnchor="middle"
+                        fill="#e2e8f0"
+                        fontSize="8"
+                        fontFamily="sans-serif"
+                        className="pointer-events-none opacity-80"
+                      >
+                        ({node.spend_share_pct.toFixed(1)}%)
+                      </text>
+                    )}
+                  </g>
+                );
+              })}
+            </svg>
+          </div>
+        ) : (
+          /* ACCESSIBLE TABULAR VIEW */
+          <div className="py-2">
+            <div className="overflow-x-auto rounded-xl border border-border/70 bg-surface">
+              <table className="w-full text-xs text-left" role="table">
+                <thead className="bg-surface-alt text-[11px] font-semibold text-text-secondary uppercase border-b border-border/60">
+                  <tr>
+                    <th scope="col" className="px-4 py-3">Vendor / Debit Name</th>
+                    <th scope="col" className="px-4 py-3">Category</th>
+                    <th scope="col" className="px-4 py-3">Classification</th>
+                    <th scope="col" className="px-4 py-3 text-right">Monthly Spend</th>
+                    <th scope="col" className="px-4 py-3 text-right">Contracted Rate</th>
+                    <th scope="col" className="px-4 py-3 text-right">Spend Share</th>
+                    <th scope="col" className="px-4 py-3">Audit Status</th>
+                    <th scope="col" className="px-4 py-3 text-center">Action</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border/40">
+                  {vendorList.map((vendor) => (
+                    <tr key={vendor.vendor_id} className="hover:bg-surface-alt/50 transition-colors">
+                      <td className="px-4 py-3 font-semibold text-foreground">
+                        <div className="flex items-center gap-2">
+                          <span
+                            className="h-2.5 w-2.5 rounded-full shrink-0"
+                            style={{ backgroundColor: vendor.color }}
+                          />
+                          <span>{vendor.vendor_name}</span>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 text-text-secondary">{vendor.category}</td>
+                      <td className="px-4 py-3">
+                        <Badge variant="outline" className="bg-surface text-text-secondary text-[10px]">
+                          {vendor.cost_classification}
+                        </Badge>
+                      </td>
+                      <td className="px-4 py-3 font-num tabular-nums font-bold text-foreground text-right">
+                        {formatINR(vendor.monthly_spend)}
+                      </td>
+                      <td className="px-4 py-3 font-num tabular-nums text-text-secondary text-right">
+                        {vendor.contracted_monthly_rate > 0 ? formatINR(vendor.contracted_monthly_rate) : "—"}
+                      </td>
+                      <td className="px-4 py-3 font-num tabular-nums font-semibold text-foreground text-right">
+                        {vendor.spend_share_pct.toFixed(1)}%
+                      </td>
+                      <td className="px-4 py-3">
+                        {vendor.status.includes("Overbilling") ? (
+                          <Badge variant="outline" className="bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20 text-[10px] font-bold">
+                            🚨 Overbill (+85%)
+                          </Badge>
+                        ) : vendor.is_others ? (
+                          <Badge variant="outline" className="bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20 text-[10px] font-bold">
+                            ⚠️ Unclassified
+                          </Badge>
+                        ) : (
+                          <Badge variant="outline" className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 text-[10px]">
+                            {vendor.status}
+                          </Badge>
+                        )}
+                      </td>
+                      <td className="px-4 py-3 text-center">
+                        <button
+                          type="button"
+                          onClick={() => handleBubbleClick(vendor)}
+                          className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-md bg-brand/10 text-brand hover:bg-brand/20 transition-colors focus:ring-2 focus:ring-brand focus:outline-hidden"
+                          aria-label={`Inspect transactions for ${vendor.vendor_name}`}
+                        >
+                          <FileText size={12} /> Inspect Details
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
 
         {/* BOTTOM LEGEND & TIP BAR */}
         <div className="flex flex-wrap items-center justify-between text-xs text-text-secondary border-t border-border/60 pt-3 mt-1">
@@ -474,7 +616,7 @@ export function SpotliteVendorBubbleGraph() {
             </span>
           </div>
           <span className="text-[11px] text-text-tertiary">
-            💡 <strong>Pro Tip:</strong> Click the "Others" node or any vendor bubble to inspect itemized debit ledger entries.
+            💡 <strong>Keyboard Support:</strong> Tab through nodes and press <kbd className="px-1 py-0.5 rounded bg-surface border border-border text-[10px] font-mono">Enter</kbd> to inspect transaction details.
           </span>
         </div>
       </Card>

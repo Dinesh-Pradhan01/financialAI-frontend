@@ -4,13 +4,14 @@ import { formatINR } from "@/shared/lib/format";
 import { IconChip } from "@/shared/lib/icons";
 import { AgentNarration } from "@/features/agents/components/agent-narration";
 import { ExplainTip } from "@/features/spotlights/components/explain-tip";
-import { BalanceTrend } from "@/features/spending/components/BalanceTrend";
+import { ExecutiveSolvencyRibbon } from "@/features/spending/components/ExecutiveSolvencyRibbon";
 import { SpendingDonut } from "@/features/spending/components/SpendingDonut";
 import { SpendingSkeleton } from "@/features/spending/components/SpendingSkeleton";
 import { UploadTransactionsCard } from "@/features/dashboard/components/UploadTransactionsCard";
 import { StatementsList } from "@/features/spending/components/StatementsList";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/shared/components/ui/tabs";
 import { FinancialIntelligenceTab } from "@/features/spending/components/FinancialIntelligenceTab";
+import { SpotliteSpendingInsights } from "@/features/spending/components/SpotliteSpendingInsights";
 import { HeaderMetadataPanel } from "@/features/spending/components/HeaderMetadataPanel";
 import { SpendingIncomeTab } from "@/features/spending/components/SpendingIncomeTab";
 import { SpendingExpenditureTab } from "@/features/spending/components/SpendingExpenditureTab";
@@ -148,7 +149,7 @@ function Spending() {
     [timeframe],
   );
 
-  // Live transaction data fetching
+  // Live transaction data fetching (expenses)
   const { data, isLoading, isError, error, refetch } = useTransactions({
     date_from,
     date_to,
@@ -156,9 +157,26 @@ function Spending() {
     limit: 1000,
   });
 
+  // Income transactions for Net Cash Flow in Executive Solvency Ribbon
+  const { data: incomeData } = useTransactions({
+    date_from,
+    date_to,
+    classification: "income",
+    limit: 1000,
+  });
+
   const { data: reportData } = useSpendingReport({ enabled: activeTab === "overview" });
 
   const transactions = data?.transactions ?? [];
+
+  // Live total income across selected timeframe
+  const totalIncome = useMemo(() => {
+    const incTxns = incomeData?.transactions ?? [];
+    if (incTxns.length > 0) {
+      return incTxns.reduce((sum, t) => sum + (t.credit_amount || 0), 0);
+    }
+    return undefined;
+  }, [incomeData]);
 
   // Live document fetching to determine state context
   const { data: documents = [], isLoading: isDocsLoading } = useTransactionDocuments();
@@ -227,40 +245,34 @@ function Spending() {
               </Button>
             </Link>
           )}
-          {activeTab === "overview" ? (
-            <div className="inline-flex rounded-pill border border-border bg-surface p-0.5 shadow-xs">
-              {TIMEFRAMES.map((tf) => (
-                <button
-                  key={tf}
-                  type="button"
-                  onClick={() => dispatch(setTimeframe(tf))}
-                  className={cn(
-                    "relative rounded-pill px-3.5 py-1.5 text-xs font-semibold transition-colors cursor-pointer min-h-[32px] sm:min-h-0 flex items-center justify-center",
-                    timeframe === tf
-                      ? "text-on-brand"
-                      : "text-text-secondary hover:text-foreground",
-                  )}
-                >
-                  {timeframe === tf && (
-                    <motion.span
-                      layoutId="activeTimeframePill"
-                      className="absolute inset-0 rounded-pill bg-brand shadow-e1"
-                      transition={
-                        shouldReduceMotion
-                          ? { duration: 0 }
-                          : { type: "spring", stiffness: 500, damping: 35 }
-                      }
-                    />
-                  )}
-                  <span className="relative z-10">{tf}</span>
-                </button>
-              ))}
-            </div>
-          ) : (
-            <span className="text-[0.7rem] font-medium text-text-secondary px-3 py-1.5 rounded-pill bg-surface border border-border shadow-xs">
-              All-time · full statement history
-            </span>
-          )}
+          <div className="inline-flex rounded-pill border border-border bg-surface p-0.5 shadow-xs">
+            {TIMEFRAMES.map((tf) => (
+              <button
+                key={tf}
+                type="button"
+                onClick={() => dispatch(setTimeframe(tf))}
+                className={cn(
+                  "relative rounded-pill px-3.5 py-1.5 text-xs font-semibold transition-colors cursor-pointer min-h-[32px] sm:min-h-0 flex items-center justify-center",
+                  timeframe === tf
+                    ? "text-on-brand"
+                    : "text-text-secondary hover:text-foreground",
+                )}
+              >
+                {timeframe === tf && (
+                  <motion.span
+                    layoutId="activeTimeframePill"
+                    className="absolute inset-0 rounded-pill bg-brand shadow-e1"
+                    transition={
+                      shouldReduceMotion
+                        ? { duration: 0 }
+                        : { type: "spring", stiffness: 500, damping: 35 }
+                    }
+                  />
+                )}
+                <span className="relative z-10">{tf}</span>
+              </button>
+            ))}
+          </div>
         </div>
       </header>
 
@@ -287,15 +299,13 @@ function Spending() {
         </TabsList>
 
         <TabsContent value="overview" className="mt-0 focus-visible:outline-none">
-
-      {/* Upload Callout Card - Only rendered when user has 0 statements uploaded */}
-      {!isDocsLoading && documents.length === 0 && (
-        <div className="mb-6">
-          <UploadTransactionsCard />
-        </div>
-      )}
-
-      {/* Loading State */}
+          <motion.div
+            key="overview-tab-view"
+            initial={shouldReduceMotion ? false : { opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+          >
+            {/* Loading State */}
       {isLoading && <SpendingSkeleton />}
 
       {/* Error State */}
@@ -331,6 +341,18 @@ function Spending() {
                 documentsCount={documents.length}
               />
             </div>
+          )}
+
+          {/* Executive Solvency & Liquidity Ribbon */}
+          {documents.length > 0 && (
+            <ExecutiveSolvencyRibbon
+              timeframe={timeframe}
+              monthsCount={monthsCount}
+              totalExpense={total}
+              totalIncome={totalIncome}
+              reportData={reportData}
+              isLoading={isLoading}
+            />
           )}
 
           {/* Agent Narration Dynamic Callout */}
@@ -495,13 +517,18 @@ function Spending() {
                             <span
                               role="button"
                               tabIndex={0}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter" || e.key === " ") {
+                                  e.preventDefault();
+                                }
+                              }}
                               className="text-xs text-text-secondary hover:text-foreground underline decoration-dotted decoration-text-secondary/60 underline-offset-2 cursor-help transition-colors select-none"
                             >
                               txns = transactions
                             </span>
                           </TooltipTrigger>
                           <TooltipContent side="top" className="text-xs">
-                            "txns" stands for transactions recorded in your statements.
+                            &quot;txns&quot; stands for transactions recorded in your statements.
                           </TooltipContent>
                         </Tooltip>
                       </div>
@@ -533,8 +560,8 @@ function Spending() {
                         <span className="text-sm font-semibold truncate group-hover:text-brand transition-colors">
                           {getDisplayCategoryLabel(c.label)}
                         </span>
-                        <span className="font-num text-sm font-bold">
-                          {formatINR(c.amount, { compact: true })}
+                        <span className="font-num tabular-nums text-sm font-bold text-foreground">
+                          -{formatINR(c.amount, { compact: true })}
                         </span>
                         <span className="text-xs text-text-secondary font-medium">
                           {formatShare(c.share, c.amount)} of spend
@@ -617,8 +644,8 @@ function Spending() {
 
                                   <div className="flex items-center gap-3 sm:gap-4 shrink-0 tabular-nums">
                                     <TxnBadge count={c.count} className="sm:hidden px-1.5" />
-                                    <span className="font-num text-xs sm:text-sm font-bold text-foreground">
-                                      {formatINR(c.amount)}
+                                    <span className="font-num tabular-nums text-xs sm:text-sm font-bold text-foreground">
+                                      -{formatINR(c.amount)}
                                     </span>
                                     <span className="min-w-[2.5rem] text-right text-xs text-text-secondary font-medium font-num">
                                       {formatShare(c.share, c.amount)}
@@ -636,6 +663,7 @@ function Spending() {
                                   setIsTier2Expanded(false);
                                   const el = document.getElementById("tier2-categories-toggle");
                                   el?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+                                  el?.focus();
                                 }}
                                 className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-text-secondary hover:text-foreground transition-colors cursor-pointer"
                               >
@@ -651,6 +679,11 @@ function Spending() {
                 </section>
               </TooltipProvider>
 
+              {/* Spotlite Executive Intelligence: Risk Signals, Anomalies & Outliers */}
+              <div className="mt-8 pt-6 border-t border-border/60">
+                <SpotliteSpendingInsights />
+              </div>
+
               {/* Merged Financial Intelligence Section */}
               <div className="mt-8 pt-6 border-t border-border/60">
                 <FinancialIntelligenceTab
@@ -665,14 +698,39 @@ function Spending() {
 
         {/* Section 2: Statements (Upload & Extracted Ledger) */}
         <StatementsList />
+          </motion.div>
       </TabsContent>
 
       <TabsContent value="income" className="mt-0 focus-visible:outline-none">
-        <SpendingIncomeTab isActive={activeTab === "income"} />
+        <motion.div
+          key="income-tab-view"
+          initial={shouldReduceMotion ? false : { opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+        >
+          <SpendingIncomeTab
+            isActive={activeTab === "income"}
+            timeframe={timeframe}
+            date_from={date_from}
+            date_to={date_to}
+          />
+        </motion.div>
       </TabsContent>
 
       <TabsContent value="expenditure" className="mt-0 focus-visible:outline-none">
-        <SpendingExpenditureTab isActive={activeTab === "expenditure"} />
+        <motion.div
+          key="expenditure-tab-view"
+          initial={shouldReduceMotion ? false : { opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+        >
+          <SpendingExpenditureTab
+            isActive={activeTab === "expenditure"}
+            timeframe={timeframe}
+            date_from={date_from}
+            date_to={date_to}
+          />
+        </motion.div>
       </TabsContent>
     </Tabs>
   </div>

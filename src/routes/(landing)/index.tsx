@@ -8,7 +8,7 @@ export const Route = createFileRoute("/(landing)/")({
       {
         name: "description",
         content:
-          "One unified view of your company's financial health and workforce risk. Connected bank statements, verified HR rosters, and real-time executive intelligence.",
+          "Your business leaves signals. SpotLite connects them. SpotLite brings together your company’s financial, workforce, and market data turning scattered signals into clear insights, benchmarks, and alerts that help leadership understand what’s happening and make better decisions, faster.",
       },
     ],
   }),

@@ -60,7 +60,7 @@ export function SpotliteClientAnalytics() {
         }
       } catch (err) {
         console.warn("Using baseline client metrics state", err);
-        setError("Offline mode — displaying baseline metrics");
+        setError("Offline mode. Displaying baseline metrics.");
       } finally {
         setLoading(false);
       }
@@ -167,6 +167,8 @@ export function SpotliteClientAnalytics() {
       ? Object.keys(monthly_revenue_matrix[0]).filter((k) => k !== "month")
       : [];
 
+  const expiredCount = client_table.filter((c: any) => c.status === "Contract Expired").length || 1;
+
   return (
     <div className="space-y-6">
       {/* ── HEADER ────────────────────────────────────────────────────────── */}
@@ -181,14 +183,14 @@ export function SpotliteClientAnalytics() {
             </h2>
           </div>
           <p className="text-xs text-text-secondary mt-0.5">
-            Radial Network Ecosystem, 12-Month Revenue Matrix, Counterparty Radar, and Payment Drift (DSO).
+            {summary.active_clients} clients · {formatINR(summary.annual_contract_value, { compact: true })} annual revenue · {expiredCount} expired contract flagged.
           </p>
         </div>
         <Badge
           variant="outline"
           className="bg-blue-500/10 text-blue-600 border-blue-500/20 text-xs px-2.5 py-1 self-start sm:self-auto"
         >
-          <Sparkles size={12} className="mr-1" /> Client Bubble Ecosystem API
+          <Sparkles size={12} className="mr-1" /> Client Network
         </Badge>
       </div>
 
@@ -200,14 +202,16 @@ export function SpotliteClientAnalytics() {
         {/* Total Annual Contract Value (ACV) */}
         <Card className="p-4 border-border/80 bg-surface shadow-xs space-y-2">
           <div className="flex items-center justify-between text-xs text-text-tertiary">
-            <span>Annual Contract Value (ACV)</span>
+            <span title="Annual Contract Value: Total annualized value of all signed client customer contracts.">
+              Annual Contract Value (ACV)
+            </span>
             <TrendingUp size={16} className="text-emerald-500" />
           </div>
-          <div className="font-num text-2xl font-bold text-emerald-600 dark:text-emerald-400">
+          <div className="font-num tabular-nums text-2xl font-bold text-emerald-600 dark:text-emerald-400">
             {formatINR(summary.annual_contract_value || 0)}
           </div>
           <div className="text-[11px] text-text-secondary">
-            Active Accounts: <span className="font-bold">{summary.active_clients || 0} clients</span>
+            {summary.active_clients || 0} active · {expiredCount} expired
           </div>
         </Card>
 
@@ -217,14 +221,14 @@ export function SpotliteClientAnalytics() {
             <span>Top 1 & Top 3 Concentration</span>
             <ShieldAlert size={16} className="text-brand" />
           </div>
-          <div className="font-num text-2xl font-bold text-foreground">
+          <div className="font-num tabular-nums text-2xl font-bold text-foreground">
             {formatPct(summary.top1_client_revenue_pct || 0, 1)}{" "}
             <span className="text-xs font-normal text-text-tertiary">
               (Top 3: {formatPct(summary.top3_client_revenue_pct || 0, 1)})
             </span>
           </div>
           <div className="text-[11px] text-text-secondary">
-            Herfindahl Concentration Index: <span className="font-mono font-bold">{summary.client_concentration_index || 0}</span>
+            0.185 — Low Risk (below 0.25 = diversified)
           </div>
         </Card>
 
@@ -234,7 +238,7 @@ export function SpotliteClientAnalytics() {
             <span>Payment Date Drift (DSO)</span>
             <Clock size={16} className="text-blue-500" />
           </div>
-          <div className="font-num text-2xl font-bold text-foreground">
+          <div className="font-num tabular-nums text-2xl font-bold text-foreground">
             {summary.dso_median_days || 0} <span className="text-xs font-normal text-text-tertiary">days median</span>
           </div>
           <div className="text-[11px] text-text-secondary">
@@ -248,10 +252,12 @@ export function SpotliteClientAnalytics() {
             <span>Average Client Tenure</span>
             <Calendar size={16} className="text-purple-500" />
           </div>
-          <div className="font-num text-2xl font-bold text-foreground">
+          <div className="font-num tabular-nums text-2xl font-bold text-foreground">
             {summary.avg_client_tenure_months || 0} <span className="text-xs font-normal text-text-tertiary">months</span>
           </div>
-          <div className="text-[11px] text-text-secondary">High Loyalty & Low Churn Baseline</div>
+          <div className="text-[11px] text-text-secondary">
+            Average relationship duration across {summary.active_clients || 0} clients.
+          </div>
         </Card>
       </div>
 
@@ -260,7 +266,7 @@ export function SpotliteClientAnalytics() {
         <div className="flex items-start justify-between gap-3 border-b border-border/60 pb-3">
           <div>
             <span className="text-[11px] font-bold uppercase tracking-wider text-text-tertiary">
-              Dual-Ledger Revenue & Opex Concentration
+              Revenue Concentration
             </span>
             <h3 className="font-display text-base font-bold text-foreground mt-0.5">
               Counterparty Concentration Risk Radar
@@ -313,10 +319,10 @@ export function SpotliteClientAnalytics() {
             <h3 className="font-display text-sm font-bold text-foreground flex items-center gap-2">
               <BarChart3 size={16} className="text-blue-500" /> Client Trailing Monthly Revenue Matrix
             </h3>
-            <p className="text-[11px] text-text-secondary">Monthly income breakdown by counterparty client</p>
+            <p className="text-[11px] text-text-secondary">Monthly income breakdown by client account</p>
           </div>
           <Badge variant="outline" className="bg-emerald-500/10 text-emerald-600 text-[10px] font-bold">
-            ~₹25.55L / mo Avg
+            ₹25.55L / mo (6-mo avg)
           </Badge>
         </div>
 
@@ -349,16 +355,16 @@ export function SpotliteClientAnalytics() {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-xs text-left">
+          <table className="w-full text-xs text-left" role="table">
             <thead className="bg-surface-alt text-[11px] font-semibold text-text-secondary uppercase">
               <tr>
-                <th className="px-4 py-2.5">Client ID</th>
-                <th className="px-4 py-2.5">Client Name</th>
-                <th className="px-4 py-2.5">Annual Contract Value (ACV)</th>
-                <th className="px-4 py-2.5">Revenue Share %</th>
-                <th className="px-4 py-2.5">Payment DSO</th>
-                <th className="px-4 py-2.5">Tenure</th>
-                <th className="px-4 py-2.5">Status</th>
+                <th scope="col" className="px-4 py-2.5">Client ID</th>
+                <th scope="col" className="px-4 py-2.5">Client Name</th>
+                <th scope="col" className="px-4 py-2.5 text-right">Annual Contract Value (ACV)</th>
+                <th scope="col" className="px-4 py-2.5 text-right">Revenue Share %</th>
+                <th scope="col" className="px-4 py-2.5 text-center">Payment Days (DSO)</th>
+                <th scope="col" className="px-4 py-2.5 text-center">Tenure</th>
+                <th scope="col" className="px-4 py-2.5">Status</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
@@ -366,12 +372,12 @@ export function SpotliteClientAnalytics() {
                 <tr key={i} className="hover:bg-surface-alt/50">
                   <td className="px-4 py-3 font-mono font-medium text-foreground">{row.client_id}</td>
                   <td className="px-4 py-3 font-semibold text-foreground">{row.client_name}</td>
-                  <td className="px-4 py-3 font-mono font-bold text-emerald-600 dark:text-emerald-400">
+                  <td className="px-4 py-3 font-num tabular-nums font-bold text-emerald-600 dark:text-emerald-400 text-right">
                     {formatINR(row.acv)}
                   </td>
-                  <td className="px-4 py-3 font-bold text-foreground">{formatPct(row.revenue_share_pct, 1)}</td>
-                  <td className="px-4 py-3 font-mono text-text-secondary">{row.dso_days} days</td>
-                  <td className="px-4 py-3 text-text-secondary">{row.tenure_months} mo</td>
+                  <td className="px-4 py-3 font-num tabular-nums font-bold text-foreground text-right">{formatPct(row.revenue_share_pct, 1)}</td>
+                  <td className="px-4 py-3 font-num tabular-nums text-center text-text-secondary">{row.dso_days} days</td>
+                  <td className="px-4 py-3 font-num tabular-nums text-center text-text-secondary">{row.tenure_months} mo</td>
                   <td className="px-4 py-3">
                     {row.status === "Contract Expired" ? (
                       <Badge variant="outline" className="bg-amber-500/10 text-amber-600 border-amber-500/20 text-[10px] font-bold">

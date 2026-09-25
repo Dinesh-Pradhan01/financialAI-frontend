@@ -53,7 +53,7 @@ export function SpotliteVendorAnalytics() {
         }
       } catch (err) {
         console.warn("Using baseline vendor metrics state", err);
-        setError("Offline mode — displaying baseline metrics");
+        setError("Offline mode. Displaying baseline metrics.");
       } finally {
         setLoading(false);
       }
@@ -150,6 +150,8 @@ export function SpotliteVendorAnalytics() {
     { category: "Office Supplies", sole_supplier: "Office Depot Supplies", risk_level: "OVERBILLING_RISK" }
   ];
 
+  const overbillCount = overbillingAnomalies.length;
+
   return (
     <div className="space-y-6">
       {/* ── HEADER ────────────────────────────────────────────────────────── */}
@@ -164,7 +166,7 @@ export function SpotliteVendorAnalytics() {
             </h2>
           </div>
           <p className="text-xs text-text-secondary mt-0.5">
-            Fixed vs. Variable Opex Segmentation, Vendor Concentration, and Overbilling Exposure.
+            {totalVendors} active vendors tracked. {overbillCount} overbilling {overbillCount === 1 ? "anomaly" : "anomalies"} flagged.
           </p>
         </div>
         <Badge
@@ -186,11 +188,11 @@ export function SpotliteVendorAnalytics() {
             <span>Monitored Vendors</span>
             <Building2 size={16} className="text-violet-500" />
           </div>
-          <div className="font-num text-2xl font-bold text-foreground">
+          <div className="font-num tabular-nums text-2xl font-bold text-foreground">
             {totalVendors} Active
           </div>
           <div className="text-[11px] text-text-secondary">
-            Monthly Vendor Spend: <span className="font-bold">{formatINR(totalMonthlySpend)}</span>
+            {formatINR(totalMonthlySpend, { compact: true })}/mo total · {formatINR(fixedMonthly, { compact: true })} fixed · {formatINR(varMonthly, { compact: true })} variable
           </div>
         </Card>
 
@@ -200,7 +202,7 @@ export function SpotliteVendorAnalytics() {
             <span>Fixed vs Variable Ratio</span>
             <Layers size={16} className="text-brand" />
           </div>
-          <div className="font-num text-2xl font-bold text-foreground">
+          <div className="font-num tabular-nums text-2xl font-bold text-foreground">
             {fixedPct.toFixed(0)}% : {varPct.toFixed(0)}%
           </div>
           <div className="text-[11px] text-text-secondary">
@@ -214,7 +216,7 @@ export function SpotliteVendorAnalytics() {
             <span>Top 2 Vendor Concentration</span>
             <ShieldAlert size={16} className="text-amber-500" />
           </div>
-          <div className="font-num text-2xl font-bold font-mono text-amber-600 dark:text-amber-400">
+          <div className="font-num tabular-nums text-2xl font-bold text-amber-600 dark:text-amber-400">
             {formatPct(top2Conc, 1)}
           </div>
           <div className="text-[11px] text-text-secondary">
@@ -228,11 +230,11 @@ export function SpotliteVendorAnalytics() {
             <span>Overbilling Cash Exposure</span>
             <DollarSign size={16} />
           </div>
-          <div className="font-num text-2xl font-black text-rose-600 dark:text-rose-400">
+          <div className="font-num tabular-nums text-2xl font-black text-rose-600 dark:text-rose-400">
             {formatINR(annualOverbill)} / yr
           </div>
           <div className="text-[11px] text-rose-700 dark:text-rose-300 font-medium">
-            {topOverbillName} (+{formatINR(totalOverbillMonthly)}/mo Overbill)
+            {overbillCount} overbilling {overbillCount === 1 ? "vendor" : "vendors"} detected. View table below.
           </div>
         </Card>
       </div>
@@ -253,19 +255,19 @@ export function SpotliteVendorAnalytics() {
       {/* ── VENDOR DIRECTORY ANALYTICS TABLE ───────────────────────────────── */}
       <Card className="p-5 border-border/80 bg-surface shadow-xs space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="font-display text-base font-bold text-foreground">Vendor Master Portfolio & Status</h3>
-          <span className="text-xs text-text-secondary">{vendorList.length} Active Records</span>
+          <h3 className="font-display text-base font-bold text-foreground">All Vendors</h3>
+          <span className="text-xs text-text-secondary">{vendorList.length} vendors tracked</span>
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-xs text-left">
+          <table className="w-full text-xs text-left" role="table">
             <thead className="bg-surface-alt text-[11px] font-semibold text-text-secondary uppercase">
               <tr>
-                <th className="px-4 py-2.5">Vendor Name</th>
-                <th className="px-4 py-2.5">Category</th>
-                <th className="px-4 py-2.5">Classification</th>
-                <th className="px-4 py-2.5">Monthly Spend</th>
-                <th className="px-4 py-2.5">Status / Flag</th>
+                <th scope="col" className="px-4 py-2.5">Vendor Name</th>
+                <th scope="col" className="px-4 py-2.5">Category</th>
+                <th scope="col" className="px-4 py-2.5">Classification</th>
+                <th scope="col" className="px-4 py-2.5 text-right">Monthly Spend</th>
+                <th scope="col" className="px-4 py-2.5">Status / Flag</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
@@ -278,13 +280,13 @@ export function SpotliteVendorAnalytics() {
                       {row.cost_classification || "Fixed Opex"}
                     </Badge>
                   </td>
-                  <td className="px-4 py-3 font-mono font-bold text-foreground">
+                  <td className="px-4 py-3 font-num tabular-nums font-bold text-foreground text-right">
                     {formatINR(row.avg_actual_monthly_billed || row.monthly_spend || 0)}
                   </td>
                   <td className="px-4 py-3">
                     {row.is_overbilling || row.flag ? (
                       <Badge variant="outline" className="bg-rose-500/10 text-rose-600 border-rose-500/20 text-[10px] font-bold">
-                        🚨 Billed +85% Above Contract
+                        🚨 {row.note || (row.contracted_monthly_rate > 0 && row.avg_actual_monthly_billed > row.contracted_monthly_rate ? `Billed +${(((row.avg_actual_monthly_billed - row.contracted_monthly_rate) / row.contracted_monthly_rate) * 100).toFixed(0)}% Above Contract` : "Rate Discrepancy Detected")}
                       </Badge>
                     ) : (
                       <Badge variant="outline" className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20 text-[10px]">
