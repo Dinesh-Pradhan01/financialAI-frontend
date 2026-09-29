@@ -33,7 +33,8 @@ export const Route = createFileRoute("/_app/(spotlights)/spotlights")({
       { title: "Spotlite Executive Intelligence · Spotlite" },
       {
         name: "description",
-        content: "Spotlite deterministic metrics engine, Vendor/Client Analytics, and LLM-augmented AI executive intelligence.",
+        content:
+          "Spotlite deterministic metrics engine, Vendor/Client Analytics, and LLM-augmented AI executive intelligence.",
       },
     ],
   }),
@@ -138,17 +139,15 @@ function Spotlights() {
                 onClick={() => setActiveTab(tab.id)}
                 className={cn(
                   "relative flex items-center gap-1.5 rounded-lg px-3.5 py-1.5 text-xs font-bold transition-colors cursor-pointer z-10 select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/50 focus-visible:ring-offset-1",
-                  isActive
-                    ? tab.colorClass
-                    : "text-text-secondary hover:text-text-primary"
+                  isActive ? tab.colorClass : "text-text-secondary hover:text-text-primary",
                 )}
               >
-                {isActive && (
-                  shouldReduceMotion ? (
+                {isActive &&
+                  (shouldReduceMotion ? (
                     <div
                       className={cn(
                         "absolute inset-0 rounded-lg bg-surface shadow-xs border -z-10",
-                        tab.borderClass
+                        tab.borderClass,
                       )}
                     />
                   ) : (
@@ -156,12 +155,11 @@ function Spotlights() {
                       layoutId="spotlight-active-tab-indicator"
                       className={cn(
                         "absolute inset-0 rounded-lg bg-surface shadow-xs border -z-10",
-                        tab.borderClass
+                        tab.borderClass,
                       )}
                       transition={{ type: "spring", stiffness: 500, damping: 38 }}
                     />
-                  )
-                )}
+                  ))}
                 <Icon size={14} className={isActive && tab.id === "tier1" ? "fill-current" : ""} />
                 <span>{tab.label}</span>
               </button>
@@ -192,7 +190,7 @@ function Spotlights() {
           variants={shouldReduceMotion ? undefined : kpiItemVariants}
           whileHover={shouldReduceMotion ? undefined : { y: -2, transition: { duration: 0.2 } }}
         >
-          <Card className="p-4 h-full border border-emerald-500/30 bg-gradient-to-br from-emerald-500/10 via-surface to-surface dark:from-emerald-950/25 dark:via-surface dark:to-surface shadow-xs space-y-1.5 transition hover:shadow-md hover:border-emerald-500/50">
+          <Card className="p-4 h-full border border-emerald-500/30 bg-linear-to-br from-emerald-500/10 via-surface to-surface dark:from-emerald-950/25 dark:via-surface dark:to-surface shadow-xs space-y-1.5 transition hover:shadow-md hover:border-emerald-500/50">
             <div className="flex items-center justify-between text-xs text-emerald-800/90 dark:text-emerald-300/90 font-medium">
               <span>Recoverable Cash Outliers</span>
               <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30">
@@ -213,7 +211,7 @@ function Spotlights() {
           variants={shouldReduceMotion ? undefined : kpiItemVariants}
           whileHover={shouldReduceMotion ? undefined : { y: -2, transition: { duration: 0.2 } }}
         >
-          <Card className="p-4 h-full border border-cyan-500/30 bg-gradient-to-br from-cyan-500/10 via-surface to-surface dark:from-cyan-950/25 dark:via-surface dark:to-surface shadow-xs space-y-1.5 transition hover:shadow-md hover:border-cyan-500/50">
+          <Card className="p-4 h-full border border-cyan-500/30 bg-linear-to-br from-cyan-500/10 via-surface to-surface dark:from-cyan-950/25 dark:via-surface dark:to-surface shadow-xs space-y-1.5 transition hover:shadow-md hover:border-cyan-500/50">
             <div className="flex items-center justify-between text-xs text-cyan-800/90 dark:text-cyan-300/90 font-medium">
               <span>Break-Even Cushion</span>
               <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-cyan-500/15 text-cyan-600 dark:text-cyan-400 border border-cyan-500/30">
@@ -224,7 +222,8 @@ function Spotlights() {
               +{formatINR(tier1.room_above_break_even.monthly_rupee_cushion)} / mo
             </div>
             <div className="text-[11px] text-cyan-800/80 dark:text-cyan-200/80 font-medium">
-              {Number(tier1.room_above_break_even.operating_margin_pct).toFixed(1)}% operating margin above break-even
+              {Number(tier1.room_above_break_even.operating_margin_pct).toFixed(1)}% operating
+              margin above break-even
             </div>
           </Card>
         </motion.div>
@@ -234,7 +233,7 @@ function Spotlights() {
           variants={shouldReduceMotion ? undefined : kpiItemVariants}
           whileHover={shouldReduceMotion ? undefined : { y: -2, transition: { duration: 0.2 } }}
         >
-          <Card className="p-4 h-full border border-teal-500/30 bg-gradient-to-br from-teal-500/10 via-surface to-surface dark:from-teal-950/25 dark:via-surface dark:to-surface shadow-xs space-y-1.5 transition hover:shadow-md hover:border-teal-500/50">
+          <Card className="p-4 h-full border border-teal-500/30 bg-linear-to-br from-teal-500/10 via-surface to-surface dark:from-teal-950/25 dark:via-surface dark:to-surface shadow-xs space-y-1.5 transition hover:shadow-md hover:border-teal-500/50">
             <div className="flex items-center justify-between text-xs text-teal-800/90 dark:text-teal-300/90 font-medium">
               <span>Deployable Liquid Surplus</span>
               <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-teal-500/15 text-teal-600 dark:text-teal-400 border border-teal-500/30">
@@ -245,7 +244,11 @@ function Spotlights() {
               +{formatINR(tier1.idle_cash_forfeited_income.idle_cash_surplus, { compact: true })}
             </div>
             <div className="text-[11px] text-teal-800/80 dark:text-teal-200/80 font-medium">
-              Surplus cash above {formatINR(tier1.idle_cash_forfeited_income.three_month_safety_reserve, { compact: true })} safety buffer
+              Surplus cash above{" "}
+              {formatINR(tier1.idle_cash_forfeited_income.three_month_safety_reserve, {
+                compact: true,
+              })}{" "}
+              safety buffer
             </div>
           </Card>
         </motion.div>
@@ -255,12 +258,16 @@ function Spotlights() {
           variants={shouldReduceMotion ? undefined : kpiItemVariants}
           whileHover={shouldReduceMotion ? undefined : { y: -2, transition: { duration: 0.2 } }}
         >
-          <Card className="p-4 h-full border-2 border-rose-500/40 bg-gradient-to-br from-rose-500/15 via-surface to-surface dark:from-rose-950/30 dark:via-surface dark:to-surface shadow-xs space-y-1.5 transition hover:shadow-md hover:border-rose-500/60">
+          <Card className="p-4 h-full border-2 border-rose-500/40 bg-linear-to-br from-rose-500/15 via-surface to-surface dark:from-rose-950/30 dark:via-surface dark:to-surface shadow-xs space-y-1.5 transition hover:shadow-md hover:border-rose-500/60">
             <div className="flex items-center justify-between text-xs text-rose-800/90 dark:text-rose-200/90 font-bold">
               <span>Security &amp; Fraud Exposures</span>
               <motion.div
                 animate={shouldReduceMotion ? undefined : { scale: [1, 1.1, 1] }}
-                transition={shouldReduceMotion ? undefined : { repeat: Infinity, duration: 2.4, ease: "easeInOut" }}
+                transition={
+                  shouldReduceMotion
+                    ? undefined
+                    : { repeat: Infinity, duration: 2.4, ease: "easeInOut" }
+                }
                 className="flex h-7 w-7 items-center justify-center rounded-lg bg-rose-500/20 text-rose-600 dark:text-rose-400 border border-rose-500/40"
               >
                 <ShieldAlert size={16} />

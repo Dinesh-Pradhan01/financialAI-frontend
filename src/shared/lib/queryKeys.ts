@@ -20,6 +20,7 @@ export const queryKeys = {
     aiView: () => ["company", "ai-view"] as const,
     documents: () => ["company", "documents"] as const,
     packages: () => ["company", "packages"] as const,
+    competitors: () => ["company", "competitors"] as const,
   },
   statements: {
     all: () => ["statements"] as const,

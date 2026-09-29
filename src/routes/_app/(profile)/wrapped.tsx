@@ -6,7 +6,7 @@ import { rohan } from "@/shared/data/rohan";
 import { wrapped } from "@/shared/data/agentic";
 import { PersonaStoryCard } from "@/features/profile/components/persona";
 import { useAuth } from "@/shared/contexts/AuthContext";
-import { isHR } from "@/shared/lib/roles";
+import { isStrictHR } from "@/shared/lib/roles";
 
 export const Route = createFileRoute("/_app/(profile)/wrapped")({
   head: () => ({
@@ -29,7 +29,7 @@ const accents = [
 function Wrapped() {
   const { user } = useAuth();
 
-  if (isHR(user?.role)) {
+  if (isStrictHR(user?.role)) {
     return (
       <div className="mx-auto max-w-lg px-4 py-16 text-center space-y-5">
         <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-destructive/10 text-destructive border border-destructive/20 shadow-xs">
@@ -73,7 +73,7 @@ function Wrapped() {
 
       <div className="mt-6 grid gap-6 md:grid-cols-[420px_1fr]">
         <div className="relative">
-          <div className="aspect-[3/4] max-w-sm">
+          <div className="aspect-3/4 max-w-sm">
             <PersonaStoryCard persona={persona} accent={accents[idx % accents.length]} />
           </div>
           <div className="mt-3 flex items-center justify-between">
@@ -126,7 +126,7 @@ function Wrapped() {
   );
 }
 
-function Stat({ label, value, caption }: { label: string; value: string; caption?: string }) {
+function Stat({ label, value, caption }: Readonly<{ label: string; value: string; caption?: string }>) {
   return (
     <div className="card-spot p-4">
       <p className="text-xs uppercase tracking-wider text-text-secondary">{label}</p>

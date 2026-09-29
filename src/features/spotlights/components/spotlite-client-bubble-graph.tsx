@@ -1,44 +1,14 @@
-import React, { useState, useEffect } from "react";
-import { formatINR, formatPct } from "@/shared/lib/format";
-import {
-  Building2,
-  Users,
-  Sparkles,
-  ArrowUpRight,
-  FileText,
-  CheckCircle2,
-  AlertTriangle,
-  X,
-  CreditCard,
-  DollarSign,
-  Layers,
-  Search,
-  Brain,
-  Calendar,
-  Hash,
-  Award,
-  Table,
-  Network,
-} from "lucide-react";
+import { useState, useEffect } from "react";
+import { formatINR } from "@/shared/lib/format";
+import { FileText, Layers, Search, Brain, Table, Network } from "lucide-react";
 import { Card } from "@/shared/components/ui/card";
 import { Badge } from "@/shared/components/ui/badge";
 import { Skeleton } from "@/shared/components/ui/skeleton";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/shared/components/ui/dialog";
-import {
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/shared/components/ui/dialog";
+import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
+const API_BASE =
+  import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
 
 export interface TransactionRecord {
   transaction_id: string;
@@ -130,113 +100,156 @@ export function SpotliteClientBubbleGraph() {
     active_clients_count: 7,
   };
 
-  const clientList = bubbles.length > 0 ? bubbles : [
-    {
-      client_id: "CLI-001",
-      client_name: "Technova Solutions",
-      category: "Software / SaaS",
-      annual_contract_value: 6240000,
-      monthly_revenue: 520000,
-      revenue_share_pct: 20.35,
-      bubble_diameter_px: 125,
-      status: "Active",
-      color: "#3b82f6",
-      dso_median_days: 8,
-      transaction_count: 6,
-      transactions: [
-        { transaction_id: "TXN-0601", date: "2026-06-15", invoice_ref: "INV-2026-06-01", narration: "Monthly SLA Revenue Payment", amount: 520000, transaction_type: "Credit (Inflow)", payment_status: "Settled", payment_method: "NEFT Bank Transfer", dso_drift_days: 8 },
-        { transaction_id: "TXN-0501", date: "2026-05-14", invoice_ref: "INV-2026-05-01", narration: "Monthly SLA Revenue Payment", amount: 520000, transaction_type: "Credit (Inflow)", payment_status: "Settled", payment_method: "NEFT Bank Transfer", dso_drift_days: 8 }
-      ]
-    },
-    {
-      client_id: "CLI-002",
-      client_name: "GlobalRetail Logistics",
-      category: "Logistics",
-      annual_contract_value: 5700000,
-      monthly_revenue: 475000,
-      revenue_share_pct: 18.59,
-      bubble_diameter_px: 110,
-      status: "Active",
-      color: "#10b981",
-      dso_median_days: 12,
-      transaction_count: 6,
-      transactions: [
-        { transaction_id: "TXN-0602", date: "2026-06-14", invoice_ref: "INV-2026-06-02", narration: "Freight Retainer Settlement", amount: 475000, transaction_type: "Credit (Inflow)", payment_status: "Settled", payment_method: "RTGS Transfer", dso_drift_days: 12 }
-      ]
-    },
-    {
-      client_id: "CLI-003",
-      client_name: "Apex Financials",
-      category: "Financial Services",
-      annual_contract_value: 4600000,
-      monthly_revenue: 383333,
-      revenue_share_pct: 15.07,
-      bubble_diameter_px: 95,
-      status: "Contract Expired",
-      color: "#f59e0b",
-      dso_median_days: 10,
-      transaction_count: 6,
-      transactions: [
-        { transaction_id: "TXN-0603", date: "2026-06-12", invoice_ref: "INV-2026-06-03", narration: "Advisory Services Fee", amount: 383333, transaction_type: "Credit (Inflow)", payment_status: "Settled", payment_method: "NEFT Transfer", dso_drift_days: 10 }
-      ]
-    },
-    {
-      client_id: "CLI-004",
-      client_name: "Zenith Enterprises",
-      category: "Consulting",
-      annual_contract_value: 4200000,
-      monthly_revenue: 350000,
-      revenue_share_pct: 13.71,
-      bubble_diameter_px: 88,
-      status: "Active",
-      color: "#8b5cf6",
-      dso_median_days: 15,
-      transaction_count: 6,
-      transactions: []
-    },
-    {
-      client_id: "CLI-005",
-      client_name: "Horizon Media",
-      category: "Marketing",
-      annual_contract_value: 3700000,
-      monthly_revenue: 308333,
-      revenue_share_pct: 12.08,
-      bubble_diameter_px: 78,
-      status: "Active",
-      color: "#ec4899",
-      dso_median_days: 7,
-      transaction_count: 6,
-      transactions: []
-    },
-    {
-      client_id: "CLI-006",
-      client_name: "Quantum Tech",
-      category: "IT Services",
-      annual_contract_value: 3200000,
-      monthly_revenue: 266666,
-      revenue_share_pct: 10.45,
-      bubble_diameter_px: 68,
-      status: "Active",
-      color: "#06b6d4",
-      dso_median_days: 9,
-      transaction_count: 6,
-      transactions: []
-    },
-    {
-      client_id: "CLI-007",
-      client_name: "Vertex Retail",
-      category: "Retail",
-      annual_contract_value: 3000000,
-      monthly_revenue: 250000,
-      revenue_share_pct: 9.79,
-      bubble_diameter_px: 62,
-      status: "Active",
-      color: "#64748b",
-      dso_median_days: 14,
-      transaction_count: 6,
-      transactions: []
-    }
-  ];
+  const clientList =
+    bubbles.length > 0
+      ? bubbles
+      : [
+          {
+            client_id: "CLI-001",
+            client_name: "Technova Solutions",
+            category: "Software / SaaS",
+            annual_contract_value: 6240000,
+            monthly_revenue: 520000,
+            revenue_share_pct: 20.35,
+            bubble_diameter_px: 125,
+            status: "Active",
+            color: "#3b82f6",
+            dso_median_days: 8,
+            transaction_count: 6,
+            transactions: [
+              {
+                transaction_id: "TXN-0601",
+                date: "2026-06-15",
+                invoice_ref: "INV-2026-06-01",
+                narration: "Monthly SLA Revenue Payment",
+                amount: 520000,
+                transaction_type: "Credit (Inflow)",
+                payment_status: "Settled",
+                payment_method: "NEFT Bank Transfer",
+                dso_drift_days: 8,
+              },
+              {
+                transaction_id: "TXN-0501",
+                date: "2026-05-14",
+                invoice_ref: "INV-2026-05-01",
+                narration: "Monthly SLA Revenue Payment",
+                amount: 520000,
+                transaction_type: "Credit (Inflow)",
+                payment_status: "Settled",
+                payment_method: "NEFT Bank Transfer",
+                dso_drift_days: 8,
+              },
+            ],
+          },
+          {
+            client_id: "CLI-002",
+            client_name: "GlobalRetail Logistics",
+            category: "Logistics",
+            annual_contract_value: 5700000,
+            monthly_revenue: 475000,
+            revenue_share_pct: 18.59,
+            bubble_diameter_px: 110,
+            status: "Active",
+            color: "#10b981",
+            dso_median_days: 12,
+            transaction_count: 6,
+            transactions: [
+              {
+                transaction_id: "TXN-0602",
+                date: "2026-06-14",
+                invoice_ref: "INV-2026-06-02",
+                narration: "Freight Retainer Settlement",
+                amount: 475000,
+                transaction_type: "Credit (Inflow)",
+                payment_status: "Settled",
+                payment_method: "RTGS Transfer",
+                dso_drift_days: 12,
+              },
+            ],
+          },
+          {
+            client_id: "CLI-003",
+            client_name: "Apex Financials",
+            category: "Financial Services",
+            annual_contract_value: 4600000,
+            monthly_revenue: 383333,
+            revenue_share_pct: 15.07,
+            bubble_diameter_px: 95,
+            status: "Contract Expired",
+            color: "#f59e0b",
+            dso_median_days: 10,
+            transaction_count: 6,
+            transactions: [
+              {
+                transaction_id: "TXN-0603",
+                date: "2026-06-12",
+                invoice_ref: "INV-2026-06-03",
+                narration: "Advisory Services Fee",
+                amount: 383333,
+                transaction_type: "Credit (Inflow)",
+                payment_status: "Settled",
+                payment_method: "NEFT Transfer",
+                dso_drift_days: 10,
+              },
+            ],
+          },
+          {
+            client_id: "CLI-004",
+            client_name: "Zenith Enterprises",
+            category: "Consulting",
+            annual_contract_value: 4200000,
+            monthly_revenue: 350000,
+            revenue_share_pct: 13.71,
+            bubble_diameter_px: 88,
+            status: "Active",
+            color: "#8b5cf6",
+            dso_median_days: 15,
+            transaction_count: 6,
+            transactions: [],
+          },
+          {
+            client_id: "CLI-005",
+            client_name: "Horizon Media",
+            category: "Marketing",
+            annual_contract_value: 3700000,
+            monthly_revenue: 308333,
+            revenue_share_pct: 12.08,
+            bubble_diameter_px: 78,
+            status: "Active",
+            color: "#ec4899",
+            dso_median_days: 7,
+            transaction_count: 6,
+            transactions: [],
+          },
+          {
+            client_id: "CLI-006",
+            client_name: "Quantum Tech",
+            category: "IT Services",
+            annual_contract_value: 3200000,
+            monthly_revenue: 266666,
+            revenue_share_pct: 10.45,
+            bubble_diameter_px: 68,
+            status: "Active",
+            color: "#06b6d4",
+            dso_median_days: 9,
+            transaction_count: 6,
+            transactions: [],
+          },
+          {
+            client_id: "CLI-007",
+            client_name: "Vertex Retail",
+            category: "Retail",
+            annual_contract_value: 3000000,
+            monthly_revenue: 250000,
+            revenue_share_pct: 9.79,
+            bubble_diameter_px: 62,
+            status: "Active",
+            color: "#64748b",
+            dso_median_days: 14,
+            transaction_count: 6,
+            transactions: [],
+          },
+        ];
 
   // Radial geometry calculation for placing bubbles around My Company center
   const centerPos = { x: 380, y: 260 };
@@ -259,13 +272,13 @@ export function SpotliteClientBubbleGraph() {
       ? tx.invoice_ref.toLowerCase().includes(searchTerm.toLowerCase()) ||
         tx.narration.toLowerCase().includes(searchTerm.toLowerCase()) ||
         tx.payment_method.toLowerCase().includes(searchTerm.toLowerCase())
-      : true
+      : true,
   );
 
   return (
     <div className="space-y-4">
       {/* GRAPH CONTAINER CARD */}
-      <Card className="p-6 border-border/80 bg-gradient-to-b from-surface to-surface-alt/40 shadow-sm relative overflow-hidden">
+      <Card className="p-6 border-border/80 bg-linear-to-b from-surface to-surface-alt/40 shadow-sm relative overflow-hidden">
         {/* TOP BAR OVERLAY */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-2 z-10 relative">
           <div>
@@ -278,13 +291,18 @@ export function SpotliteClientBubbleGraph() {
               </h3>
             </div>
             <p className="text-xs text-text-secondary mt-0.5">
-              Radial node diagram: Center = <strong>{centerCompany.company_name}</strong>. Node diameter scales by annual revenue (ACV). Select any client to view full ledger.
+              Radial node diagram: Center = <strong>{centerCompany.company_name}</strong>. Node
+              diameter scales by annual revenue (ACV). Select any client to view full ledger.
             </p>
           </div>
 
           <div className="flex items-center gap-2">
             {/* ACCESSIBLE VIEW SWITCHER */}
-            <div className="flex items-center gap-1 p-1 bg-surface-alt rounded-lg border border-border/60" role="group" aria-label="Client View Options">
+            <div
+              className="flex items-center gap-1 p-1 bg-surface-alt rounded-lg border border-border/60"
+              role="group"
+              aria-label="Client View Options"
+            >
               <button
                 type="button"
                 onClick={() => setViewMode("graph")}
@@ -310,7 +328,6 @@ export function SpotliteClientBubbleGraph() {
                 <Table size={13} /> Table View
               </button>
             </div>
-
           </div>
         </div>
 
@@ -387,7 +404,11 @@ export function SpotliteClientBubbleGraph() {
                 aria-label={`Central corporate entity: ${centerCompany.company_name}, total ACV ${formatINR(centerCompany.total_portfolio_acv)}, with ${centerCompany.active_clients_count} active clients`}
               >
                 {/* Outer Glow Halo */}
-                <circle r="85" fill="url(#centerGlow)" className="opacity-75 group-hover:opacity-100 transition-opacity" />
+                <circle
+                  r="85"
+                  fill="url(#centerGlow)"
+                  className="opacity-75 group-hover:opacity-100 transition-opacity"
+                />
                 {/* Center Circle */}
                 <circle
                   r="65"
@@ -397,16 +418,43 @@ export function SpotliteClientBubbleGraph() {
                 />
                 <circle r="60" fill="none" stroke="#818cf8" strokeWidth="2.5" />
                 {/* Center Label Content */}
-                <text y="-18" textAnchor="middle" fill="#ffffff" fontSize="11" fontWeight="bold" fontFamily="sans-serif">
+                <text
+                  y="-18"
+                  textAnchor="middle"
+                  fill="#ffffff"
+                  fontSize="11"
+                  fontWeight="bold"
+                  fontFamily="sans-serif"
+                >
                   MY COMPANY
                 </text>
-                <text y="-2" textAnchor="middle" fill="#ffffff" fontSize="13" fontWeight="900" fontFamily="sans-serif">
+                <text
+                  y="-2"
+                  textAnchor="middle"
+                  fill="#ffffff"
+                  fontSize="13"
+                  fontWeight="900"
+                  fontFamily="sans-serif"
+                >
                   {centerCompany.company_name}
                 </text>
-                <text y="16" textAnchor="middle" fill="#e0e7ff" fontSize="10" fontWeight="600" fontFamily="sans-serif">
+                <text
+                  y="16"
+                  textAnchor="middle"
+                  fill="#e0e7ff"
+                  fontSize="10"
+                  fontWeight="600"
+                  fontFamily="sans-serif"
+                >
                   {formatINR(centerCompany.total_portfolio_acv)}
                 </text>
-                <text y="30" textAnchor="middle" fill="#c7d2fe" fontSize="9" fontFamily="sans-serif">
+                <text
+                  y="30"
+                  textAnchor="middle"
+                  fill="#c7d2fe"
+                  fontSize="9"
+                  fontFamily="sans-serif"
+                >
                   {centerCompany.active_clients_count} Active Clients
                 </text>
               </g>
@@ -502,19 +550,38 @@ export function SpotliteClientBubbleGraph() {
               <table className="w-full text-xs text-left" role="table">
                 <thead className="bg-surface-alt text-[11px] font-semibold text-text-secondary uppercase border-b border-border/60">
                   <tr>
-                    <th scope="col" className="px-4 py-3">Client Account</th>
-                    <th scope="col" className="px-4 py-3">Category</th>
-                    <th scope="col" className="px-4 py-3 text-right">Annual Value (ACV)</th>
-                    <th scope="col" className="px-4 py-3 text-right">Monthly Rev</th>
-                    <th scope="col" className="px-4 py-3 text-right">Portfolio Share</th>
-                    <th scope="col" className="px-4 py-3 text-center">Median DSO</th>
-                    <th scope="col" className="px-4 py-3">Status</th>
-                    <th scope="col" className="px-4 py-3 text-center">Action</th>
+                    <th scope="col" className="px-4 py-3">
+                      Client Account
+                    </th>
+                    <th scope="col" className="px-4 py-3">
+                      Category
+                    </th>
+                    <th scope="col" className="px-4 py-3 text-right">
+                      Annual Value (ACV)
+                    </th>
+                    <th scope="col" className="px-4 py-3 text-right">
+                      Monthly Rev
+                    </th>
+                    <th scope="col" className="px-4 py-3 text-right">
+                      Portfolio Share
+                    </th>
+                    <th scope="col" className="px-4 py-3 text-center">
+                      Median DSO
+                    </th>
+                    <th scope="col" className="px-4 py-3">
+                      Status
+                    </th>
+                    <th scope="col" className="px-4 py-3 text-center">
+                      Action
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border/40">
                   {clientList.map((client) => (
-                    <tr key={client.client_id} className="hover:bg-surface-alt/50 transition-colors">
+                    <tr
+                      key={client.client_id}
+                      className="hover:bg-surface-alt/50 transition-colors"
+                    >
                       <td className="px-4 py-3 font-semibold text-foreground">
                         <div className="flex items-center gap-2">
                           <span
@@ -539,11 +606,17 @@ export function SpotliteClientBubbleGraph() {
                       </td>
                       <td className="px-4 py-3">
                         {client.status === "Contract Expired" ? (
-                          <Badge variant="outline" className="bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20 text-[10px] font-bold">
+                          <Badge
+                            variant="outline"
+                            className="bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20 text-[10px] font-bold"
+                          >
                             ⚠️ Expired SLA
                           </Badge>
                         ) : (
-                          <Badge variant="outline" className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 text-[10px]">
+                          <Badge
+                            variant="outline"
+                            className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 text-[10px]"
+                          >
                             Active
                           </Badge>
                         )}
@@ -580,7 +653,11 @@ export function SpotliteClientBubbleGraph() {
             </span>
           </div>
           <span className="text-[11px] text-text-tertiary">
-            💡 <strong>Keyboard Support:</strong> Tab through nodes and press <kbd className="px-1 py-0.5 rounded bg-surface border border-border text-[10px] font-mono">Enter</kbd> to inspect transaction details.
+            💡 <strong>Keyboard Support:</strong> Tab through nodes and press{" "}
+            <kbd className="px-1 py-0.5 rounded bg-surface border border-border text-[10px] font-mono">
+              Enter
+            </kbd>{" "}
+            to inspect transaction details.
           </span>
         </div>
       </Card>
@@ -605,7 +682,9 @@ export function SpotliteClientBubbleGraph() {
                     </Badge>
                   </DialogTitle>
                   <p className="text-xs text-text-secondary">
-                    Counterparty Client ID: <span className="font-mono font-semibold">{selectedClient?.client_id}</span> | Status:{" "}
+                    Counterparty Client ID:{" "}
+                    <span className="font-mono font-semibold">{selectedClient?.client_id}</span> |
+                    Status:{" "}
                     <span className="font-semibold text-foreground">{selectedClient?.status}</span>
                   </p>
                 </div>
@@ -645,19 +724,25 @@ export function SpotliteClientBubbleGraph() {
             {/* ROW 2: TREND (MINI MONTHLY REVENUE CHART) */}
             <div className="rounded-xl border border-border/80 bg-surface p-4 space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-foreground">Monthly Inflow Revenue Trend</span>
+                <span className="text-xs font-bold text-foreground">
+                  Monthly Inflow Revenue Trend
+                </span>
                 <span className="text-[10px] text-text-tertiary font-mono">6-Month Trajectory</span>
               </div>
               <div className="h-28 w-full pt-1">
                 <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={selectedClient?.monthly_trend || [
-                    { month: 'Jan', val: selectedClient?.monthly_revenue || 500000 },
-                    { month: 'Feb', val: selectedClient?.monthly_revenue || 500000 },
-                    { month: 'Mar', val: selectedClient?.monthly_revenue || 500000 },
-                    { month: 'Apr', val: selectedClient?.monthly_revenue || 500000 },
-                    { month: 'May', val: selectedClient?.monthly_revenue || 500000 },
-                    { month: 'Jun', val: selectedClient?.monthly_revenue || 500000 }
-                  ]}>
+                  <AreaChart
+                    data={
+                      selectedClient?.monthly_trend || [
+                        { month: "Jan", val: selectedClient?.monthly_revenue || 500000 },
+                        { month: "Feb", val: selectedClient?.monthly_revenue || 500000 },
+                        { month: "Mar", val: selectedClient?.monthly_revenue || 500000 },
+                        { month: "Apr", val: selectedClient?.monthly_revenue || 500000 },
+                        { month: "May", val: selectedClient?.monthly_revenue || 500000 },
+                        { month: "Jun", val: selectedClient?.monthly_revenue || 500000 },
+                      ]
+                    }
+                  >
                     <defs>
                       <linearGradient id="clientTrendGrad" x1="0" y1="0" x2="0" y2="1">
                         <stop offset="5%" stopColor="#10b981" stopOpacity={0.4} />
@@ -665,9 +750,18 @@ export function SpotliteClientBubbleGraph() {
                       </linearGradient>
                     </defs>
                     <XAxis dataKey="month" tick={{ fontSize: 10 }} />
-                    <YAxis tick={{ fontSize: 9 }} tickFormatter={(v) => `₹${(v / 100000).toFixed(1)}L`} />
+                    <YAxis
+                      tick={{ fontSize: 9 }}
+                      tickFormatter={(v) => `₹${(v / 100000).toFixed(1)}L`}
+                    />
                     <Tooltip formatter={(v: any) => [formatINR(Number(v)), "Inflow Revenue"]} />
-                    <Area type="monotone" dataKey="val" stroke="#10b981" strokeWidth={2} fill="url(#clientTrendGrad)" />
+                    <Area
+                      type="monotone"
+                      dataKey="val"
+                      stroke="#10b981"
+                      strokeWidth={2}
+                      fill="url(#clientTrendGrad)"
+                    />
                   </AreaChart>
                 </ResponsiveContainer>
               </div>
@@ -677,7 +771,9 @@ export function SpotliteClientBubbleGraph() {
             <div className="grid grid-cols-3 gap-3">
               {/* START DATE */}
               <div className="rounded-xl border border-border bg-surface-alt/60 p-3 space-y-0.5">
-                <span className="text-[10px] font-bold text-text-tertiary uppercase block">Start Date</span>
+                <span className="text-[10px] font-bold text-text-tertiary uppercase block">
+                  Start Date
+                </span>
                 <span className="font-mono text-xs font-bold text-foreground block">
                   {selectedClient?.start_date || "2024-01-15"}
                 </span>
@@ -685,7 +781,9 @@ export function SpotliteClientBubbleGraph() {
 
               {/* ACTIVE STATUS */}
               <div className="rounded-xl border border-border bg-surface-alt/60 p-3 space-y-0.5">
-                <span className="text-[10px] font-bold text-text-tertiary uppercase block">Status</span>
+                <span className="text-[10px] font-bold text-text-tertiary uppercase block">
+                  Status
+                </span>
                 <span className="inline-block rounded-md bg-emerald-500/10 px-2 py-0.5 text-[10px] font-bold text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
                   {selectedClient?.status || "Active"}
                 </span>
@@ -693,8 +791,13 @@ export function SpotliteClientBubbleGraph() {
 
               {/* CONTRACT# */}
               <div className="rounded-xl border border-border bg-surface-alt/60 p-3 space-y-0.5">
-                <span className="text-[10px] font-bold text-text-tertiary uppercase block">Contract#</span>
-                <span className="font-mono text-xs font-bold text-foreground block truncate" title={selectedClient?.contract_number}>
+                <span className="text-[10px] font-bold text-text-tertiary uppercase block">
+                  Contract#
+                </span>
+                <span
+                  className="font-mono text-xs font-bold text-foreground block truncate"
+                  title={selectedClient?.contract_number}
+                >
                   {selectedClient?.contract_number || "CTR-2024-8891"}
                 </span>
               </div>
@@ -704,7 +807,9 @@ export function SpotliteClientBubbleGraph() {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {/* CONTRACT$ (ANNUAL VALUE) */}
               <div className="rounded-xl border border-border bg-surface-alt/60 p-3 space-y-1">
-                <span className="text-[10px] font-bold text-text-tertiary uppercase block">Contract$ (ACV)</span>
+                <span className="text-[10px] font-bold text-text-tertiary uppercase block">
+                  Contract$ (ACV)
+                </span>
                 <div className="font-num text-base font-extrabold text-foreground">
                   {formatINR(selectedClient?.annual_contract_value || 0)}
                 </div>
@@ -713,9 +818,12 @@ export function SpotliteClientBubbleGraph() {
 
               {/* PROJECT SUMMARY */}
               <div className="sm:col-span-2 rounded-xl border border-border bg-surface-alt/60 p-3 space-y-1">
-                <span className="text-[10px] font-bold text-text-tertiary uppercase block">Project Summary</span>
+                <span className="text-[10px] font-bold text-text-tertiary uppercase block">
+                  Project Summary
+                </span>
                 <p className="text-xs text-text-secondary leading-normal font-medium">
-                  {selectedClient?.project_summary || "Enterprise SaaS Infrastructure & Core Cloud Logistics Platform Integration."}
+                  {selectedClient?.project_summary ||
+                    "Enterprise SaaS Infrastructure & Core Cloud Logistics Platform Integration."}
                 </p>
               </div>
             </div>
@@ -736,70 +844,81 @@ export function SpotliteClientBubbleGraph() {
                 </span>
               </div>
               <p className="text-xs text-text-secondary leading-relaxed rounded-xl bg-surface/80 p-3 border border-border/50">
-                🤖 {selectedClient?.ai_relationship_summary || `${selectedClient?.client_name} is a key anchor client with clean payment history (${selectedClient?.dso_median_days} days median DSO) and high account retention probability.`}
+                🤖{" "}
+                {selectedClient?.ai_relationship_summary ||
+                  `${selectedClient?.client_name} is a key anchor client with clean payment history (${selectedClient?.dso_median_days} days median DSO) and high account retention probability.`}
               </p>
             </div>
 
-          {/* SEARCH & TRANSACTION TABLE */}
-          <div className="space-y-3 flex-1 overflow-hidden flex flex-col">
-            <div className="flex items-center justify-between gap-2">
-              <div className="relative flex-1">
-                <Search size={14} className="absolute left-3 top-2.5 text-text-tertiary" />
-                <input
-                  type="text"
-                  placeholder="Search invoice reference, narration, method..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-9 pr-3 py-1.5 text-xs bg-surface border border-border/80 rounded-lg outline-none focus:border-brand"
-                />
+            {/* SEARCH & TRANSACTION TABLE */}
+            <div className="space-y-3 flex-1 overflow-hidden flex flex-col">
+              <div className="flex items-center justify-between gap-2">
+                <div className="relative flex-1">
+                  <Search size={14} className="absolute left-3 top-2.5 text-text-tertiary" />
+                  <input
+                    type="text"
+                    placeholder="Search invoice reference, narration, method..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full pl-9 pr-3 py-1.5 text-xs bg-surface border border-border/80 rounded-lg outline-none focus:border-brand"
+                  />
+                </div>
+                <span className="text-xs text-text-secondary font-mono">
+                  {filteredTransactions.length} Transactions
+                </span>
               </div>
-              <span className="text-xs text-text-secondary font-mono">
-                {filteredTransactions.length} Transactions
-              </span>
-            </div>
 
-            <div className="overflow-y-auto border border-border rounded-xl flex-1">
-              <table className="w-full text-xs text-left">
-                <thead className="bg-surface-alt text-[11px] font-semibold text-text-secondary uppercase sticky top-0 border-b border-border z-10">
-                  <tr>
-                    <th className="px-3 py-2.5">Txn ID</th>
-                    <th className="px-3 py-2.5">Date</th>
-                    <th className="px-3 py-2.5">Invoice Ref</th>
-                    <th className="px-3 py-2.5">Narration</th>
-                    <th className="px-3 py-2.5">Amount</th>
-                    <th className="px-3 py-2.5">Payment Method</th>
-                    <th className="px-3 py-2.5">Status</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border">
-                  {filteredTransactions.map((tx, idx) => (
-                    <tr key={idx} className="hover:bg-surface-alt/50 transition">
-                      <td className="px-3 py-2.5 font-mono font-medium text-foreground">{tx.transaction_id}</td>
-                      <td className="px-3 py-2.5 text-text-secondary whitespace-nowrap">{tx.date}</td>
-                      <td className="px-3 py-2.5 font-mono text-text-secondary">{tx.invoice_ref}</td>
-                      <td className="px-3 py-2.5 font-medium text-foreground">{tx.narration}</td>
-                      <td className="px-3 py-2.5 font-mono font-bold text-emerald-600 dark:text-emerald-400 whitespace-nowrap">
-                        {formatINR(tx.amount)}
-                      </td>
-                      <td className="px-3 py-2.5 text-text-secondary">{tx.payment_method}</td>
-                      <td className="px-3 py-2.5">
-                        <Badge variant="outline" className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20 text-[10px] font-bold">
-                          {tx.payment_status}
-                        </Badge>
-                      </td>
-                    </tr>
-                  ))}
-                  {filteredTransactions.length === 0 && (
+              <div className="overflow-y-auto border border-border rounded-xl flex-1">
+                <table className="w-full text-xs text-left">
+                  <thead className="bg-surface-alt text-[11px] font-semibold text-text-secondary uppercase sticky top-0 border-b border-border z-10">
                     <tr>
-                      <td colSpan={7} className="px-4 py-8 text-center text-text-secondary">
-                        No transactions found for this search filter.
-                      </td>
+                      <th className="px-3 py-2.5">Txn ID</th>
+                      <th className="px-3 py-2.5">Date</th>
+                      <th className="px-3 py-2.5">Invoice Ref</th>
+                      <th className="px-3 py-2.5">Narration</th>
+                      <th className="px-3 py-2.5">Amount</th>
+                      <th className="px-3 py-2.5">Payment Method</th>
+                      <th className="px-3 py-2.5">Status</th>
                     </tr>
-                  )}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className="divide-y divide-border">
+                    {filteredTransactions.map((tx, idx) => (
+                      <tr key={idx} className="hover:bg-surface-alt/50 transition">
+                        <td className="px-3 py-2.5 font-mono font-medium text-foreground">
+                          {tx.transaction_id}
+                        </td>
+                        <td className="px-3 py-2.5 text-text-secondary whitespace-nowrap">
+                          {tx.date}
+                        </td>
+                        <td className="px-3 py-2.5 font-mono text-text-secondary">
+                          {tx.invoice_ref}
+                        </td>
+                        <td className="px-3 py-2.5 font-medium text-foreground">{tx.narration}</td>
+                        <td className="px-3 py-2.5 font-mono font-bold text-emerald-600 dark:text-emerald-400 whitespace-nowrap">
+                          {formatINR(tx.amount)}
+                        </td>
+                        <td className="px-3 py-2.5 text-text-secondary">{tx.payment_method}</td>
+                        <td className="px-3 py-2.5">
+                          <Badge
+                            variant="outline"
+                            className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20 text-[10px] font-bold"
+                          >
+                            {tx.payment_status}
+                          </Badge>
+                        </td>
+                      </tr>
+                    ))}
+                    {filteredTransactions.length === 0 && (
+                      <tr>
+                        <td colSpan={7} className="px-4 py-8 text-center text-text-secondary">
+                          No transactions found for this search filter.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
             </div>
-          </div>
           </div>
         </DialogContent>
       </Dialog>

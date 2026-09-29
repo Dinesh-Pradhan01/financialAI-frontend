@@ -4,7 +4,6 @@ import {
   Home,
   BarChart3,
   Zap,
-  MessageCircle,
   User,
   Settings,
   Users,
@@ -25,11 +24,17 @@ import {
 } from "@/shared/components/ui/tooltip";
 import { cn } from "@/shared/lib/utils";
 import { useAppSelector } from "@/shared/store";
-import { selectHighPriorityCount, selectLanguage } from "@/shared/store/selectors";
+import { selectLanguage } from "@/shared/store/selectors";
 import { languages } from "@/shared/data/agentic";
 import { useAuth } from "@/shared/contexts/AuthContext";
 import { useLogout } from "@/shared/hooks/useLogout";
-import { isCeoOrAdmin, isHR, isCFO } from "@/shared/lib/roles";
+import {
+  isCeoOrAdmin,
+  isStrictHR,
+  isStrictCFO,
+  canAccessHR,
+  canAccessCFO,
+} from "@/shared/lib/roles";
 
 const items = [
   { to: "/home", label: "Business 360", icon: Home },
@@ -37,7 +42,6 @@ const items = [
   { to: "/industry", label: "Industry", icon: TrendingUp },
   { to: "/spotlights", label: "Spotlights", icon: Zap },
   { to: "/documents", label: "Documents", icon: FolderLock },
-  { to: "/coach", label: "Coach", icon: MessageCircle },
   { to: "/profile", label: "Profile", icon: User },
 ] as const;
 
@@ -48,34 +52,34 @@ function useActive() {
 
 export function BottomTabBar() {
   const isActive = useActive();
-  const highPriorityCount = useAppSelector(selectHighPriorityCount);
   const { user } = useAuth();
-  const isHrUser = isHR(user?.role);
-  const isCfoUser = isCFO(user?.role);
-  const visibleItems = isHrUser
+  const canManageTeam = isCeoOrAdmin(user?.role);
+  const isHrStrict = isStrictHR(user?.role);
+  const isCfoStrict = isStrictCFO(user?.role);
+  const canAccessHr = canAccessHR(user?.role);
+  const canAccessCfo = canAccessCFO(user?.role);
+
+  // Standalone HR has Profile and Spending hidden; standalone CFO has Profile hidden.
+  // CEO sees EVERYTHING - nothing is invisible to the CEO.
+  const visibleItems = isHrStrict
     ? items.filter((it) => it.to !== "/profile" && it.to !== "/spending")
-    : isCfoUser
-    ? items.filter((it) => it.to !== "/profile")
-    : items;
+    : isCfoStrict
+      ? items.filter((it) => it.to !== "/profile")
+      : items;
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-40 border-t border-border bg-surface/95 backdrop-blur md:hidden">
-      <ul
-        className="grid"
-        style={{
-          gridTemplateColumns: `repeat(${visibleItems.length + (isHrUser ? 1 : 0) + (isCfoUser ? 1 : 0)}, minmax(0, 1fr))`,
-        }}
-      >
+      <ul className="flex items-center overflow-x-auto no-scrollbar scroll-smooth px-1">
         {visibleItems.map((it) => {
           const Icon = it.icon;
           const active = isActive(it.to);
           const badge = 0;
           return (
-            <li key={it.to}>
+            <li key={it.to} className="shrink-0 min-w-14 flex-1">
               <Link
                 to={it.to}
                 className={cn(
-                  "flex flex-col items-center gap-0.5 py-2 text-[11px] font-medium",
+                  "flex flex-col items-center gap-0.5 py-2 text-[11px] font-medium whitespace-nowrap",
                   active ? "text-brand" : "text-text-secondary",
                 )}
               >
@@ -92,12 +96,28 @@ export function BottomTabBar() {
             </li>
           );
         })}
-        {isHrUser && (
-          <li>
+        {canManageTeam && (
+          <li className="shrink-0 min-w-14 flex-1">
+            <Link
+              to="/team"
+              className={cn(
+                "flex flex-col items-center gap-0.5 py-2 text-[11px] font-medium whitespace-nowrap",
+                isActive("/team") ? "text-brand" : "text-text-secondary",
+              )}
+            >
+              <span className="relative">
+                <Users className={cn("h-5 w-5", isActive("/team") && "stroke-[2.4]")} />
+              </span>
+              Team
+            </Link>
+          </li>
+        )}
+        {canAccessHr && (
+          <li className="shrink-0 min-w-14 flex-1">
             <Link
               to="/hr"
               className={cn(
-                "flex flex-col items-center gap-0.5 py-2 text-[11px] font-medium",
+                "flex flex-col items-center gap-0.5 py-2 text-[11px] font-medium whitespace-nowrap",
                 isActive("/hr") ? "text-brand" : "text-text-secondary",
               )}
             >
@@ -108,12 +128,12 @@ export function BottomTabBar() {
             </Link>
           </li>
         )}
-        {isCfoUser && (
-          <li>
+        {canAccessCfo && (
+          <li className="shrink-0 min-w-14 flex-1">
             <Link
               to="/cfo"
               className={cn(
-                "flex flex-col items-center gap-0.5 py-2 text-[11px] font-medium",
+                "flex flex-col items-center gap-0.5 py-2 text-[11px] font-medium whitespace-nowrap",
                 isActive("/cfo") ? "text-brand" : "text-text-secondary",
               )}
             >
@@ -133,18 +153,19 @@ export function BottomTabBar() {
 export function DesktopSidebar() {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const isActive = useActive();
-  const highPriorityCount = useAppSelector(selectHighPriorityCount);
   const language = useAppSelector(selectLanguage);
   const { user } = useAuth();
   const { handleLogout, loggingOut } = useLogout();
   const canManageTeam = isCeoOrAdmin(user?.role);
-  const isHrUser = isHR(user?.role);
-  const isCfoUser = isCFO(user?.role);
-  const visibleItems = isHrUser
+  const isHrStrict = isStrictHR(user?.role);
+  const isCfoStrict = isStrictCFO(user?.role);
+  const canAccessHr = canAccessHR(user?.role);
+  const canAccessCfo = canAccessCFO(user?.role);
+  const visibleItems = isHrStrict
     ? items.filter((it) => it.to !== "/profile" && it.to !== "/spending")
-    : isCfoUser
-    ? items.filter((it) => it.to !== "/profile")
-    : items;
+    : isCfoStrict
+      ? items.filter((it) => it.to !== "/profile")
+      : items;
 
   return (
     <TooltipProvider delayDuration={200}>
@@ -205,7 +226,7 @@ export function DesktopSidebar() {
             </Tooltip>
           </div>
         )}
-        <ul className="space-y-1">
+        <ul className="space-y-1 flex-1 overflow-y-auto no-scrollbar">
           {visibleItems.map((it) => {
             const Icon = it.icon;
             const active = isActive(it.to);
@@ -256,7 +277,7 @@ export function DesktopSidebar() {
             </li>
           )}
 
-          {isHR(user?.role) && (
+          {canAccessHr && (
             <li>
               <Link
                 to="/hr"
@@ -275,7 +296,7 @@ export function DesktopSidebar() {
             </li>
           )}
 
-          {isCFO(user?.role) && (
+          {canAccessCfo && (
             <li>
               <Link
                 to="/cfo"
@@ -293,23 +314,23 @@ export function DesktopSidebar() {
               </Link>
             </li>
           )}
+          <li>
+            <Link
+              to="/settings"
+              title={isCollapsed ? "Settings" : undefined}
+              className={cn(
+                "flex items-center rounded-lg py-2 text-sm font-medium transition-all duration-200",
+                isCollapsed ? "justify-center px-0" : "px-3 gap-3",
+                isActive("/settings")
+                  ? "bg-surface-alt text-text-primary"
+                  : "text-text-secondary hover:bg-surface-alt",
+              )}
+            >
+              <Settings className="h-4 w-4 shrink-0" />
+              {!isCollapsed && <span>Settings</span>}
+            </Link>
+          </li>
         </ul>
-
-        <div className="my-4 border-t border-border" />
-        <Link
-          to="/settings"
-          title={isCollapsed ? "Settings" : undefined}
-          className={cn(
-            "flex items-center rounded-lg py-2 text-sm font-medium transition-all duration-200",
-            isCollapsed ? "justify-center px-0" : "px-3 gap-3",
-            isActive("/settings")
-              ? "bg-surface-alt text-text-primary"
-              : "text-text-secondary hover:bg-surface-alt",
-          )}
-        >
-          <Settings className="h-4 w-4 shrink-0" />
-          {!isCollapsed && <span>Settings</span>}
-        </Link>
 
         {/* User Profile Card & Logout */}
         {user && (

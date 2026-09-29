@@ -27,7 +27,8 @@ export const Route = createFileRoute("/_app/(spotlights)/spotlights/$id_/apply")
       { title: "Executive Remediation Console · Spotlite" },
       {
         name: "description",
-        content: "Execute corporate dispute claims, payment holds, and treasury sweep instructions.",
+        content:
+          "Execute corporate dispute claims, payment holds, and treasury sweep instructions.",
       },
     ],
   }),
@@ -136,10 +137,10 @@ function B2BRemediationConsole() {
         className={cn(
           "rounded-2xl border p-6 shadow-xs space-y-2 transition",
           spotlight.severity === "high"
-            ? "border-rose-500/35 bg-gradient-to-br from-rose-500/10 via-surface to-surface dark:from-rose-950/25 dark:via-surface dark:to-surface"
+            ? "border-rose-500/35 bg-linear-to-br from-rose-500/10 via-surface to-surface dark:from-rose-950/25 dark:via-surface dark:to-surface"
             : spotlight.severity === "moderate"
-            ? "border-amber-500/35 bg-gradient-to-br from-amber-500/10 via-surface to-surface dark:from-amber-950/25 dark:via-surface dark:to-surface"
-            : "border-emerald-500/35 bg-gradient-to-br from-emerald-500/10 via-surface to-surface dark:from-emerald-950/25 dark:via-surface dark:to-surface"
+              ? "border-amber-500/35 bg-linear-to-br from-amber-500/10 via-surface to-surface dark:from-amber-950/25 dark:via-surface dark:to-surface"
+              : "border-emerald-500/35 bg-linear-to-br from-emerald-500/10 via-surface to-surface dark:from-emerald-950/25 dark:via-surface dark:to-surface",
         )}
       >
         <div className="flex items-center gap-2 text-xs font-bold text-brand uppercase tracking-wider">
@@ -165,7 +166,11 @@ function B2BRemediationConsole() {
           <motion.div
             initial={shouldReduceMotion ? false : { scale: 0 }}
             animate={{ scale: 1 }}
-            transition={shouldReduceMotion ? undefined : { type: "spring", stiffness: 450, damping: 20, delay: 0.08 }}
+            transition={
+              shouldReduceMotion
+                ? undefined
+                : { type: "spring", stiffness: 450, damping: 20, delay: 0.08 }
+            }
             className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-500 text-white shadow-xs"
           >
             <CheckCircle2 size={28} />
@@ -175,14 +180,17 @@ function B2BRemediationConsole() {
               Remediation Action Formally Dispatched
             </h2>
             <p className="text-xs text-text-secondary max-w-md mx-auto">
-              This action has been sealed in the immutable audit ledger. A formal notification has been queued for your Chartered Accountant and treasury review.
+              This action has been sealed in the immutable audit ledger. A formal notification has
+              been queued for your Chartered Accountant and treasury review.
             </p>
           </div>
 
           <div className="rounded-xl bg-surface p-4 border border-border/60 max-w-md mx-auto text-left text-xs space-y-2">
             <div className="flex justify-between">
               <span className="text-text-tertiary">Resolution Reference:</span>
-              <span className="font-mono font-bold text-foreground">SPL-REM-{spotlight.id.toUpperCase().slice(0, 6)}-2026</span>
+              <span className="font-mono font-bold text-foreground">
+                SPL-REM-{spotlight.id.toUpperCase().slice(0, 6)}-2026
+              </span>
             </div>
             <div className="flex justify-between">
               <span className="text-text-tertiary">Target Entity:</span>
@@ -194,10 +202,10 @@ function B2BRemediationConsole() {
                 {spotlight.id === "vendor-overbilling"
                   ? formatINR(calculatedOverbillClaim)
                   : spotlight.id === "contract-lapse"
-                  ? `${formatINR(calculatedRenewalSavings)} / yr`
-                  : spotlight.id === "idle-cash-optimization"
-                  ? `${formatINR(calculatedSweepYield)} / yr`
-                  : spotlight.bigValue}
+                    ? `${formatINR(calculatedRenewalSavings)} / yr`
+                    : spotlight.id === "idle-cash-optimization"
+                      ? `${formatINR(calculatedSweepYield)} / yr`
+                      : spotlight.bigValue}
               </span>
             </div>
           </div>
@@ -238,7 +246,10 @@ function B2BRemediationConsole() {
 
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-1.5">
-                  <label htmlFor="contractBaseRate" className="text-xs font-semibold text-text-secondary">
+                  <label
+                    htmlFor="contractBaseRate"
+                    className="text-xs font-semibold text-text-secondary"
+                  >
                     Master Agreement Rate (Monthly Baseline)
                   </label>
                   <input
@@ -248,11 +259,16 @@ function B2BRemediationConsole() {
                     value="₹1,00,000 / mo"
                     className="w-full rounded-xl bg-surface-alt border border-border/70 px-3.5 py-2 text-xs font-num font-bold text-foreground cursor-not-allowed"
                   />
-                  <p className="text-[10px] text-text-tertiary">Verified from Document Vault contract.</p>
+                  <p className="text-[10px] text-text-tertiary">
+                    Verified from Document Vault contract.
+                  </p>
                 </div>
 
                 <div className="space-y-1.5">
-                  <label htmlFor="actualBilledRate" className="text-xs font-semibold text-text-secondary">
+                  <label
+                    htmlFor="actualBilledRate"
+                    className="text-xs font-semibold text-text-secondary"
+                  >
                     Actual Average Monthly Billed
                   </label>
                   <input
@@ -262,7 +278,9 @@ function B2BRemediationConsole() {
                     value="₹1,85,000 / mo"
                     className="w-full rounded-xl bg-surface-alt border border-border/70 px-3.5 py-2 text-xs font-num font-bold text-rose-600 dark:text-rose-400 cursor-not-allowed"
                   />
-                  <p className="text-[10px] text-text-tertiary">Average from 6 cleared NEFT disbursements.</p>
+                  <p className="text-[10px] text-text-tertiary">
+                    Average from 6 cleared NEFT disbursements.
+                  </p>
                 </div>
               </div>
 
@@ -300,14 +318,20 @@ function B2BRemediationConsole() {
                   onChange={(e) => setResolutionType(e.target.value)}
                   className="w-full rounded-xl bg-surface border border-border px-3.5 py-2 text-xs font-medium text-foreground focus-visible:ring-2 focus-visible:ring-brand focus-visible:outline-none"
                 >
-                  <option value="credit-note">Credit Note offset against upcoming monthly billings (Recommended)</option>
-                  <option value="refund-wire">Direct RTGS/NEFT cash restitution to company operating account</option>
-                  <option value="rate-freeze">Immediate rate rollback to ₹1,00,000 with 12-month extension</option>
+                  <option value="credit-note">
+                    Credit Note offset against upcoming monthly billings (Recommended)
+                  </option>
+                  <option value="refund-wire">
+                    Direct RTGS/NEFT cash restitution to company operating account
+                  </option>
+                  <option value="rate-freeze">
+                    Immediate rate rollback to ₹1,00,000 with 12-month extension
+                  </option>
                 </select>
               </div>
 
               {/* LIVE RECOVERY SUMMARY CARD */}
-              <div className="rounded-xl border border-emerald-500/35 bg-gradient-to-br from-emerald-500/10 via-surface to-surface dark:from-emerald-950/25 dark:via-surface dark:to-surface p-4 flex items-center justify-between shadow-xs">
+              <div className="rounded-xl border border-emerald-500/35 bg-linear-to-br from-emerald-500/10 via-surface to-surface dark:from-emerald-950/25 dark:via-surface dark:to-surface p-4 flex items-center justify-between shadow-xs">
                 <div>
                   <span className="text-[10px] font-bold text-emerald-800/90 dark:text-emerald-300/90 uppercase tracking-wider">
                     Calculated Rupee Claim Amount
@@ -343,7 +367,8 @@ function B2BRemediationConsole() {
           {spotlight.id === "bec-fraud-risk" && (
             <div className="rounded-2xl border-2 border-rose-500/30 bg-rose-500/5 p-6 shadow-xs space-y-5">
               <h2 className="font-display text-base font-bold text-foreground flex items-center gap-2 border-b border-rose-500/20 pb-3">
-                <ShieldAlert size={18} className="text-rose-600" /> Outbound Remittance Verification &amp; Security Hold
+                <ShieldAlert size={18} className="text-rose-600" /> Outbound Remittance Verification
+                &amp; Security Hold
               </h2>
 
               <div className="rounded-xl bg-surface p-4 border border-rose-500/20 space-y-3">
@@ -353,12 +378,20 @@ function B2BRemediationConsole() {
                 </div>
                 <div className="grid grid-cols-2 gap-3 text-xs pt-2 border-t border-border/60">
                   <div className="p-3 rounded-lg bg-surface-alt">
-                    <span className="text-[10px] text-text-tertiary block">Historical Verified IFSC</span>
-                    <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400">HDFC0001234</span>
+                    <span className="text-[10px] text-text-tertiary block">
+                      Historical Verified IFSC
+                    </span>
+                    <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400">
+                      HDFC0001234
+                    </span>
                   </div>
                   <div className="p-3 rounded-lg bg-rose-500/10 border border-rose-500/20">
-                    <span className="text-[10px] text-rose-700 dark:text-rose-300 block font-bold">Unverified Drift IFSC</span>
-                    <span className="font-mono font-bold text-rose-600 dark:text-rose-400">SBIN0009876</span>
+                    <span className="text-[10px] text-rose-700 dark:text-rose-300 block font-bold">
+                      Unverified Drift IFSC
+                    </span>
+                    <span className="font-mono font-bold text-rose-600 dark:text-rose-400">
+                      SBIN0009876
+                    </span>
                   </div>
                 </div>
               </div>
@@ -372,7 +405,9 @@ function B2BRemediationConsole() {
                     <input
                       type="checkbox"
                       checked={becChecklist.cancelledCheque}
-                      onChange={(e) => setBecChecklist({ ...becChecklist, cancelledCheque: e.target.checked })}
+                      onChange={(e) =>
+                        setBecChecklist({ ...becChecklist, cancelledCheque: e.target.checked })
+                      }
                       className="rounded accent-rose-600 h-4 w-4"
                     />
                     <span>Obtain signed &amp; stamped cancelled cheque for branch SBIN0009876</span>
@@ -381,19 +416,27 @@ function B2BRemediationConsole() {
                     <input
                       type="checkbox"
                       checked={becChecklist.verbalConfirm}
-                      onChange={(e) => setBecChecklist({ ...becChecklist, verbalConfirm: e.target.checked })}
+                      onChange={(e) =>
+                        setBecChecklist({ ...becChecklist, verbalConfirm: e.target.checked })
+                      }
                       className="rounded accent-rose-600 h-4 w-4"
                     />
-                    <span>Dual-control phone verification with counterparty CFO on verified phone record</span>
+                    <span>
+                      Dual-control phone verification with counterparty CFO on verified phone record
+                    </span>
                   </label>
                   <label className="flex items-center gap-2.5 p-2.5 rounded-xl bg-surface border border-border cursor-pointer">
                     <input
                       type="checkbox"
                       checked={becChecklist.gstinMatch}
-                      onChange={(e) => setBecChecklist({ ...becChecklist, gstinMatch: e.target.checked })}
+                      onChange={(e) =>
+                        setBecChecklist({ ...becChecklist, gstinMatch: e.target.checked })
+                      }
                       className="rounded accent-rose-600 h-4 w-4"
                     />
-                    <span>Verify new bank branch matches GST portal registered banking records</span>
+                    <span>
+                      Verify new bank branch matches GST portal registered banking records
+                    </span>
                   </label>
                 </div>
               </div>
@@ -404,7 +447,8 @@ function B2BRemediationConsole() {
           {spotlight.id === "contract-lapse" && (
             <div className="rounded-2xl border border-border/80 bg-surface p-6 shadow-xs space-y-5">
               <h2 className="font-display text-base font-bold text-foreground flex items-center gap-2 border-b border-border/60 pb-3">
-                <FileCheck2 size={18} className="text-brand" /> Procurement Contract Renewal Term Sheet
+                <FileCheck2 size={18} className="text-brand" /> Procurement Contract Renewal Term
+                Sheet
               </h2>
 
               <div className="grid gap-4 sm:grid-cols-2">
@@ -425,7 +469,10 @@ function B2BRemediationConsole() {
                 </div>
 
                 <div className="space-y-1.5">
-                  <label htmlFor="discountTargetSelect" className="text-xs font-semibold text-foreground">
+                  <label
+                    htmlFor="discountTargetSelect"
+                    className="text-xs font-semibold text-foreground"
+                  >
                     Target Volume Renewal Discount
                   </label>
                   <select
@@ -441,7 +488,7 @@ function B2BRemediationConsole() {
                 </div>
               </div>
 
-              <div className="rounded-xl border border-emerald-500/35 bg-gradient-to-br from-emerald-500/10 via-surface to-surface dark:from-emerald-950/25 dark:via-surface dark:to-surface p-4 flex items-center justify-between shadow-xs">
+              <div className="rounded-xl border border-emerald-500/35 bg-linear-to-br from-emerald-500/10 via-surface to-surface dark:from-emerald-950/25 dark:via-surface dark:to-surface p-4 flex items-center justify-between shadow-xs">
                 <div>
                   <span className="text-[10px] font-bold text-emerald-800/90 dark:text-emerald-300/90 uppercase tracking-wider">
                     Projected Annual Savings from Renewal
@@ -470,7 +517,8 @@ function B2BRemediationConsole() {
           {spotlight.id === "idle-cash-optimization" && (
             <div className="rounded-2xl border border-teal-500/30 bg-surface p-6 shadow-xs space-y-5">
               <h2 className="font-display text-base font-bold text-foreground flex items-center gap-2 border-b border-border/60 pb-3">
-                <Sparkles size={18} className="text-teal-600 dark:text-teal-400" /> Treasury Sweep Instruction Setup
+                <Sparkles size={18} className="text-teal-600 dark:text-teal-400" /> Treasury Sweep
+                Instruction Setup
               </h2>
 
               <div className="space-y-1.5">
@@ -478,7 +526,9 @@ function B2BRemediationConsole() {
                   <label htmlFor="sweepAmountSlider" className="font-semibold text-foreground">
                     Surplus Cash to Sweep into Overnight/Liquid Yield
                   </label>
-                  <span className="font-num tabular-nums font-bold text-teal-600 dark:text-teal-400">{formatINR(sweepAmount)}</span>
+                  <span className="font-num tabular-nums font-bold text-teal-600 dark:text-teal-400">
+                    {formatINR(sweepAmount)}
+                  </span>
                 </div>
                 <input
                   id="sweepAmountSlider"
@@ -497,7 +547,7 @@ function B2BRemediationConsole() {
                 </div>
               </div>
 
-              <div className="rounded-xl border border-teal-500/35 bg-gradient-to-br from-teal-500/10 via-surface to-surface dark:from-teal-950/25 dark:via-surface dark:to-surface p-4 flex items-center justify-between shadow-xs">
+              <div className="rounded-xl border border-teal-500/35 bg-linear-to-br from-teal-500/10 via-surface to-surface dark:from-teal-950/25 dark:via-surface dark:to-surface p-4 flex items-center justify-between shadow-xs">
                 <div>
                   <span className="text-[10px] font-bold text-teal-800/90 dark:text-teal-300/90 uppercase tracking-wider">
                     Projected Annual Treasury Earnings @ 6.50%
@@ -514,7 +564,9 @@ function B2BRemediationConsole() {
                 </div>
                 <div className="text-right text-xs text-text-secondary">
                   <span>Liquid Reserve Maintained: </span>
-                  <strong className="text-foreground font-num tabular-nums font-bold">₹13,50,000</strong>
+                  <strong className="text-foreground font-num tabular-nums font-bold">
+                    ₹13,50,000
+                  </strong>
                 </div>
               </div>
             </div>
@@ -530,7 +582,8 @@ function B2BRemediationConsole() {
                   Action Dispatch: {spotlight.remediation.title}
                 </h2>
                 <p className="text-xs text-text-secondary leading-relaxed">
-                  Confirm dispatch of {spotlight.remediation.actionLabel} to your corporate finance operations queue.
+                  Confirm dispatch of {spotlight.remediation.actionLabel} to your corporate finance
+                  operations queue.
                 </p>
               </div>
             )}
@@ -553,7 +606,7 @@ function B2BRemediationConsole() {
                 "inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl text-xs font-bold text-white shadow-brand transition cursor-pointer w-full sm:w-auto",
                 spotlight.id === "bec-fraud-risk"
                   ? "bg-rose-600 hover:bg-rose-700"
-                  : "bg-brand hover:opacity-95"
+                  : "bg-brand hover:opacity-95",
               )}
             >
               {isSubmitting ? (

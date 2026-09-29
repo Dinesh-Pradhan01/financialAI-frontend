@@ -12,7 +12,7 @@ import { DonutChart } from "@/shared/components/charts/DonutChart";
 import { IconChip } from "@/shared/lib/icons";
 import { cn } from "@/shared/lib/utils";
 import { useAuth } from "@/shared/contexts/AuthContext";
-import { isHR } from "@/shared/lib/roles";
+import { isStrictHR } from "@/shared/lib/roles";
 
 export const Route = createFileRoute("/_app/(profile)/profile")({
   head: () => ({
@@ -58,7 +58,7 @@ function Insight({ children }: { children: React.ReactNode }) {
 function Profile() {
   const { user } = useAuth();
 
-  if (isHR(user?.role)) {
+  if (isStrictHR(user?.role)) {
     return (
       <div className="mx-auto max-w-lg px-4 py-16 text-center space-y-5">
         <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-destructive/10 text-destructive border border-destructive/20 shadow-xs">

@@ -40,10 +40,12 @@ export const CompanyRatingCard = ({ hasProfile = true }: Props) => {
   return (
     <Card className="h-112.5 flex flex-col border border-border/70 shadow-sm bg-card">
       <CardHeader className="pb-3">
-        <CardTitle className="flex items-center justify-between text-lg font-bold tracking-tight">
-          <div className="flex items-center gap-2">
-            <Star className="w-5 h-5 text-purple-600 dark:text-purple-400" />
-            Company Rating
+        <CardTitle className="flex items-center justify-between text-lg font-bold tracking-tight font-display text-foreground">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center shrink-0">
+              <Star className="w-4 h-4" />
+            </div>
+            <span>Company Rating</span>
           </div>
           {hasProfile && !isLoading && (
             <button
@@ -56,6 +58,9 @@ export const CompanyRatingCard = ({ hasProfile = true }: Props) => {
             </button>
           )}
         </CardTitle>
+        <p className="text-xs text-text-tertiary mt-1 font-medium">
+          SpotLite composite verification score
+        </p>
       </CardHeader>
       <CardContent className="flex-1 flex flex-col justify-between">
         {isLoading || (hasProfile && isFetching && !data) ? (
@@ -115,15 +120,17 @@ export const CompanyRatingCard = ({ hasProfile = true }: Props) => {
           <div className="space-y-6 pt-2">
             <div className="flex items-center gap-5">
               <div
-                className={`relative flex items-center justify-center w-18 h-18 rounded-full border-4 border-primary/20`}
+                className={`relative flex items-center justify-center w-18 h-18 rounded-2xl bg-linear-to-br from-primary/10 via-purple-500/10 to-primary/5 border-2 border-primary/25 shadow-xs hover:border-primary/40 hover:shadow-sm hover:scale-105 transition-all duration-300 group/score cursor-default`}
               >
                 <span className={`text-2xl font-extrabold font-num ${getScoreColor(data.overall)}`}>
                   {data.overall}
                 </span>
               </div>
               <div>
-                <h3 className="text-xl font-bold tracking-tight">Out of 100</h3>
-                <p className="text-xs text-muted-foreground">SpotLite composite rating</p>
+                <h3 className="text-xl font-bold tracking-tight font-display text-foreground">
+                  Out of 100
+                </h3>
+                <p className="text-xs text-text-tertiary font-medium">SpotLite composite rating</p>
               </div>
             </div>
 
@@ -133,7 +140,7 @@ export const CompanyRatingCard = ({ hasProfile = true }: Props) => {
                   <span className="font-medium flex items-center gap-1.5 text-foreground">
                     <ShieldCheck className="w-4 h-4 text-primary" /> Verification
                   </span>
-                  <span className="font-bold font-num">{data.verification}/100</span>
+                  <span className="font-bold font-num tabular-nums">{data.verification}/100</span>
                 </div>
                 <Progress
                   value={data.verification}
@@ -147,7 +154,7 @@ export const CompanyRatingCard = ({ hasProfile = true }: Props) => {
                   <span className="font-medium flex items-center gap-1.5 text-foreground">
                     <FileCheck2 className="w-4 h-4 text-primary" /> Documents
                   </span>
-                  <span className="font-bold font-num">{data.documents}/100</span>
+                  <span className="font-bold font-num tabular-nums">{data.documents}/100</span>
                 </div>
                 <Progress
                   value={data.documents}
@@ -162,7 +169,7 @@ export const CompanyRatingCard = ({ hasProfile = true }: Props) => {
                     <span className="font-medium flex items-center gap-1.5 text-foreground">
                       <ShieldCheck className="w-4 h-4 text-primary" /> Compliance
                     </span>
-                    <span className="font-bold font-num">{data.compliance}/100</span>
+                    <span className="font-bold font-num tabular-nums">{data.compliance}/100</span>
                   </div>
                   <Progress
                     value={data.compliance}
@@ -171,12 +178,12 @@ export const CompanyRatingCard = ({ hasProfile = true }: Props) => {
                   />
                 </div>
               ) : (
-                <div className="space-y-1.5 opacity-60">
+                <div className="space-y-1.5 opacity-75">
                   <div className="flex items-center justify-between text-xs">
-                    <span className="font-medium flex items-center gap-1.5 text-muted-foreground">
-                      <ShieldCheck className="w-4 h-4" /> Compliance
+                    <span className="font-medium flex items-center gap-1.5 text-text-tertiary">
+                      <ShieldCheck className="w-4 h-4 text-text-tertiary/70" /> Compliance
                     </span>
-                    <span className="text-[10px] border px-1.5 py-0.5 rounded text-muted-foreground bg-muted font-medium">
+                    <span className="text-[10px] border border-amber-500/25 px-2 py-0.5 rounded-full text-amber-600 dark:text-amber-400 bg-amber-500/10 font-semibold">
                       Coming Soon
                     </span>
                   </div>
@@ -190,7 +197,9 @@ export const CompanyRatingCard = ({ hasProfile = true }: Props) => {
                     <span className="font-medium flex items-center gap-1.5 text-foreground">
                       <Activity className="w-4 h-4 text-primary" /> Financial Health
                     </span>
-                    <span className="font-bold font-num">{data.financial_health}/100</span>
+                    <span className="font-bold font-num tabular-nums">
+                      {data.financial_health}/100
+                    </span>
                   </div>
                   <Progress
                     value={data.financial_health}
@@ -199,12 +208,12 @@ export const CompanyRatingCard = ({ hasProfile = true }: Props) => {
                   />
                 </div>
               ) : (
-                <div className="space-y-1.5 opacity-60">
+                <div className="space-y-1.5 opacity-75">
                   <div className="flex items-center justify-between text-xs">
-                    <span className="font-medium flex items-center gap-1.5 text-muted-foreground">
-                      <Activity className="w-4 h-4" /> Financial Health
+                    <span className="font-medium flex items-center gap-1.5 text-text-tertiary">
+                      <Activity className="w-4 h-4 text-text-tertiary/70" /> Financial Health
                     </span>
-                    <span className="text-[10px] border px-1.5 py-0.5 rounded text-muted-foreground bg-muted font-medium">
+                    <span className="text-[10px] border border-amber-500/25 px-2 py-0.5 rounded-full text-amber-600 dark:text-amber-400 bg-amber-500/10 font-semibold">
                       Coming Soon
                     </span>
                   </div>

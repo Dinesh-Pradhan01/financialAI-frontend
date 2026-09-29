@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/shared/lib/api";
+import { cfoApi } from "@/shared/lib/cfoAxios";
 import { queryKeys } from "@/shared/lib/queryKeys";
 import type {
   CompanyProfileResponse as CompanyProfile,
@@ -138,15 +139,21 @@ export const useDeleteCompanyDocument = () => {
   });
 };
 
+import type {
+  GeneralInfoResponse,
+  LeadershipInfoResponse,
+  FinancialInfoResponse,
+} from "@/shared/types/api";
+
 export interface OnboardingStatusResponse {
   business_id: string | null;
   current_step: number;
   completion_percentage: number;
   onboarding_completed: boolean;
   verification_status: string;
-  general_info?: Record<string, unknown> | null;
-  leadership_info?: Record<string, unknown> | null;
-  financial_info?: Record<string, unknown> | null;
+  general_info?: (GeneralInfoResponse & Record<string, any>) | null;
+  leadership_info?: (LeadershipInfoResponse & Record<string, any>) | null;
+  financial_info?: (FinancialInfoResponse & Record<string, any>) | null;
   documents?: unknown[];
 }
 
@@ -159,3 +166,67 @@ export const useOnboardingStatus = (options?: QueryHookOptions) => {
     retry: false,
   });
 };
+
+export interface ClientItem {
+  id: string;
+  name: string;
+  revenue: number;
+  category?: string;
+}
+
+/**
+ * Hook to retrieve the company's top clients sorted by revenue.
+ */
+export const useTopClients = (options?: QueryHookOptions) => {
+  return useQuery({
+    queryKey: ["dashboard", "top-clients"],
+    queryFn: async (): Promise<ClientItem[]> => {
+      try {
+        const res = await cfoApi.get("/clients", { params: { size: 100 } });
+        const rawList =
+          res.data?.data?.items ??
+          res.data?.items ??
+          (Array.isArray(res.data) ? res.data : []);
+        if (!Array.isArray(rawList)) return [];
+        return rawList.map((item: Record<string, unknown>, idx: number) => ({
+          id: String(item.client_id || item.id || `client-${idx}`),
+          name: String(item.client_name || item.name || item.clientName || "Unnamed Client"),
+          revenue: Number(item.revenue) || 0,
+          category: item.category ? String(item.category) : undefined,
+        }));
+      } catch {
+        return [];
+      }
+    },
+    staleTime: 5 * 60 * 1000,
+    enabled: options?.enabled ?? true,
+  });
+};
+
+export interface CompetitorItem {
+  id: string;
+  name: string;
+  description: string;
+  market_cap?: string | null;
+}
+
+/**
+ * Hook to retrieve AI-generated market competitors.
+ */
+export const useCompetitors = (options?: QueryHookOptions) => {
+  return useQuery({
+    queryKey: queryKeys.company.competitors(),
+    queryFn: async (): Promise<CompetitorItem[]> => {
+      try {
+        const res = await api.get<CompetitorItem[]>("/api/company/competitors");
+        if (!Array.isArray(res)) return [];
+        return res;
+      } catch {
+        return [];
+      }
+    },
+    staleTime: 5 * 60 * 1000,
+    enabled: options?.enabled ?? true,
+  });
+};
+

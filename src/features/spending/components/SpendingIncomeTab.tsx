@@ -222,7 +222,7 @@ export function SpendingIncomeTab({
             {unmatchedCredits.length} Unmatched
           </div>
           <div className="text-[11px] text-amber-700 dark:text-amber-300">
-            {formatINR(unmatchedCredits.reduce((s, c) => s + (c.amount || c.credit_amount || 0), 0))} pending client mapping
+            {formatINR(unmatchedCredits.reduce((s, c: any) => s + (c.amount || c.credit_amount || 0), 0))} pending client mapping
           </div>
         </Card>
       </div>

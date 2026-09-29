@@ -1,7 +1,21 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { ArrowLeft, Check, Clock, ShieldAlert, ArrowRight, Copy, CheckCircle2, Building2, Zap, FileText } from "lucide-react";
+import {
+  ArrowLeft,
+  Check,
+  Clock,
+  ArrowRight,
+  Copy,
+  CheckCircle2,
+  Building2,
+  Zap,
+  FileText,
+} from "lucide-react";
 import { toast } from "sonner";
-import { getB2BSpotlightById, b2bSpotlights, type B2BSeverity } from "@/features/spotlights/data/b2bSpotlights";
+import {
+  getB2BSpotlightById,
+  b2bSpotlights,
+  type B2BSeverity,
+} from "@/features/spotlights/data/b2bSpotlights";
 import { cn } from "@/shared/lib/utils";
 import {
   AgentBadge,
@@ -19,22 +33,44 @@ export const Route = createFileRoute("/_app/(spotlights)/spotlights/$id")({
       { title: "Spotlight Intelligence Detail · Spotlite" },
       {
         name: "description",
-        content: "Deep algorithmic provenance, evidence ledger, and executive remediation workflow.",
+        content:
+          "Deep algorithmic provenance, evidence ledger, and executive remediation workflow.",
       },
     ],
   }),
   component: SpotlightDetail,
 });
 
-function SeverityBadge({ severity }: { severity: B2BSeverity }) {
+function SeverityBadge({ severity }: Readonly<{ severity: B2BSeverity }>) {
   const map = {
-    high: { dot: "bg-rose-500", text: "text-rose-700 dark:text-rose-300", bg: "bg-rose-500/10 border-rose-500/30", label: "High Severity Risk" },
-    moderate: { dot: "bg-amber-500", text: "text-amber-700 dark:text-amber-300", bg: "bg-amber-500/10 border-amber-500/30", label: "Moderate Risk" },
-    low: { dot: "bg-emerald-500", text: "text-emerald-700 dark:text-emerald-300", bg: "bg-emerald-500/10 border-emerald-500/30", label: "Optimized Baseline" },
+    high: {
+      dot: "bg-rose-500",
+      text: "text-rose-700 dark:text-rose-300",
+      bg: "bg-rose-500/10 border-rose-500/30",
+      label: "High Severity Risk",
+    },
+    moderate: {
+      dot: "bg-amber-500",
+      text: "text-amber-700 dark:text-amber-300",
+      bg: "bg-amber-500/10 border-amber-500/30",
+      label: "Moderate Risk",
+    },
+    low: {
+      dot: "bg-emerald-500",
+      text: "text-emerald-700 dark:text-emerald-300",
+      bg: "bg-emerald-500/10 border-emerald-500/30",
+      label: "Optimized Baseline",
+    },
   };
   const s = map[severity];
   return (
-    <span className={cn("inline-flex items-center gap-1.5 px-3 py-1 rounded-full border text-xs font-bold", s.bg, s.text)}>
+    <span
+      className={cn(
+        "inline-flex items-center gap-1.5 px-3 py-1 rounded-full border text-xs font-bold",
+        s.bg,
+        s.text,
+      )}
+    >
       <span className={cn("h-2 w-2 rounded-full", s.dot)} />
       {s.label}
     </span>
@@ -47,7 +83,7 @@ function SpotlightDetail() {
   const dispatch = useAppDispatch();
   const applied = useAppSelector(selectIsApplied(id));
   const shouldReduceMotion = useReducedMotion();
-  
+
   const spotlight = getB2BSpotlightById(id);
 
   if (!spotlight) {
@@ -61,7 +97,8 @@ function SpotlightDetail() {
             B2B Spotlight Opportunity Not Found
           </h1>
           <p className="mt-2 text-sm text-text-secondary max-w-md mx-auto">
-            The requested spotlight ID &ldquo;{id}&rdquo; is not registered. Choose an active B2B operational spotlight below:
+            The requested spotlight ID &ldquo;{id}&rdquo; is not registered. Choose an active B2B
+            operational spotlight below:
           </p>
         </div>
 
@@ -73,9 +110,15 @@ function SpotlightDetail() {
               params={{ id: s.id }}
               className="p-3.5 rounded-xl border border-border/80 bg-surface hover:border-brand/40 transition group block"
             >
-              <span className="text-[10px] font-bold text-text-tertiary uppercase">{s.category}</span>
-              <p className="text-xs font-bold text-foreground group-hover:text-brand mt-0.5">{s.title}</p>
-              <p className="font-num tabular-nums text-xs font-bold text-brand mt-1">{s.bigValue}</p>
+              <span className="text-[10px] font-bold text-text-tertiary uppercase">
+                {s.category}
+              </span>
+              <p className="text-xs font-bold text-foreground group-hover:text-brand mt-0.5">
+                {s.title}
+              </p>
+              <p className="font-num tabular-nums text-xs font-bold text-brand mt-1">
+                {s.bigValue}
+              </p>
             </Link>
           ))}
         </div>
@@ -105,7 +148,10 @@ function SpotlightDetail() {
     <div className="mx-auto max-w-4xl px-5 py-6 md:px-10 space-y-6">
       {/* BREADCRUMB */}
       <div className="flex items-center justify-between text-xs text-text-secondary">
-        <Link to="/spotlights" className="inline-flex items-center gap-1.5 hover:text-foreground transition font-medium">
+        <Link
+          to="/spotlights"
+          className="inline-flex items-center gap-1.5 hover:text-foreground transition font-medium"
+        >
           <ArrowLeft className="h-3.5 w-3.5" /> Back to Spotlights
         </Link>
         <span className="font-semibold text-brand bg-brand/10 px-2.5 py-0.5 rounded-full border border-brand/20">
@@ -121,10 +167,10 @@ function SpotlightDetail() {
         className={cn(
           "rounded-2xl border p-6 shadow-xs flex flex-col md:flex-row md:items-start justify-between gap-6 transition",
           spotlight.severity === "high"
-            ? "border-rose-500/35 bg-gradient-to-br from-rose-500/10 via-surface to-surface dark:from-rose-950/25 dark:via-surface dark:to-surface"
+            ? "border-rose-500/35 bg-linear-to-br from-rose-500/10 via-surface to-surface dark:from-rose-950/25 dark:via-surface dark:to-surface"
             : spotlight.severity === "moderate"
-            ? "border-amber-500/35 bg-gradient-to-br from-amber-500/10 via-surface to-surface dark:from-amber-950/25 dark:via-surface dark:to-surface"
-            : "border-emerald-500/35 bg-gradient-to-br from-emerald-500/10 via-surface to-surface dark:from-emerald-950/25 dark:via-surface dark:to-surface"
+              ? "border-amber-500/35 bg-linear-to-br from-amber-500/10 via-surface to-surface dark:from-amber-950/25 dark:via-surface dark:to-surface"
+              : "border-emerald-500/35 bg-linear-to-br from-emerald-500/10 via-surface to-surface dark:from-emerald-950/25 dark:via-surface dark:to-surface",
         )}
       >
         <div className="space-y-2">
@@ -148,8 +194,8 @@ function SpotlightDetail() {
               spotlight.severity === "high"
                 ? "text-rose-600 dark:text-rose-400"
                 : spotlight.severity === "moderate"
-                ? "text-amber-600 dark:text-amber-400"
-                : "text-emerald-600 dark:text-emerald-400"
+                  ? "text-amber-600 dark:text-amber-400"
+                  : "text-emerald-600 dark:text-emerald-400",
             )}
           >
             {spotlight.bigValue}
@@ -162,8 +208,10 @@ function SpotlightDetail() {
 
       {/* AGENT NARRATION */}
       <AgentNarration agent="reasoning">
-        I cross-referenced {spotlight.evidenceBase.transactions.toLocaleString("en-IN")} transactions across{" "}
-        {spotlight.evidenceBase.banks} bank accounts ({spotlight.evidenceBase.period}) to isolate this operational risk. Confidence rating: {spotlight.confidence}%.
+        I cross-referenced {spotlight.evidenceBase.transactions.toLocaleString("en-IN")}{" "}
+        transactions across {spotlight.evidenceBase.banks} bank accounts (
+        {spotlight.evidenceBase.period}) to isolate this operational risk. Confidence rating:{" "}
+        {spotlight.confidence}%.
       </AgentNarration>
 
       {/* SECTION 1: SIGNALS NOTICED */}
@@ -190,7 +238,8 @@ function SpotlightDetail() {
         </ul>
 
         <p className="border-t border-border/60 pt-3 text-[11px] text-text-tertiary font-medium">
-          Source of Truth: Authoritative bank statement disbursements matched against Document Vault master agreements.
+          Source of Truth: Authoritative bank statement disbursements matched against Document Vault
+          master agreements.
         </p>
       </section>
 
@@ -220,7 +269,9 @@ function SpotlightDetail() {
         <div className="mt-4 border-t border-border/60 pt-4 space-y-2">
           <div className="flex items-center justify-between text-xs">
             <span className="font-semibold text-foreground">Algorithmic Confidence Score</span>
-            <span className="font-num tabular-nums font-bold text-brand">{spotlight.confidence}%</span>
+            <span className="font-num tabular-nums font-bold text-brand">
+              {spotlight.confidence}%
+            </span>
           </div>
           <ConfidenceMeter value={spotlight.confidence} />
           {spotlight.confidenceReason && (
@@ -239,8 +290,12 @@ function SpotlightDetail() {
             <table className="w-full text-xs text-left" aria-label="Reconciliation ledger details">
               <thead className="bg-surface-alt text-[11px] font-semibold text-text-secondary uppercase">
                 <tr>
-                  <th scope="col" className="px-4 py-2.5">Audit Item / Ledger Metric</th>
-                  <th scope="col" className="px-4 py-2.5 text-right">Recorded Value</th>
+                  <th scope="col" className="px-4 py-2.5">
+                    Audit Item / Ledger Metric
+                  </th>
+                  <th scope="col" className="px-4 py-2.5 text-right">
+                    Recorded Value
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">

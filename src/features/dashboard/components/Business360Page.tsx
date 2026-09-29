@@ -1,74 +1,264 @@
-import React, { useEffect } from "react";
-import { useNavigate } from "@tanstack/react-router";
+import React, { useState } from "react";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { OnboardingProgressBanner } from "./OnboardingProgressBanner";
-import { CompanyOverviewCard } from "./CompanyOverviewCard";
-import { IndustryLeadershipCard } from "./IndustryLeadershipCard";
+import { ProfileCard } from "./ProfileCard";
+import { OfferingsCard } from "./OfferingsCard";
+import { KeyPersonnelSection } from "./KeyPersonnelSection";
+import { TopClientsCard } from "./TopClientsCard";
+import { BankDetailsCard } from "./BankDetailsCard";
+import { KeyInformationCard } from "./KeyInformationCard";
 import { CompanyRatingCard } from "./CompanyRatingCard";
 import { CompanyNewsCard } from "./CompanyNewsCard";
-import { AIViewCard } from "./AIViewCard";
-import { useCompanyProfile, useOnboardingStatus } from "../hooks/useCompanyAPI";
-import { useAuth } from "@/shared/contexts/AuthContext";
+import { CompetitorsCard } from "./CompetitorsCard";
+import { cn } from "@/shared/lib/utils";
+import { useCompanyProfile } from "../hooks/useCompanyAPI";
 
-export const Business360Page = () => {
-  const { user } = useAuth();
-  const navigate = useNavigate();
+export const Business360Page: React.FC = () => {
   const { data: profile, isError } = useCompanyProfile();
-  const { data: onboardingData } = useOnboardingStatus();
-
-  // Auto-prompt to /onboarding on initial session load if user profile is incomplete
-  useEffect(() => {
-    if (user && !user.profile_completed && onboardingData && !onboardingData.onboarding_completed) {
-      const hasDismissed =
-        typeof window !== "undefined"
-          ? sessionStorage.getItem("spotlite_onboarding_dismissed")
-          : null;
-      if (!hasDismissed) {
-        sessionStorage.setItem("spotlite_onboarding_dismissed", "true");
-        navigate({ to: "/onboarding" });
-      }
-    }
-  }, [user, onboardingData, navigate]);
+  const [activeTab, setActiveTab] = useState<string>("news");
+  const shouldReduceMotion = useReducedMotion();
 
   // Downstream cards know whether profile is ready
   const hasProfile = Boolean(profile && !isError);
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: shouldReduceMotion ? 0 : 0.06,
+        delayChildren: 0.02,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: shouldReduceMotion ? 0 : 10 },
+    show: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: shouldReduceMotion ? 0.15 : 0.35,
+        ease: [0.16, 1, 0.3, 1],
+      },
+    },
+  };
+
   return (
-    <div className="w-full max-w-7xl mx-auto space-y-6 p-4 md:p-6 pb-20">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight text-foreground">Business 360</h1>
-        <p className="text-muted-foreground mt-1 text-sm">
-          Unified executive intelligence hub for workforce risk, financial health, and company
-          compliance.
-        </p>
-      </div>
-
-      {/* Onboarding Incomplete Reminder Banner */}
-      <OnboardingProgressBanner />
-
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-        {/* Row 1: Overview */}
-        <div className="md:col-span-12">
-          <CompanyOverviewCard />
+    <motion.div
+      variants={containerVariants}
+      initial="hidden"
+      animate="show"
+      className="w-full max-w-7xl mx-auto space-y-7 p-4 md:p-6 pb-24"
+    >
+      {/* Page Title & Narrative Pitch */}
+      <motion.header variants={itemVariants} className="space-y-1">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="space-y-1">
+            <h1 className="text-3xl font-extrabold tracking-tight text-foreground font-display">
+              Business 360
+            </h1>
+            <p className="text-sm text-text-secondary max-w-2xl leading-relaxed">
+              Unified executive intelligence hub for workforce governance, financial infrastructure,
+              and company compliance.
+            </p>
+          </div>
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-semibold self-start sm:self-center shrink-0 shadow-xs">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+            </span>
+            <span>Live Portfolio Sync</span>
+          </div>
         </div>
+      </motion.header>
 
-        {/* Row 2: Industry Leadership */}
-        <div className="md:col-span-12">
-          <IndustryLeadershipCard hasProfile={hasProfile} />
-        </div>
+      {/* Onboarding Incomplete Reminder Banner (Preserved) */}
+      <motion.div variants={itemVariants}>
+        <OnboardingProgressBanner />
+      </motion.div>
 
-        {/* Row 3: Rating, News, AI View */}
-        <div className="md:col-span-4">
-          <CompanyRatingCard hasProfile={hasProfile} />
+      {/* ── ZONE 1: IDENTITY (Profile + Offerings) ─────────────────────────── */}
+      <motion.section
+        variants={itemVariants}
+        aria-labelledby="zone-identity-heading"
+        className="space-y-3"
+      >
+        <h2 id="zone-identity-heading" className="sr-only">
+          Company Identity and Offerings
+        </h2>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+          <div className="lg:col-span-7 xl:col-span-8 flex flex-col">
+            <ProfileCard />
+          </div>
+          <div className="lg:col-span-5 xl:col-span-4 flex flex-col">
+            <OfferingsCard />
+          </div>
         </div>
-        <div className="md:col-span-4">
-          <CompanyNewsCard hasProfile={hasProfile} />
-        </div>
-        <div className="md:col-span-4">
-          <AIViewCard hasProfile={hasProfile} />
-        </div>
+      </motion.section>
 
-      </div>
-    </div>
+      {/* ── ZONE 2: LEADERSHIP (Key Personnel) ───────────────────────────── */}
+      <motion.div variants={itemVariants}>
+        <KeyPersonnelSection />
+      </motion.div>
+
+      {/* ── ZONE 3: RELATIONSHIPS & INFRASTRUCTURE (Top Clients + Bank Details) ─── */}
+      <motion.section
+        variants={itemVariants}
+        aria-labelledby="zone-infrastructure-heading"
+        className="space-y-3"
+      >
+        <h2 id="zone-infrastructure-heading" className="sr-only">
+          Relationships and Infrastructure
+        </h2>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+          <div className="flex flex-col">
+            <TopClientsCard />
+          </div>
+          <div className="flex flex-col">
+            <BankDetailsCard />
+          </div>
+        </div>
+      </motion.section>
+
+      {/* ── ZONE 4: REGISTRATION (Key Information) ───────────────────────── */}
+      <motion.div variants={itemVariants}>
+        <KeyInformationCard />
+      </motion.div>
+
+      {/* ── ZONE 5: CONTEXT (Ratings & News + Competitors) ─── */}
+      <motion.section
+        variants={itemVariants}
+        aria-labelledby="zone-context-heading"
+        className="space-y-4 pt-1"
+      >
+        <div className="w-full">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-border/40">
+            <div>
+              <h2
+                id="zone-context-heading"
+                className="text-base sm:text-lg font-bold tracking-tight text-foreground font-display"
+              >
+                Market Context & Intelligence Feeds
+              </h2>
+              <p className="text-xs text-text-tertiary mt-0.5 font-medium">
+                Curated feeds and automated peer benchmarking (external synthesis)
+              </p>
+            </div>
+
+            {/* Sliding Pill Segmented Control */}
+            <div
+              role="tablist"
+              aria-label="Market context feeds"
+              className="relative flex items-center bg-surface-alt/70 border border-border/50 p-1 h-9 shrink-0 rounded-lg"
+              onKeyDown={(e) => {
+                if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
+                  e.preventDefault();
+                  setActiveTab((prev) => (prev === "news" ? "competitors" : "news"));
+                }
+              }}
+            >
+              <button
+                type="button"
+                role="tab"
+                id="tab-news"
+                aria-controls="panel-news"
+                aria-selected={activeTab === "news"}
+                onClick={() => setActiveTab("news")}
+                className={cn(
+                  "relative z-10 text-xs px-3.5 py-1 font-medium transition-colors cursor-pointer rounded-md select-none outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                  activeTab === "news"
+                    ? "text-primary font-semibold"
+                    : "text-text-secondary hover:text-foreground"
+                )}
+              >
+                {activeTab === "news" && (
+                  <motion.div
+                    layoutId="activeMarketTabPill"
+                    className="absolute inset-0 rounded-md bg-card shadow-xs"
+                    style={{ zIndex: -1 }}
+                    transition={
+                      shouldReduceMotion
+                        ? { duration: 0 }
+                        : { type: "spring", stiffness: 450, damping: 32 }
+                    }
+                  />
+                )}
+                <span>Market News</span>
+              </button>
+
+              <button
+                type="button"
+                role="tab"
+                id="tab-competitors"
+                aria-controls="panel-competitors"
+                aria-selected={activeTab === "competitors"}
+                onClick={() => setActiveTab("competitors")}
+                className={cn(
+                  "relative z-10 text-xs px-3.5 py-1 font-medium transition-colors cursor-pointer rounded-md select-none outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                  activeTab === "competitors"
+                    ? "text-purple-600 dark:text-purple-400 font-semibold"
+                    : "text-text-secondary hover:text-foreground"
+                )}
+              >
+                {activeTab === "competitors" && (
+                  <motion.div
+                    layoutId="activeMarketTabPill"
+                    className="absolute inset-0 rounded-md bg-card shadow-xs"
+                    style={{ zIndex: -1 }}
+                    transition={
+                      shouldReduceMotion
+                        ? { duration: 0 }
+                        : { type: "spring", stiffness: 450, damping: 32 }
+                    }
+                  />
+                )}
+                <span>Peer Benchmarks</span>
+              </button>
+            </div>
+          </div>
+
+          <div className="flex flex-col lg:flex-row gap-6 items-stretch mt-4">
+            <div className="w-full lg:w-[35%] lg:shrink-0 flex flex-col">
+              <CompanyRatingCard hasProfile={hasProfile} />
+            </div>
+            <div className="w-full lg:flex-1 min-w-0 flex flex-col">
+              <AnimatePresence mode="wait">
+                {activeTab === "news" ? (
+                  <motion.div
+                    key="news"
+                    role="tabpanel"
+                    id="panel-news"
+                    aria-labelledby="tab-news"
+                    initial={{ opacity: 0, x: shouldReduceMotion ? 0 : -8 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: shouldReduceMotion ? 0 : 8 }}
+                    transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+                    className="h-full flex flex-col"
+                  >
+                    <CompanyNewsCard hasProfile={hasProfile} />
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="competitors"
+                    role="tabpanel"
+                    id="panel-competitors"
+                    aria-labelledby="tab-competitors"
+                    initial={{ opacity: 0, x: shouldReduceMotion ? 0 : 8 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: shouldReduceMotion ? 0 : -8 }}
+                    transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+                    className="h-full flex flex-col"
+                  >
+                    <CompetitorsCard hasProfile={hasProfile} />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          </div>
+        </div>
+      </motion.section>
+    </motion.div>
   );
 };
 

@@ -44,9 +44,7 @@ export function SpotliteTier1Grid({ metrics, tier2Metrics, llmInsights }: Props)
       {/* SECTION HEADER */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border/60 pb-4">
         <div>
-          <h2 className="font-display text-2xl font-bold text-foreground">
-            Executive Front Page
-          </h2>
+          <h2 className="font-display text-2xl font-bold text-foreground">Executive Front Page</h2>
           <p className="text-xs text-text-secondary mt-0.5">
             Prioritized risk alerts and actionable spotlights.
           </p>
@@ -63,9 +61,7 @@ export function SpotliteTier1Grid({ metrics, tier2Metrics, llmInsights }: Props)
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand text-white shadow-xs">
               <Brain size={18} />
             </div>
-            <h3 className="font-display text-base font-bold text-foreground">
-              Executive Brief
-            </h3>
+            <h3 className="font-display text-base font-bold text-foreground">Executive Brief</h3>
           </div>
           <span className="text-xs font-semibold text-brand bg-brand/10 px-2.5 py-1 rounded-full border border-brand/20">
             Capability 9 — AI Synthesis
@@ -83,9 +79,7 @@ export function SpotliteTier1Grid({ metrics, tier2Metrics, llmInsights }: Props)
       <div className="space-y-4 pt-4 border-t border-border/60">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div>
-            <h3 className="font-display text-lg font-bold text-foreground">
-              Spotlights
-            </h3>
+            <h3 className="font-display text-lg font-bold text-foreground">Spotlights</h3>
             <p className="text-xs text-text-secondary mt-0.5">
               4 spotlights computed from 3 banks · 1,420 transactions.
             </p>
@@ -95,8 +89,12 @@ export function SpotliteTier1Grid({ metrics, tier2Metrics, llmInsights }: Props)
         <div className="grid gap-5 md:grid-cols-2">
           {/* CARD 1: ROOM ABOVE BREAK-EVEN */}
           <motion.div
-            whileHover={shouldReduceMotion ? undefined : { y: -3, transition: { duration: 0.2, ease: [0.16, 1, 0.3, 1] } }}
-            className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-emerald-500/30 bg-gradient-to-br from-emerald-500/5 via-surface to-surface dark:from-emerald-950/20 dark:via-surface dark:to-surface p-6 shadow-xs transition hover:shadow-md hover:border-emerald-500/50"
+            whileHover={
+              shouldReduceMotion
+                ? undefined
+                : { y: -3, transition: { duration: 0.2, ease: [0.16, 1, 0.3, 1] } }
+            }
+            className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-emerald-500/30 bg-linear-to-br from-emerald-500/5 via-surface to-surface dark:from-emerald-950/20 dark:via-surface dark:to-surface p-6 shadow-xs transition hover:shadow-md hover:border-emerald-500/50"
           >
             <div>
               <div className="flex items-start justify-between gap-3">
@@ -115,7 +113,9 @@ export function SpotliteTier1Grid({ metrics, tier2Metrics, llmInsights }: Props)
 
               <div className="my-5 space-y-4">
                 <div className="flex items-baseline justify-between">
-                  <span className="text-sm font-medium text-text-secondary">Monthly Rupee Cushion</span>
+                  <span className="text-sm font-medium text-text-secondary">
+                    Monthly Rupee Cushion
+                  </span>
                   <span className="font-num tabular-nums text-2xl font-extrabold text-emerald-600 dark:text-emerald-400">
                     +{formatINR(be.monthly_rupee_cushion)}
                   </span>
@@ -124,13 +124,19 @@ export function SpotliteTier1Grid({ metrics, tier2Metrics, llmInsights }: Props)
                 {/* Visual Bar Gauge */}
                 <div className="space-y-1.5">
                   <div className="flex justify-between text-xs font-medium text-text-tertiary font-num tabular-nums">
-                    <span>Break-Even: {formatINR(be.break_even_monthly_revenue, { compact: true })}</span>
-                    <span>Current Revenue: {formatINR(be.current_monthly_revenue, { compact: true })}</span>
+                    <span>
+                      Break-Even: {formatINR(be.break_even_monthly_revenue, { compact: true })}
+                    </span>
+                    <span>
+                      Current Revenue: {formatINR(be.current_monthly_revenue, { compact: true })}
+                    </span>
                   </div>
                   <div
                     role="progressbar"
                     aria-label="Break-even revenue margin"
-                    aria-valuenow={Math.round((be.break_even_monthly_revenue / be.current_monthly_revenue) * 100)}
+                    aria-valuenow={Math.round(
+                      (be.break_even_monthly_revenue / be.current_monthly_revenue) * 100,
+                    )}
                     aria-valuemin={0}
                     aria-valuemax={100}
                     className="relative h-3 w-full overflow-hidden rounded-full bg-surface-alt border border-border/40"
@@ -141,7 +147,9 @@ export function SpotliteTier1Grid({ metrics, tier2Metrics, llmInsights }: Props)
                       animate={{
                         width: `${Math.min(100, (be.break_even_monthly_revenue / be.current_monthly_revenue) * 100)}%`,
                       }}
-                      transition={shouldReduceMotion ? undefined : { duration: 0.75, ease: [0.16, 1, 0.3, 1] }}
+                      transition={
+                        shouldReduceMotion ? undefined : { duration: 0.75, ease: [0.16, 1, 0.3, 1] }
+                      }
                     />
                   </div>
                 </div>
@@ -153,7 +161,9 @@ export function SpotliteTier1Grid({ metrics, tier2Metrics, llmInsights }: Props)
             </div>
 
             <div className="mt-4 pt-3 border-t border-border/40 flex justify-between items-center text-xs">
-              <span className="text-[11px] text-emerald-800/80 dark:text-emerald-300/80 font-medium">Deterministic Solvency</span>
+              <span className="text-[11px] text-emerald-800/80 dark:text-emerald-300/80 font-medium">
+                Deterministic Solvency
+              </span>
               <Link
                 to="/spotlights/$id"
                 params={{ id: "room-above-break-even" }}
@@ -167,8 +177,12 @@ export function SpotliteTier1Grid({ metrics, tier2Metrics, llmInsights }: Props)
 
           {/* CARD 2: COST STRUCTURE RIGIDITY */}
           <motion.div
-            whileHover={shouldReduceMotion ? undefined : { y: -3, transition: { duration: 0.2, ease: [0.16, 1, 0.3, 1] } }}
-            className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-amber-500/30 bg-gradient-to-br from-amber-500/5 via-surface to-surface dark:from-amber-950/20 dark:via-surface dark:to-surface p-6 shadow-xs transition hover:shadow-md hover:border-amber-500/50"
+            whileHover={
+              shouldReduceMotion
+                ? undefined
+                : { y: -3, transition: { duration: 0.2, ease: [0.16, 1, 0.3, 1] } }
+            }
+            className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-amber-500/30 bg-linear-to-br from-amber-500/5 via-surface to-surface dark:from-amber-950/20 dark:via-surface dark:to-surface p-6 shadow-xs transition hover:shadow-md hover:border-amber-500/50"
           >
             <div>
               <div className="flex items-start justify-between gap-3">
@@ -187,7 +201,9 @@ export function SpotliteTier1Grid({ metrics, tier2Metrics, llmInsights }: Props)
 
               <div className="my-5 flex items-center justify-between rounded-xl bg-surface-alt/70 p-4 border border-border/50">
                 <div>
-                  <span className="text-xs text-text-secondary block font-medium">Fixed Monthly Headcount</span>
+                  <span className="text-xs text-text-secondary block font-medium">
+                    Fixed Monthly Headcount
+                  </span>
                   <span className="font-num tabular-nums text-2xl font-extrabold text-foreground">
                     -{formatINR(rigidity.payroll_monthly_amount)} / mo
                   </span>
@@ -199,7 +215,9 @@ export function SpotliteTier1Grid({ metrics, tier2Metrics, llmInsights }: Props)
                   <span className="inline-block rounded-full bg-amber-500/15 px-3 py-1 text-xs font-bold text-amber-700 dark:text-amber-300 border border-amber-500/30 font-num tabular-nums">
                     {rigidity.consecutive_flat_months} Months Flat
                   </span>
-                  <span className="text-[11px] text-amber-800/80 dark:text-amber-300/80 block mt-1 font-medium">High Cost Rigidity</span>
+                  <span className="text-[11px] text-amber-800/80 dark:text-amber-300/80 block mt-1 font-medium">
+                    High Cost Rigidity
+                  </span>
                 </div>
               </div>
 
@@ -209,7 +227,9 @@ export function SpotliteTier1Grid({ metrics, tier2Metrics, llmInsights }: Props)
             </div>
 
             <div className="mt-4 pt-3 border-t border-border/40 flex justify-between items-center text-xs">
-              <span className="text-[11px] text-amber-800/80 dark:text-amber-300/80 font-medium">Operating Risk</span>
+              <span className="text-[11px] text-amber-800/80 dark:text-amber-300/80 font-medium">
+                Operating Risk
+              </span>
               <Link
                 to="/spotlights/$id"
                 params={{ id: "payroll-rigidity" }}
@@ -223,8 +243,12 @@ export function SpotliteTier1Grid({ metrics, tier2Metrics, llmInsights }: Props)
 
           {/* CARD 3: REAL-MONEY VENDOR OVERBILLING DETECTOR */}
           <motion.div
-            whileHover={shouldReduceMotion ? undefined : { y: -3, transition: { duration: 0.2, ease: [0.16, 1, 0.3, 1] } }}
-            className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border-2 border-rose-500/40 bg-gradient-to-br from-rose-500/10 via-surface to-surface dark:from-rose-950/25 dark:via-surface dark:to-surface p-6 shadow-xs transition hover:shadow-md hover:border-rose-500/60"
+            whileHover={
+              shouldReduceMotion
+                ? undefined
+                : { y: -3, transition: { duration: 0.2, ease: [0.16, 1, 0.3, 1] } }
+            }
+            className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border-2 border-rose-500/40 bg-linear-to-br from-rose-500/10 via-surface to-surface dark:from-rose-950/25 dark:via-surface dark:to-surface p-6 shadow-xs transition hover:shadow-md hover:border-rose-500/60"
           >
             <div>
               <div className="flex items-start justify-between gap-3">
@@ -243,7 +267,9 @@ export function SpotliteTier1Grid({ metrics, tier2Metrics, llmInsights }: Props)
 
               <div className="my-4 space-y-2">
                 <div className="flex items-baseline justify-between">
-                  <span className="text-sm font-semibold text-text-primary">{overbill.vendor_name}</span>
+                  <span className="text-sm font-semibold text-text-primary">
+                    {overbill.vendor_name}
+                  </span>
                   <span className="font-num tabular-nums text-xl font-extrabold text-rose-600 dark:text-rose-400">
                     +{formatINR(overbill.monthly_overbill_amount)} / mo
                   </span>
@@ -257,7 +283,9 @@ export function SpotliteTier1Grid({ metrics, tier2Metrics, llmInsights }: Props)
                     </span>
                   </div>
                   <div className="rounded-lg bg-surface p-2.5 border border-rose-500/30">
-                    <span className="text-rose-700 dark:text-rose-300 block text-[10px] font-medium">Actual Billed</span>
+                    <span className="text-rose-700 dark:text-rose-300 block text-[10px] font-medium">
+                      Actual Billed
+                    </span>
                     <span className="font-num tabular-nums font-semibold text-rose-600 dark:text-rose-400">
                       {formatINR(overbill.avg_actual_monthly_billed)}
                     </span>
@@ -302,8 +330,12 @@ export function SpotliteTier1Grid({ metrics, tier2Metrics, llmInsights }: Props)
 
           {/* CARD 4: IDLE CASH REFRAMED AS FORFEITED INCOME */}
           <motion.div
-            whileHover={shouldReduceMotion ? undefined : { y: -3, transition: { duration: 0.2, ease: [0.16, 1, 0.3, 1] } }}
-            className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-teal-500/30 bg-gradient-to-br from-teal-500/5 via-surface to-surface dark:from-teal-950/20 dark:via-surface dark:to-surface p-6 shadow-xs transition hover:shadow-md hover:border-teal-500/50"
+            whileHover={
+              shouldReduceMotion
+                ? undefined
+                : { y: -3, transition: { duration: 0.2, ease: [0.16, 1, 0.3, 1] } }
+            }
+            className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-teal-500/30 bg-linear-to-br from-teal-500/5 via-surface to-surface dark:from-teal-950/20 dark:via-surface dark:to-surface p-6 shadow-xs transition hover:shadow-md hover:border-teal-500/50"
           >
             <div>
               <div className="flex items-start justify-between gap-3">
@@ -323,7 +355,9 @@ export function SpotliteTier1Grid({ metrics, tier2Metrics, llmInsights }: Props)
               <div className="my-4 space-y-3">
                 <div className="grid grid-cols-2 gap-3">
                   <div className="rounded-xl bg-surface-alt/70 p-3 border border-border/50">
-                    <span className="text-[10px] text-text-tertiary block font-medium">3-Month Safety Reserve</span>
+                    <span className="text-[10px] text-text-tertiary block font-medium">
+                      3-Month Safety Reserve
+                    </span>
                     <span className="font-num tabular-nums text-sm font-bold text-text-primary">
                       {formatINR(idle.three_month_safety_reserve, { compact: true })}
                     </span>
@@ -339,7 +373,9 @@ export function SpotliteTier1Grid({ metrics, tier2Metrics, llmInsights }: Props)
                 </div>
 
                 <div className="flex items-center justify-between rounded-xl bg-teal-500/10 p-3 border border-teal-500/20">
-                  <span className="text-xs text-teal-900/80 dark:text-teal-200/80 font-medium">Annual Lost Yield at 6.5%</span>
+                  <span className="text-xs text-teal-900/80 dark:text-teal-200/80 font-medium">
+                    Annual Lost Yield at 6.5%
+                  </span>
                   <span className="font-num tabular-nums text-lg font-extrabold text-teal-600 dark:text-teal-400">
                     ~{formatINR(idle.annualized_unearned_interest)} / yr
                   </span>
@@ -352,7 +388,9 @@ export function SpotliteTier1Grid({ metrics, tier2Metrics, llmInsights }: Props)
             </div>
 
             <div className="mt-4 pt-3 border-t border-border/40 flex justify-between items-center text-xs">
-              <span className="text-[11px] text-teal-800/80 dark:text-teal-300/80 font-medium">T+1 Overnight Yield</span>
+              <span className="text-[11px] text-teal-800/80 dark:text-teal-300/80 font-medium">
+                T+1 Overnight Yield
+              </span>
               <motion.div whileTap={shouldReduceMotion ? undefined : { scale: 0.96 }}>
                 <Link
                   to="/spotlights/$id/apply"

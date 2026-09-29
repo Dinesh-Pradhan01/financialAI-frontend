@@ -9,7 +9,7 @@ const industrySearchSchema = z.object({
 
 export const Route = createFileRoute("/_app/industry")({
   validateSearch: (search) => industrySearchSchema.parse(search),
-  loader: async ({ context: { queryClient }, search }) => {
+  loader: async ({ context: { queryClient }, search }: any) => {
     if (search?.sector_name) {
       await Promise.all([
         queryClient.ensureQueryData(sectorQueryOptions(search.sector_name)),

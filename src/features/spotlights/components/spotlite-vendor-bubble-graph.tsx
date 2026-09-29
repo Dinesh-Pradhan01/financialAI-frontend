@@ -1,13 +1,8 @@
-import React, { useState, useEffect } from "react";
-import { formatINR, formatPct } from "@/shared/lib/format";
+import { useState, useEffect } from "react";
+import { formatINR } from "@/shared/lib/format";
 import {
   Building2,
-  Sparkles,
-  Layers,
   Search,
-  AlertTriangle,
-  Receipt,
-  Layers3,
   Brain,
   Table,
   Network,
@@ -300,7 +295,7 @@ export function SpotliteVendorBubbleGraph() {
   return (
     <div className="space-y-4">
       {/* GRAPH CONTAINER CARD */}
-      <Card className="p-6 border-border/80 bg-gradient-to-b from-surface to-surface-alt/40 shadow-sm relative overflow-hidden">
+      <Card className="p-6 border-border/80 bg-linear-to-b from-surface to-surface-alt/40 shadow-sm relative overflow-hidden">
         {/* TOP BAR OVERLAY */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-2 z-10 relative">
           <div>

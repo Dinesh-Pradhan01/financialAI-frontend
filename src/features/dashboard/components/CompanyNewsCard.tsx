@@ -25,10 +25,12 @@ export const CompanyNewsCard = ({ hasProfile = true }: Props) => {
   return (
     <Card className="h-112.5 flex flex-col border border-border/70 shadow-sm bg-card">
       <CardHeader className="pb-3">
-        <CardTitle className="flex items-center justify-between text-lg font-bold tracking-tight">
-          <div className="flex items-center gap-2">
-            <Newspaper className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
-            Company News
+        <CardTitle className="flex items-center justify-between text-lg font-bold tracking-tight font-display text-foreground">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0">
+              <Newspaper className="w-4 h-4" />
+            </div>
+            <span>Company News</span>
           </div>
           {hasProfile && !isLoading && (
             <button
@@ -41,6 +43,9 @@ export const CompanyNewsCard = ({ hasProfile = true }: Props) => {
             </button>
           )}
         </CardTitle>
+        <p className="text-xs text-text-tertiary mt-1 font-medium">
+          Curated market and industry intelligence feeds
+        </p>
       </CardHeader>
       <CardContent className="flex-1 overflow-hidden p-0 px-6 pb-6 flex flex-col justify-between">
         {isLoading || (hasProfile && isFetching && !data) ? (
@@ -102,18 +107,18 @@ export const CompanyNewsCard = ({ hasProfile = true }: Props) => {
               data.map((news) => (
                 <div
                   key={news.id}
-                  className="group p-3.5 rounded-xl border border-border/50 bg-card hover:bg-muted/30 transition-colors"
+                  className="group p-3.5 rounded-xl border border-border/50 bg-card hover:bg-muted/30 hover:border-indigo-500/25 hover:-translate-y-0.5 transition-all duration-200 space-y-1.5"
                 >
-                  <div className="flex items-center justify-between mb-1.5">
-                    <Badge variant="outline" className="text-[10px] font-normal px-2 py-0">
+                  <div className="flex items-center justify-between">
+                    <Badge variant="outline" className="text-[10px] font-semibold px-2 py-0 border-indigo-500/25 bg-indigo-500/5 text-indigo-600 dark:text-indigo-400">
                       {news.source}
                     </Badge>
-                    <span className="text-[10px] text-muted-foreground">{news.date}</span>
+                    <span className="text-[10px] font-medium font-mono text-text-tertiary">{news.date}</span>
                   </div>
-                  <h4 className="font-semibold text-xs mb-1.5 group-hover:text-primary transition-colors line-clamp-2">
+                  <h4 className="font-semibold text-xs leading-snug group-hover:text-primary transition-colors line-clamp-2 text-foreground">
                     {news.headline}
                   </h4>
-                  <p className="text-[11px] text-muted-foreground line-clamp-2 leading-relaxed">
+                  <p className="text-[11px] text-text-secondary line-clamp-2 leading-relaxed">
                     {news.summary}
                   </p>
                 </div>

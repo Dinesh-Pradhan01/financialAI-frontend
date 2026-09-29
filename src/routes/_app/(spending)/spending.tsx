@@ -346,7 +346,7 @@ function Spending() {
           {/* Executive Solvency & Liquidity Ribbon */}
           {documents.length > 0 && (
             <ExecutiveSolvencyRibbon
-              timeframe={timeframe}
+              timeframe={timeframe as "12M" | "3M" | "6M"}
               monthsCount={monthsCount}
               totalExpense={total}
               totalIncome={totalIncome}
