@@ -74,7 +74,7 @@ export function DocumentInfoPopover({
           aria-label="View document information, purpose, and filing requirements"
           title="Document details & purpose"
           className={cn(
-            "inline-flex h-4.5 w-4.5 shrink-0 items-center justify-center rounded-full text-text-tertiary hover:bg-brand/10 hover:text-brand transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring select-none",
+            "inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-text-tertiary hover:bg-brand/10 hover:text-brand transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring select-none",
             triggerClassName,
           )}
           onClick={(e) => e.stopPropagation()}

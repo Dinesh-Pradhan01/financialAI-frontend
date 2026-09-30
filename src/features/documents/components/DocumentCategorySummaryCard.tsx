@@ -70,7 +70,7 @@ export function DocumentCategorySummaryCard({
       className={cn(
         "rounded-2xl border p-4 sm:p-5 transition-all duration-200 cursor-pointer shadow-xs select-none flex flex-col justify-between gap-3.5 group relative overflow-hidden min-h-36",
         isComplete
-          ? "border-emerald-500/35 bg-linear-to-br from-emerald-500/8 via-surface to-surface hover:border-emerald-500/50 hover:shadow-md"
+          ? "border-success/35 bg-linear-to-br from-success/8 via-surface to-surface hover:border-success/50 hover:shadow-md"
           : hasRequired && requiredCompleted > 0
             ? "border-brand/30 bg-linear-to-br from-brand/5 via-surface to-surface-alt/30 hover:border-brand/40 hover:bg-surface-alt/40 hover:shadow-md"
             : completed > 0
@@ -84,7 +84,7 @@ export function DocumentCategorySummaryCard({
         className={cn(
           "absolute inset-0 pointer-events-none transition-opacity duration-300 opacity-0 group-hover:opacity-100",
           isComplete
-            ? "bg-[radial-gradient(ellipse_at_top_left,var(--tw-gradient-stops))] from-emerald-500/8 via-transparent to-transparent"
+            ? "bg-[radial-gradient(ellipse_at_top_left,var(--tw-gradient-stops))] from-success/8 via-transparent to-transparent"
             : "bg-[radial-gradient(ellipse_at_top_left,var(--tw-gradient-stops))] from-brand/6 via-transparent to-transparent",
         )}
       />
@@ -96,7 +96,7 @@ export function DocumentCategorySummaryCard({
             className={cn(
               "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-transform duration-200 group-hover:scale-105 shadow-2xs",
               isComplete
-                ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/25"
+                ? "bg-success/15 text-success border border-success/25"
                 : hasRequired
                   ? "bg-brand/10 text-brand border border-brand/20"
                   : completed > 0
@@ -126,7 +126,7 @@ export function DocumentCategorySummaryCard({
                 {badgeLabel}
               </span>
             ) : isComplete ? (
-              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 font-semibold text-[10px] border border-emerald-500/25">
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-success/15 text-success font-semibold text-[10px] border border-success/25">
                 <CheckCircle2 aria-hidden="true" className="h-3 w-3" /> Complete
               </span>
             ) : hasRequired ? (

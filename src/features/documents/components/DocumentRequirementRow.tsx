@@ -1,5 +1,6 @@
 import React, { useRef, useState } from "react";
 import { Download, Eye, FileText, Loader2, Trash2, Upload, X } from "lucide-react";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { toast } from "sonner";
 import { Button } from "@/shared/components/ui/button";
 import { cn } from "@/shared/lib/utils";
@@ -23,6 +24,8 @@ export interface DocumentRowBusyState {
   isDownloading?: boolean;
   /** Message from a rejecting upload, surfaced inline until dismissed. */
   rejectionReason?: string | null;
+  /** Message displayed after 20s of upload/verification */
+  verifyingMessage?: string | null;
 }
 
 export interface DocumentRequirementRowProps {
@@ -58,6 +61,7 @@ export function DocumentRequirementRow({
   onDismissRejection,
   className,
 }: Readonly<DocumentRequirementRowProps>) {
+  const shouldReduceMotion = useReducedMotion();
   const fileInputRef = useRef<HTMLInputElement>(null);
   /**
    * Depth counter rather than a boolean: dragleave fires when the pointer crosses
@@ -171,8 +175,10 @@ export function DocumentRequirementRow({
         "rounded-xl border p-3 sm:p-3.5 transition-all duration-150 shadow-xs",
         "flex flex-col gap-2.5",
         document
-          ? "border-emerald-500/20 bg-linear-to-r from-emerald-500/3 via-surface to-surface hover:border-emerald-500/40 hover:shadow-xs"
-          : "border-dashed border-border-c bg-surface hover:border-brand/40 hover:bg-brand/2",
+          ? "border-success/25 bg-linear-to-r from-success/4 via-surface to-surface hover:border-success/45 hover:shadow-xs"
+          : taxonomyDocument.requirement === "required"
+            ? "border-dashed border-border-c bg-surface hover:border-brand/40 hover:bg-brand/2"
+            : "border-dashed border-border-c/70 bg-surface/60 hover:border-border-c hover:bg-surface-alt/40",
         showDropHint && "cursor-pointer",
         isDraggingOver && "border-solid border-brand bg-brand/10 ring-2 ring-brand/20 shadow-sm",
         rejectionReason &&
@@ -195,10 +201,12 @@ export function DocumentRequirementRow({
         <div className="flex items-start gap-2.5 min-w-0">
           <div
             className={cn(
-              "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-colors mt-0.5 shadow-2xs",
+              "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-colors mt-0.5 shadow-2xs border",
               document
-                ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/25"
-                : "bg-brand/10 text-brand border border-brand/20",
+                ? "bg-success/15 text-success border-success/30"
+                : taxonomyDocument.requirement === "required"
+                  ? "bg-brand/10 text-brand border-brand/20"
+                  : "bg-surface-alt text-text-tertiary border-border-c",
             )}
           >
             <FileText aria-hidden="true" className="h-4 w-4" />
@@ -206,11 +214,19 @@ export function DocumentRequirementRow({
 
           <div className="min-w-0 space-y-0.5">
             <div className="flex items-center gap-1.5 flex-wrap">
-              <h4 className="font-semibold text-xs text-text-primary leading-snug tracking-tight">
-                {taxonomyDocument.label}
-                {taxonomyDocument.requirement === "required" && (
-                  <span className="text-destructive font-bold ml-1" title="Required">
-                    *
+              <h4 className="font-semibold text-xs text-text-primary leading-snug tracking-tight flex items-center gap-1.5">
+                <span>{taxonomyDocument.label}</span>
+                {taxonomyDocument.requirement === "required" && !document && (
+                  <span
+                    className="text-[10px] font-bold text-destructive bg-destructive/10 border border-destructive/20 px-1.5 py-0.2 rounded"
+                    title="Mandatory statutory filing"
+                  >
+                    Required
+                  </span>
+                )}
+                {taxonomyDocument.requirement === "optional" && !document && (
+                  <span className="text-[10px] font-medium text-text-secondary bg-surface-alt px-1.5 py-0.2 rounded border border-border-c">
+                    Optional
                   </span>
                 )}
               </h4>
@@ -367,8 +383,8 @@ export function DocumentRequirementRow({
             >
               {isUploading ? (
                 <>
-                  <Loader2 className="h-3.5 w-3.5 animate-spin text-brand" />
-                  Uploading…
+                  <Loader2 className="h-3.5 w-3.5 animate-spin text-brand shrink-0" />
+                  <span className="truncate max-w-44">{busy.verifyingMessage || "Uploading…"}</span>
                 </>
               ) : (
                 <>
@@ -381,30 +397,54 @@ export function DocumentRequirementRow({
         </div>
       </div>
 
-      {/* Rejection detail. The backend rejects with HTTP 400 and never stores the
-          record, so this is the only place the reason can be shown. */}
-      {rejectionReason && (
-        <div className="flex items-start justify-between gap-2 rounded-lg border border-destructive/30 bg-surface p-2.5 sm:ml-10.5">
-          <p className="text-[11px] text-text-primary leading-relaxed">
-            <span className="font-semibold">Upload rejected.</span> {rejectionReason}
-          </p>
-          {onDismissRejection && (
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              aria-label="Dismiss rejection message"
-              onClick={(event) => {
-                event.stopPropagation();
-                onDismissRejection();
-              }}
-              className="h-6 w-6 shrink-0 text-text-secondary hover:text-text-primary cursor-pointer"
-            >
-              <X className="h-3 w-3" />
-            </Button>
-          )}
+      {/* Interactive Drag & Drop Active Callout */}
+      {isDraggingOver && (
+        <div className="flex items-center gap-2 rounded-lg border border-brand/40 bg-brand/10 px-3 py-2 text-xs font-semibold text-brand">
+          <Upload className="h-4 w-4 shrink-0 text-brand" />
+          <span>Release to upload and record {taxonomyDocument.label}</span>
         </div>
       )}
+
+      {/* 20s Delayed Verification Notice */}
+      {busy.verifyingMessage && (
+        <div className="flex items-center gap-2 rounded-lg border border-brand/25 bg-brand/5 px-3 py-1.5 sm:ml-10.5 text-[11px] text-brand font-medium animate-pulse">
+          <Loader2 className="h-3 w-3 animate-spin shrink-0" />
+          <span>{busy.verifyingMessage}</span>
+        </div>
+      )}
+
+      {/* Rejection detail. The backend rejects with HTTP 400 and never stores the
+          record, so this is the only place the reason can be shown. */}
+      <AnimatePresence>
+        {rejectionReason && (
+          <motion.div
+            initial={shouldReduceMotion ? false : { opacity: 0, y: -4, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={shouldReduceMotion ? undefined : { opacity: 0, y: -4, scale: 0.98 }}
+            transition={{ duration: 0.16, ease: [0.16, 1, 0.3, 1] }}
+            className="flex items-start justify-between gap-2 rounded-lg border border-destructive/30 bg-surface p-2.5 sm:ml-10.5"
+          >
+            <p className="text-[11px] text-text-primary leading-relaxed">
+              <span className="font-semibold">Upload rejected.</span> {rejectionReason}
+            </p>
+            {onDismissRejection && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                aria-label="Dismiss rejection message"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  onDismissRejection();
+                }}
+                className="h-6 w-6 shrink-0 text-text-secondary hover:text-text-primary cursor-pointer"
+              >
+                <X className="h-3 w-3" />
+              </Button>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

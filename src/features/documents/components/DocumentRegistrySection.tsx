@@ -12,13 +12,10 @@ import {
   Loader2,
 } from "lucide-react";
 import { toast } from "sonner";
-import {
-  useReplaceDocument,
-  useDeleteDocument,
-  downloadDocument,
-} from "../hooks/useDocuments";
+import { useReplaceDocument, useDeleteDocument, downloadDocument } from "../hooks/useDocuments";
 import { formatFileSize, formatDocumentDate } from "../lib/documentPresentation";
 import { getTaxonomyDocument } from "../lib/documentTaxonomy";
+import { getSectionForDocument } from "../lib/vaultManifest";
 import { DocumentQualityBadge } from "./DocumentQualityBadge";
 import { DocumentInfoPopover } from "./DocumentInfoPopover";
 import { DocumentPreviewModal } from "./DocumentPreviewModal";
@@ -54,10 +51,7 @@ export interface DocumentRegistrySectionProps {
   className?: string;
 }
 
-export function DocumentRegistrySection({
-  documents,
-  className,
-}: DocumentRegistrySectionProps) {
+export function DocumentRegistrySection({ documents, className }: DocumentRegistrySectionProps) {
   const replaceMutation = useReplaceDocument();
   const deleteMutation = useDeleteDocument();
 
@@ -152,6 +146,7 @@ export function DocumentRegistrySection({
 
     setIsBulkDownloading(true);
     let successCount = 0;
+    let failCount = 0;
 
     try {
       for (const doc of selectedDocs) {
@@ -160,14 +155,18 @@ export function DocumentRegistrySection({
           successCount++;
           // Stagger downloads by 350ms to prevent browser download throttling
           await new Promise((resolve) => setTimeout(resolve, 350));
-        } catch (err) {
-          console.error(`Failed to download ${doc.original_name}:`, err);
+        } catch {
+          failCount++;
         }
       }
 
-      toast.success(
-        `Downloaded ${successCount} ${successCount === 1 ? "document" : "documents"} successfully.`,
-      );
+      if (failCount > 0) {
+        toast.warning(`Downloaded ${successCount} documents (${failCount} failed).`);
+      } else {
+        toast.success(
+          `Downloaded ${successCount} ${successCount === 1 ? "document" : "documents"} successfully.`,
+        );
+      }
       setSelectedDocIds([]);
     } catch (err) {
       toast.error(getApiErrorMessage(err, "Bulk download encountered an issue"));
@@ -375,6 +374,7 @@ export function DocumentRegistrySection({
                   const isRowDownloading = downloadingDocId === doc.id;
                   const isRowDeleting = deletingDocId === doc.id;
                   const taxonomyDocument = getTaxonomyDocument(doc.document_type);
+                  const section = getSectionForDocument(doc.document_type);
 
                   return (
                     <TableRow
@@ -394,7 +394,12 @@ export function DocumentRegistrySection({
 
                       <TableCell className="font-medium text-sm py-3">
                         <div className="flex items-center gap-2.5 max-w-65">
-                          <FileText className="h-4 w-4 shrink-0 text-brand" />
+                          <FileText
+                            className={cn(
+                              "h-4 w-4 shrink-0",
+                              section?.theme.accentText ?? "text-brand",
+                            )}
+                          />
                           <span className="truncate" title={doc.original_name}>
                             {doc.original_name}
                           </span>
@@ -405,14 +410,19 @@ export function DocumentRegistrySection({
                         <span
                           title={doc.document_type}
                           className={cn(
-                            "inline-block max-w-55 truncate px-2 py-0.5 rounded-md bg-surface-alt/60 border border-border/60 text-[11px] align-middle",
+                            "inline-flex items-center gap-1.5 max-w-55 truncate px-2 py-0.5 rounded-md bg-surface-alt/60 border border-border/60 text-[11px] align-middle",
                             !taxonomyDocument && "capitalize",
                           )}
                         >
-                          {taxonomyDocument?.label ?? doc.document_type.replace(/[-_]/g, " ")}
+                          <span className="truncate">
+                            {taxonomyDocument?.label ?? doc.document_type.replace(/[-_]/g, " ")}
+                          </span>
                           {taxonomyDocument?.requirement === "required" && (
-                            <span className="text-destructive font-bold ml-1" title="Required">
-                              *
+                            <span
+                              className="text-[9px] font-bold text-destructive bg-destructive/10 border border-destructive/20 px-1 py-0.2 rounded shrink-0 uppercase tracking-wider"
+                              title="Required"
+                            >
+                              Req
                             </span>
                           )}
                         </span>

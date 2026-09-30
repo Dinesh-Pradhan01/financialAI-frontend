@@ -17,7 +17,7 @@ export function DocumentQualityBadge({ document, showTooltip = true }: DocumentQ
     quality.status === "passed" ? (
       <Badge
         variant="outline"
-        className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 text-[11px] font-semibold gap-1 shrink-0 select-none"
+        className="bg-success/12 text-success border-success/25 text-[11px] font-semibold gap-1 shrink-0 select-none"
       >
         <ShieldCheck className="h-3 w-3" />
         {quality.label}

@@ -142,12 +142,22 @@ export const api = {
     path: string,
     formData: FormData,
     method: "POST" | "PUT" = "POST",
+    opts?: { timeoutMs?: number; signal?: AbortSignal },
   ): Promise<T> => {
     const url = `${API_BASE_URL}${path}`;
+
+    let timeoutSignal: AbortSignal | undefined;
+    if (opts?.timeoutMs && typeof AbortSignal !== "undefined" && "timeout" in AbortSignal) {
+      timeoutSignal = AbortSignal.timeout(opts.timeoutMs);
+    }
+
+    const signal = opts?.signal ?? timeoutSignal;
+
     const response = await fetch(url, {
       method,
       credentials: "include",
       body: formData,
+      signal,
     });
 
     if (response.status === 204) return undefined as T;

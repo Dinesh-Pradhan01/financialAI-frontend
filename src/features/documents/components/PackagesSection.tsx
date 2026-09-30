@@ -185,14 +185,14 @@ export function PackagesSection({ documents, className }: PackagesSectionProps) 
       {/* Section Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex items-center gap-2.5">
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-brand/10 text-brand border border-brand/20">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-brand-secondary/10 text-brand-secondary border border-brand-secondary/20 shadow-2xs">
             <PackageIcon className="h-4 w-4" />
           </div>
           <div>
             <div className="flex items-center gap-2">
               <h2 className="text-base font-bold text-text-primary">Document Packages</h2>
               {(isFetching || showLoadingCard) && (
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-brand/10 text-brand text-xs font-medium border border-brand/20 animate-pulse">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-brand-secondary/10 text-brand-secondary text-xs font-medium border border-brand-secondary/20 animate-pulse">
                   <Loader2 className="h-3.5 w-3.5 animate-spin" />
                   {syncingPackageName ? `Syncing "${syncingPackageName}"…` : "Updating packages…"}
                 </span>
@@ -210,9 +210,9 @@ export function PackagesSection({ documents, className }: PackagesSectionProps) 
           variant="outline"
           size="sm"
           onClick={() => setCreateDialogOpen(true)}
-          className="gap-1.5 text-xs font-semibold self-start sm:self-auto cursor-pointer hover:border-brand/40 hover:bg-brand/5 hover:text-brand"
+          className="gap-1.5 text-xs font-semibold self-start sm:self-auto cursor-pointer hover:border-brand-secondary/40 hover:bg-brand-secondary/5 hover:text-brand-secondary"
         >
-          <Plus className="h-3.5 w-3.5 text-brand" /> Create package
+          <Plus className="h-3.5 w-3.5 text-brand-secondary" /> Create package
         </Button>
       </div>
 
@@ -240,9 +240,7 @@ export function PackagesSection({ documents, className }: PackagesSectionProps) 
         </div>
       ) : (
         <div className="grid gap-4">
-          {showLoadingCard && (
-            <PackageCardSkeleton packageName={syncingPackageName ?? undefined} />
-          )}
+          {showLoadingCard && <PackageCardSkeleton packageName={syncingPackageName ?? undefined} />}
           {packages.map((pkg) => (
             <PackageCard
               key={pkg.id}

@@ -1,27 +1,24 @@
 import React, { useRef, useState, useEffect, useCallback } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { FilePlus2, ChevronsRight, ChevronsLeft } from "lucide-react";
-import { DOCUMENT_CATEGORIES } from "../lib/documentTaxonomy";
+import { VAULT_SECTIONS } from "../lib/vaultManifest";
 import { cn } from "@/shared/lib/utils";
 
 interface DocumentCategoryNavTabsProps {
   otherDocumentsCount?: number;
   activeCategoryId?: string;
+  activeSectionId?: string;
   className?: string;
 }
 
 /**
- * A simple horizontal tab bar that navigates to the existing per-category
- * page (/documents/$categoryId) when a tab is clicked.
- * The 9th tab leads to the other-documents upload section on the same page
- * (scrolls down to it).
- *
- * Features interactive right/left horizontal scroll affordances that scroll
- * smoothly when clicked and indicate when more categories exist off-screen.
+ * A horizontal tab bar that navigates between the 7 top-level vault sections
+ * (/documents/$sectionId) plus custom/other records.
  */
 export function DocumentCategoryNavTabs({
   otherDocumentsCount = 0,
   activeCategoryId,
+  activeSectionId,
   className,
 }: DocumentCategoryNavTabsProps) {
   const navigate = useNavigate();
@@ -29,10 +26,11 @@ export function DocumentCategoryNavTabs({
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
 
+  const effectiveActive = activeSectionId || activeCategoryId;
+
   const checkScroll = useCallback(() => {
     const el = scrollRef.current;
     if (!el) return;
-    // Account for fractional pixel values
     const hasMoreRight = el.scrollWidth - el.clientWidth - el.scrollLeft > 3;
     const hasMoreLeft = el.scrollLeft > 3;
     setCanScrollRight((prev) => (prev !== hasMoreRight ? hasMoreRight : prev));
@@ -40,12 +38,11 @@ export function DocumentCategoryNavTabs({
   }, []);
 
   useEffect(() => {
-    if (activeCategoryId && scrollRef.current) {
-      // Small delay to ensure layout is complete before calculating scroll position
+    if (effectiveActive && scrollRef.current) {
       const timeoutId = setTimeout(() => {
         if (!scrollRef.current) return;
         const activeElement = scrollRef.current.querySelector(
-          `[data-category-id="${activeCategoryId}"]`,
+          `[data-section-id="${effectiveActive}"]`,
         ) as HTMLElement;
         if (activeElement) {
           const container = scrollRef.current;
@@ -55,7 +52,7 @@ export function DocumentCategoryNavTabs({
       }, 50);
       return () => clearTimeout(timeoutId);
     }
-  }, [activeCategoryId]);
+  }, [effectiveActive]);
 
   const handleScrollLeft = () => {
     const el = scrollRef.current;
@@ -76,7 +73,6 @@ export function DocumentCategoryNavTabs({
     if (!el) return;
 
     checkScroll();
-
     el.addEventListener("scroll", checkScroll, { passive: true });
     window.addEventListener("resize", checkScroll);
 
@@ -97,116 +93,88 @@ export function DocumentCategoryNavTabs({
     <div className={cn("relative", className)}>
       <div
         ref={scrollRef}
-        className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1 px-1.5 rounded-xl border border-border/80 bg-surface-alt/40"
+        className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1 px-1.5 rounded-xl border border-border-c/80 bg-surface-alt/40"
       >
-        {DOCUMENT_CATEGORIES.map((category) => {
-          const Icon = category.icon;
-          const isActive = activeCategoryId === category.id;
+        {VAULT_SECTIONS.map((section) => {
+          const Icon = section.icon;
+          const isActive = effectiveActive === section.id;
           return (
             <button
-              key={category.id}
+              key={section.id}
               type="button"
-              data-category-id={category.id}
+              data-section-id={section.id}
               onClick={() => {
                 if (isActive) {
                   window.scrollTo({ top: 0, behavior: "smooth" });
                   return;
                 }
-                navigate({
-                  to: "/documents/$categoryId",
-                  params: { categoryId: category.id },
+                void navigate({
+                  to: "/documents/$sectionId",
+                  params: { sectionId: section.id },
                 });
               }}
               className={cn(
                 "flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium shrink-0 transition-all cursor-pointer border",
                 isActive
-                  ? "bg-surface text-text-primary shadow-xs border-border/90 font-semibold"
-                  : "text-text-secondary border-transparent hover:text-text-primary hover:bg-surface/70 hover:shadow-xs hover:border-border/60",
+                  ? "bg-surface text-text-primary shadow-xs border-border-c/90 font-semibold"
+                  : "text-text-secondary border-transparent hover:text-text-primary hover:bg-surface/70 hover:shadow-xs hover:border-border-c/60",
               )}
             >
-              <Icon className="h-3.5 w-3.5 shrink-0" />
-              <span>{category.shortLabel}</span>
+              <Icon className="h-3.5 w-3.5 shrink-0 text-brand" />
+              <span>{section.shortLabel}</span>
             </button>
           );
         })}
 
-        {/* Other Documents tab — navigates to dedicated Other Documents page */}
+        {/* Other Documents tab */}
         <button
           type="button"
-          data-category-id="other"
+          data-section-id="other"
           onClick={() => {
-            if (activeCategoryId === "other") {
+            if (effectiveActive === "other") {
               window.scrollTo({ top: 0, behavior: "smooth" });
               return;
             }
-            navigate({ to: "/documents/other" });
+            void navigate({ to: "/documents/other" });
           }}
           className={cn(
-            "flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium shrink-0 transition-all cursor-pointer border",
-            activeCategoryId === "other"
-              ? "bg-surface text-text-primary shadow-xs border-border/90 font-semibold"
-              : "text-text-secondary border-transparent hover:text-text-primary hover:bg-surface/70 hover:shadow-xs hover:border-border/60",
+            "flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium shrink-0 transition-all cursor-pointer border",
+            effectiveActive === "other"
+              ? "bg-surface text-text-primary shadow-xs border-border-c/90 font-semibold"
+              : "text-text-secondary border-transparent hover:text-text-primary hover:bg-surface/70 hover:shadow-xs hover:border-border-c/60",
           )}
         >
           <FilePlus2 className="h-3.5 w-3.5 shrink-0 text-brand" />
-          <span>Other Documents</span>
+          <span>Other</span>
           {otherDocumentsCount > 0 && (
-            <span className="text-[10px] font-mono tabular-nums px-1.5 rounded-full border bg-brand/10 text-brand border-brand/20 font-semibold">
+            <span className="text-[10px] font-mono px-1.5 py-0.5 rounded-full bg-surface-alt text-text-secondary border border-border-c">
               {otherDocumentsCount}
             </span>
           )}
         </button>
       </div>
 
-      {/* Left-edge horizontal scroll affordance & button */}
-      <div
-        className={cn(
-          "pointer-events-none absolute left-px top-px bottom-px w-16 sm:w-20 rounded-l-xl",
-          "flex items-center justify-start pl-1",
-          "bg-linear-to-r from-background via-background/90 to-transparent",
-          "transition-opacity duration-300 ease-out",
-          canScrollLeft ? "opacity-100" : "opacity-0",
-        )}
-      >
+      {canScrollLeft && (
         <button
           type="button"
+          aria-label="Scroll navigation tabs left"
           onClick={handleScrollLeft}
-          aria-label="Scroll categories left"
-          tabIndex={canScrollLeft ? 0 : -1}
-          className={cn(
-            "flex items-center justify-center h-6 w-6 rounded-md bg-surface border border-border shadow-sm text-text-secondary hover:text-brand hover:border-brand/30 active:scale-90 transition-all",
-            canScrollLeft ? "pointer-events-auto cursor-pointer" : "pointer-events-none",
-            "animate-scroll-hint-left motion-reduce:animate-none",
-          )}
+          className="absolute left-1 top-1/2 -translate-y-1/2 flex items-center justify-center w-6 h-6 rounded-full bg-surface/90 border border-border-c/80 text-text-secondary hover:text-text-primary shadow-xs cursor-pointer"
         >
-          <ChevronsLeft className="h-4 w-4" />
+          <ChevronsLeft className="h-3.5 w-3.5" />
         </button>
-      </div>
+      )}
 
-      {/* Right-edge horizontal scroll affordance & button */}
-      <div
-        className={cn(
-          "pointer-events-none absolute right-px top-px bottom-px w-16 sm:w-20 rounded-r-xl",
-          "flex items-center justify-end pr-1",
-          "bg-linear-to-l from-background via-background/90 to-transparent",
-          "transition-opacity duration-300 ease-out",
-          canScrollRight ? "opacity-100" : "opacity-0",
-        )}
-      >
+      {canScrollRight && (
         <button
           type="button"
+          aria-label="Scroll navigation tabs right"
           onClick={handleScrollRight}
-          aria-label="Scroll categories right"
-          tabIndex={canScrollRight ? 0 : -1}
-          className={cn(
-            "flex items-center justify-center h-6 w-6 rounded-md bg-surface border border-border shadow-sm text-text-secondary hover:text-brand hover:border-brand/30 active:scale-90 transition-all",
-            canScrollRight ? "pointer-events-auto cursor-pointer" : "pointer-events-none",
-            "animate-scroll-hint motion-reduce:animate-none",
-          )}
+          className="absolute right-1 top-1/2 -translate-y-1/2 flex items-center justify-center w-6 h-6 rounded-full bg-surface/90 border border-border-c/80 text-text-secondary hover:text-text-primary shadow-xs cursor-pointer"
         >
-          <ChevronsRight className="h-4 w-4" />
+          <ChevronsRight className="h-3.5 w-3.5" />
         </button>
-      </div>
+      )}
     </div>
   );
 }

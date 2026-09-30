@@ -29,7 +29,9 @@ export const useUploadDocument = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (formData: FormData) =>
-      api.upload<CompanyDocument>("/api/company/documents", formData),
+      api.upload<CompanyDocument>("/api/company/documents", formData, "POST", {
+        timeoutMs: 120_000,
+      }),
     onSettled: () => {
       queryClient.refetchQueries({ queryKey: queryKeys.company.documents() });
       queryClient.refetchQueries({ queryKey: queryKeys.company.packages() });
@@ -46,7 +48,9 @@ export const useReplaceDocument = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ docId, formData }: { docId: string; formData: FormData }) =>
-      api.upload<CompanyDocument>(`/api/company/documents/${docId}`, formData, "PUT"),
+      api.upload<CompanyDocument>(`/api/company/documents/${docId}`, formData, "PUT", {
+        timeoutMs: 120_000,
+      }),
     onMutate: async ({ docId }) => {
       // Cancel all affected queries to prevent in-flight GETs from stomping optimistic state
       await queryClient.cancelQueries({ queryKey: queryKeys.company.documents() });

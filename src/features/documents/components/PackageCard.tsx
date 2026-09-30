@@ -145,11 +145,11 @@ export function PackageCard({
   const isAllSelected = pkg.documents.length > 0 && selectedDocIds.length === pkg.documents.length;
 
   return (
-    <div className="rounded-2xl border border-border bg-surface p-5 shadow-xs transition-all space-y-4">
+    <div className="rounded-2xl border border-brand-secondary/20 bg-linear-to-br from-brand-secondary/3 via-surface to-surface p-5 shadow-xs hover:border-brand-secondary/35 transition-all space-y-4">
       {/* Top Header Row */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex items-center gap-3 min-w-0 flex-1">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand/10 text-brand">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-secondary/10 text-brand-secondary border border-brand-secondary/20 shadow-2xs">
             <PackageIcon className="h-5 w-5" />
           </div>
 
@@ -188,7 +188,7 @@ export function PackageCard({
                   onClick={() => setIsEditingName(true)}
                   aria-label={`Rename package ${pkg.name}`}
                   title="Rename package"
-                  className="h-6 w-6 text-text-secondary hover:text-text-primary"
+                  className="h-7 w-7 text-text-secondary hover:text-text-primary"
                 >
                   {isRenaming ? (
                     <Loader2 className="h-3.5 w-3.5 animate-spin" />
