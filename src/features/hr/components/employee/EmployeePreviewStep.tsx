@@ -1,13 +1,16 @@
 import React, { useMemo } from "react";
 import { useAppSelector, useAppDispatch } from "@/shared/store";
-import { setEmployeeFilters, setEmployeeStep } from "@/shared/store/slices/hrSlice";
+import {
+  setEmployeeFilters,
+  setEmployeeStep,
+  undoEmployeeEdit,
+} from "@/shared/store/slices/hrSlice";
 import { EmployeePreviewTable } from "./EmployeePreviewTable";
 import { EmployeeValidationPanel } from "./EmployeeValidationPanel";
 import { EmployeeStickyFooter } from "./EmployeeStickyFooter";
 import { Card } from "@/shared/components/ui/card";
 import { Search, Undo2 } from "lucide-react";
 import { cn } from "@/shared/lib/utils";
-import { undoEmployeeEdit } from "@/shared/store/slices/hrSlice";
 import {
   AlertDialog,
   AlertDialogAction,

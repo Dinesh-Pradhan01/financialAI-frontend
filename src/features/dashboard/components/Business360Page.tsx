@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { motion, AnimatePresence, useReducedMotion, type Variants } from "framer-motion";
 import { OnboardingProgressBanner } from "./OnboardingProgressBanner";
 import { ProfileCard } from "./ProfileCard";
 import { OfferingsCard } from "./OfferingsCard";
@@ -21,7 +21,7 @@ export const Business360Page: React.FC = () => {
   // Downstream cards know whether profile is ready
   const hasProfile = Boolean(profile && !isError);
 
-  const containerVariants = {
+  const containerVariants: Variants = {
     hidden: { opacity: 0 },
     show: {
       opacity: 1,
@@ -32,14 +32,14 @@ export const Business360Page: React.FC = () => {
     },
   };
 
-  const itemVariants = {
+  const itemVariants: Variants = {
     hidden: { opacity: 0, y: shouldReduceMotion ? 0 : 10 },
     show: {
       opacity: 1,
       y: 0,
       transition: {
         duration: shouldReduceMotion ? 0.15 : 0.35,
-        ease: [0.16, 1, 0.3, 1],
+        ease: [0.16, 1, 0.3, 1] as const,
       },
     },
   };
@@ -62,13 +62,6 @@ export const Business360Page: React.FC = () => {
               Unified executive intelligence hub for workforce governance, financial infrastructure,
               and company compliance.
             </p>
-          </div>
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-semibold self-start sm:self-center shrink-0 shadow-xs">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-            </span>
-            <span>Live Portfolio Sync</span>
           </div>
         </div>
       </motion.header>

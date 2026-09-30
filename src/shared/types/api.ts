@@ -296,6 +296,23 @@ export interface IndustryLeaderResponse {
   revenue?: string | null;
 }
 
+export interface CompetitorItem {
+  id: string;
+  name: string;
+  location?: string | null;
+  services?: string | null;
+  overlap_summary?: string | null;
+  description?: string | null;
+  market_cap?: string | null;
+}
+
+export interface CompetitorsResponse {
+  status: string;
+  type?: "structured" | "unstructured" | "Null" | string;
+  content?: CompetitorItem[] | Record<string, any> | string;
+  is_fallback?: boolean;
+}
+
 // ---------------------------------------------------------------------------
 // Statements, Accounts & Transactions
 // ---------------------------------------------------------------------------

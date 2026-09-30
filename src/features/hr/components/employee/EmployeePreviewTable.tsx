@@ -14,13 +14,13 @@ export function EmployeePreviewTable({
   warningRowIds,
   schemaDef: propSchemaDef,
   readOnly = false,
-}: {
+}: Readonly<{
   employees: EmployeeRecord[];
   errorRowIds: Set<string>;
   warningRowIds: Set<string>;
   schemaDef?: any;
   readOnly?: boolean;
-}) {
+}>) {
   const dispatch = useAppDispatch();
   const focusedRowId = useAppSelector((state) => state.hr.employee.focusedRowId);
   const reduxSchemaDef = useAppSelector((state) => state.hr.employee.backendPreview?.schema_def);

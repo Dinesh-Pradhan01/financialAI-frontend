@@ -83,7 +83,7 @@ export const employeeApi = {
     return hrApi.post("/employees/manual", sanitizeEmployeePayload(data));
   },
 
-  importEmployees: (previewData: EmployeePreviewResponse | unknown) => {
+  importEmployees: (previewData: EmployeePreviewResponse) => {
     return hrApi.post("/employees/import", sanitizeEmployeePayload(previewData));
   },
 
