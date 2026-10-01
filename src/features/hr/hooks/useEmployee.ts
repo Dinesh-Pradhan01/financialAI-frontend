@@ -27,7 +27,7 @@ export function useEmployeeManualPreview() {
 export function useEmployeeImport() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (previewData: EmployeePreviewResponse | unknown) =>
+    mutationFn: (previewData: EmployeePreviewResponse) =>
       employeeApi.importEmployees(previewData),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["hr", "dashboard"] });
