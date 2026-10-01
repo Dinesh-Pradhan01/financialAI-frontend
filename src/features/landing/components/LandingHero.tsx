@@ -71,7 +71,7 @@ const ROLE_THEMES: Record<
   },
 };
 
-export function LandingHero({ currency, onOpenSandbox }: LandingHeroProps) {
+export function LandingHero({ currency, onOpenSandbox }: Readonly<LandingHeroProps>) {
   const [activeHeroRole, setActiveHeroRole] = useState<"ceo" | "cfo" | "hr" | "coo">("ceo");
   const data = HERO_DATA[currency];
   const roleItem = ROLES.find((r) => r.id === activeHeroRole) || ROLES[0];
@@ -191,7 +191,7 @@ export function LandingHero({ currency, onOpenSandbox }: LandingHeroProps) {
             transition={{ duration: 0.5, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
             className="flex flex-col justify-center lg:col-span-6"
           >
-            <div className="rounded-2xl border border-border/80 bg-surface/95 backdrop-blur-xs p-4 sm:p-5 shadow-xl shadow-primary/[0.06] flex flex-col justify-between space-y-3 sm:space-y-3.5 ring-1 ring-primary/5">
+            <div className="rounded-2xl border border-border/80 bg-surface/95 backdrop-blur-xs p-4 sm:p-5 shadow-xl shadow-primary/6 flex flex-col justify-between space-y-3 sm:space-y-3.5 ring-1 ring-primary/5">
               {/* In-Situ Persona Selector Ribbon */}
               <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/60 pb-2.5">
                 <div className="flex items-center gap-1.5">
@@ -230,11 +230,6 @@ export function LandingHero({ currency, onOpenSandbox }: LandingHeroProps) {
                     })}
                   </div>
                 </div>
-
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-[11px] font-bold text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 font-mono shrink-0">
-                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                  Live Data
-                </span>
               </div>
 
               {/* Dynamic Role Header */}
@@ -351,7 +346,7 @@ export function LandingHero({ currency, onOpenSandbox }: LandingHeroProps) {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -4 }}
                   transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-                  className="rounded-xl border border-amber-500/30 bg-amber-500/[0.08] dark:bg-amber-500/[0.12] p-3 sm:p-3.5 shadow-2xs"
+                  className="rounded-xl border border-amber-500/30 bg-amber-500/8 dark:bg-amber-500/12 p-3 sm:p-3.5 shadow-2xs"
                 >
                   <div className="flex items-start gap-2.5">
                     <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/20 shrink-0 mt-0.5">
@@ -377,7 +372,7 @@ export function LandingHero({ currency, onOpenSandbox }: LandingHeroProps) {
               </AnimatePresence>
 
               {/* Interactive Sandbox Launch Strip */}
-              <div className="rounded-xl border border-primary/20 bg-linear-to-r from-primary/[0.08] via-primary/[0.04] to-primary/[0.08] p-2.5 sm:p-3 flex items-center justify-between gap-2 shadow-2xs">
+              <div className="rounded-xl border border-primary/20 bg-linear-to-r from-primary/8 via-primary/4 to-primary/8 p-2.5 sm:p-3 flex items-center justify-between gap-2 shadow-2xs">
                 <div className="flex items-center gap-2 min-w-0">
                   <div className="flex h-6 w-6 items-center justify-center rounded-md bg-primary/10 text-primary shrink-0">
                     <Sparkles size={14} />

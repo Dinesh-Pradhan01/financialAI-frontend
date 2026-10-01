@@ -252,7 +252,7 @@ export function OtherDocumentsPage() {
               </Button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 gap-2.5">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {otherDocuments.map((doc, index) => {
                 const isDownloading = downloadingDocId === doc.id;
                 const isDeleting = deletingDocId === doc.id;
@@ -267,7 +267,7 @@ export function OtherDocumentsPage() {
                     initial={{ opacity: 0, y: 6 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.2, delay: Math.min(index, 8) * 0.03 }}
-                    className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-xl border border-border bg-surface p-4 shadow-2xs hover:border-border/80 transition-colors"
+                    className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-xl border border-border bg-surface p-4 shadow-2xs hover:border-border/80 transition-colors h-full"
                   >
                     <div className="flex items-start gap-3 min-w-0">
                       <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand/10 text-brand border border-brand/20 mt-0.5">

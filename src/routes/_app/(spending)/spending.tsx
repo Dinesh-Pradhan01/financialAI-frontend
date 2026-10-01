@@ -7,7 +7,6 @@ import { ExplainTip } from "@/features/spotlights/components/explain-tip";
 import { ExecutiveSolvencyRibbon } from "@/features/spending/components/ExecutiveSolvencyRibbon";
 import { SpendingDonut } from "@/features/spending/components/SpendingDonut";
 import { SpendingSkeleton } from "@/features/spending/components/SpendingSkeleton";
-import { UploadTransactionsCard } from "@/features/dashboard/components/UploadTransactionsCard";
 import { StatementsList } from "@/features/spending/components/StatementsList";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/shared/components/ui/tabs";
 import { FinancialIntelligenceTab } from "@/features/spending/components/FinancialIntelligenceTab";
@@ -45,7 +44,6 @@ import {
   Loader2,
   ChevronDown,
   ChevronRight,
-  ArrowRight,
 } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
 import {
@@ -56,7 +54,7 @@ import {
 } from "@/shared/components/ui/tooltip";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 
-function Tip({ k }: { k: keyof typeof explainers }) {
+function Tip({ k }: Readonly<{ k: keyof typeof explainers }>) {
   const e = explainers[k];
   return (
     <ExplainTip agent={e.agent} title={e.title} evidence={e.evidence}>
@@ -73,10 +71,10 @@ function Tip({ k }: { k: keyof typeof explainers }) {
 function TxnBadge({
   count,
   className,
-}: {
+}: Readonly<{
   count: number;
   className?: string;
-}) {
+}>) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -239,7 +237,7 @@ function Spending() {
         <div className="flex flex-wrap items-center gap-3 self-start sm:self-auto">
           {documents.length > 0 && (
             <Link to="/upload">
-              <Button size="sm" className="gap-1.5 rounded-xl text-xs font-semibold cursor-pointer min-h-[36px] px-3.5">
+              <Button size="sm" className="gap-1.5 rounded-xl text-xs font-semibold cursor-pointer min-h-9 px-3.5">
                 <UploadCloud className="h-3.5 w-3.5" />
                 <span>Upload Statement</span>
               </Button>
@@ -252,7 +250,7 @@ function Spending() {
                 type="button"
                 onClick={() => dispatch(setTimeframe(tf))}
                 className={cn(
-                  "relative rounded-pill px-3.5 py-1.5 text-xs font-semibold transition-colors cursor-pointer min-h-[32px] sm:min-h-0 flex items-center justify-center",
+                  "relative rounded-pill px-3.5 py-1.5 text-xs font-semibold transition-colors cursor-pointer min-h-8 sm:min-h-0 flex items-center justify-center",
                   timeframe === tf
                     ? "text-on-brand"
                     : "text-text-secondary hover:text-foreground",
@@ -647,7 +645,7 @@ function Spending() {
                                     <span className="font-num tabular-nums text-xs sm:text-sm font-bold text-foreground">
                                       -{formatINR(c.amount)}
                                     </span>
-                                    <span className="min-w-[2.5rem] text-right text-xs text-text-secondary font-medium font-num">
+                                    <span className="min-w-10 text-right text-xs text-text-secondary font-medium font-num">
                                       {formatShare(c.share, c.amount)}
                                     </span>
                                     <ChevronRight className="h-3.5 w-3.5 text-text-secondary/50 group-hover:text-brand group-hover:translate-x-0.5 transition-all hidden sm:block" />

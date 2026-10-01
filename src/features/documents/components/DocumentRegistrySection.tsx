@@ -419,10 +419,10 @@ export function DocumentRegistrySection({ documents, className }: DocumentRegist
                           </span>
                           {taxonomyDocument?.requirement === "required" && (
                             <span
-                              className="text-[9px] font-bold text-destructive bg-destructive/10 border border-destructive/20 px-1 py-0.2 rounded shrink-0 uppercase tracking-wider"
+                              className="text-destructive font-bold text-xs shrink-0 leading-none select-none"
                               title="Required"
                             >
-                              Req
+                              *
                             </span>
                           )}
                         </span>

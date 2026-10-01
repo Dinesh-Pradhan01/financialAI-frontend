@@ -33,7 +33,7 @@ export function CreatePackageDialog({
   documents,
   initialSelectedDocIds,
   onSuccess,
-}: CreatePackageDialogProps) {
+}: Readonly<CreatePackageDialogProps>) {
   const createPackageMutation = useCreatePackage();
 
   const [newPackageName, setNewPackageName] = useState("");
@@ -82,7 +82,7 @@ export function CreatePackageDialog({
   const isAllFilteredSelected =
     filteredDocs.length > 0 && filteredDocs.every((d) => selectedDocIds.includes(d.id));
 
-  const handleCreateSubmit = (e: React.FormEvent) => {
+  const handleCreateSubmit = (e: React.SubmitEvent) => {
     e.preventDefault();
     const name = newPackageName.trim();
     if (!name) return;

@@ -13,9 +13,9 @@ export interface DocumentsViewToggleProps {
 const EASING: [number, number, number, number] = [0.16, 1, 0.3, 1];
 
 const VIEWS: { id: DocumentsView; label: string }[] = [
-  { id: "vault", label: "Vault Sections" },
-  { id: "registry", label: "All Records" },
-  { id: "packages", label: "Due Diligence" },
+  { id: "vault", label: "Vault" },
+  { id: "registry", label: "Registry" },
+  { id: "packages", label: "Packages" },
 ];
 
 export function DocumentsViewToggle({

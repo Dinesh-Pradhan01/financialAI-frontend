@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { motion, AnimatePresence, useReducedMotion, type Variants } from "framer-motion";
 import {
   Dialog,
   DialogContent,
@@ -167,7 +167,7 @@ export const CompetitorDetailDialog: React.FC<Props> = ({ competitor, open, onCl
     }
   };
 
-  const containerVariants = {
+  const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
@@ -178,7 +178,7 @@ export const CompetitorDetailDialog: React.FC<Props> = ({ competitor, open, onCl
     },
   };
 
-  const itemVariants = {
+  const itemVariants: Variants = {
     hidden: { opacity: 0, y: shouldReduceMotion ? 0 : 6 },
     visible: {
       opacity: 1,
@@ -301,8 +301,8 @@ export const CompetitorDetailDialog: React.FC<Props> = ({ competitor, open, onCl
               <span className="text-[11px] text-text-tertiary">Peer Analysis</span>
             </div>
 
-            <div className="p-4 rounded-xl bg-primary/[0.03] dark:bg-primary/[0.06] border border-primary/20">
-              <p className="text-sm text-foreground/90 leading-relaxed font-sans break-words">
+            <div className="p-4 rounded-xl bg-primary/3 dark:bg-primary/6 border border-primary/20">
+              <p className="text-sm text-foreground/90 leading-relaxed font-sans wrap-break-word">
                 {competitor.overlap_summary ||
                   competitor.description ||
                   "Direct commercial competitor targeting equivalent enterprise client demographics with overlapping capability sets."}
@@ -318,7 +318,7 @@ export const CompetitorDetailDialog: React.FC<Props> = ({ competitor, open, onCl
             </span>
 
             <div className="p-4 rounded-xl bg-surface-alt/40 border border-border/70">
-              <p className="text-sm text-text-secondary leading-relaxed break-words">
+              <p className="text-sm text-text-secondary leading-relaxed wrap-break-word">
                 {competitor.services ||
                   "Broad-spectrum commercial service operations in active domestic segments."}
               </p>

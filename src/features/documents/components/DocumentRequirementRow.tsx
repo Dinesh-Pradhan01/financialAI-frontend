@@ -173,7 +173,7 @@ export function DocumentRequirementRow({
       }
       className={cn(
         "rounded-xl border p-3 sm:p-3.5 transition-all duration-150 shadow-xs",
-        "flex flex-col gap-2.5",
+        "flex flex-col justify-between gap-2.5 h-full",
         document
           ? "border-success/25 bg-linear-to-r from-success/4 via-surface to-surface hover:border-success/45 hover:shadow-xs"
           : taxonomyDocument.requirement === "required"
@@ -214,19 +214,14 @@ export function DocumentRequirementRow({
 
           <div className="min-w-0 space-y-0.5">
             <div className="flex items-center gap-1.5 flex-wrap">
-              <h4 className="font-semibold text-xs text-text-primary leading-snug tracking-tight flex items-center gap-1.5">
+              <h4 className="font-semibold text-xs text-text-primary leading-snug tracking-tight flex items-center gap-1">
                 <span>{taxonomyDocument.label}</span>
-                {taxonomyDocument.requirement === "required" && !document && (
+                {taxonomyDocument.requirement === "required" && (
                   <span
-                    className="text-[10px] font-bold text-destructive bg-destructive/10 border border-destructive/20 px-1.5 py-0.2 rounded"
-                    title="Mandatory statutory filing"
+                    className="text-destructive font-bold text-xs leading-none select-none"
+                    title="Required"
                   >
-                    Required
-                  </span>
-                )}
-                {taxonomyDocument.requirement === "optional" && !document && (
-                  <span className="text-[10px] font-medium text-text-secondary bg-surface-alt px-1.5 py-0.2 rounded border border-border-c">
-                    Optional
+                    *
                   </span>
                 )}
               </h4>

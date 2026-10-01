@@ -369,16 +369,17 @@ export function DocumentsPage() {
                   >
                     <div className="min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-xs font-semibold text-text-primary">{doc.label}</span>
-                        {doc.requirement === "required" ? (
-                          <span className="text-[10px] font-bold text-destructive bg-destructive/10 px-1.5 py-0.2 rounded border border-destructive/20">
-                            Required
-                          </span>
-                        ) : (
-                          <span className="text-[10px] font-medium text-text-secondary bg-surface-alt px-1.5 py-0.2 rounded border border-border-c">
-                            Optional
-                          </span>
-                        )}
+                        <span className="text-xs font-semibold text-text-primary flex items-center gap-1">
+                          <span>{doc.label}</span>
+                          {doc.requirement === "required" && (
+                            <span
+                              className="text-destructive font-bold text-xs leading-none select-none"
+                              title="Required"
+                            >
+                              *
+                            </span>
+                          )}
+                        </span>
                         {isUploaded && (
                           <span className="text-[10px] font-semibold text-success bg-success/15 px-1.5 py-0.2 rounded border border-success/25">
                             Uploaded

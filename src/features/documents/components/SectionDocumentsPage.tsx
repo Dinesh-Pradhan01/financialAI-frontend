@@ -516,7 +516,7 @@ export function SectionDocumentsPage({ sectionId, initialSubId }: SectionDocumen
                   </div>
                 )}
 
-                <div className="space-y-2.5">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {checklistRows.map((row) => {
                     const uploadedList = allDocumentsByType.get(row.key) ?? [];
                     const latestDoc = uploadedList[0] ?? null;
