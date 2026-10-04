@@ -15,6 +15,7 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   Landmark,
+  Radar,
 } from "lucide-react";
 import {
   Tooltip,
@@ -40,6 +41,7 @@ const items = [
   { to: "/home", label: "Business 360", icon: Home },
   { to: "/spending", label: "Spending", icon: BarChart3 },
   { to: "/industry", label: "Industry", icon: TrendingUp },
+  { to: "/developments", label: "Developments", icon: Radar },
   { to: "/spotlights", label: "Spotlights", icon: Zap },
   { to: "/documents", label: "Documents", icon: FolderLock },
   { to: "/profile", label: "Profile", icon: User },

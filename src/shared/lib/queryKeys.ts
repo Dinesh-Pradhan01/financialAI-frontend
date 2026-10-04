@@ -50,4 +50,9 @@ export const queryKeys = {
       all: (params?: object) => ["cfo", "vendors", params] as const,
     },
   },
+  developments: {
+    all: () => ["developments"] as const,
+    list: (businessId?: string | null, params?: { days: number; limit: number }) =>
+      ["developments", "list", businessId, params] as const,
+  },
 } as const;
