@@ -272,12 +272,20 @@ export interface CompanyProfileResponse {
   updated_at?: string;
 }
 
-export interface CompanyRatingResponse {
-  overall: number;
-  verification: number;
-  documents: number;
-  compliance?: number | null;
-  financial_health?: number | null;
+export interface CompanyPublicRating {
+  employee_experience: number;
+  creditworthiness: number;
+  client_satisfaction: number;
+  stock_quality: number;
+  overall_score: number;
+  overall_grade: string;
+  sources: string[];
+}
+
+export interface CompanyPublicRatingResponse {
+  status: string;
+  content: CompanyPublicRating;
+  Error?: string;
 }
 
 export interface CompanyNewsResponse {

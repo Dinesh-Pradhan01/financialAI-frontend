@@ -2,18 +2,10 @@ import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { useCompanyRating, isSetupRequiredError } from "../hooks/useCompanyAPI";
-import {
-  Star,
-  ShieldCheck,
-  FileCheck2,
-  Activity,
-  RefreshCw,
-  AlertCircle,
-  ArrowRight,
-} from "lucide-react";
-import { Progress } from "@/shared/components/ui/progress";
+import { RefreshCw, AlertCircle, ArrowRight, ShieldCheck } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
 import { useNavigate } from "@tanstack/react-router";
+import { cn } from "@/shared/lib/utils";
 
 interface Props {
   hasProfile?: boolean;
@@ -25,202 +17,313 @@ export const CompanyRatingCard = ({ hasProfile = true }: Props) => {
     enabled: hasProfile,
   });
 
-  const getScoreColor = (score: number) => {
-    if (score >= 80) return "text-emerald-600 dark:text-emerald-400";
-    if (score >= 50) return "text-amber-600 dark:text-amber-400";
-    return "text-primary";
+  const formatSourceName = (src: string) => {
+    const map: Record<string, string> = {
+      glassdoor: "Glassdoor",
+      ambitionbox: "AmbitionBox",
+      crisil: "CRISIL",
+      justdial: "Justdial",
+      finology: "Finology",
+    };
+    return map[src.toLowerCase()] || src.charAt(0).toUpperCase() + src.slice(1);
   };
 
-  const getProgressColor = (score: number) => {
-    if (score >= 80) return "bg-emerald-500";
-    if (score >= 50) return "bg-amber-500";
-    return "bg-primary";
+  const overallScore =
+    typeof data?.overall_score === "number"
+      ? data.overall_score
+      : typeof (data as any)?.overall === "number"
+      ? (data as any).overall / 20
+      : Number(data?.overall_score) || 0;
+
+  const overallGrade = data?.overall_grade?.trim() || "—";
+  const sources = Array.isArray(data?.sources) ? data.sources : [];
+
+  const getGradeBadgeStyle = () => {
+    return "bg-card text-foreground border-border/80";
   };
+
+  const dimensions = data
+    ? [
+        {
+          key: "employee_experience" as const,
+          label: "Employee Experience",
+          score: typeof data.employee_experience === "number" ? data.employee_experience : 0,
+        },
+        {
+          key: "creditworthiness" as const,
+          label: "Creditworthiness",
+          score: typeof data.creditworthiness === "number" ? data.creditworthiness : 0,
+        },
+        {
+          key: "client_satisfaction" as const,
+          label: "Client Satisfaction",
+          score: typeof data.client_satisfaction === "number" ? data.client_satisfaction : 0,
+        },
+        {
+          key: "stock_quality" as const,
+          label: "Stock Quality",
+          score: typeof data.stock_quality === "number" ? data.stock_quality : 0,
+        },
+      ]
+    : [];
+
+  const maxScore = dimensions.length > 0 ? Math.max(...dimensions.map((d) => d.score)) : 0;
 
   return (
-    <Card className="h-112.5 flex flex-col border border-border/70 shadow-sm bg-card">
-      <CardHeader className="pb-3">
-        <CardTitle className="flex items-center justify-between text-lg font-bold tracking-tight font-display text-foreground">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center shrink-0">
-              <Star className="w-4 h-4" />
-            </div>
-            <span>Company Rating</span>
+    <Card className="h-112.5 flex flex-col border border-border/80 shadow-2xs bg-card rounded-xl">
+      {/* ── 1. HEADER ──────────────────────────────────────────────────────── */}
+      <CardHeader className="pb-3 pt-5 px-5 sm:px-6">
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <CardTitle className="text-base font-bold tracking-tight font-display text-foreground">
+              Reputation
+            </CardTitle>
+            <p className="text-xs text-text-tertiary mt-0.5 font-medium">
+              Public reputation & external market synthesis
+            </p>
           </div>
           {hasProfile && !isLoading && (
             <button
               onClick={() => refetch()}
               disabled={isFetching}
-              className="p-1 rounded-md hover:bg-muted transition-colors text-muted-foreground hover:text-foreground cursor-pointer"
-              title="Refresh Rating"
+              className="text-text-tertiary hover:text-foreground hover:bg-surface-alt p-1.5 rounded-md transition-all active:scale-90 cursor-pointer disabled:opacity-40"
+              title="Refresh public rating synthesis"
+              aria-label="Refresh public rating synthesis"
             >
-              <RefreshCw className={`w-4 h-4 ${isFetching ? "animate-spin" : ""}`} />
+              <RefreshCw
+                className={cn(
+                  "w-3.5 h-3.5 transition-transform",
+                  isFetching && "animate-spin text-primary"
+                )}
+              />
             </button>
           )}
-        </CardTitle>
-        <p className="text-xs text-text-tertiary mt-1 font-medium">
-          SpotLite composite verification score
-        </p>
+        </div>
       </CardHeader>
-      <CardContent className="flex-1 flex flex-col justify-between">
+
+      <CardContent className="flex-1 flex flex-col justify-between px-5 sm:px-6 pb-5 pt-0">
         {isLoading || (hasProfile && isFetching && !data) ? (
-          <div className="space-y-6 pt-2">
-            <div className="flex items-center gap-4">
-              <Skeleton className="h-16 w-16 rounded-full" />
-              <Skeleton className="h-12 w-24" />
+          /* State: Loading Skeleton */
+          <div className="flex-1 flex flex-col justify-between space-y-4 pt-1">
+            {/* Summary skeleton */}
+            <div className="p-3.5 rounded-lg bg-surface-alt/40 border border-border/50 flex items-center justify-between">
+              <div className="space-y-1.5">
+                <Skeleton className="h-2.5 w-24" />
+                <Skeleton className="h-7 w-28" />
+              </div>
+              <div className="space-y-1.5 text-right">
+                <Skeleton className="h-2.5 w-16 ml-auto" />
+                <Skeleton className="h-7 w-12 ml-auto rounded" />
+              </div>
             </div>
-            <div className="space-y-4">
-              <Skeleton className="h-10 w-full" />
-              <Skeleton className="h-10 w-full" />
+
+            {/* Scorecard rows skeleton */}
+            <div className="space-y-3 pt-1">
+              <div className="flex justify-between items-center pb-1">
+                <Skeleton className="h-2.5 w-20" />
+                <Skeleton className="h-2.5 w-16" />
+              </div>
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="py-2 flex items-center justify-between gap-3">
+                  <Skeleton className="h-3.5 w-32" />
+                  <div className="flex items-center gap-3">
+                    <Skeleton className="h-1.5 w-24 rounded-xs" />
+                    <Skeleton className="h-3.5 w-12" />
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Evidence skeleton */}
+            <div className="pt-3 border-t border-border/40 space-y-2 mt-auto">
+              <Skeleton className="h-2.5 w-24" />
+              <div className="flex gap-1.5">
+                <Skeleton className="h-5 w-16 rounded-md" />
+                <Skeleton className="h-5 w-20 rounded-md" />
+                <Skeleton className="h-5 w-14 rounded-md" />
+              </div>
             </div>
           </div>
         ) : !hasProfile || (isError && isSetupRequiredError(error)) ? (
-          /* State: Setup Required (Expected empty state) */
+          /* State: Setup Required */
           <div className="flex flex-col items-center justify-center p-6 text-center space-y-4 h-full my-auto">
-            <div className="w-14 h-14 rounded-2xl bg-purple-500/10 text-purple-600 flex items-center justify-center">
-              <Star className="w-7 h-7" />
+            <div className="w-12 h-12 rounded-xl bg-surface-alt border border-border/70 text-text-secondary flex items-center justify-center shadow-2xs">
+              <ShieldCheck className="w-6 h-6 text-text-secondary" />
             </div>
             <div className="space-y-1.5 max-w-xs">
-              <h3 className="font-bold text-base text-foreground">Score Unlocks with Profile</h3>
+              <h3 className="font-bold text-sm text-foreground">Score Unlocks with Profile</h3>
               <p className="text-xs text-muted-foreground leading-relaxed">
-                Complete your company profile and upload verification documents to compute your
-                Business 360 score.
+                Complete company setup and statutory registration to generate your external rating scorecard.
               </p>
             </div>
             <Button
               size="sm"
               variant="outline"
               onClick={() => navigate({ to: "/onboarding" })}
-              className="rounded-pill text-xs font-semibold gap-1.5 cursor-pointer mt-1"
+              className="rounded-lg text-xs font-semibold gap-1.5 cursor-pointer mt-1 hover:border-primary/40 hover:bg-primary/5"
             >
               Complete Setup <ArrowRight className="w-3.5 h-3.5" />
             </Button>
           </div>
         ) : isError || !data ? (
-          /* State: Genuine API failure */
+          /* State: API Error */
           <div className="flex flex-col items-center justify-center p-6 text-center space-y-3.5 h-full my-auto">
-            <div className="w-12 h-12 rounded-xl bg-destructive/10 text-destructive flex items-center justify-center">
-              <AlertCircle className="w-6 h-6" />
+            <div className="w-11 h-11 rounded-lg bg-destructive/10 text-destructive flex items-center justify-center">
+              <AlertCircle className="w-5 h-5" />
             </div>
             <div className="space-y-1">
-              <h3 className="font-semibold text-sm text-foreground">Could not load rating</h3>
-              <p className="text-xs text-muted-foreground">Server error while calculating score.</p>
+              <h3 className="font-semibold text-sm text-foreground">Unable to Load Scorecard</h3>
+              <p className="text-xs text-muted-foreground">Server error while retrieving external market synthesis.</p>
             </div>
             <Button
               size="sm"
               variant="outline"
               onClick={() => refetch()}
-              className="cursor-pointer"
+              className="cursor-pointer text-xs"
             >
-              Try again
+              Retry Calculation
             </Button>
           </div>
         ) : (
-          /* State: Ready */
-          <div className="space-y-6 pt-2">
-            <div className="flex items-center gap-5">
-              <div
-                className={`relative flex items-center justify-center w-18 h-18 rounded-2xl bg-linear-to-br from-primary/10 via-purple-500/10 to-primary/5 border-2 border-primary/25 shadow-xs hover:border-primary/40 hover:shadow-sm hover:scale-105 transition-all duration-300 group/score cursor-default`}
-              >
-                <span className={`text-2xl font-extrabold font-num ${getScoreColor(data.overall)}`}>
-                  {data.overall}
+          /* State: Ready — Structured Analytical Scorecard */
+          <div className="flex-1 flex flex-col justify-between space-y-4 pt-1">
+            {/* ── 2. EXECUTIVE RATING SUMMARY (CONCLUSION) ────────────────── */}
+            <div className="p-3.5 rounded-lg bg-surface-alt/40 border border-border/60 flex items-center justify-between">
+              <div className="space-y-0.5">
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-text-tertiary font-mono block">
+                  Overall Score
                 </span>
+                <div className="flex items-baseline gap-1.5">
+                  <span className="text-3xl font-bold font-mono tracking-tight tabular-nums text-foreground">
+                    {overallScore.toFixed(2)}
+                  </span>
+                  <span className="text-xs font-mono text-text-tertiary font-medium">
+                    / 5.0
+                  </span>
+                </div>
               </div>
-              <div>
-                <h3 className="text-xl font-bold tracking-tight font-display text-foreground">
-                  Out of 100
-                </h3>
-                <p className="text-xs text-text-tertiary font-medium">SpotLite composite rating</p>
+
+              <div className="text-right space-y-0.5">
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-text-tertiary font-mono block">
+                  Rating Grade
+                </span>
+                <div
+                  className={cn(
+                    "inline-flex items-center justify-center px-3 py-1 rounded shadow-2xs border font-mono font-bold tracking-wider text-sm",
+                    getGradeBadgeStyle()
+                  )}
+                >
+                  {overallGrade}
+                </div>
               </div>
             </div>
 
-            <div className="space-y-4">
-              <div className="space-y-1.5">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="font-medium flex items-center gap-1.5 text-foreground">
-                    <ShieldCheck className="w-4 h-4 text-primary" /> Verification
+            {/* ── 3. RATING PROFILE (STRUCTURED SCORECARD) ───────────────── */}
+            <div className="space-y-1">
+              <div className="flex items-center justify-between text-[10px] font-semibold uppercase tracking-wider text-text-tertiary px-1 pb-1">
+                <span>Rating Profile</span>
+                <div className="flex items-center gap-3">
+                  <span className="hidden sm:inline-block font-mono text-[9px] text-text-tertiary">
+                    Scale (0 — 5)
                   </span>
-                  <span className="font-bold font-num tabular-nums">{data.verification}/100</span>
+                  <span className="w-14 text-right font-mono">Score</span>
                 </div>
-                <Progress
-                  value={data.verification}
-                  className="h-2"
-                  indicatorColor={getProgressColor(data.verification)}
-                />
               </div>
 
-              <div className="space-y-1.5">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="font-medium flex items-center gap-1.5 text-foreground">
-                    <FileCheck2 className="w-4 h-4 text-primary" /> Documents
-                  </span>
-                  <span className="font-bold font-num tabular-nums">{data.documents}/100</span>
-                </div>
-                <Progress
-                  value={data.documents}
-                  className="h-2"
-                  indicatorColor={getProgressColor(data.documents)}
-                />
+              <div className="divide-y divide-border/40 border-y border-border/60">
+                {dimensions.map((dim) => {
+                  const scoreVal = typeof dim.score === "number" ? dim.score : 0;
+                  const isTop = scoreVal === maxScore && maxScore > 0;
+
+                  return (
+                    <div
+                      key={dim.key}
+                      className="group/row py-2.5 px-1.5 -mx-1 rounded-md flex items-center justify-between gap-3 hover:bg-primary/[0.03] transition-colors"
+                    >
+                      <div className="min-w-0 flex-1 flex items-center gap-2">
+                        <span className="text-xs font-medium text-foreground block truncate group-hover/row:text-primary transition-colors">
+                          {dim.label}
+                        </span>
+                        {isTop && (
+                          <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-primary/10 text-primary font-medium tracking-tight uppercase shrink-0">
+                            Leading
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="flex items-center gap-3 shrink-0">
+                        {/* 5-Unit Discrete Analytical Micro-Scale */}
+                        <div
+                          className="w-20 sm:w-28 flex items-center gap-1"
+                          aria-label={`${dim.label} score ${scoreVal.toFixed(1)} out of 5`}
+                          role="meter"
+                          aria-valuenow={scoreVal}
+                          aria-valuemin={0}
+                          aria-valuemax={5}
+                        >
+                          {[1, 2, 3, 4, 5].map((step) => {
+                            const stepFill = Math.min(
+                              Math.max((scoreVal - (step - 1)) * 100, 0),
+                              100
+                            );
+                            return (
+                              <div
+                                key={step}
+                                className="flex-1 h-1 bg-border/60 rounded-xs overflow-hidden"
+                              >
+                                <div
+                                  className={cn(
+                                    "h-full transition-all duration-300",
+                                    isTop
+                                      ? "bg-primary group-hover/row:bg-primary-hi"
+                                      : "bg-primary/80 group-hover/row:bg-primary"
+                                  )}
+                                  style={{ width: `${stepFill}%` }}
+                                />
+                              </div>
+                            );
+                          })}
+                        </div>
+
+                        {/* Exact Tabular Mono Score Column */}
+                        <div className="w-14 text-right font-mono tabular-nums text-xs font-semibold text-foreground group-hover/row:text-primary transition-colors">
+                          {scoreVal.toFixed(1)}
+                          <span className="text-[10px] font-normal text-text-tertiary ml-0.5">
+                            /5.0
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
-
-              {data.compliance != null ? (
-                <div className="space-y-1.5">
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="font-medium flex items-center gap-1.5 text-foreground">
-                      <ShieldCheck className="w-4 h-4 text-primary" /> Compliance
-                    </span>
-                    <span className="font-bold font-num tabular-nums">{data.compliance}/100</span>
-                  </div>
-                  <Progress
-                    value={data.compliance}
-                    className="h-2"
-                    indicatorColor={getProgressColor(data.compliance)}
-                  />
-                </div>
-              ) : (
-                <div className="space-y-1.5 opacity-75">
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="font-medium flex items-center gap-1.5 text-text-tertiary">
-                      <ShieldCheck className="w-4 h-4 text-text-tertiary/70" /> Compliance
-                    </span>
-                    <span className="text-[10px] border border-amber-500/25 px-2 py-0.5 rounded-full text-amber-600 dark:text-amber-400 bg-amber-500/10 font-semibold">
-                      Coming Soon
-                    </span>
-                  </div>
-                  <Progress value={0} className="h-2 bg-muted/50" />
-                </div>
-              )}
-
-              {data.financial_health != null ? (
-                <div className="space-y-1.5">
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="font-medium flex items-center gap-1.5 text-foreground">
-                      <Activity className="w-4 h-4 text-primary" /> Financial Health
-                    </span>
-                    <span className="font-bold font-num tabular-nums">
-                      {data.financial_health}/100
-                    </span>
-                  </div>
-                  <Progress
-                    value={data.financial_health}
-                    className="h-2"
-                    indicatorColor={getProgressColor(data.financial_health)}
-                  />
-                </div>
-              ) : (
-                <div className="space-y-1.5 opacity-75">
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="font-medium flex items-center gap-1.5 text-text-tertiary">
-                      <Activity className="w-4 h-4 text-text-tertiary/70" /> Financial Health
-                    </span>
-                    <span className="text-[10px] border border-amber-500/25 px-2 py-0.5 rounded-full text-amber-600 dark:text-amber-400 bg-amber-500/10 font-semibold">
-                      Coming Soon
-                    </span>
-                  </div>
-                  <Progress value={0} className="h-2 bg-muted/50" />
-                </div>
-              )}
             </div>
+
+            {/* ── 4. EXTERNAL EVIDENCE (PROVENANCE) ───────────────────────── */}
+            {sources.length > 0 && (
+              <div className="pt-3 border-t border-border/50 space-y-1.5 mt-auto">
+                <div className="flex items-center justify-between text-[10px] font-semibold uppercase tracking-wider text-text-tertiary">
+                  <span>External Evidence</span>
+                  <span className="font-mono text-[9px] font-normal lowercase tracking-normal">
+                    {sources.length} sources synthesized
+                  </span>
+                </div>
+                <p className="text-[11px] text-text-secondary font-medium leading-relaxed">
+                  {sources.map((src, idx) => (
+                    <React.Fragment key={src}>
+                      <span className="text-foreground/90 font-medium">
+                        {formatSourceName(src)}
+                      </span>
+                      {idx < sources.length - 1 && (
+                        <span className="text-text-tertiary mx-1.5 select-none font-normal">
+                          ·
+                        </span>
+                      )}
+                    </React.Fragment>
+                  ))}
+                </p>
+              </div>
+            )}
           </div>
         )}
       </CardContent>

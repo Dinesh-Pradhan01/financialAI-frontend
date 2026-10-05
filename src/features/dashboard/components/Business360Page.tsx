@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence, useReducedMotion, type Variants } from "framer-motion";
 import { OnboardingProgressBanner } from "./OnboardingProgressBanner";
 import { ProfileCard } from "./ProfileCard";
@@ -11,15 +11,33 @@ import { CompanyRatingCard } from "./CompanyRatingCard";
 import { CompanyNewsCard } from "./CompanyNewsCard";
 import { CompetitorsCard } from "./CompetitorsCard";
 import { cn } from "@/shared/lib/utils";
-import { useCompanyProfile } from "../hooks/useCompanyAPI";
+import { useCompanyProfile, competitorsQueryOptions } from "../hooks/useCompanyAPI";
+import { useQueryClient } from "@tanstack/react-query";
+import { developmentsQueryOptions, DELOITTE_COMPANY_ID } from "@/features/developments/hooks/useDevelopments";
 
 export const Business360Page: React.FC = () => {
   const { data: profile, isError } = useCompanyProfile();
   const [activeTab, setActiveTab] = useState<string>("news");
   const shouldReduceMotion = useReducedMotion();
 
+  // Background prefetch: proactively fires the Developments query in the background on mount.
+  // Never blocks render and never shows a global loader. When the user later navigates to
+  // Developments, TanStack Query serves the pre-cached result instantly.
+  const queryClient = useQueryClient();
+  useEffect(() => {
+    void queryClient.prefetchQuery(developmentsQueryOptions(DELOITTE_COMPANY_ID));
+  }, [queryClient]);
+
   // Downstream cards know whether profile is ready
   const hasProfile = Boolean(profile && !isError);
+
+  // Background prefetch: Competitors (Peer Benchmarks).
+  // Gated on hasProfile so requests only fire once the business identity exists,
+  // avoiding 404s for uninitialized accounts. Silently pre-warms the cache slot.
+  useEffect(() => {
+    if (!hasProfile) return;
+    void queryClient.prefetchQuery(competitorsQueryOptions);
+  }, [hasProfile, queryClient]);
 
   const containerVariants: Variants = {
     hidden: { opacity: 0 },
