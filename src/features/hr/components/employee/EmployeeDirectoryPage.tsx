@@ -83,7 +83,7 @@ function formatDateOnly(val: unknown): string {
     }
     return trimmed;
   }
-  if (val instanceof Date && !isNaN(val.getTime())) {
+  if (val instanceof Date && !Number.isNaN(val.getTime())) {
     return val.toISOString().split("T")[0];
   }
   return String(val);
@@ -551,7 +551,7 @@ export function EmployeeDirectoryPage() {
                             className="min-w-30 text-right bg-surface border border-border rounded px-2 py-1 outline-none text-xs focus:border-primary"
                           />
                         ) : displaySalary ? (
-                          !isNaN(Number(displaySalary)) ? (
+                          !Number.isNaN(Number(displaySalary)) ? (
                             `₹${Number(displaySalary).toLocaleString("en-IN")}`
                           ) : (
                             displaySalary

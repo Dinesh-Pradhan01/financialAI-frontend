@@ -1,16 +1,14 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { OtherDocumentsPage } from "@/features/documents/components/OtherDocumentsPage";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_app/(documents)/documents/other")({
-  head: () => ({
-    meta: [
-      { title: "Other Documents · Spotlite" },
-      {
-        name: "description",
-        content:
-          "Upload and manage miscellaneous documents that do not belong to predefined categories.",
+  beforeLoad: () => {
+    throw redirect({
+      to: "/documents",
+      search: {
+        category: "others_unclassified",
+        view: "grouped",
       },
-    ],
-  }),
-  component: OtherDocumentsPage,
+    });
+  },
+  component: () => null,
 });

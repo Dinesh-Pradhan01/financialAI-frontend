@@ -413,7 +413,7 @@ export function OnboardingModal({ isOpen, onClose, section }: OnboardingModalPro
   // Save Step 4 (Financial Info)
   const saveStep3 = async () => {
     setFinancialErrors({});
-    const parsedNumAccounts = parseInt(numberOfAccounts.replace(/\D/g, ""), 10) || 1;
+    const parsedNumAccounts = Number.parseInt(numberOfAccounts.replace(/\D/g, ""), 10) || 1;
     const payload: FinancialInfoSaveSchema = {
       primary_bank: primaryBank.trim() || null,
       number_of_accounts: parsedNumAccounts,

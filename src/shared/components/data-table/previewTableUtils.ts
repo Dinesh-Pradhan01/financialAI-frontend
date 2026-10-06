@@ -23,7 +23,7 @@ export function validateDynamicField(fieldConfig: any, value: string): string | 
   if (fieldConfig.type === "number") {
     const cleaned = String(value).replace(/[$₹€£,\s]/g, "");
     const num = Number(cleaned);
-    if (isNaN(num)) return "Must be a number";
+    if (Number.isNaN(num)) return "Must be a number";
     if (fieldConfig.min !== undefined && num < fieldConfig.min) return `Min ${fieldConfig.min}`;
     if (fieldConfig.max !== undefined && num > fieldConfig.max) return `Max ${fieldConfig.max}`;
   }
@@ -34,16 +34,14 @@ export function validateDynamicField(fieldConfig: any, value: string): string | 
 
   if (fieldConfig.custom_rule === "not_future") {
     const d = new Date(value);
-    if (!isNaN(d.getTime()) && d > new Date()) return "Cannot be in the future";
+    if (!Number.isNaN(d.getTime()) && d > new Date()) return "Cannot be in the future";
   }
 
   return null;
 }
 
 export function formatHeaderName(name: string): string {
-  const spaced = name
-    .replace(/_/g, " ")
-    .replace(/([a-z])([A-Z])/g, "$1 $2");
+  const spaced = name.replace(/_/g, " ").replace(/([a-z])([A-Z])/g, "$1 $2");
   return spaced.toUpperCase();
 }
 
@@ -52,8 +50,13 @@ export function getVisibleFields(schemaDef: any, records: any[] = []): any[] {
     return schemaDef.fields.filter((field: any) => {
       if (field.required) return true;
       return records.some((rec) => {
-        const camelCaseName = field.name.replace(/_([a-z])/g, (_: string, g: string) => g.toUpperCase());
-        const snakeCaseName = field.name.replace(/[A-Z]/g, (letter: string) => `_${letter.toLowerCase()}`);
+        const camelCaseName = field.name.replace(/_([a-z])/g, (_: string, g: string) =>
+          g.toUpperCase(),
+        );
+        const snakeCaseName = field.name.replace(
+          /[A-Z]/g,
+          (letter: string) => `_${letter.toLowerCase()}`,
+        );
         const val = rec[field.name] ?? rec[camelCaseName] ?? rec[snakeCaseName];
         return val != null && String(val).trim() !== "";
       });

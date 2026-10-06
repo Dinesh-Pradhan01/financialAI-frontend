@@ -3,9 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { formatDistanceToNow } from "date-fns";
 import {
   Users,
-  Building2,
   TrendingUp,
-  RefreshCw,
   BriefcaseBusiness,
   UploadCloud,
   ArrowUpRight,
@@ -267,7 +265,7 @@ export function HRDashboardPage() {
                                   ? (() => {
                                       try {
                                         const d = new Date(item.uploaded_at);
-                                        return isNaN(d.getTime())
+                                        return Number.isNaN(d.getTime())
                                           ? "Recently"
                                           : formatDistanceToNow(d, { addSuffix: true });
                                       } catch {

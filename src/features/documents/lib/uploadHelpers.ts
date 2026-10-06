@@ -41,14 +41,19 @@ export function suggestLabelFromFilename(filename: string): string {
 
 /**
  * Constructs multipart FormData for backend document upload mutation.
+ * If documentType and documentCategory are omitted, backend auto-classifies the upload.
  */
 export function buildUploadFormData(
   file: File,
-  options: { documentType: string; documentCategory: string },
+  options?: { documentType?: string; documentCategory?: string },
 ): FormData {
   const formData = new FormData();
   formData.append("file", file);
-  formData.append("document_type", options.documentType);
-  formData.append("document_category", options.documentCategory);
+  if (options?.documentType) {
+    formData.append("document_type", options.documentType);
+  }
+  if (options?.documentCategory) {
+    formData.append("document_category", options.documentCategory);
+  }
   return formData;
 }

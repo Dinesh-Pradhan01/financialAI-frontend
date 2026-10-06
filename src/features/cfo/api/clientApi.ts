@@ -103,7 +103,8 @@ export function normalizeClientRecord(item: any, idx: number): ClientRecord {
     base.validation_status ||
     (validation_errors.length > 0 ? "invalid" : "valid");
 
-  const action = item.action || base.action || (validation_status === "valid" ? "INSERT" : "REJECT");
+  const action =
+    item.action || base.action || (validation_status === "valid" ? "INSERT" : "REJECT");
 
   return {
     ...base,
@@ -129,11 +130,11 @@ export function normalizeClientRecord(item: any, idx: number): ClientRecord {
     contractValue:
       base.contractValue !== undefined && base.contractValue !== null
         ? base.contractValue
-        : base.contract_value ?? 0,
+        : (base.contract_value ?? 0),
     contract_value:
       base.contract_value !== undefined && base.contract_value !== null
         ? base.contract_value
-        : base.contractValue ?? 0,
+        : (base.contractValue ?? 0),
     currency: base.currency || "INR",
     paymentType: base.paymentType || base.payment_type || "Bank Transfer",
     payment_type: base.payment_type || base.paymentType || "Bank Transfer",
@@ -158,19 +159,30 @@ export function normalizeClientRecord(item: any, idx: number): ClientRecord {
 /**
  * Normalizes backend response from upload, manual entry, or preview into a standard ClientPreviewResponse.
  */
-export function normalizeClientPreviewResponse(raw: any, fallbackRecords?: ClientRecord[]): ClientPreviewResponse {
+export function normalizeClientPreviewResponse(
+  raw: any,
+  fallbackRecords?: ClientRecord[],
+): ClientPreviewResponse {
   let previewData = raw;
-  if (raw && typeof raw === "object" && raw.data && typeof raw.data === "object" && !Array.isArray(raw.data)) {
+  if (
+    raw &&
+    typeof raw === "object" &&
+    raw.data &&
+    typeof raw.data === "object" &&
+    !Array.isArray(raw.data)
+  ) {
     previewData = raw.data;
   }
 
   const rawList = Array.isArray(previewData?.records)
     ? previewData.records
     : Array.isArray(fallbackRecords)
-    ? fallbackRecords
-    : [];
+      ? fallbackRecords
+      : [];
 
-  const records: ClientRecord[] = rawList.map((item: any, idx: number) => normalizeClientRecord(item, idx));
+  const records: ClientRecord[] = rawList.map((item: any, idx: number) =>
+    normalizeClientRecord(item, idx),
+  );
 
   // Build validation issues list
   const issues: ClientValidationIssue[] = [];
@@ -197,8 +209,8 @@ export function normalizeClientPreviewResponse(raw: any, fallbackRecords?: Clien
     typeof rawSummary?.validRecords === "number"
       ? rawSummary.validRecords
       : typeof rawSummary?.validClients === "number"
-      ? rawSummary.validClients
-      : records.filter((r) => r.validation_status === "valid").length;
+        ? rawSummary.validClients
+        : records.filter((r) => r.validation_status === "valid").length;
 
   const errorCount =
     typeof rawSummary?.errors === "number" ? rawSummary.errors : errorRowIds.length;
@@ -207,14 +219,15 @@ export function normalizeClientPreviewResponse(raw: any, fallbackRecords?: Clien
     validClients: validCount,
     warnings: typeof rawSummary?.warnings === "number" ? rawSummary.warnings : 0,
     errors: errorCount,
-    issues: Array.isArray(rawSummary?.issues) && rawSummary.issues.length > 0 ? rawSummary.issues : issues,
+    issues:
+      Array.isArray(rawSummary?.issues) && rawSummary.issues.length > 0
+        ? rawSummary.issues
+        : issues,
     errorRowIds: Array.isArray(rawSummary?.errorRowIds) ? rawSummary.errorRowIds : errorRowIds,
     warningRowIds: Array.isArray(rawSummary?.warningRowIds) ? rawSummary.warningRowIds : [],
     duplicateIds: typeof rawSummary?.duplicateIds === "number" ? rawSummary.duplicateIds : 0,
     missingRequiredFields:
-      typeof rawSummary?.missingRequiredFields === "number"
-        ? rawSummary.missingRequiredFields
-        : 0,
+      typeof rawSummary?.missingRequiredFields === "number" ? rawSummary.missingRequiredFields : 0,
   };
 
   return {
@@ -283,7 +296,7 @@ export const clientApi = {
     return cfoApi.put(
       `/clients/${encodeURIComponent(clientId)}`,
       sanitizeClientRecord({ ...patch, category }),
-      { params: { category } }
+      { params: { category } },
     );
   },
 

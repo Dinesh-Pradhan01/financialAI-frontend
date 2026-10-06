@@ -102,7 +102,8 @@ export function CFODashboardPage() {
           </h1>
         </div>
         <p className="text-text-secondary text-sm pl-0.5">
-          Bulk-import and manage vendor and client portfolios, contracts, and revenue schedules through intelligent workflows.
+          Bulk-import and manage vendor and client portfolios, contracts, and revenue schedules
+          through intelligent workflows.
         </p>
       </header>
 
@@ -331,7 +332,7 @@ export function CFODashboardPage() {
                                   ? (() => {
                                       try {
                                         const d = new Date(item.uploaded_at);
-                                        return isNaN(d.getTime())
+                                        return Number.isNaN(d.getTime())
                                           ? "Recently"
                                           : formatDistanceToNow(d, { addSuffix: true });
                                       } catch {
@@ -440,7 +441,11 @@ function ModuleCard({
           </div>
 
           <div className="flex items-center gap-2 pt-2">
-            <Button asChild size="default" className="h-10 px-5 text-sm font-semibold gap-2 shadow-xs">
+            <Button
+              asChild
+              size="default"
+              className="h-10 px-5 text-sm font-semibold gap-2 shadow-xs"
+            >
               <Link to={href}>
                 {buttonLabel}
                 <ArrowUpRight className="h-4 w-4" />

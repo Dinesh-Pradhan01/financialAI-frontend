@@ -298,7 +298,7 @@ function B2BRemediationConsole() {
                   max={12}
                   step={1}
                   value={monthsClaimed}
-                  onChange={(e) => setMonthsClaimed(parseInt(e.target.value, 10))}
+                  onChange={(e) => setMonthsClaimed(Number.parseInt(e.target.value, 10))}
                   className="w-full accent-rose-600 cursor-pointer"
                 />
                 <div className="flex justify-between text-[10px] text-text-tertiary">
@@ -459,7 +459,7 @@ function B2BRemediationConsole() {
                   <select
                     id="renewalTenure"
                     value={renewalTerm}
-                    onChange={(e) => setRenewalTerm(parseInt(e.target.value, 10))}
+                    onChange={(e) => setRenewalTerm(Number.parseInt(e.target.value, 10))}
                     className="w-full rounded-xl bg-surface border border-border px-3.5 py-2 text-xs font-medium text-foreground focus-visible:ring-2 focus-visible:ring-brand focus-visible:outline-none"
                   >
                     <option value={12}>12 Months (1 Year Term)</option>
@@ -478,7 +478,7 @@ function B2BRemediationConsole() {
                   <select
                     id="discountTargetSelect"
                     value={discountTarget}
-                    onChange={(e) => setDiscountTarget(parseFloat(e.target.value))}
+                    onChange={(e) => setDiscountTarget(Number.parseFloat(e.target.value))}
                     className="w-full rounded-xl bg-surface border border-border px-3.5 py-2 text-xs font-medium text-foreground focus-visible:ring-2 focus-visible:ring-brand focus-visible:outline-none"
                   >
                     <option value={5.0}>5.0% Standard Renewal Discount</option>
@@ -537,7 +537,7 @@ function B2BRemediationConsole() {
                   max={3030000}
                   step={50000}
                   value={sweepAmount}
-                  onChange={(e) => setSweepAmount(parseInt(e.target.value, 10))}
+                  onChange={(e) => setSweepAmount(Number.parseInt(e.target.value, 10))}
                   className="w-full accent-teal-600 cursor-pointer"
                 />
                 <div className="flex justify-between text-[10px] text-text-tertiary">

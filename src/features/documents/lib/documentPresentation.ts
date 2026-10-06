@@ -54,7 +54,7 @@ export function formatDocumentDate(dateStr?: string | null): string {
   if (!dateStr) return "—";
   try {
     const d = new Date(dateStr);
-    if (isNaN(d.getTime())) return "—";
+    if (Number.isNaN(d.getTime())) return "—";
     return d.toLocaleDateString("en-IN", {
       day: "numeric",
       month: "short",
@@ -73,7 +73,7 @@ export function isDocumentUpdated(createdAt?: string | null, updatedAt?: string 
   try {
     const created = new Date(createdAt).getTime();
     const updated = new Date(updatedAt).getTime();
-    if (isNaN(created) || isNaN(updated)) return false;
+    if (Number.isNaN(created) || Number.isNaN(updated)) return false;
     // More than 60 seconds difference indicates an actual replacement/update action
     return updated - created > 60 * 1000;
   } catch {
@@ -88,7 +88,7 @@ export function getChronologicalGroup(dateStr?: string | null): string {
   if (!dateStr) return "Date unavailable";
   try {
     const date = new Date(dateStr);
-    if (isNaN(date.getTime())) return "Date unavailable";
+    if (Number.isNaN(date.getTime())) return "Date unavailable";
 
     return date.toLocaleDateString("en-US", {
       month: "long",
@@ -137,7 +137,7 @@ export function getQualityPresentation(doc: CompanyDocument): {
   // Persisted documents with quality score passed the automated check
   return {
     status: "passed",
-    label: "Passed quality check",
+    label: "QC Passed",
     score: doc.quality_score,
   };
 }

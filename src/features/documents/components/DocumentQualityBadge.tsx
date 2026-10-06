@@ -17,7 +17,7 @@ export function DocumentQualityBadge({ document, showTooltip = true }: DocumentQ
     quality.status === "passed" ? (
       <Badge
         variant="outline"
-        className="bg-success/12 text-success border-success/25 text-[11px] font-semibold gap-1 shrink-0 select-none"
+        className="bg-success/12 text-success border-success/25 text-xs font-semibold gap-1 shrink-0 select-none"
       >
         <ShieldCheck className="h-3 w-3" />
         {quality.label}
@@ -26,7 +26,7 @@ export function DocumentQualityBadge({ document, showTooltip = true }: DocumentQ
     ) : (
       <Badge
         variant="outline"
-        className="bg-muted/50 text-muted-foreground border-border/60 text-[11px] font-medium gap-1 shrink-0 select-none"
+        className="bg-muted/50 text-muted-foreground border-border/60 text-xs font-medium gap-1 shrink-0 select-none"
       >
         <HelpCircle className="h-3 w-3" />
         {quality.label}
@@ -60,7 +60,7 @@ export function DocumentQualityBadge({ document, showTooltip = true }: DocumentQ
               <Info className="h-3.5 w-3.5 text-brand shrink-0" />
               Verification Details
             </p>
-            <p className="text-text-secondary leading-relaxed text-[11px] wrap-break-word">
+            <p className="text-text-secondary leading-relaxed text-xs wrap-break-word">
               {notes}
             </p>
           </div>

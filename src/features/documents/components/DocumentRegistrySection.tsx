@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import {
   Search,
   X,
@@ -6,16 +6,16 @@ import {
   Download,
   Upload,
   Trash2,
-  FileSpreadsheet,
   Eye,
   PackagePlus,
   Loader2,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useReplaceDocument, useDeleteDocument, downloadDocument } from "../hooks/useDocuments";
-import { formatFileSize, formatDocumentDate } from "../lib/documentPresentation";
-import { getTaxonomyDocument } from "../lib/documentTaxonomy";
-import { getSectionForDocument } from "../lib/vaultManifest";
+import { formatFileSize, formatDocumentDate, formatDocumentType } from "../lib/presentationModel";
 import { DocumentQualityBadge } from "./DocumentQualityBadge";
 import { DocumentInfoPopover } from "./DocumentInfoPopover";
 import { DocumentPreviewModal } from "./DocumentPreviewModal";
@@ -48,22 +48,34 @@ import type { CompanyDocument } from "@/shared/types/api";
 
 export interface DocumentRegistrySectionProps {
   documents: CompanyDocument[];
+  initialCategoryFilter?: string;
+  initialSearchQuery?: string;
+  onPreviewDocument?: (doc: CompanyDocument) => void;
   className?: string;
 }
 
-export function DocumentRegistrySection({ documents, className }: DocumentRegistrySectionProps) {
+type SortColumn = "name" | "type" | "size" | "date";
+
+export function DocumentRegistrySection({
+  documents,
+  initialSearchQuery = "",
+  onPreviewDocument,
+  className,
+}: Readonly<DocumentRegistrySectionProps>) {
   const replaceMutation = useReplaceDocument();
   const deleteMutation = useDeleteDocument();
 
   // Preview Modal State for Document Registry Table
-  const [previewDoc, setPreviewDoc] = useState<CompanyDocument | null>(null);
+  const [internalPreviewDoc, setInternalPreviewDoc] = useState<CompanyDocument | null>(null);
 
-  // General Documents Table State
-  const [searchQuery, setSearchQuery] = useState("");
-  const [categoryFilter, setCategoryFilter] = useState<string>("all");
+  // Table State
+  const [searchQuery, setSearchQuery] = useState(initialSearchQuery);
   const [selectedDocIds, setSelectedDocIds] = useState<string[]>([]);
   const [isBulkDownloading, setIsBulkDownloading] = useState(false);
   const [isCreatePackageOpen, setIsCreatePackageOpen] = useState(false);
+
+  const [sortColumn, setSortColumn] = useState<SortColumn>("date");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
 
   const [docToReplace, setDocToReplace] = useState<CompanyDocument | null>(null);
   const [isReplacingDoc, setIsReplacingDoc] = useState(false);
@@ -71,30 +83,72 @@ export function DocumentRegistrySection({ documents, className }: DocumentRegist
   const [downloadingDocId, setDownloadingDocId] = useState<string | null>(null);
   const [docToDelete, setDocToDelete] = useState<CompanyDocument | null>(null);
 
+  // Sync external search query
+  useEffect(() => {
+    setSearchQuery(initialSearchQuery);
+  }, [initialSearchQuery]);
+
+  const handleSort = (column: SortColumn) => {
+    if (sortColumn === column) {
+      setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
+    } else {
+      setSortColumn(column);
+      setSortDirection(column === "name" || column === "type" ? "asc" : "desc");
+    }
+  };
+
   // ---------------------------------------------------------------------------
-  // General Documents Filtering (Includes ALL documents: required + optional + other)
+  // Documents Filtering & Sorting
   // ---------------------------------------------------------------------------
 
   const filteredDocuments = useMemo(() => {
-    return documents.filter((doc) => {
+    const q = searchQuery.toLowerCase().trim();
+
+    const filtered = documents.filter((doc) => {
       // 1. Search query filter
-      const q = searchQuery.toLowerCase().trim();
-      const taxonomyDocument = getTaxonomyDocument(doc.document_type);
-      const matchesSearch =
-        !q ||
-        doc.original_name.toLowerCase().includes(q) ||
-        doc.document_type.toLowerCase().includes(q) ||
-        Boolean(taxonomyDocument?.label.toLowerCase().includes(q));
+      if (q) {
+        const originalName = (doc.original_name ?? "").toLowerCase();
+        const docType = (doc.document_type ?? "").toLowerCase();
+        const formatted = formatDocumentType(doc.document_type).toLowerCase();
+        const notes = (doc.verification_notes ?? "").toLowerCase();
 
-      if (!matchesSearch) return false;
+        const matches =
+          originalName.includes(q) ||
+          docType.includes(q) ||
+          formatted.includes(q) ||
+          notes.includes(q);
 
-      // 2. Requirement filter
-      if (categoryFilter === "all") return true;
-      if (categoryFilter === "other") return !taxonomyDocument;
-      if (!taxonomyDocument) return false;
-      return taxonomyDocument.requirement === categoryFilter;
+        if (!matches) return false;
+      }
+
+      return true;
     });
-  }, [documents, searchQuery, categoryFilter]);
+
+    // 2. Sorting
+    return [...filtered].sort((a, b) => {
+      let comp = 0;
+      switch (sortColumn) {
+        case "name":
+          comp = (a.original_name || "").localeCompare(b.original_name || "");
+          break;
+        case "type":
+          comp = formatDocumentType(a.document_type).localeCompare(
+            formatDocumentType(b.document_type),
+          );
+          break;
+        case "size":
+          comp = (a.file_size_bytes || 0) - (b.file_size_bytes || 0);
+          break;
+        case "date": {
+          const timeA = new Date(a.created_at || 0).getTime();
+          const timeB = new Date(b.created_at || 0).getTime();
+          comp = timeA - timeB;
+          break;
+        }
+      }
+      return sortDirection === "asc" ? comp : -comp;
+    });
+  }, [documents, searchQuery, sortColumn, sortDirection]);
 
   // Select-All status for currently visible filtered documents
   const isAllFilteredSelected = useMemo(() => {
@@ -153,113 +207,131 @@ export function DocumentRegistrySection({ documents, className }: DocumentRegist
         try {
           await downloadDocument(doc.id, doc.original_name);
           successCount++;
-          // Stagger downloads by 350ms to prevent browser download throttling
           await new Promise((resolve) => setTimeout(resolve, 350));
         } catch {
           failCount++;
         }
       }
 
-      if (failCount > 0) {
-        toast.warning(`Downloaded ${successCount} documents (${failCount} failed).`);
+      if (successCount > 0 && failCount === 0) {
+        toast.success(`Successfully downloaded ${successCount} documents`);
+      } else if (successCount > 0 && failCount > 0) {
+        toast.warning(`Downloaded ${successCount} files (${failCount} failed)`);
       } else {
-        toast.success(
-          `Downloaded ${successCount} ${successCount === 1 ? "document" : "documents"} successfully.`,
-        );
+        toast.error("Bulk download failed for selected files");
       }
-      setSelectedDocIds([]);
-    } catch (err) {
-      toast.error(getApiErrorMessage(err, "Bulk download encountered an issue"));
     } finally {
       setIsBulkDownloading(false);
     }
   };
 
-  const handleConfirmReplace = (file: File) => {
+  const handleReplaceSubmit = async (file: File) => {
     if (!docToReplace) return;
-    const docId = docToReplace.id;
-    const formData = new FormData();
-    formData.append("file", file);
 
     setIsReplacingDoc(true);
-    replaceMutation.mutate(
-      { docId, formData },
-      {
-        onSuccess: () => {
-          toast.success(`Replaced with ${file.name} successfully.`);
-          setDocToReplace(null);
-          setIsReplacingDoc(false);
-        },
-        onError: (err) => {
-          toast.error(getApiErrorMessage(err, "Failed to replace document"));
-          setIsReplacingDoc(false);
-        },
-      },
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("document_type", docToReplace.document_type);
+    formData.append("document_category", docToReplace.document_category);
+
+    try {
+      await replaceMutation.mutateAsync({ docId: docToReplace.id, formData });
+      toast.success(`Replaced "${docToReplace.original_name}" with "${file.name}"`);
+      setDocToReplace(null);
+    } catch (err: unknown) {
+      toast.error(getApiErrorMessage(err, "Failed to replace document"));
+    } finally {
+      setIsReplacingDoc(false);
+    }
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!docToDelete) return;
+
+    const targetDoc = docToDelete;
+    setDeletingDocId(targetDoc.id);
+    setDocToDelete(null);
+
+    try {
+      await deleteMutation.mutateAsync(targetDoc.id);
+      setSelectedDocIds((prev) => prev.filter((id) => id !== targetDoc.id));
+      toast.success(`Archived "${targetDoc.original_name}"`, {
+        description: "Corporate evidence unlinked from active vault. Audit history preserved.",
+      });
+    } catch (err: unknown) {
+      toast.error(getApiErrorMessage(err, "Failed to archive document"));
+    } finally {
+      setDeletingDocId(null);
+    }
+  };
+
+  const previewTarget = (doc: CompanyDocument) => {
+    if (onPreviewDocument) {
+      onPreviewDocument(doc);
+    } else {
+      setInternalPreviewDoc(doc);
+    }
+  };
+
+  const getSortIcon = (column: SortColumn) => {
+    if (sortColumn !== column) {
+      return <ArrowUpDown className="h-3 w-3 text-text-tertiary ml-1" />;
+    }
+    return sortDirection === "asc" ? (
+      <ArrowUp className="h-3 w-3 text-brand ml-1" />
+    ) : (
+      <ArrowDown className="h-3 w-3 text-brand ml-1" />
     );
   };
 
-  const handleConfirmDelete = () => {
-    if (!docToDelete) return;
-    setDeletingDocId(docToDelete.id);
-    deleteMutation.mutate(docToDelete.id, {
-      onSuccess: () => {
-        toast.success("Document deleted successfully.");
-        setSelectedDocIds((prev) => prev.filter((id) => id !== docToDelete.id));
-        setDocToDelete(null);
-        setDeletingDocId(null);
-      },
-      onError: (err) => {
-        toast.error(getApiErrorMessage(err, "Failed to delete document"));
-        setDeletingDocId(null);
-      },
-    });
-  };
-
   return (
-    <>
-      <section className={cn("space-y-4", className)}>
+    <div className={cn("space-y-4", className)}>
+      <div className="rounded-2xl border border-border-c/90 bg-surface p-4 shadow-2xs space-y-4">
+        {/* Table Controls Bar */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div>
-            <h2 className="text-base font-bold text-text-primary flex items-center gap-2">
-              <FileSpreadsheet className="h-4.5 w-4.5 text-brand" />
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-bold text-text-primary tracking-tight">
               Document Registry
-            </h2>
-            <p className="text-xs text-text-secondary mt-0.5">
-              Search, preview, download, and manage all corporate records on file.
-            </p>
+            </span>
+            <span className="text-xs font-mono tabular-nums text-text-tertiary px-1.5 py-0.5 rounded-md bg-surface-alt border border-border-c/60">
+              {filteredDocuments.length} of {documents.length}
+            </span>
           </div>
 
-          <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex flex-wrap items-center gap-2">
+            {/* Batch Selection Bar */}
             {selectedDocIds.length > 0 && (
-              <div className="flex items-center gap-1.5 bg-brand/10 border border-brand/20 rounded-lg px-2.5 py-1 text-xs animate-in fade-in-50">
-                <span className="font-semibold text-brand text-[11px]">
-                  {selectedDocIds.length} selected
+              <div className="flex items-center gap-1.5 bg-brand/8 border border-brand/20 px-2.5 py-1 rounded-xl text-xs">
+                <span className="font-semibold text-brand font-mono tabular-nums">
+                  {selectedDocIds.length}
                 </span>
+                <span className="text-text-secondary text-xs">selected</span>
+
                 <Button
-                  type="button"
-                  variant="outline"
+                  variant="ghost"
                   size="sm"
                   disabled={isBulkDownloading}
                   onClick={handleBulkDownload}
-                  className="h-6 px-2 text-[11px] font-semibold border-brand/30 bg-surface text-brand hover:bg-brand hover:text-white gap-1 cursor-pointer"
+                  className="h-6 px-2 text-xs font-medium text-brand hover:bg-brand/10 cursor-pointer gap-1"
                 >
                   {isBulkDownloading ? (
-                    <Loader2 className="h-3 w-3 animate-spin text-brand" />
+                    <Loader2 className="h-3 w-3 animate-spin" />
                   ) : (
                     <Download className="h-3 w-3" />
                   )}
-                  <span>Download</span>
+                  <span>Export</span>
                 </Button>
+
                 <Button
-                  type="button"
-                  variant="outline"
+                  variant="ghost"
                   size="sm"
                   onClick={() => setIsCreatePackageOpen(true)}
-                  className="h-6 px-2 text-[11px] font-semibold border-brand/30 bg-surface text-brand hover:bg-brand hover:text-white gap-1 cursor-pointer"
+                  className="h-6 px-2 text-xs font-medium text-brand hover:bg-brand/10 cursor-pointer gap-1"
                 >
                   <PackagePlus className="h-3 w-3" />
-                  <span>Create Package</span>
+                  <span>Package</span>
                 </Button>
+
                 <button
                   type="button"
                   onClick={() => setSelectedDocIds([])}
@@ -270,14 +342,16 @@ export function DocumentRegistrySection({ documents, className }: DocumentRegist
                 </button>
               </div>
             )}
-            <div className="relative w-full sm:w-52">
+
+            {/* Quick Search */}
+            <div className="relative w-full sm:w-48">
               <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-text-tertiary" />
               <Input
                 type="text"
-                placeholder="Search documents…"
+                placeholder="Search table…"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="h-8 pl-8 pr-8 text-xs bg-surface border-border-c"
+                className="h-8 pl-8 pr-8 text-xs bg-surface border-border-c rounded-xl"
               />
               {searchQuery && (
                 <button
@@ -289,63 +363,42 @@ export function DocumentRegistrySection({ documents, className }: DocumentRegist
                 </button>
               )}
             </div>
-
-            <div className="flex items-center gap-1 bg-surface-alt/50 p-0.5 rounded-lg border border-border/70 text-xs">
-              {(["all", "required", "optional", "other"] as const).map((cat) => (
-                <button
-                  key={cat}
-                  type="button"
-                  onClick={() => setCategoryFilter(cat)}
-                  className={cn(
-                    "px-2.5 py-1 rounded-md capitalize font-medium text-[11px] transition-colors cursor-pointer",
-                    categoryFilter === cat
-                      ? "bg-surface text-text-primary shadow-2xs font-semibold"
-                      : "text-text-secondary hover:text-text-primary",
-                  )}
-                >
-                  {cat === "optional" ? "Standard" : cat}
-                </button>
-              ))}
-            </div>
           </div>
         </div>
 
-        {/* Table Container */}
+        {/* Table Content */}
         {documents.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-border/80 p-8 text-center bg-surface/50">
+          <div className="rounded-xl border border-dashed border-border-c p-8 text-center bg-surface-alt/30">
             <FileText className="mx-auto h-8 w-8 text-text-tertiary mb-2" />
-            <p className="text-sm font-medium text-text-secondary">No documents uploaded yet</p>
-            <p className="text-xs text-text-tertiary mt-1">
-              Open a category above to upload its documents.
+            <p className="text-xs font-semibold text-text-primary">No documents in repository</p>
+            <p className="text-xs text-text-secondary mt-1">
+              Upload documents using the button above to begin establishing your repository.
             </p>
           </div>
         ) : filteredDocuments.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-border/80 p-8 text-center bg-surface/50 space-y-2">
+          <div className="rounded-xl border border-dashed border-border-c p-8 text-center bg-surface-alt/30 space-y-2">
             <FileText className="mx-auto h-8 w-8 text-text-tertiary mb-1" />
-            <p className="text-sm font-medium text-text-secondary">
-              No documents match your filter
-            </p>
-            <p className="text-xs text-text-tertiary">
-              Try adjusting your search query or switching category filters.
+            <p className="text-xs font-semibold text-text-primary">No matching records found</p>
+            <p className="text-xs text-text-secondary">
+              Try adjusting your search query or clearing active filters.
             </p>
             <Button
               variant="outline"
               size="sm"
               onClick={() => {
                 setSearchQuery("");
-                setCategoryFilter("all");
               }}
-              className="mt-2 text-xs cursor-pointer"
+              className="mt-2 text-xs h-7 rounded-lg cursor-pointer"
             >
-              Clear filters
+              Clear search
             </Button>
           </div>
         ) : (
-          <div className="rounded-2xl border border-border bg-surface overflow-hidden shadow-xs">
+          <div className="rounded-xl border border-border-c/80 overflow-hidden shadow-2xs">
             <Table>
               <TableHeader>
-                <TableRow className="bg-surface-alt/40 hover:bg-surface-alt/40">
-                  <TableHead className="w-10 py-3 pl-4 pr-2">
+                <TableRow className="bg-surface-alt/60 hover:bg-surface-alt/60 border-b border-border-c/80">
+                  <TableHead className="w-10 py-2.5 pl-3.5 pr-2">
                     <Checkbox
                       checked={
                         isAllFilteredSelected
@@ -358,12 +411,46 @@ export function DocumentRegistrySection({ documents, className }: DocumentRegist
                       aria-label="Select all visible documents"
                     />
                   </TableHead>
-                  <TableHead className="font-semibold text-xs py-3">Name</TableHead>
-                  <TableHead className="font-semibold text-xs py-3">Type</TableHead>
-                  <TableHead className="font-semibold text-xs py-3">Size</TableHead>
-                  <TableHead className="font-semibold text-xs py-3">Quality</TableHead>
-                  <TableHead className="font-semibold text-xs py-3">Uploaded</TableHead>
-                  <TableHead className="font-semibold text-xs py-3 text-right pr-6">
+                  <TableHead
+                    className="font-bold text-xs py-2.5 text-text-primary cursor-pointer select-none"
+                    onClick={() => handleSort("name")}
+                  >
+                    <div className="flex items-center">
+                      <span>Document</span>
+                      {getSortIcon("name")}
+                    </div>
+                  </TableHead>
+                  <TableHead
+                    className="font-bold text-xs py-2.5 text-text-primary cursor-pointer select-none"
+                    onClick={() => handleSort("type")}
+                  >
+                    <div className="flex items-center">
+                      <span>Type</span>
+                      {getSortIcon("type")}
+                    </div>
+                  </TableHead>
+                  <TableHead className="font-bold text-xs py-2.5 text-text-primary">
+                    Verification
+                  </TableHead>
+                  <TableHead
+                    className="font-bold text-xs py-2.5 text-text-primary cursor-pointer select-none"
+                    onClick={() => handleSort("size")}
+                  >
+                    <div className="flex items-center">
+                      <span>Size</span>
+                      {getSortIcon("size")}
+                    </div>
+                  </TableHead>
+                  <TableHead
+                    className="font-bold text-xs py-2.5 text-text-primary cursor-pointer select-none"
+                    onClick={() => handleSort("date")}
+                  >
+                    <div className="flex items-center">
+                      <span>Uploaded</span>
+                      {getSortIcon("date")}
+                    </div>
+                  </TableHead>
+                  <TableHead className="font-bold text-xs py-2.5 text-text-primary text-right pr-4">
                     Actions
                   </TableHead>
                 </TableRow>
@@ -373,18 +460,17 @@ export function DocumentRegistrySection({ documents, className }: DocumentRegist
                   const isSelected = selectedDocIds.includes(doc.id);
                   const isRowDownloading = downloadingDocId === doc.id;
                   const isRowDeleting = deletingDocId === doc.id;
-                  const taxonomyDocument = getTaxonomyDocument(doc.document_type);
-                  const section = getSectionForDocument(doc.document_type);
+                  const formattedType = formatDocumentType(doc.document_type);
 
                   return (
                     <TableRow
                       key={doc.id}
                       className={cn(
-                        "transition-colors",
-                        isSelected ? "bg-brand/5 hover:bg-brand/10" : "hover:bg-surface-alt/30",
+                        "transition-colors border-b border-border-c/60",
+                        isSelected ? "bg-brand/5 hover:bg-brand/8" : "hover:bg-surface-alt/40",
                       )}
                     >
-                      <TableCell className="py-3 pl-4 pr-2">
+                      <TableCell className="py-2.5 pl-3.5 pr-2">
                         <Checkbox
                           checked={isSelected}
                           onCheckedChange={() => toggleSelectDoc(doc.id)}
@@ -392,55 +478,46 @@ export function DocumentRegistrySection({ documents, className }: DocumentRegist
                         />
                       </TableCell>
 
-                      <TableCell className="font-medium text-sm py-3">
-                        <div className="flex items-center gap-2.5 max-w-65">
-                          <FileText
-                            className={cn(
-                              "h-4 w-4 shrink-0",
-                              section?.theme.accentText ?? "text-brand",
-                            )}
-                          />
-                          <span className="truncate" title={doc.original_name}>
+                      {/* Name */}
+                      <TableCell className="font-medium text-xs py-2.5">
+                        <div className="flex items-center gap-2 max-w-xs">
+                          <FileText className="h-3.5 w-3.5 shrink-0 text-brand" />
+                          <button
+                            type="button"
+                            onClick={() => previewTarget(doc)}
+                            className="truncate text-left text-text-primary hover:text-brand hover:underline font-semibold cursor-pointer"
+                            title={doc.original_name}
+                          >
                             {doc.original_name}
-                          </span>
+                          </button>
                         </div>
                       </TableCell>
 
-                      <TableCell className="text-xs text-text-secondary py-3">
+                      {/* Type */}
+                      <TableCell className="text-xs text-text-secondary py-2.5">
                         <span
-                          title={doc.document_type}
-                          className={cn(
-                            "inline-flex items-center gap-1.5 max-w-55 truncate px-2 py-0.5 rounded-md bg-surface-alt/60 border border-border/60 text-[11px] align-middle",
-                            !taxonomyDocument && "capitalize",
-                          )}
+                          title={formattedType}
+                          className="inline-block max-w-[220px] truncate px-2 py-0.5 rounded-md bg-surface-alt border border-border-c/70 text-xs text-text-primary font-medium"
                         >
-                          <span className="truncate">
-                            {taxonomyDocument?.label ?? doc.document_type.replace(/[-_]/g, " ")}
-                          </span>
-                          {taxonomyDocument?.requirement === "required" && (
-                            <span
-                              className="text-destructive font-bold text-xs shrink-0 leading-none select-none"
-                              title="Required"
-                            >
-                              *
-                            </span>
-                          )}
+                          {formattedType}
                         </span>
                       </TableCell>
 
-                      <TableCell className="text-xs text-text-secondary font-mono py-3">
+                      {/* Verification Status */}
+                      <TableCell className="py-2.5">
+                        <DocumentQualityBadge document={doc} showTooltip={true} />
+                      </TableCell>
+
+                      {/* Size */}
+                      <TableCell className="text-xs text-text-secondary font-mono tabular-nums py-2.5">
                         {formatFileSize(doc.file_size_bytes)}
                       </TableCell>
 
-                      <TableCell className="py-3">
-                        <DocumentQualityBadge document={doc} />
-                      </TableCell>
-
-                      <TableCell className="text-xs text-text-secondary py-3">
-                        <div className="flex items-center gap-1.5 font-mono text-[11px]">
+                      {/* Upload Date */}
+                      <TableCell className="text-xs text-text-secondary py-2.5">
+                        <div className="flex items-center gap-1 font-mono tabular-nums text-xs">
                           <span>{formatDocumentDate(doc.created_at)}</span>
                           <DocumentInfoPopover
-                            taxonomyDocument={taxonomyDocument}
                             metadata={{
                               uploadedBy: doc.uploaded_by,
                               uploadedAt: doc.created_at,
@@ -454,16 +531,17 @@ export function DocumentRegistrySection({ documents, className }: DocumentRegist
                         </div>
                       </TableCell>
 
-                      <TableCell className="text-right pr-6 py-3">
-                        <div className="flex items-center justify-end gap-1.5">
+                      {/* Row Actions */}
+                      <TableCell className="text-right pr-4 py-2.5">
+                        <div className="flex items-center justify-end gap-1">
                           <Button
                             variant="ghost"
                             size="icon"
                             title="Preview document"
                             aria-label={`Preview ${doc.original_name}`}
                             disabled={isRowDownloading || isRowDeleting}
-                            onClick={() => setPreviewDoc(doc)}
-                            className="h-8 w-8 text-text-secondary hover:text-text-primary cursor-pointer"
+                            onClick={() => previewTarget(doc)}
+                            className="h-7 w-7 text-text-secondary hover:text-brand hover:bg-brand/10 cursor-pointer rounded-lg"
                           >
                             <Eye className="h-3.5 w-3.5" />
                           </Button>
@@ -475,40 +553,40 @@ export function DocumentRegistrySection({ documents, className }: DocumentRegist
                             aria-label={`Download ${doc.original_name}`}
                             disabled={isRowDownloading || isRowDeleting}
                             onClick={() => handleDownload(doc)}
-                            className="h-8 w-8 text-text-secondary hover:text-text-primary cursor-pointer"
+                            className="h-7 w-7 text-text-secondary hover:text-text-primary hover:bg-surface-alt cursor-pointer rounded-lg"
                           >
                             {isRowDownloading ? (
-                              <Loader2 className="h-4 w-4 animate-spin text-brand" />
+                              <Loader2 className="h-3.5 w-3.5 animate-spin text-brand" />
                             ) : (
-                              <Download className="h-4 w-4" />
+                              <Download className="h-3.5 w-3.5" />
                             )}
                           </Button>
 
                           <Button
                             variant="ghost"
                             size="icon"
-                            title="Replace document"
-                            aria-label={`Replace ${doc.original_name}`}
+                            title="versionUpload new "
+                            aria-label={`Re-Upload of ${doc.original_name}`}
                             disabled={isRowDownloading || isRowDeleting}
                             onClick={() => setDocToReplace(doc)}
-                            className="h-8 w-8 text-text-secondary hover:text-text-primary cursor-pointer"
+                            className="h-7 w-7 text-text-secondary hover:text-text-primary hover:bg-surface-alt cursor-pointer rounded-lg"
                           >
-                            <Upload className="h-4 w-4" />
+                            <Upload className="h-3.5 w-3.5" />
                           </Button>
 
                           <Button
                             variant="ghost"
                             size="icon"
-                            title="Delete document"
-                            aria-label={`Delete ${doc.original_name}`}
+                            title="Archive document"
+                            aria-label={`Archive ${doc.original_name}`}
                             disabled={isRowDownloading || isRowDeleting}
                             onClick={() => setDocToDelete(doc)}
-                            className="h-8 w-8 text-destructive hover:bg-destructive/10 hover:text-destructive cursor-pointer"
+                            className="h-7 w-7 text-destructive hover:text-destructive hover:bg-destructive/10 cursor-pointer rounded-lg"
                           >
                             {isRowDeleting ? (
-                              <Loader2 className="h-4 w-4 animate-spin" />
+                              <Loader2 className="h-3.5 w-3.5 animate-spin text-destructive" />
                             ) : (
-                              <Trash2 className="h-4 w-4" />
+                              <Trash2 className="h-3.5 w-3.5" />
                             )}
                           </Button>
                         </div>
@@ -520,71 +598,60 @@ export function DocumentRegistrySection({ documents, className }: DocumentRegist
             </Table>
           </div>
         )}
-      </section>
+      </div>
 
-      {/* Delete Confirmation Alert Dialog for Table Rows */}
+      {/* Overlays / Modals */}
+      <DocumentPreviewModal
+        open={Boolean(internalPreviewDoc)}
+        onOpenChange={(open) => !open && setInternalPreviewDoc(null)}
+        document={internalPreviewDoc}
+      />
+
+      <ReplaceDocumentDialog
+        open={Boolean(docToReplace)}
+        onOpenChange={(open) => !open && setDocToReplace(null)}
+        targetDocument={docToReplace}
+        targetLabel={docToReplace ? formatDocumentType(docToReplace.document_type) : undefined}
+        onConfirmReplace={handleReplaceSubmit}
+        isReplacing={isReplacingDoc}
+      />
+
+      <CreatePackageDialog
+        open={isCreatePackageOpen}
+        onOpenChange={setIsCreatePackageOpen}
+        initialSelectedDocIds={selectedDocIds}
+        documents={documents}
+      />
+
       <AlertDialog
         open={Boolean(docToDelete)}
-        onOpenChange={(open) => {
-          if (!open) setDocToDelete(null);
-        }}
+        onOpenChange={(open) => !open && setDocToDelete(null)}
       >
-        <AlertDialogContent>
+        <AlertDialogContent className="bg-surface border-border-c">
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Document?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to permanently delete{" "}
-              <span className="font-semibold text-text-primary">{docToDelete?.original_name}</span>?
-              This action cannot be undone.
+            <AlertDialogTitle className="text-sm font-bold text-text-primary">
+              Archive Document from Vault
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-xs text-text-secondary leading-relaxed">
+              Are you sure you want to archive{" "}
+              <strong className="text-text-primary">{docToDelete?.original_name}</strong>? This will
+              unlink the file from active compliance records and packages while maintaining
+              institutional audit logs.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={Boolean(deletingDocId)}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel className="text-xs h-8 rounded-lg cursor-pointer">
+              Cancel
+            </AlertDialogCancel>
             <AlertDialogAction
-              onClick={handleConfirmDelete}
-              disabled={Boolean(deletingDocId)}
-              className="bg-destructive text-white hover:bg-destructive/90 cursor-pointer"
+              onClick={handleDeleteConfirm}
+              className="text-xs h-8 rounded-lg bg-destructive hover:bg-destructive/90 text-white cursor-pointer font-semibold"
             >
-              {deletingDocId ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin mr-1.5" /> Deleting…
-                </>
-              ) : (
-                "Delete"
-              )}
+              Archive Document
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-
-      {/* Document Preview Modal for Registry Table */}
-      <DocumentPreviewModal
-        open={Boolean(previewDoc)}
-        onOpenChange={(openState) => {
-          if (!openState) setPreviewDoc(null);
-        }}
-        document={previewDoc}
-      />
-
-      {/* Document Replace Confirmation Modal for Registry Table */}
-      <ReplaceDocumentDialog
-        open={Boolean(docToReplace)}
-        onOpenChange={(open) => {
-          if (!open) setDocToReplace(null);
-        }}
-        targetDocument={docToReplace}
-        isReplacing={isReplacingDoc}
-        onConfirmReplace={handleConfirmReplace}
-      />
-
-      {/* Create Package Dialog from Registry Multi-Select */}
-      <CreatePackageDialog
-        open={isCreatePackageOpen}
-        onOpenChange={setIsCreatePackageOpen}
-        documents={documents}
-        initialSelectedDocIds={selectedDocIds}
-        onSuccess={() => setSelectedDocIds([])}
-      />
-    </>
+    </div>
   );
 }

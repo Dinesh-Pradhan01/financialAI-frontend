@@ -121,9 +121,15 @@ const cfoSlice = createSlice({
       }
 
       // Auto-calculate monthly cost for subscription if not provided: contract_value / 12
-      const contractTypeStr = String(target.contract_type || target.contractType || "").trim().toLowerCase();
-      const frequencyStr = String(target.frequency || "").trim().toLowerCase();
-      const recurringStr = String(target.recurring ?? "").trim().toLowerCase();
+      const contractTypeStr = String(target.contract_type || target.contractType || "")
+        .trim()
+        .toLowerCase();
+      const frequencyStr = String(target.frequency || "")
+        .trim()
+        .toLowerCase();
+      const recurringStr = String(target.recurring ?? "")
+        .trim()
+        .toLowerCase();
       const isSubscription =
         contractTypeStr.includes("sub") ||
         frequencyStr.includes("sub") ||
@@ -140,7 +146,7 @@ const cfoSlice = createSlice({
         (currentMonthly === "" ||
           currentMonthly == null ||
           Number(currentMonthly) === 0 ||
-          isNaN(Number(currentMonthly)))
+          Number.isNaN(Number(currentMonthly)))
       ) {
         const autoMonthlyCost = Math.round((contractVal / 12) * 100) / 100;
         target.monthly_cost = autoMonthlyCost;
@@ -157,7 +163,9 @@ const cfoSlice = createSlice({
             String(issue.rowId) === String(rowId) ||
             (target.sourceRow != null && String(issue.sourceRow) === String(target.sourceRow));
           if (!isSameRow) return true;
-          const issueFieldNorm = String(issue.field || "").toLowerCase().replace(/_/g, "");
+          const issueFieldNorm = String(issue.field || "")
+            .toLowerCase()
+            .replace(/_/g, "");
           const isMatch =
             issueFieldNorm === normKey ||
             ((normKey.includes("monthly") || normKey.includes("cost")) &&
@@ -197,7 +205,7 @@ const cfoSlice = createSlice({
       if (
         updatedMonthly !== "" &&
         updatedMonthly != null &&
-        !isNaN(Number(updatedMonthly)) &&
+        !Number.isNaN(Number(updatedMonthly)) &&
         Number(updatedMonthly) > 0
       ) {
         clearIssue(state.vendor.backendPreview.summary, "monthly_cost");
@@ -424,17 +432,31 @@ const cfoSlice = createSlice({
         if (!summaryObj || !Array.isArray(summaryObj.issues)) return;
         const normKey = fieldKey.toLowerCase().replace(/_/g, "");
         summaryObj.issues = summaryObj.issues.filter((issue: any) => {
-          const isSameRow = String(issue.rowId) === String(rowId) || (rec.sourceRow != null && String(issue.sourceRow) === String(rec.sourceRow));
+          const isSameRow =
+            String(issue.rowId) === String(rowId) ||
+            (rec.sourceRow != null && String(issue.sourceRow) === String(rec.sourceRow));
           if (!isSameRow) return true;
-          const issueFieldNorm = String(issue.field || "").toLowerCase().replace(/_/g, "");
-          const isMatch = issueFieldNorm === normKey || ((normKey.includes("monthly") || normKey.includes("cost")) && (issueFieldNorm.includes("monthly") || issueFieldNorm.includes("cost")));
+          const issueFieldNorm = String(issue.field || "")
+            .toLowerCase()
+            .replace(/_/g, "");
+          const isMatch =
+            issueFieldNorm === normKey ||
+            ((normKey.includes("monthly") || normKey.includes("cost")) &&
+              (issueFieldNorm.includes("monthly") || issueFieldNorm.includes("cost")));
           return !isMatch;
         });
 
-        const remainingErrors = summaryObj.issues.filter((i: any) => (String(i.rowId) === String(rowId) || (rec.sourceRow != null && String(i.sourceRow) === String(rec.sourceRow))) && i.severity === "error");
+        const remainingErrors = summaryObj.issues.filter(
+          (i: any) =>
+            (String(i.rowId) === String(rowId) ||
+              (rec.sourceRow != null && String(i.sourceRow) === String(rec.sourceRow))) &&
+            i.severity === "error",
+        );
 
         if (remainingErrors.length === 0 && Array.isArray(summaryObj.errorRowIds)) {
-          summaryObj.errorRowIds = summaryObj.errorRowIds.filter((id: string) => String(id) !== String(rowId));
+          summaryObj.errorRowIds = summaryObj.errorRowIds.filter(
+            (id: string) => String(id) !== String(rowId),
+          );
         }
 
         summaryObj.errors = summaryObj.issues.filter((i: any) => i.severity === "error").length;
@@ -443,10 +465,18 @@ const cfoSlice = createSlice({
         }
       };
 
-      const isEmpty = (val: any) => val === undefined || val === null || String(val).trim() === "" || String(val).trim() === "0";
+      const isEmpty = (val: any) =>
+        val === undefined ||
+        val === null ||
+        String(val).trim() === "" ||
+        String(val).trim() === "0";
 
       const extStartDate = extracted.contract_start_date ?? (extracted as any).contractStartDate;
-      if (extStartDate != null && isEmpty(rec.contract_start_date) && isEmpty(rec.contractStartDate)) {
+      if (
+        extStartDate != null &&
+        isEmpty(rec.contract_start_date) &&
+        isEmpty(rec.contractStartDate)
+      ) {
         rec.contractStartDate = extStartDate;
         rec.contract_start_date = extStartDate;
         clearIssue(backendPreview.summary, "contract_start_date");
@@ -485,7 +515,11 @@ const cfoSlice = createSlice({
 
       // Calculate monthly cost dynamically if contract value is updated and it's a subscription
       const contractVal = Number(rec.contract_value ?? rec.contractValue ?? 0);
-      const isSub = String(rec.contract_type || rec.contractType || "").toLowerCase().includes("sub") || ["true", "yes", "1"].includes(String(rec.recurring || "").toLowerCase());
+      const isSub =
+        String(rec.contract_type || rec.contractType || "")
+          .toLowerCase()
+          .includes("sub") ||
+        ["true", "yes", "1"].includes(String(rec.recurring || "").toLowerCase());
       if (isSub && contractVal > 0 && isEmpty(rec.monthly_cost) && isEmpty(rec.monthlyCost)) {
         const autoMonthlyCost = Math.round((contractVal / 12) * 100) / 100;
         rec.monthly_cost = autoMonthlyCost;
@@ -496,7 +530,12 @@ const cfoSlice = createSlice({
       }
 
       if (Array.isArray(rec.validation_errors)) {
-        const issuesForRec = backendPreview.summary?.issues?.filter((i: any) => String(i.rowId) === String(rowId) || (rec.sourceRow != null && String(i.sourceRow) === String(rec.sourceRow))) || [];
+        const issuesForRec =
+          backendPreview.summary?.issues?.filter(
+            (i: any) =>
+              String(i.rowId) === String(rowId) ||
+              (rec.sourceRow != null && String(i.sourceRow) === String(rec.sourceRow)),
+          ) || [];
         rec.validation_errors = issuesForRec.map((i: any) => i.message);
         rec.validation_status = rec.validation_errors.length > 0 ? "invalid" : "valid";
       }
@@ -526,17 +565,31 @@ const cfoSlice = createSlice({
         if (!summaryObj || !Array.isArray(summaryObj.issues)) return;
         const normKey = fieldKey.toLowerCase().replace(/_/g, "");
         summaryObj.issues = summaryObj.issues.filter((issue: any) => {
-          const isSameRow = String(issue.rowId) === String(rowId) || (rec.sourceRow != null && String(issue.sourceRow) === String(rec.sourceRow));
+          const isSameRow =
+            String(issue.rowId) === String(rowId) ||
+            (rec.sourceRow != null && String(issue.sourceRow) === String(rec.sourceRow));
           if (!isSameRow) return true;
-          const issueFieldNorm = String(issue.field || "").toLowerCase().replace(/_/g, "");
-          const isMatch = issueFieldNorm === normKey || ((normKey.includes("monthly") || normKey.includes("cost")) && (issueFieldNorm.includes("monthly") || issueFieldNorm.includes("cost")));
+          const issueFieldNorm = String(issue.field || "")
+            .toLowerCase()
+            .replace(/_/g, "");
+          const isMatch =
+            issueFieldNorm === normKey ||
+            ((normKey.includes("monthly") || normKey.includes("cost")) &&
+              (issueFieldNorm.includes("monthly") || issueFieldNorm.includes("cost")));
           return !isMatch;
         });
 
-        const remainingErrors = summaryObj.issues.filter((i: any) => (String(i.rowId) === String(rowId) || (rec.sourceRow != null && String(i.sourceRow) === String(rec.sourceRow))) && i.severity === "error");
+        const remainingErrors = summaryObj.issues.filter(
+          (i: any) =>
+            (String(i.rowId) === String(rowId) ||
+              (rec.sourceRow != null && String(i.sourceRow) === String(rec.sourceRow))) &&
+            i.severity === "error",
+        );
 
         if (remainingErrors.length === 0 && Array.isArray(summaryObj.errorRowIds)) {
-          summaryObj.errorRowIds = summaryObj.errorRowIds.filter((id: string) => String(id) !== String(rowId));
+          summaryObj.errorRowIds = summaryObj.errorRowIds.filter(
+            (id: string) => String(id) !== String(rowId),
+          );
         }
 
         summaryObj.errors = summaryObj.issues.filter((i: any) => i.severity === "error").length;
@@ -545,10 +598,18 @@ const cfoSlice = createSlice({
         }
       };
 
-      const isEmpty = (val: any) => val === undefined || val === null || String(val).trim() === "" || String(val).trim() === "0";
+      const isEmpty = (val: any) =>
+        val === undefined ||
+        val === null ||
+        String(val).trim() === "" ||
+        String(val).trim() === "0";
 
       const extStartDate = extracted.contract_start_date ?? (extracted as any).contractStartDate;
-      if (extStartDate != null && isEmpty(rec.contract_start_date) && isEmpty(rec.contractStartDate)) {
+      if (
+        extStartDate != null &&
+        isEmpty(rec.contract_start_date) &&
+        isEmpty(rec.contractStartDate)
+      ) {
         rec.contractStartDate = extStartDate;
         rec.contract_start_date = extStartDate;
         clearIssue(backendPreview.summary, "contract_start_date");
@@ -586,7 +647,11 @@ const cfoSlice = createSlice({
       }
 
       const contractVal = Number(rec.contract_value ?? rec.contractValue ?? 0);
-      const isSub = String(rec.contract_type || rec.contractType || "").toLowerCase().includes("sub") || ["true", "yes", "1"].includes(String(rec.recurring || "").toLowerCase());
+      const isSub =
+        String(rec.contract_type || rec.contractType || "")
+          .toLowerCase()
+          .includes("sub") ||
+        ["true", "yes", "1"].includes(String(rec.recurring || "").toLowerCase());
       if (isSub && contractVal > 0 && isEmpty(rec.monthly_cost) && isEmpty(rec.monthlyCost)) {
         const autoMonthlyCost = Math.round((contractVal / 12) * 100) / 100;
         rec.monthly_cost = autoMonthlyCost;
@@ -597,7 +662,12 @@ const cfoSlice = createSlice({
       }
 
       if (Array.isArray(rec.validation_errors)) {
-        const issuesForRec = backendPreview.summary?.issues?.filter((i: any) => String(i.rowId) === String(rowId) || (rec.sourceRow != null && String(i.sourceRow) === String(rec.sourceRow))) || [];
+        const issuesForRec =
+          backendPreview.summary?.issues?.filter(
+            (i: any) =>
+              String(i.rowId) === String(rowId) ||
+              (rec.sourceRow != null && String(i.sourceRow) === String(rec.sourceRow)),
+          ) || [];
         rec.validation_errors = issuesForRec.map((i: any) => i.message);
         rec.validation_status = rec.validation_errors.length > 0 ? "invalid" : "valid";
       }

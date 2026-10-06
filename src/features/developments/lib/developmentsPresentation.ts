@@ -191,7 +191,7 @@ export function formatPublished(iso?: string | null, now: Date = new Date()): Fo
   if (!trimmed) return null;
 
   const timestamp = Date.parse(trimmed);
-  if (isNaN(timestamp)) return null;
+  if (Number.isNaN(timestamp)) return null;
 
   const date = new Date(timestamp);
   const absoluteFormatter = new Intl.DateTimeFormat("en-US", {
@@ -245,7 +245,7 @@ export function formatLastUpdated(
   if (!trimmed) return null;
 
   const timestamp = Date.parse(trimmed);
-  if (isNaN(timestamp)) return null;
+  if (Number.isNaN(timestamp)) return null;
 
   const date = new Date(timestamp);
   const absoluteFormatter = new Intl.DateTimeFormat("en-US", {
@@ -291,7 +291,7 @@ export function formatClosingDate(iso?: string | null): string | null {
   if (!trimmed) return null;
 
   const timestamp = Date.parse(trimmed);
-  if (isNaN(timestamp)) return null;
+  if (Number.isNaN(timestamp)) return null;
 
   const date = new Date(timestamp);
   const formatter = new Intl.DateTimeFormat("en-US", {

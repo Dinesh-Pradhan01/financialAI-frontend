@@ -127,10 +127,10 @@ export const useUploadCompanyDocument = () => {
   return useMutation({
     mutationFn: (formData: FormData) =>
       api.upload<CompanyDocument>("/api/company/documents", formData),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.company.documents() });
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: queryKeys.company.documents() });
       // Uploading documents might change the rating
-      queryClient.invalidateQueries({ queryKey: queryKeys.company.rating() });
+      await queryClient.invalidateQueries({ queryKey: queryKeys.company.rating() });
     },
   });
 };
@@ -139,9 +139,9 @@ export const useDeleteCompanyDocument = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => api.delete(`/api/business/onboarding/documents/${id}`),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.company.documents() });
-      queryClient.invalidateQueries({ queryKey: queryKeys.company.rating() });
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: queryKeys.company.documents() });
+      await queryClient.invalidateQueries({ queryKey: queryKeys.company.rating() });
     },
   });
 };

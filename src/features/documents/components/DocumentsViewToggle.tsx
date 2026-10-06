@@ -2,7 +2,7 @@ import React, { useRef } from "react";
 import { motion } from "framer-motion";
 import { cn } from "@/shared/lib/utils";
 
-export type DocumentsView = "vault" | "registry" | "packages";
+export type DocumentsView = "grouped" | "table" | "packages";
 
 export interface DocumentsViewToggleProps {
   activeView: DocumentsView;
@@ -13,8 +13,8 @@ export interface DocumentsViewToggleProps {
 const EASING: [number, number, number, number] = [0.16, 1, 0.3, 1];
 
 const VIEWS: { id: DocumentsView; label: string }[] = [
-  { id: "vault", label: "Vault" },
-  { id: "registry", label: "Registry" },
+  { id: "grouped", label: "Grouped" },
+  { id: "table", label: "Table" },
   { id: "packages", label: "Packages" },
 ];
 

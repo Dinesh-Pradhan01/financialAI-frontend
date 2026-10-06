@@ -48,7 +48,7 @@ function formatInviteDate(dateStr?: string | null): string {
   if (!dateStr) return "—";
   try {
     const d = new Date(dateStr);
-    if (isNaN(d.getTime())) return "—";
+    if (Number.isNaN(d.getTime())) return "—";
     return d.toLocaleDateString("en-IN", {
       day: "numeric",
       month: "short",

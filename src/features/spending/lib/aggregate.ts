@@ -26,10 +26,19 @@ export function getCategoryIconKey(categoryName: string): string {
   const clean = categoryName.toLowerCase().trim();
   if (clean.includes("air") || clean.includes("flight")) return "airlines";
   if (clean.includes("fuel") || clean.includes("petrol") || clean.includes("gas")) return "fuel";
-  if (clean.includes("rest") || clean.includes("dine") || clean.includes("food") || clean.includes("eat")) return "restaurant";
-  if (clean.includes("groc") || clean.includes("supermarket") || clean.includes("mart")) return "grocery";
-  if (clean.includes("life") || clean.includes("shop") || clean.includes("cloth")) return "lifestyle";
-  if (clean.includes("movie") || clean.includes("cinema") || clean.includes("theatre")) return "movies";
+  if (
+    clean.includes("rest") ||
+    clean.includes("dine") ||
+    clean.includes("food") ||
+    clean.includes("eat")
+  )
+    return "restaurant";
+  if (clean.includes("groc") || clean.includes("supermarket") || clean.includes("mart"))
+    return "grocery";
+  if (clean.includes("life") || clean.includes("shop") || clean.includes("cloth"))
+    return "lifestyle";
+  if (clean.includes("movie") || clean.includes("cinema") || clean.includes("theatre"))
+    return "movies";
   if (clean.includes("rail") || clean.includes("train") || clean.includes("metro")) return "rail";
   if (clean.includes("tax") || clean.includes("gst")) return "tax";
   if (clean.includes("insur")) return "insurance";
@@ -110,7 +119,10 @@ export function cleanMerchantName(narration: string): string {
   let clean = narration.trim();
 
   // Strip multi-segment prefixes like UPI/1234567890/
-  clean = clean.replace(/^(UPI|NEFT|RTGS|IMPS|POS|ACH|NACH)\s*[/:]\s*[A-Za-z0-9_-]+\s*[/:]\s*/i, "");
+  clean = clean.replace(
+    /^(UPI|NEFT|RTGS|IMPS|POS|ACH|NACH)\s*[/:]\s*[A-Za-z0-9_-]+\s*[/:]\s*/i,
+    "",
+  );
   // Strip single-segment prefixes like POS/ or NEFT- or UPI:
   clean = clean.replace(/^(NEFT|RTGS|IMPS|POS|ACH|NACH|UPI|TXN)\s*[-/:]\s*/i, "");
   // Strip generic payment identifiers
@@ -118,7 +130,10 @@ export function cleanMerchantName(narration: string): string {
 
   // If there are still slashes (e.g. "AIRLINES / MUMBAI / 123"), clean up
   if (clean.includes("/")) {
-    const parts = clean.split("/").map((p) => p.trim()).filter(Boolean);
+    const parts = clean
+      .split("/")
+      .map((p) => p.trim())
+      .filter(Boolean);
     if (parts.length > 0) clean = parts[0];
   }
 
@@ -159,15 +174,23 @@ export function aggregateByMerchant(transactions: Transaction[]): MerchantAggreg
 /**
  * Aggregates monthly spend trend chronologically from transaction dates.
  */
-export function aggregateMonthlyTrend(
-  transactions: Transaction[],
-): MonthlyTrendAggregate[] {
+export function aggregateMonthlyTrend(transactions: Transaction[]): MonthlyTrendAggregate[] {
   const expenses = transactions.filter(isExpense);
   const monthMap = new Map<string, { sortKey: string; monthLabel: string; total: number }>();
 
   const MONTH_NAMES = [
-    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
   ];
 
   for (const tx of expenses) {
@@ -175,10 +198,10 @@ export function aggregateMonthlyTrend(
     // Format YYYY-MM
     const dateStr = String(tx.transaction_date).slice(0, 10);
     const [yearStr, monthNumStr] = dateStr.split("-");
-    const year = parseInt(yearStr, 10);
-    const monthIndex = parseInt(monthNumStr, 10) - 1;
+    const year = Number.parseInt(yearStr, 10);
+    const monthIndex = Number.parseInt(monthNumStr, 10) - 1;
 
-    if (isNaN(year) || isNaN(monthIndex) || monthIndex < 0 || monthIndex > 11) {
+    if (Number.isNaN(year) || Number.isNaN(monthIndex) || monthIndex < 0 || monthIndex > 11) {
       continue;
     }
 
@@ -194,9 +217,7 @@ export function aggregateMonthlyTrend(
     monthMap.set(sortKey, existing);
   }
 
-  const sorted = Array.from(monthMap.values()).sort((a, b) =>
-    a.sortKey.localeCompare(b.sortKey),
-  );
+  const sorted = Array.from(monthMap.values()).sort((a, b) => a.sortKey.localeCompare(b.sortKey));
 
   return sorted.map((m) => ({
     month: m.monthLabel,

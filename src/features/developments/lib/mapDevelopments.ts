@@ -38,12 +38,16 @@ export function decodeHtmlEntities(input?: string | null): string {
 
   return input.replace(/&(#x[0-9a-fA-F]+|#[0-9]+|[a-zA-Z]+);/g, (match, entity: string) => {
     if (entity.startsWith("#x") || entity.startsWith("#X")) {
-      const code = parseInt(entity.slice(2), 16);
-      return !isNaN(code) && code >= 0 && code <= 0x10ffff ? String.fromCodePoint(code) : match;
+      const code = Number.parseInt(entity.slice(2), 16);
+      return !Number.isNaN(code) && code >= 0 && code <= 0x10ffff
+        ? String.fromCodePoint(code)
+        : match;
     }
     if (entity.startsWith("#")) {
-      const code = parseInt(entity.slice(1), 10);
-      return !isNaN(code) && code >= 0 && code <= 0x10ffff ? String.fromCodePoint(code) : match;
+      const code = Number.parseInt(entity.slice(1), 10);
+      return !Number.isNaN(code) && code >= 0 && code <= 0x10ffff
+        ? String.fromCodePoint(code)
+        : match;
     }
     const lower = entity.toLowerCase();
     return Object.prototype.hasOwnProperty.call(NAMED_HTML_ENTITIES, lower)
@@ -193,7 +197,7 @@ export function extractClosingDate(closingDate?: string | null): string | null {
   const trimmed = closingDate.trim();
   if (!trimmed) return null;
   const timestamp = Date.parse(trimmed);
-  if (isNaN(timestamp)) return null;
+  if (Number.isNaN(timestamp)) return null;
   return trimmed;
 }
 
@@ -205,7 +209,7 @@ export function extractPublishedAt(publishedAt?: string | null): string | null {
   const trimmed = publishedAt.trim();
   if (!trimmed) return null;
   const timestamp = Date.parse(trimmed);
-  if (isNaN(timestamp)) return null;
+  if (Number.isNaN(timestamp)) return null;
   return trimmed;
 }
 
@@ -226,7 +230,7 @@ export function extractRelevance(relevance?: string | null): DevelopmentRelevanc
  * Clamps relevance_score to 0..1 range.
  */
 export function extractRelevanceScore(score?: unknown): number {
-  if (typeof score === "number" && !isNaN(score)) {
+  if (typeof score === "number" && !Number.isNaN(score)) {
     return Math.max(0, Math.min(1, score));
   }
   return 0;
@@ -245,7 +249,7 @@ export function sortDevelopmentItems(items: DevelopmentViewModel[]): Development
     if (a.publishedAt && b.publishedAt) {
       const timeA = Date.parse(a.publishedAt);
       const timeB = Date.parse(b.publishedAt);
-      if (!isNaN(timeA) && !isNaN(timeB)) {
+      if (!Number.isNaN(timeA) && !Number.isNaN(timeB)) {
         return timeB - timeA;
       }
     }

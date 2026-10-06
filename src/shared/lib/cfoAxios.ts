@@ -37,7 +37,7 @@ cfoApi.interceptors.response.use(
               const path = d.loc.join(".");
               const match = path.match(/records\.(\d+)\.(.+)/);
               if (match) {
-                const index = parseInt(match[1], 10);
+                const index = Number.parseInt(match[1], 10);
                 return `Row ${index + 1}: ${match[2]} - ${d.msg}`;
               }
               return `${path} - ${d.msg}`;

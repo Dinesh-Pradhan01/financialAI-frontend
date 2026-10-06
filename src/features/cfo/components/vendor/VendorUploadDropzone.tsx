@@ -1,9 +1,20 @@
 import React, { useCallback, useState } from "react";
-import { UploadCloud, BriefcaseBusiness, Loader2, AlertTriangle, FileX, FileSpreadsheet } from "lucide-react";
+import {
+  UploadCloud,
+  BriefcaseBusiness,
+  Loader2,
+  AlertTriangle,
+  FileX,
+  FileSpreadsheet,
+} from "lucide-react";
 import { cn } from "@/shared/lib/utils";
 import { useVendorUpload } from "../../hooks/useVendor";
 import { useAppDispatch, useAppSelector } from "@/shared/store";
-import { setVendorPreview, setVendorStep, discardVendorPreview } from "@/shared/store/slices/cfoSlice";
+import {
+  setVendorPreview,
+  setVendorStep,
+  discardVendorPreview,
+} from "@/shared/store/slices/cfoSlice";
 import { VendorManualEntryGrid } from "./VendorManualEntryGrid";
 import {
   Dialog,
@@ -73,7 +84,9 @@ export function VendorUploadDropzone() {
               const contractType = r.contractType || r.contract_type || "";
               const isSub =
                 String(contractType).toLowerCase().includes("sub") ||
-                String(r.frequency || "").toLowerCase().includes("sub") ||
+                String(r.frequency || "")
+                  .toLowerCase()
+                  .includes("sub") ||
                 String(r.recurring || "").toLowerCase() === "true" ||
                 String(r.recurring || "").toLowerCase() === "yes" ||
                 String(r.recurring || "") === "1";
@@ -86,7 +99,7 @@ export function VendorUploadDropzone() {
                 (monthlyCostVal === "" ||
                   monthlyCostVal == null ||
                   Number(monthlyCostVal) === 0 ||
-                  isNaN(Number(monthlyCostVal))) &&
+                  Number.isNaN(Number(monthlyCostVal))) &&
                 isSub &&
                 contractVal > 0
               ) {
@@ -129,7 +142,9 @@ export function VendorUploadDropzone() {
             const rawIssues = Array.isArray(rawSummary?.issues) ? rawSummary.issues : [];
             const filteredIssues = rawIssues.filter((issue: any) => {
               if (autoFixedRowIds.has(String(issue.rowId))) {
-                const f = String(issue.field || "").toLowerCase().replace(/_/g, "");
+                const f = String(issue.field || "")
+                  .toLowerCase()
+                  .replace(/_/g, "");
                 if (f.includes("monthly") || f.includes("cost")) return false;
               }
               return true;
@@ -148,8 +163,11 @@ export function VendorUploadDropzone() {
               errors: filteredIssues.filter((i: any) => i.severity === "error").length,
               issues: filteredIssues,
               errorRowIds: remainingErrorRowIds,
-              warningRowIds: Array.isArray(rawSummary?.warningRowIds) ? rawSummary.warningRowIds : [],
-              duplicateIds: typeof rawSummary?.duplicateIds === "number" ? rawSummary.duplicateIds : 0,
+              warningRowIds: Array.isArray(rawSummary?.warningRowIds)
+                ? rawSummary.warningRowIds
+                : [],
+              duplicateIds:
+                typeof rawSummary?.duplicateIds === "number" ? rawSummary.duplicateIds : 0,
               missingRequiredFields: remainingErrorRowIds.length,
             };
             dispatch(
@@ -160,7 +178,7 @@ export function VendorUploadDropzone() {
                 validation: summary,
               }),
             );
-            
+
             // Wait briefly for the progress bar to show 100% before transitioning
             setTimeout(() => {
               dispatch(setVendorStep("preview"));
@@ -171,11 +189,13 @@ export function VendorUploadDropzone() {
               response?: {
                 status?: number;
                 data?: {
-                  detail?: {
-                    message?: string;
-                    missing_columns?: string[];
-                    unsupported_columns?: string[];
-                  } | string;
+                  detail?:
+                    | {
+                        message?: string;
+                        missing_columns?: string[];
+                        unsupported_columns?: string[];
+                      }
+                    | string;
                   message?: string;
                 };
               };
@@ -231,7 +251,9 @@ export function VendorUploadDropzone() {
               <FileSpreadsheet className="h-5 w-5" />
             </div>
             <div>
-              <p className="text-sm font-semibold text-foreground">You have a draft preview available</p>
+              <p className="text-sm font-semibold text-foreground">
+                You have a draft preview available
+              </p>
               <p className="text-xs text-text-secondary mt-0.5">
                 Continue working on your previously validated vendor dataset.
               </p>

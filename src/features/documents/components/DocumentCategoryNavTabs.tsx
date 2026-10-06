@@ -147,7 +147,7 @@ export function DocumentCategoryNavTabs({
           <FilePlus2 className="h-3.5 w-3.5 shrink-0 text-brand" />
           <span>Other</span>
           {otherDocumentsCount > 0 && (
-            <span className="text-[10px] font-mono px-1.5 py-0.5 rounded-full bg-surface-alt text-text-secondary border border-border-c">
+            <span className="text-xs font-mono tabular-nums px-1.5 py-0.5 rounded-full bg-surface-alt text-text-secondary border border-border-c">
               {otherDocumentsCount}
             </span>
           )}

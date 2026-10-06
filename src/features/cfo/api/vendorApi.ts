@@ -63,7 +63,8 @@ function sanitizeVendorRecord(r: any) {
     if (clean[field] !== undefined && clean[field] !== null) {
       if (typeof clean[field] === "string") {
         const cleaned = clean[field].replace(/[$₹€£,\s]/g, "").trim();
-        clean[field] = cleaned === "" ? null : Number.isNaN(Number(cleaned)) ? null : Number(cleaned);
+        clean[field] =
+          cleaned === "" ? null : Number.isNaN(Number(cleaned)) ? null : Number(cleaned);
       }
     }
   }
@@ -80,7 +81,11 @@ function sanitizeVendorRecord(r: any) {
     String(clean.recurring || "").toLowerCase() === "true" ||
     String(clean.recurring || "").toLowerCase() === "yes";
 
-  if ((monthlyVal == null || monthlyVal === 0 || Number.isNaN(monthlyVal)) && isSubscription && contractVal > 0) {
+  if (
+    (monthlyVal == null || monthlyVal === 0 || Number.isNaN(monthlyVal)) &&
+    isSubscription &&
+    contractVal > 0
+  ) {
     const autoMonthly = Math.round((Number(contractVal) / 12) * 100) / 100;
     clean.monthly_cost = autoMonthly;
     clean.monthlyCost = autoMonthly;
@@ -138,7 +143,7 @@ export const vendorApi = {
     return cfoApi.post("/vendors/manual", sanitizeVendorPayload(data));
   },
 
-  importVendors: (previewData: VendorPreviewResponse ) => {
+  importVendors: (previewData: VendorPreviewResponse) => {
     return cfoApi.post("/vendors/import", sanitizeVendorPayload(previewData));
   },
 

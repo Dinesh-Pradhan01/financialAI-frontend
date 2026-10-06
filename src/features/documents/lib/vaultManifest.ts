@@ -4,6 +4,7 @@ import {
   FileSpreadsheet,
   FileText,
   Fingerprint,
+  Folder,
   Landmark,
   PieChart,
   Receipt,
@@ -544,6 +545,18 @@ export function getSubCategoryForDocument(
   return null;
 }
 
+const SUBCATEGORIES_BY_ID = new Map<string, VaultSubCategory>();
+for (const sec of VAULT_SECTIONS) {
+  for (const sub of sec.subCategories) {
+    SUBCATEGORIES_BY_ID.set(sub.id, sub);
+  }
+}
+
+export function getSubCategory(subId: string | null | undefined): VaultSubCategory | null {
+  if (!subId) return null;
+  return SUBCATEGORIES_BY_ID.get(subId) ?? null;
+}
+
 /**
  * Returns the primary VaultSection for an old 1-8 category ID.
  */
@@ -650,3 +663,156 @@ export function resolveDocumentMetadata(typeKey: string | null | undefined): {
     detail: "Uploaded file",
   };
 }
+
+// ---------------------------------------------------------------------------
+// Single Source of Truth: Canonical Vault Placement & Resolution
+// ---------------------------------------------------------------------------
+
+export const MISC_SECTION: VaultSection = {
+  id: "miscellaneous" as VaultSectionId,
+  number: 6,
+  label: "Supporting & Miscellaneous",
+  shortLabel: "Other",
+  description: "Supporting documentation, miscellaneous records, and unclassified uploads.",
+  icon: Folder,
+  subCategories: [
+    {
+      id: "others_unclassified",
+      label: "Others / Unclassified",
+      shortLabel: "Unclassified",
+      description: "Supporting documentation, miscellaneous records, and unclassified uploads.",
+      kind: "checklist",
+      icon: Folder,
+    },
+  ],
+  theme: {
+    accent: "cobalt",
+    iconContainer: "bg-surface-alt text-text-secondary border-border-c",
+    sectionTag: "bg-surface-alt text-text-secondary border-border-c",
+    activeTab: "bg-surface text-text-primary border-border-c shadow-xs",
+    gradientSurface: "from-surface-alt/10 via-surface to-surface",
+    hoverBorder: "hover:border-border-c",
+    dotColor: "bg-text-tertiary",
+    accentText: "text-text-secondary",
+  },
+};
+
+export interface VaultPlacement {
+  sectionId: VaultSectionId | "miscellaneous";
+  subCategoryId: string;
+  section: VaultSection;
+  subCategory: VaultSubCategory;
+}
+
+const TAXONOMY_LOOKUP_MAP = new Map<string, string>();
+for (const doc of ALL_VAULT_DOCUMENTS) {
+  TAXONOMY_LOOKUP_MAP.set(doc.key.toLowerCase(), doc.key);
+  TAXONOMY_LOOKUP_MAP.set(doc.label.toLowerCase(), doc.key);
+  const cleanLabel = doc.label.toLowerCase().replace(/[^a-z0-9]/g, "");
+  TAXONOMY_LOOKUP_MAP.set(cleanLabel, doc.key);
+  const cleanKey = doc.key.toLowerCase().replace(/[^a-z0-9]/g, "");
+  TAXONOMY_LOOKUP_MAP.set(cleanKey, doc.key);
+}
+
+/**
+ * Authoritative vault placement resolver.
+ * Maps ANY document by (category, documentType) into its exact VaultSection and VaultSubCategory.
+ * Single source of truth across the application.
+ */
+export function resolveVaultPlacement(
+  category: string | number | null | undefined,
+  documentType?: string | null | undefined,
+): VaultPlacement {
+  // 1. Precise lookup by documentType key or label
+  if (documentType) {
+    const rawDt = documentType.trim().toLowerCase();
+    const cleanDt = rawDt.replace(/[^a-z0-9]/g, "");
+    const matchedKey =
+      TAXONOMY_LOOKUP_MAP.get(rawDt) ||
+      TAXONOMY_LOOKUP_MAP.get(cleanDt);
+
+    if (matchedKey) {
+      const subInfo = getSubCategoryForDocument(matchedKey);
+      if (subInfo) {
+        const sec = SECTIONS_BY_ID.get(subInfo.sectionId);
+        if (sec) {
+          const sub = sec.subCategories.find((s) => s.id === subInfo.subId);
+          if (sub) {
+            return {
+              sectionId: sec.id,
+              subCategoryId: sub.id,
+              section: sec,
+              subCategory: sub,
+            };
+          }
+        }
+      }
+    }
+  }
+
+  // 2. Normalize category identifier
+  let normalizedCat = "";
+  if (typeof category === "number") {
+    switch (category) {
+      case 1: normalizedCat = "identity_kyb_authority"; break;
+      case 2: normalizedCat = "registration_legal_structure"; break;
+      case 3: normalizedCat = "tax_statutory_compliance"; break;
+      case 4: normalizedCat = "financial_banking"; break;
+      case 5: normalizedCat = "licenses_permits_approvals"; break;
+      case 6: normalizedCat = "certifications_assurance"; break;
+      case 7: normalizedCat = "ownership_governance_capital"; break;
+      case 8: normalizedCat = "contracts_ip_legal"; break;
+      default: normalizedCat = "others_unclassified"; break;
+    }
+  } else if (category) {
+    const raw = category.trim().toLowerCase();
+    if (raw.includes("identity") || raw.includes("kyb") || raw.includes("authority")) {
+      normalizedCat = "identity_kyb_authority";
+    } else if (raw.includes("registration") || raw.includes("incorporation") || raw.includes("recognition")) {
+      normalizedCat = "registration_legal_structure";
+    } else if (raw.includes("tax") || raw.includes("statutory") || raw.includes("gst")) {
+      normalizedCat = "tax_statutory_compliance";
+    } else if (raw.includes("financial") || raw.includes("banking") || raw.includes("statement")) {
+      normalizedCat = "financial_banking";
+    } else if (raw.includes("license") || raw.includes("permit") || raw.includes("approval")) {
+      normalizedCat = "licenses_permits_approvals";
+    } else if (raw.includes("certification") || raw.includes("accreditation") || raw.includes("assurance")) {
+      normalizedCat = "certifications_assurance";
+    } else if (raw.includes("ownership") || raw.includes("capital") || raw.includes("governance")) {
+      normalizedCat = "ownership_governance_capital";
+    } else if (raw.includes("contract") || raw.includes("obligation") || raw.includes(" ip") || raw === "ip") {
+      normalizedCat = "contracts_ip_legal";
+    } else if (raw.includes("invoice")) {
+      normalizedCat = "invoices";
+    }
+  }
+
+  // 3. Fallback matching by category to section + default subcategory
+  if (normalizedCat) {
+    const sec = getSectionForCategory(normalizedCat);
+    if (sec) {
+      const sub =
+        sec.subCategories.find(
+          (s) => s.id === normalizedCat || s.legacyCategoryId === normalizedCat,
+        ) ||
+        sec.subCategories.find((s) => s.targetBackendCategory === normalizedCat) ||
+        sec.subCategories[0];
+
+      return {
+        sectionId: sec.id,
+        subCategoryId: sub.id,
+        section: sec,
+        subCategory: sub,
+      };
+    }
+  }
+
+  // 4. Default unclassified
+  return {
+    sectionId: "miscellaneous",
+    subCategoryId: "others_unclassified",
+    section: MISC_SECTION,
+    subCategory: MISC_SECTION.subCategories[0],
+  };
+}
+

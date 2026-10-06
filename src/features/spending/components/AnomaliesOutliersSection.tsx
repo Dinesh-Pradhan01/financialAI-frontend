@@ -1,14 +1,7 @@
 import { useState } from "react";
 import { formatINR } from "@/shared/lib/format";
 import type { AnomalyRiskResponse } from "../types/intelligence";
-import {
-  AlertTriangle,
-  Copy,
-  Check,
-  ShieldCheck,
-  ChevronDown,
-  Sparkles,
-} from "lucide-react";
+import { AlertTriangle, Copy, Check, ShieldCheck, ChevronDown, Sparkles } from "lucide-react";
 import { cn } from "@/shared/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -17,10 +10,7 @@ interface AnomaliesOutliersSectionProps {
   className?: string;
 }
 
-export function AnomaliesOutliersSection({
-  data,
-  className,
-}: AnomaliesOutliersSectionProps) {
+export function AnomaliesOutliersSection({ data, className }: Readonly<AnomaliesOutliersSectionProps>) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [copiedRef, setCopiedRef] = useState<string | null>(null);
 
@@ -52,7 +42,7 @@ export function AnomaliesOutliersSection({
   const hasMore = totalAnomalies > INITIAL_LIMIT * 2;
 
   const renderOutlierCard = (item: (typeof statistical_outliers)[number], idx: number) => {
-    const zVal = parseFloat(item.z_score.replace(/[^0-9.]/g, "")) || 0;
+    const zVal = Number.parseFloat(item.z_score.replace(/[^0-9.]/g, "")) || 0;
     const isHighSeverity = zVal >= 3.0;
 
     return (
@@ -62,7 +52,10 @@ export function AnomaliesOutliersSection({
       >
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0 flex-1">
-            <p className="text-xs font-semibold text-foreground truncate" title={item.narration_snippet}>
+            <p
+              className="text-xs font-semibold text-foreground truncate"
+              title={item.narration_snippet}
+            >
               {item.narration_snippet}
             </p>
             <p className="font-mono text-[11px] text-text-secondary mt-0.5">
@@ -88,7 +81,10 @@ export function AnomaliesOutliersSection({
 
         <div className="flex items-center justify-between text-[11px] pt-1.5 border-t border-border/40 text-text-secondary">
           <span className="font-mono">
-            Cat. Avg: <span className="font-num font-medium text-foreground tabular-nums">{formatINR(item.category_average_spend)}</span>
+            Cat. Avg:{" "}
+            <span className="font-num font-medium text-foreground tabular-nums">
+              {formatINR(item.category_average_spend)}
+            </span>
           </span>
           <span className="font-medium text-foreground truncate ml-2 max-w-[55%]">
             {item.assessment}
@@ -104,7 +100,10 @@ export function AnomaliesOutliersSection({
       className="p-3 rounded-xl bg-surface-alt/60 border border-border/50 space-y-1.5 hover:bg-surface-alt transition-colors"
     >
       <div className="flex items-center justify-between gap-2">
-        <p className="text-xs font-semibold text-foreground truncate flex-1 min-w-0" title={dup.narration}>
+        <p
+          className="text-xs font-semibold text-foreground truncate flex-1 min-w-0"
+          title={dup.narration}
+        >
           {dup.narration}
         </p>
         <span className="inline-flex items-center gap-1 font-mono text-[11px] font-bold text-amber-700 dark:text-amber-300 bg-amber-500/10 px-1.5 py-0.5 rounded-md border border-amber-500/20 shrink-0">
@@ -170,7 +169,7 @@ export function AnomaliesOutliersSection({
       </div>
 
       {totalAnomalies === 0 ? (
-        <div className="card-spot p-8 sm:p-10 rounded-2xl text-center flex flex-col items-center justify-center space-y-3 border-emerald-500/20 bg-emerald-500/[0.02]">
+        <div className="card-spot p-8 sm:p-10 rounded-2xl text-center flex flex-col items-center justify-center space-y-3 border-emerald-500/20 bg-emerald-500/2">
           <div className="h-12 w-12 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center border border-emerald-500/20 ring-4 ring-emerald-500/10 shadow-xs">
             <ShieldCheck className="h-6 w-6" />
           </div>
@@ -179,7 +178,8 @@ export function AnomaliesOutliersSection({
               Ledger Integrity Verified
             </h3>
             <p className="text-xs text-text-secondary max-w-md mx-auto leading-relaxed">
-              All debit transactions conform to expected statistical category distributions with zero duplicate payment collisions across statement records.
+              All debit transactions conform to expected statistical category distributions with
+              zero duplicate payment collisions across statement records.
             </p>
           </div>
           <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-pill bg-surface border border-border/70 text-xs font-mono text-text-secondary shadow-xs mt-1">
@@ -200,7 +200,9 @@ export function AnomaliesOutliersSection({
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-1.5">
                   <Sparkles className="h-4 w-4 text-rose-600 dark:text-rose-400 shrink-0" />
-                  <h3 className="text-sm font-semibold tracking-tight text-foreground">Statistical Spend Outliers</h3>
+                  <h3 className="text-sm font-semibold tracking-tight text-foreground">
+                    Statistical Spend Outliers
+                  </h3>
                 </div>
                 <span className="font-mono text-[11px] font-medium text-text-secondary tabular-nums">
                   {total_outliers_found} outliers
@@ -208,7 +210,9 @@ export function AnomaliesOutliersSection({
               </div>
 
               {statistical_outliers.length === 0 ? (
-                <p className="text-xs text-text-secondary text-center py-6 flex-1 flex items-center justify-center">No statistical outliers flagged.</p>
+                <p className="text-xs text-text-secondary text-center py-6 flex-1 flex items-center justify-center">
+                  No statistical outliers flagged.
+                </p>
               ) : (
                 <div className="space-y-2">
                   {initialOutliers.map((item, idx) => renderOutlierCard(item, idx))}
@@ -222,7 +226,9 @@ export function AnomaliesOutliersSection({
                         transition={{ duration: 0.24, ease: [0.16, 1, 0.3, 1] }}
                         className="space-y-2 overflow-hidden"
                       >
-                        {remainingOutliers.map((item, idx) => renderOutlierCard(item, idx + INITIAL_LIMIT))}
+                        {remainingOutliers.map((item, idx) =>
+                          renderOutlierCard(item, idx + INITIAL_LIMIT),
+                        )}
                       </motion.div>
                     )}
                   </AnimatePresence>
@@ -237,7 +243,9 @@ export function AnomaliesOutliersSection({
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-1.5">
                   <Copy className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0" />
-                  <h3 className="text-sm font-semibold tracking-tight text-foreground">Duplicate Debits</h3>
+                  <h3 className="text-sm font-semibold tracking-tight text-foreground">
+                    Duplicate Debits
+                  </h3>
                 </div>
                 <span className="font-mono text-[11px] font-medium text-text-secondary tabular-nums">
                   {total_duplicates_found} duplicates
@@ -245,7 +253,9 @@ export function AnomaliesOutliersSection({
               </div>
 
               {duplicate_transactions.length === 0 ? (
-                <p className="text-xs text-text-secondary text-center py-6 flex-1 flex items-center justify-center">No duplicate transactions detected.</p>
+                <p className="text-xs text-text-secondary text-center py-6 flex-1 flex items-center justify-center">
+                  No duplicate transactions detected.
+                </p>
               ) : (
                 <div className="space-y-2">
                   {initialDuplicates.map((dup, idx) => renderDuplicateCard(dup, idx))}
@@ -259,7 +269,9 @@ export function AnomaliesOutliersSection({
                         transition={{ duration: 0.24, ease: [0.16, 1, 0.3, 1] }}
                         className="space-y-2 overflow-hidden"
                       >
-                        {remainingDuplicates.map((dup, idx) => renderDuplicateCard(dup, idx + INITIAL_LIMIT))}
+                        {remainingDuplicates.map((dup, idx) =>
+                          renderDuplicateCard(dup, idx + INITIAL_LIMIT),
+                        )}
                       </motion.div>
                     )}
                   </AnimatePresence>
@@ -278,8 +290,15 @@ export function AnomaliesOutliersSection({
             onClick={() => setIsExpanded((prev) => !prev)}
             className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-pill border border-border/70 bg-surface text-xs font-semibold text-text-secondary hover:text-foreground hover:bg-surface-alt hover:scale-[1.02] active:scale-[0.98] transition-all duration-150 cursor-pointer shadow-xs"
           >
-            <span>{isExpanded ? "Show fewer anomalies" : `Show all ${totalAnomalies} flagged anomalies`}</span>
-            <ChevronDown className={cn("h-3.5 w-3.5 transition-transform duration-250 ease-out", isExpanded && "rotate-180")} />
+            <span>
+              {isExpanded ? "Show fewer anomalies" : `Show all ${totalAnomalies} flagged anomalies`}
+            </span>
+            <ChevronDown
+              className={cn(
+                "h-3.5 w-3.5 transition-transform duration-250 ease-out",
+                isExpanded && "rotate-180",
+              )}
+            />
           </button>
         </div>
       )}

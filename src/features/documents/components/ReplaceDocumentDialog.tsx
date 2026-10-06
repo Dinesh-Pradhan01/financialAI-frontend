@@ -1,6 +1,14 @@
 import React, { useState, useRef, useEffect } from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
-import { X, Upload, FileText, AlertTriangle, CheckCircle2, Loader2, FileUp } from "lucide-react";
+import {
+  X,
+  Upload,
+  FileText,
+  CheckCircle2,
+  Loader2,
+  FileUp,
+  ShieldCheck,
+} from "lucide-react";
 import { toast } from "sonner";
 import {
   Dialog,
@@ -39,7 +47,7 @@ export function ReplaceDocumentDialog({
   initialFile = null,
   isReplacing = false,
   onConfirmReplace,
-}: ReplaceDocumentDialogProps) {
+}: Readonly<ReplaceDocumentDialogProps>) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(initialFile);
   const [isDraggingOver, setIsDraggingOver] = useState(false);
@@ -115,7 +123,7 @@ export function ReplaceDocumentDialog({
     setSelectedFile(file);
   };
 
-  const handleSubmit = (e?: React.FormEvent) => {
+  const handleSubmit = (e?: React.SubmitEvent) => {
     if (e) e.preventDefault();
     if (!selectedFile || isReplacing) return;
     onConfirmReplace(selectedFile);
@@ -143,10 +151,10 @@ export function ReplaceDocumentDialog({
               </div>
               <div>
                 <DialogTitle className="text-base font-bold font-display text-text-primary">
-                  Replace Document
+                  Re-Upload
                 </DialogTitle>
                 <DialogDescription className="text-xs text-text-secondary mt-0.5">
-                  Confirm and select a new file to replace the existing corporate record.
+                  Upload an updated version while maintaining full audit trail and governance.
                 </DialogDescription>
               </div>
             </div>
@@ -154,16 +162,17 @@ export function ReplaceDocumentDialog({
 
           {/* Current vs New Comparison Container */}
           <div className="space-y-3.5 py-1">
-            {/* Warning Callout */}
-            <div className="flex items-start gap-2.5 rounded-xl border border-amber-500/25 bg-amber-500/5 p-3">
-              <AlertTriangle className="h-4 w-4 shrink-0 text-amber-500 mt-0.5" />
+            {/* Version Governance Banner */}
+            <div className="flex items-start gap-2.5 rounded-xl border border-brand/20 bg-brand/5 p-3">
+              <ShieldCheck className="h-4 w-4 shrink-0 text-brand mt-0.5" />
               <div className="text-[11px] text-text-secondary leading-relaxed space-y-0.5">
                 <p className="font-semibold text-text-primary">
-                  You are replacing: <span className="capitalize">{displayLabel}</span>
+                  Version Governance • <span className="capitalize">{displayLabel}</span>
                 </p>
                 <p>
-                  Uploading a new version will overwrite the current file on file and trigger a
-                  fresh verification and compliance check.
+                  Uploading a new document creates{" "}
+                  <span className="font-semibold text-text-primary">Version 2 (Active)</span>. The
+                  current filing is securely preserved in your corporate compliance audit history.
                 </p>
               </div>
             </div>
@@ -171,9 +180,14 @@ export function ReplaceDocumentDialog({
             {/* Existing File Information Card */}
             <div className="rounded-xl border border-border-c bg-surface-alt/40 p-3 space-y-1.5">
               <div className="flex items-center justify-between text-[11px] text-text-tertiary">
-                <span className="font-semibold uppercase tracking-wider text-[10px]">
-                  Current Document On File
-                </span>
+                <div className="flex items-center gap-1.5">
+                  <span className="font-semibold uppercase tracking-wider text-[10px]">
+                    Current Document On File
+                  </span>
+                  <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium bg-surface text-text-secondary border border-border/80">
+                    v1 • Active
+                  </span>
+                </div>
                 <span className="font-mono">{formatDocumentDate(targetDocument.created_at)}</span>
               </div>
               <div className="flex items-center gap-2.5">
@@ -224,8 +238,11 @@ export function ReplaceDocumentDialog({
                       >
                         {selectedFile.name}
                       </p>
-                      <p className="text-[11px] text-text-secondary font-mono">
-                        {formatFileSize(selectedFile.size)} • Ready to upload
+                      <p className="text-[11px] text-text-secondary font-mono flex items-center gap-1.5">
+                        <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium bg-brand/10 text-brand border border-brand/20">
+                          Replacement File
+                        </span>
+                        <span>{formatFileSize(selectedFile.size)} • Ready to upload</span>
                       </p>
                     </div>
                   </div>
@@ -310,12 +327,12 @@ export function ReplaceDocumentDialog({
               {isReplacing ? (
                 <>
                   <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                  Replacing…
+                  Uploading Version 2…
                 </>
               ) : (
                 <>
                   <Upload className="h-3.5 w-3.5" />
-                  Confirm & Replace
+                  Re-Upload
                 </>
               )}
             </Button>

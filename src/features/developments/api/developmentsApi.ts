@@ -13,7 +13,7 @@ export const DEFAULT_DEVELOPMENT_PARAMS: DevelopmentQueryParams = {
   limit: 10,
 };
 
-const CLIENT_TIMEOUT_MS = 60_000;
+const CLIENT_TIMEOUT_MS = 120_000;
 
 /**
  * Builds the URL path for company developments.

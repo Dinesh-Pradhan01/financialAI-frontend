@@ -79,7 +79,7 @@ export async function exportToExcel({
       }
       if (col.type === "number") {
         const num = Number(val);
-        return isNaN(num) ? val : num;
+        return Number.isNaN(num) ? val : num;
       }
       return String(val);
     });

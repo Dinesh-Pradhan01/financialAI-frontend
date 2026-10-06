@@ -108,7 +108,7 @@ export function EmployeePreviewStep() {
               <button
                 className="inline-flex h-9 items-center justify-center rounded-lg bg-primary px-4 text-xs font-semibold text-white shadow-brand transition hover:bg-primary-hover"
               >
-                Upload New File
+                Upload New
               </button>
             </AlertDialogTrigger>
             <AlertDialogContent className="max-w-md bg-surface border-border">
@@ -219,7 +219,7 @@ export function EmployeePreviewStep() {
   );
 }
 
-function StatCard({ label, value, tone }: { label: string; value: number; tone: string }) {
+function StatCard({ label, value, tone }: Readonly<{ label: string; value: number; tone: string }>) {
   return (
     <div className={cn("flex flex-col items-center justify-center p-4 rounded-xl border", tone)}>
       <span className="text-2xl font-bold">{value}</span>

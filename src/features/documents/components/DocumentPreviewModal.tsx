@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
-import { X, Download, Loader2, AlertCircle, FileText } from "lucide-react";
+import { X, Download, Loader2, AlertCircle, FileText, RotateCw } from "lucide-react";
 import { Dialog, DialogPortal, DialogHeader, DialogTitle } from "@/shared/components/ui/dialog";
 import { Button } from "@/shared/components/ui/button";
 import { Badge } from "@/shared/components/ui/badge";
@@ -13,9 +13,15 @@ export interface DocumentPreviewModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   document: CompanyDocument | null;
+  onReplaceDocument?: (document: CompanyDocument) => void;
 }
 
-export function DocumentPreviewModal({ open, onOpenChange, document }: DocumentPreviewModalProps) {
+export function DocumentPreviewModal({
+  open,
+  onOpenChange,
+  document,
+  onReplaceDocument,
+}: DocumentPreviewModalProps) {
   const [objectUrl, setObjectUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -29,8 +35,10 @@ export function DocumentPreviewModal({ open, onOpenChange, document }: DocumentP
       setErrorMessage(null);
       setObjectUrl(null);
 
+      // Fetch document preview with inline disposition
       api
-        .download(`/api/company/documents/${document.id}/download`)
+        .download(`/api/company/documents/${document.id}/preview`)
+        .catch(() => api.download(`/api/company/documents/${document.id}/download`))
         .then((blob) => {
           if (!isCancelled) {
             currentUrl = URL.createObjectURL(blob);
@@ -121,21 +129,39 @@ export function DocumentPreviewModal({ open, onOpenChange, document }: DocumentP
             )}
 
             {!isLoading && errorMessage && (
-              <div className="p-8 text-center space-y-3 max-w-sm mx-auto">
-                <AlertCircle className="mx-auto h-8 w-8 text-destructive" />
-                <p className="text-xs font-semibold text-text-primary">{errorMessage}</p>
-                <p className="text-[11px] text-text-secondary">
-                  Preview is unavailable in browser for this file. You can download it directly.
-                </p>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={handleDownload}
-                  className="gap-1.5 text-xs mt-2"
-                >
-                  <Download className="h-3.5 w-3.5" /> Download Document
-                </Button>
+              <div className="p-8 text-center space-y-3 max-w-md mx-auto">
+                <div className="flex h-10 w-10 mx-auto items-center justify-center rounded-xl bg-destructive/10 text-destructive">
+                  <AlertCircle className="h-5 w-5" />
+                </div>
+                <div className="space-y-1">
+                  <p className="text-xs font-bold text-text-primary">
+                    Document Physical File Unavailable
+                  </p>
+                  <p className="text-[11px] text-text-secondary leading-relaxed">
+                    {errorMessage}
+                  </p>
+                </div>
+                <div className="flex flex-wrap items-center justify-center gap-2 pt-2">
+                  {onReplaceDocument && (
+                    <Button
+                      type="button"
+                      size="sm"
+                      onClick={() => onReplaceDocument(document)}
+                      className="gap-1.5 text-xs font-semibold bg-brand hover:bg-brand/90 text-white rounded-xl shadow-xs cursor-pointer"
+                    >
+                      <RotateCw className="h-3.5 w-3.5" /> Upload File / Replace Document
+                    </Button>
+                  )}
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleDownload}
+                    className="gap-1.5 text-xs font-semibold rounded-xl border-border-c cursor-pointer"
+                  >
+                    <Download className="h-3.5 w-3.5" /> Try Download
+                  </Button>
+                </div>
               </div>
             )}
 

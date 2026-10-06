@@ -116,11 +116,11 @@ export function DocumentInfoPopover({
           <div className="space-y-2 rounded-xl bg-surface-alt/60 p-3 border border-border/70">
             <div className="flex items-center justify-between gap-2 border-b border-border/50 pb-1.5">
               <span className="text-[10px] font-bold text-text-secondary uppercase tracking-wider flex items-center gap-1.5">
-                <FileCheck2 className="h-3.5 w-3.5 text-emerald-500" />
+                <FileCheck2 className="h-3.5 w-3.5 text-success" />
                 Active File Metadata
               </span>
               {metadata?.qualityScore !== null && metadata?.qualityScore !== undefined && (
-                <span className="inline-flex items-center gap-1 font-mono text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded">
+                <span className="inline-flex items-center gap-1 font-mono text-[11px] font-semibold text-success bg-success/10 px-1.5 py-0.5 rounded">
                   <ShieldCheck className="h-3 w-3" />
                   {metadata.qualityScore}% Quality
                 </span>
@@ -200,7 +200,7 @@ export function DocumentInfoPopover({
             </div>
 
             <div className="space-y-1 bg-surface-alt/40 p-2.5 rounded-xl border border-border/50">
-              <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider block">
+              <span className="text-[10px] font-bold text-success uppercase tracking-wider block">
                 Why is it needed?
               </span>
               <p className="text-text-secondary leading-relaxed">{explanation.whyNeeded}</p>

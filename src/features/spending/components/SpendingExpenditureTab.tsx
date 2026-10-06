@@ -6,16 +6,13 @@ import {
   Building2,
   AlertCircle,
   Copy,
-  PieChart as PieIcon,
   Layers,
   Zap,
   CheckCircle2,
   Flame,
   ShieldCheck,
   Check,
-  RotateCcw,
   Clock,
-  ArrowRight,
   FileText,
   AlertTriangle,
   Sparkles,
@@ -26,17 +23,7 @@ import { Button } from "@/shared/components/ui/button";
 import { toast } from "sonner";
 import { cn } from "@/shared/lib/utils";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
-import {
-  BarChart,
-  Bar,
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { useTransactions } from "../hooks/useTransactions";
 import { useSpendingReport } from "../hooks/useSpendingReport";
 
@@ -51,8 +38,8 @@ function formatZScore(z: any): string {
   if (typeof z === "number") return `+${z.toFixed(2)}σ`;
   if (typeof z === "string") {
     if (z.includes("σ")) return z.startsWith("+") ? z : `+${z}`;
-    const num = parseFloat(z.replace(/[^0-9.-]/g, ""));
-    return isNaN(num) ? z : `+${num.toFixed(2)}σ`;
+    const num = Number.parseFloat(z.replace(/[^0-9.-]/g, ""));
+    return Number.isNaN(num) ? z : `+${num.toFixed(2)}σ`;
   }
   return "+2.50σ";
 }
@@ -80,31 +67,36 @@ export function SpendingExpenditureTab({
 
   // Metrics from report or calculations
   const nonPayrollOpex = useMemo(() => {
-    const runRate = reportData?.section_6_efficiency_projections?.projections?.annualized_outflow_run_rate;
+    const runRate =
+      reportData?.section_6_efficiency_projections?.projections?.annualized_outflow_run_rate;
     if (runRate && runRate > 0) return (runRate * 0.64) / 12;
     return 1450000;
   }, [reportData]);
 
   const payrollSpend = useMemo(() => {
-    const runRate = reportData?.section_6_efficiency_projections?.projections?.annualized_outflow_run_rate;
+    const runRate =
+      reportData?.section_6_efficiency_projections?.projections?.annualized_outflow_run_rate;
     if (runRate && runRate > 0) return (runRate * 0.36) / 12;
     return 840000;
   }, [reportData]);
 
   const fixedOpex = useMemo(() => {
-    const burn = reportData?.section_2_macro_cash_flow?.liquidity_diagnostics?.avg_monthly_outflow_burn;
+    const burn =
+      reportData?.section_2_macro_cash_flow?.liquidity_diagnostics?.avg_monthly_outflow_burn;
     if (burn && burn > 0) return burn * 0.62;
     return 1425000;
   }, [reportData]);
 
   const variableOpex = useMemo(() => {
-    const burn = reportData?.section_2_macro_cash_flow?.liquidity_diagnostics?.avg_monthly_outflow_burn;
+    const burn =
+      reportData?.section_2_macro_cash_flow?.liquidity_diagnostics?.avg_monthly_outflow_burn;
     if (burn && burn > 0) return burn * 0.38;
     return 865000;
   }, [reportData]);
 
   const avgMonthlyOutflowBurn = useMemo(() => {
-    const burn = reportData?.section_2_macro_cash_flow?.liquidity_diagnostics?.avg_monthly_outflow_burn;
+    const burn =
+      reportData?.section_2_macro_cash_flow?.liquidity_diagnostics?.avg_monthly_outflow_burn;
     if (burn && burn > 0) return burn;
     return 2290000;
   }, [reportData]);
@@ -227,7 +219,7 @@ export function SpendingExpenditureTab({
   const unmatchedDebits = useMemo(() => {
     if (transactions.length > 0) {
       return transactions.filter(
-        (t) => !t.category || t.category.toLowerCase().includes("uncategorized") || !t.merchant_id
+        (t) => !t.category || t.category.toLowerCase().includes("uncategorized") || !t.merchant_id,
       );
     }
     return [
@@ -257,7 +249,7 @@ export function SpendingExpenditureTab({
   const triagedSpikesCount = Object.values(spikeTriage).filter((s) => s !== "UNREVIEWED").length;
   const triagedDupsCount = Object.values(dupTriage).filter((s) => s !== "UNREVIEWED").length;
   const triagedUnmatchedCount = Object.values(unmatchedTriage).filter(
-    (s) => s.status !== "UNREVIEWED"
+    (s) => s.status !== "UNREVIEWED",
   ).length;
   const totalTriaged = triagedSpikesCount + triagedDupsCount + triagedUnmatchedCount;
   const triagePct = totalAnomalies > 0 ? Math.round((totalTriaged / totalAnomalies) * 100) : 100;
@@ -276,10 +268,14 @@ export function SpendingExpenditureTab({
             </h2>
           </div>
           <p className="text-xs text-text-secondary mt-0.5">
-            Non-payroll vs. payroll spend breakdown, fixed/variable opex split, price spikes, and duplicate payment controls.
+            Non-payroll vs. payroll spend breakdown, fixed/variable opex split, price spikes, and
+            duplicate payment controls.
           </p>
         </div>
-        <Badge variant="outline" className="bg-rose-500/10 text-rose-600 border-rose-500/20 text-xs px-2.5 py-1 self-start sm:self-auto">
+        <Badge
+          variant="outline"
+          className="bg-rose-500/10 text-rose-600 border-rose-500/20 text-xs px-2.5 py-1 self-start sm:self-auto"
+        >
           <CheckCircle2 size={12} className="mr-1" /> Debit Ledger & Z-Score Engine
         </Badge>
       </div>
@@ -321,7 +317,8 @@ export function SpendingExpenditureTab({
             <Layers size={16} className="text-brand" />
           </div>
           <div className="font-num tabular-nums text-2xl font-bold text-foreground">
-            -{formatINR(fixedOpex, { compact: true })} / -{formatINR(variableOpex, { compact: true })}
+            -{formatINR(fixedOpex, { compact: true })} / -
+            {formatINR(variableOpex, { compact: true })}
           </div>
           <div className="text-[11px] text-text-secondary">
             Fixed: -{formatINR(fixedOpex)} · Variable: -{formatINR(variableOpex)}
@@ -366,9 +363,14 @@ export function SpendingExpenditureTab({
               <h3 className="font-display text-sm font-bold text-foreground">
                 Monthly Cash Outflow (Trend Graph)
               </h3>
-              <p className="text-[11px] text-text-secondary">Total monthly debit disbursements (Payroll + Opex)</p>
+              <p className="text-[11px] text-text-secondary">
+                Total monthly debit disbursements (Payroll + Opex)
+              </p>
             </div>
-            <Badge variant="outline" className="bg-rose-500/10 text-rose-600 text-[10px] font-mono font-bold">
+            <Badge
+              variant="outline"
+              className="bg-rose-500/10 text-rose-600 text-[10px] font-mono font-bold"
+            >
               Debit Outflows
             </Badge>
           </div>
@@ -378,8 +380,13 @@ export function SpendingExpenditureTab({
               <BarChart data={outflowTrend} margin={{ top: 10, right: 10, left: 10, bottom: 20 }}>
                 <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
                 <XAxis dataKey="month" tick={{ fontSize: 11 }} />
-                <YAxis tick={{ fontSize: 10 }} tickFormatter={(v) => `₹${(v / 100000).toFixed(1)}L`} />
-                <Tooltip formatter={(val: any) => [formatINR(Number(val)), "Total Debit Outflow"]} />
+                <YAxis
+                  tick={{ fontSize: 10 }}
+                  tickFormatter={(v) => `₹${(v / 100000).toFixed(1)}L`}
+                />
+                <Tooltip
+                  formatter={(val: any) => [formatINR(Number(val)), "Total Debit Outflow"]}
+                />
                 <Bar dataKey="debit" fill="#f43f5e" radius={[6, 6, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
@@ -409,7 +416,10 @@ export function SpendingExpenditureTab({
                   <div className="flex items-center justify-between text-xs">
                     <span className="font-semibold text-foreground truncate">{item.category}</span>
                     <div className="font-num tabular-nums text-xs font-bold text-rose-600 dark:text-rose-400 shrink-0 ml-2">
-                      -{formatINR(item.amount)} <span className="text-[10px] text-text-tertiary font-normal">({formatPct(item.pct, 1)})</span>
+                      -{formatINR(item.amount)}{" "}
+                      <span className="text-[10px] text-text-tertiary font-normal">
+                        ({formatPct(item.pct, 1)})
+                      </span>
                     </div>
                   </div>
                   <div
@@ -431,7 +441,8 @@ export function SpendingExpenditureTab({
           </div>
 
           <div className="mt-4 rounded-xl bg-surface-alt p-3 border border-border/50 text-xs text-text-secondary">
-            ⚖️ <strong>Cost Dynamics:</strong> Non-payroll opex accounts for ~64% of outflows, providing flexible levers to scale down during downturns.
+            ⚖️ <strong>Cost Dynamics:</strong> Non-payroll opex accounts for ~64% of outflows,
+            providing flexible levers to scale down during downturns.
           </div>
         </Card>
       </div>
@@ -468,7 +479,9 @@ export function SpendingExpenditureTab({
                 className="h-full bg-emerald-500 rounded-full"
                 initial={false}
                 animate={{ width: `${triagePct}%` }}
-                transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+                transition={
+                  shouldReduceMotion ? { duration: 0 } : { duration: 0.3, ease: [0.16, 1, 0.3, 1] }
+                }
               />
             </div>
           </div>
@@ -486,10 +499,12 @@ export function SpendingExpenditureTab({
                   "text-xs font-bold font-num tabular-nums",
                   totalTriaged === totalAnomalies
                     ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/30"
-                    : "bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/30"
+                    : "bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/30",
                 )}
               >
-                {totalTriaged === totalAnomalies ? "Fully Audited" : `${totalAnomalies - totalTriaged} Pending`}
+                {totalTriaged === totalAnomalies
+                  ? "Fully Audited"
+                  : `${totalAnomalies - totalTriaged} Pending`}
               </Badge>
             </motion.div>
           </AnimatePresence>
@@ -520,7 +535,8 @@ export function SpendingExpenditureTab({
                   </Badge>
                 </div>
                 <p className="text-xs text-text-secondary mt-0.5">
-                  All statistical price spikes, duplicate payments, and unmatched debits have verified actions assigned.
+                  All statistical price spikes, duplicate payments, and unmatched debits have
+                  verified actions assigned.
                 </p>
               </div>
             </div>
@@ -533,7 +549,8 @@ export function SpendingExpenditureTab({
                   const summary = `Spotlite Audit Summary:\n- Triaged Price Spikes: ${triagedSpikesCount}/${rawPriceSpikes.length}\n- Resolved Duplicate Debits: ${triagedDupsCount}/${duplicatePayments.length}\n- Reconciled Unmatched Outflows: ${triagedUnmatchedCount}/${unmatchedDebits.length}\nStatus: 100% Audit Reconciled for period ${date_from || ""} to ${date_to || ""}`;
                   navigator.clipboard.writeText(summary);
                   toast.success("Audit summary copied to clipboard", {
-                    description: "Ready to share with your Chartered Accountant or internal audit team.",
+                    description:
+                      "Ready to share with your Chartered Accountant or internal audit team.",
                   });
                 }}
                 className="h-8 text-xs font-semibold px-3 bg-surface hover:bg-surface-alt border-border/80 cursor-pointer gap-1.5"
@@ -551,34 +568,62 @@ export function SpendingExpenditureTab({
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div>
             <h3 className="font-display text-base font-bold text-foreground flex items-center gap-2">
-              <Zap size={18} className="text-rose-500" /> Statistical Outlier Price Spikes (Z &gt; 2.0&sigma;)
+              <Zap size={18} className="text-rose-500" /> Statistical Outlier Price Spikes (Z &gt;
+              2.0&sigma;)
             </h3>
             <p className="text-xs text-text-secondary mt-0.5">
-              Vendor expenditures exceeding 2 standard deviations above historical baseline. Select a triage action per item.
+              Vendor expenditures exceeding 2 standard deviations above historical baseline. Select
+              a triage action per item.
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <Badge variant="outline" className="bg-rose-500/20 text-rose-600 dark:text-rose-400 border-rose-500/30 text-xs font-bold font-num tabular-nums">
+            <Badge
+              variant="outline"
+              className="bg-rose-500/20 text-rose-600 dark:text-rose-400 border-rose-500/30 text-xs font-bold font-num tabular-nums"
+            >
               {rawPriceSpikes.length - triagedSpikesCount} Untriaged
             </Badge>
             {triagedSpikesCount > 0 && (
-              <Badge variant="outline" className="bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30 text-xs font-bold font-num tabular-nums">
+              <Badge
+                variant="outline"
+                className="bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30 text-xs font-bold font-num tabular-nums"
+              >
                 {triagedSpikesCount} Triaged
               </Badge>
             )}
           </div>
         </div>
 
-        <div className="overflow-x-auto" tabIndex={0} role="region" aria-label="Statistical outlier price spikes table">
-          <table className="w-full text-xs text-left" aria-label="Statistical outlier price spikes with triage actions">
+        <div
+          className="overflow-x-auto"
+          tabIndex={0}
+          role="region"
+          aria-label="Statistical outlier price spikes table"
+        >
+          <table
+            className="w-full text-xs text-left"
+            aria-label="Statistical outlier price spikes with triage actions"
+          >
             <thead className="bg-surface-alt text-[11px] font-semibold text-text-secondary uppercase">
               <tr>
-                <th scope="col" className="px-4 py-2.5">Expense Category</th>
-                <th scope="col" className="px-4 py-2.5 text-right">Current Monthly Spend</th>
-                <th scope="col" className="px-4 py-2.5 text-right">Historical Mean</th>
-                <th scope="col" className="px-4 py-2.5 text-right">Std Dev (&sigma;)</th>
-                <th scope="col" className="px-4 py-2.5 text-right">Z-Score</th>
-                <th scope="col" className="px-4 py-2.5">Triage & Audit Action</th>
+                <th scope="col" className="px-4 py-2.5">
+                  Expense Category
+                </th>
+                <th scope="col" className="px-4 py-2.5 text-right">
+                  Current Monthly Spend
+                </th>
+                <th scope="col" className="px-4 py-2.5 text-right">
+                  Historical Mean
+                </th>
+                <th scope="col" className="px-4 py-2.5 text-right">
+                  Std Dev (&sigma;)
+                </th>
+                <th scope="col" className="px-4 py-2.5 text-right">
+                  Z-Score
+                </th>
+                <th scope="col" className="px-4 py-2.5">
+                  Triage & Audit Action
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
@@ -614,7 +659,10 @@ export function SpendingExpenditureTab({
                               type="button"
                               title="Verify as expected seasonal or operational spend"
                               onClick={() => {
-                                setSpikeTriage((prev) => ({ ...prev, [row.category]: "VERIFIED_NORMAL" }));
+                                setSpikeTriage((prev) => ({
+                                  ...prev,
+                                  [row.category]: "VERIFIED_NORMAL",
+                                }));
                                 toast.success(`Verified: ${row.category}`, {
                                   description: "Logged as acceptable operational variance.",
                                 });
@@ -627,9 +675,13 @@ export function SpendingExpenditureTab({
                               type="button"
                               title="Flag for Chartered Accountant / Tax Audit scrutiny"
                               onClick={() => {
-                                setSpikeTriage((prev) => ({ ...prev, [row.category]: "FLAG_FOR_CA" }));
+                                setSpikeTriage((prev) => ({
+                                  ...prev,
+                                  [row.category]: "FLAG_FOR_CA",
+                                }));
                                 toast.info(`Flagged for CA: ${row.category}`, {
-                                  description: "Added to Chartered Accountant quarterly audit schedule.",
+                                  description:
+                                    "Added to Chartered Accountant quarterly audit schedule.",
                                 });
                               }}
                               className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-blue-500/10 text-blue-700 dark:text-blue-300 border border-blue-500/25 hover:bg-blue-500/20 transition cursor-pointer"
@@ -640,7 +692,10 @@ export function SpendingExpenditureTab({
                               type="button"
                               title="Queue for vendor rate renegotiation or contract clawback"
                               onClick={() => {
-                                setSpikeTriage((prev) => ({ ...prev, [row.category]: "DISPUTE_VENDOR" }));
+                                setSpikeTriage((prev) => ({
+                                  ...prev,
+                                  [row.category]: "DISPUTE_VENDOR",
+                                }));
                                 toast.warning(`Dispute Queued: ${row.category}`, {
                                   description: "Flagged for procurement rate renegotiation.",
                                 });
@@ -660,23 +715,37 @@ export function SpendingExpenditureTab({
                             className="flex items-center justify-between gap-2"
                           >
                             {status === "VERIFIED_NORMAL" && (
-                              <Badge variant="outline" className="bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30 text-[11px] font-bold">
+                              <Badge
+                                variant="outline"
+                                className="bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30 text-[11px] font-bold"
+                              >
                                 <CheckCircle2 size={12} className="mr-1" /> Verified Normal Spend
                               </Badge>
                             )}
                             {status === "FLAG_FOR_CA" && (
-                              <Badge variant="outline" className="bg-blue-500/15 text-blue-700 dark:text-blue-300 border-blue-500/30 text-[11px] font-bold">
+                              <Badge
+                                variant="outline"
+                                className="bg-blue-500/15 text-blue-700 dark:text-blue-300 border-blue-500/30 text-[11px] font-bold"
+                              >
                                 <FileText size={12} className="mr-1" /> Flagged for CA Audit
                               </Badge>
                             )}
                             {status === "DISPUTE_VENDOR" && (
-                              <Badge variant="outline" className="bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30 text-[11px] font-bold">
+                              <Badge
+                                variant="outline"
+                                className="bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30 text-[11px] font-bold"
+                              >
                                 <AlertTriangle size={12} className="mr-1" /> Dispute In Progress
                               </Badge>
                             )}
                             <button
                               type="button"
-                              onClick={() => setSpikeTriage((prev) => ({ ...prev, [row.category]: "UNREVIEWED" }))}
+                              onClick={() =>
+                                setSpikeTriage((prev) => ({
+                                  ...prev,
+                                  [row.category]: "UNREVIEWED",
+                                }))
+                              }
                               className="text-[10px] text-text-tertiary hover:text-foreground underline cursor-pointer"
                             >
                               Reset
@@ -706,7 +775,10 @@ export function SpendingExpenditureTab({
                 Debits missing contract or expense category assignment.
               </p>
             </div>
-            <Badge variant="outline" className="bg-amber-500/10 text-amber-600 text-[10px] font-num tabular-nums">
+            <Badge
+              variant="outline"
+              className="bg-amber-500/10 text-amber-600 text-[10px] font-num tabular-nums"
+            >
               {unmatchedDebits.length - triagedUnmatchedCount} Pending
             </Badge>
           </div>
@@ -716,14 +788,19 @@ export function SpendingExpenditureTab({
               const itemKey = item.id || item.narration || String(idx);
               const state = unmatchedTriage[itemKey] || { status: "UNREVIEWED" };
               return (
-                <div key={idx} className="rounded-xl bg-surface-alt p-3.5 border border-border/50 space-y-2.5 text-xs">
+                <div
+                  key={idx}
+                  className="rounded-xl bg-surface-alt p-3.5 border border-border/50 space-y-2.5 text-xs"
+                >
                   <div className="flex justify-between items-start gap-2">
                     <span className="font-semibold text-foreground">{item.narration}</span>
                     <span className="text-rose-600 font-num tabular-nums font-bold shrink-0">
                       -{formatINR(item.debit_amount || item.amount)}
                     </span>
                   </div>
-                  <p className="text-[11px] text-text-secondary">{item.issue || "Uncategorized debit outflow"}</p>
+                  <p className="text-[11px] text-text-secondary">
+                    {item.issue || "Uncategorized debit outflow"}
+                  </p>
 
                   <AnimatePresence mode="wait">
                     {state.status === "UNREVIEWED" ? (
@@ -736,24 +813,26 @@ export function SpendingExpenditureTab({
                         className="flex items-center gap-1.5 flex-wrap pt-1 border-t border-border/40"
                       >
                         <span className="text-[10px] text-text-tertiary">Quick Assign:</span>
-                        {["Cloud / IT", "Office Supplies", "Logistics", "Professional Fee"].map((cat) => (
-                          <button
-                            key={cat}
-                            type="button"
-                            onClick={() => {
-                              setUnmatchedTriage((prev) => ({
-                                ...prev,
-                                [itemKey]: { status: "ASSIGNED", category: cat },
-                              }));
-                              toast.success(`Assigned to ${cat}`, {
-                                description: `${item.narration} mapped to ${cat}.`,
-                              });
-                            }}
-                            className="px-2 py-0.5 rounded text-[10px] font-semibold bg-surface border border-border/70 hover:bg-brand/10 hover:text-brand hover:border-brand/30 transition cursor-pointer"
-                          >
-                            +{cat}
-                          </button>
-                        ))}
+                        {["Cloud / IT", "Office Supplies", "Logistics", "Professional Fee"].map(
+                          (cat) => (
+                            <button
+                              key={cat}
+                              type="button"
+                              onClick={() => {
+                                setUnmatchedTriage((prev) => ({
+                                  ...prev,
+                                  [itemKey]: { status: "ASSIGNED", category: cat },
+                                }));
+                                toast.success(`Assigned to ${cat}`, {
+                                  description: `${item.narration} mapped to ${cat}.`,
+                                });
+                              }}
+                              className="px-2 py-0.5 rounded text-[10px] font-semibold bg-surface border border-border/70 hover:bg-brand/10 hover:text-brand hover:border-brand/30 transition cursor-pointer"
+                            >
+                              +{cat}
+                            </button>
+                          ),
+                        )}
                       </motion.div>
                     ) : (
                       <motion.div
@@ -764,7 +843,10 @@ export function SpendingExpenditureTab({
                         transition={{ duration: 0.16 }}
                         className="flex items-center justify-between pt-1 border-t border-border/40"
                       >
-                        <Badge variant="outline" className="bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30 text-[10px] font-bold">
+                        <Badge
+                          variant="outline"
+                          className="bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30 text-[10px] font-bold"
+                        >
                           <CheckCircle2 size={11} className="mr-1" /> Mapped: {state.category}
                         </Badge>
                         <button
@@ -799,7 +881,10 @@ export function SpendingExpenditureTab({
                 Exact rupee amounts paid to identical vendor within 24 hours.
               </p>
             </div>
-            <Badge variant="outline" className="bg-rose-500/10 text-rose-600 text-[10px] font-num tabular-nums">
+            <Badge
+              variant="outline"
+              className="bg-rose-500/10 text-rose-600 text-[10px] font-num tabular-nums"
+            >
               {duplicatePayments.length - triagedDupsCount} Instances
             </Badge>
           </div>
@@ -809,15 +894,22 @@ export function SpendingExpenditureTab({
               const itemKey = item.transaction_id || item.narration || String(idx);
               const state = dupTriage[itemKey] || "UNREVIEWED";
               return (
-                <div key={idx} className="rounded-xl border border-rose-500/30 bg-rose-500/5 p-3.5 space-y-2 text-xs">
+                <div
+                  key={idx}
+                  className="rounded-xl border border-rose-500/30 bg-rose-500/5 p-3.5 space-y-2 text-xs"
+                >
                   <div className="flex justify-between items-start gap-2">
                     <span className="font-semibold text-foreground">{item.narration}</span>
                     <span className="text-rose-600 font-num tabular-nums font-extrabold shrink-0">
                       -{formatINR(item.amount)}
                     </span>
                   </div>
-                  <p className="text-[11px] text-rose-700 dark:text-rose-300 font-medium">{item.flag}</p>
-                  <div className="text-[10px] text-text-tertiary font-num tabular-nums">Date: {item.date}</div>
+                  <p className="text-[11px] text-rose-700 dark:text-rose-300 font-medium">
+                    {item.flag}
+                  </p>
+                  <div className="text-[10px] text-text-tertiary font-num tabular-nums">
+                    Date: {item.date}
+                  </div>
 
                   <AnimatePresence mode="wait">
                     {state === "UNREVIEWED" ? (
@@ -847,7 +939,10 @@ export function SpendingExpenditureTab({
                           type="button"
                           variant="outline"
                           onClick={() => {
-                            setDupTriage((prev) => ({ ...prev, [itemKey]: "CONFIRMED_LEGITIMATE" }));
+                            setDupTriage((prev) => ({
+                              ...prev,
+                              [itemKey]: "CONFIRMED_LEGITIMATE",
+                            }));
                             toast.success("Payment verified", {
                               description: "Marked as legitimate split or recurring installment.",
                             });
@@ -867,18 +962,26 @@ export function SpendingExpenditureTab({
                         className="flex items-center justify-between pt-2 border-t border-rose-500/20"
                       >
                         {state === "REFUND_REQUESTED" && (
-                          <Badge variant="outline" className="bg-rose-500/20 text-rose-700 dark:text-rose-300 border-rose-500/40 text-[11px] font-bold">
+                          <Badge
+                            variant="outline"
+                            className="bg-rose-500/20 text-rose-700 dark:text-rose-300 border-rose-500/40 text-[11px] font-bold"
+                          >
                             <Clock size={11} className="mr-1" /> Refund Claim Dispatched
                           </Badge>
                         )}
                         {state === "CONFIRMED_LEGITIMATE" && (
-                          <Badge variant="outline" className="bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30 text-[11px] font-bold">
+                          <Badge
+                            variant="outline"
+                            className="bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30 text-[11px] font-bold"
+                          >
                             <CheckCircle2 size={11} className="mr-1" /> Confirmed Legitimate Batch
                           </Badge>
                         )}
                         <button
                           type="button"
-                          onClick={() => setDupTriage((prev) => ({ ...prev, [itemKey]: "UNREVIEWED" }))}
+                          onClick={() =>
+                            setDupTriage((prev) => ({ ...prev, [itemKey]: "UNREVIEWED" }))
+                          }
                           className="text-[10px] text-text-tertiary hover:text-foreground underline cursor-pointer"
                         >
                           Change
