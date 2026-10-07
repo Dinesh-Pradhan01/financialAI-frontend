@@ -55,4 +55,10 @@ export const queryKeys = {
     list: (businessId?: string | null, params?: { days: number; limit: number }) =>
       ["developments", "list", businessId, params] as const,
   },
+  industry: {
+    all: () => ["industry"] as const,
+    competitors: () => ["industry", "competitors"] as const,
+    financials: (companyId: number | string) =>
+      ["industry", "financials", String(companyId)] as const,
+  },
 } as const;

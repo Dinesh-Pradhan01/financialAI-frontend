@@ -124,8 +124,8 @@ export function UploadDocumentModal({
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-md p-6 bg-surface border-border-c">
-        <DialogHeader className="space-y-1">
+      <DialogContent className="sm:max-w-md p-6 bg-surface border-border-c overflow-hidden w-full">
+        <DialogHeader className="space-y-1 w-full min-w-0 pr-6 text-left overflow-hidden">
           <DialogTitle className="text-lg font-bold text-text-primary tracking-tight">
             Upload Document
           </DialogTitle>
@@ -136,17 +136,17 @@ export function UploadDocumentModal({
 
         {/* Live Upload & Classification Progress Banner (if an upload is actively running) */}
         {activeItem && (
-          <div className="rounded-2xl border border-brand/20 bg-brand/5 p-4 space-y-3">
-            <div className="flex items-center justify-between gap-3">
-              <div className="flex items-center gap-2.5 min-w-0">
+          <div className="rounded-2xl border border-brand/20 bg-brand/5 p-4 space-y-3 w-full min-w-0 overflow-hidden">
+            <div className="flex items-center justify-between gap-3 w-full min-w-0">
+              <div className="flex items-center gap-2.5 min-w-0 flex-1">
                 <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-brand/15 text-brand">
                   <Loader2 className="h-4 w-4 animate-spin" />
                 </div>
-                <div className="min-w-0">
-                  <p className="text-xs font-bold text-text-primary truncate">
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs font-bold text-text-primary truncate" title={activeItem.file.name}>
                     {activeItem.file.name}
                   </p>
-                  <p className="text-xs text-brand font-medium mt-0.5">
+                  <p className="text-xs text-brand font-medium mt-0.5 truncate">
                     {activeItem.status === "uploading" && "Uploading binary payload…"}
                     {activeItem.status === "processing" && "Analyzing contents & running statutory checks…"}
                     {activeItem.status === "queued" && "Queued for upload…"}
@@ -160,7 +160,7 @@ export function UploadDocumentModal({
                   variant="ghost"
                   size="sm"
                   onClick={() => onCancelUpload(activeItem.id)}
-                  className="h-7 px-2 text-xs text-text-tertiary hover:text-destructive hover:bg-destructive/10 rounded-lg cursor-pointer"
+                  className="h-7 px-2 text-xs text-text-tertiary hover:text-destructive hover:bg-destructive/10 rounded-lg cursor-pointer shrink-0"
                 >
                   Cancel
                 </Button>
@@ -168,7 +168,7 @@ export function UploadDocumentModal({
             </div>
 
             {activeItem.verifyingMessage && (
-              <p className="text-xs text-text-tertiary pl-10 animate-pulse">
+              <p className="text-xs text-text-tertiary pl-10 animate-pulse truncate">
                 {activeItem.verifyingMessage}
               </p>
             )}
@@ -177,13 +177,13 @@ export function UploadDocumentModal({
 
         {/* Latest Done Result Notice with Classification Details & Optional Exception Picker */}
         {latestDoneItem && !activeItem && !selectedFile && (
-          <div className="rounded-2xl border border-success/30 bg-success/5 p-4 space-y-3">
-            <div className="flex items-start gap-3">
+          <div className="rounded-2xl border border-success/30 bg-success/5 p-4 space-y-3 w-full min-w-0 overflow-hidden">
+            <div className="flex items-start gap-3 w-full min-w-0">
               <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-success/15 text-success mt-0.5">
                 <CheckCircle2 className="h-4 w-4" />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-xs font-bold text-text-primary truncate">
+                <p className="text-xs font-bold text-text-primary truncate" title={latestDoneItem.file.name}>
                   {latestDoneItem.file.name}
                 </p>
                 <div className="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-text-secondary">
@@ -198,7 +198,7 @@ export function UploadDocumentModal({
 
             {/* If classification is uncertain or unclassified, offer exception category picker */}
             {latestDoneItem.uncertainClassification && (
-              <div className="pt-2 border-t border-success/20 space-y-2">
+              <div className="pt-2 border-t border-success/20 space-y-2 w-full min-w-0">
                 <p className="text-xs text-text-secondary">
                   Spotlight categorized this as <strong>Others / Unclassified</strong>. You can re-assign it to a canonical category if preferred:
                 </p>
@@ -211,7 +211,7 @@ export function UploadDocumentModal({
                     }
                   }}
                 >
-                  <SelectTrigger className="h-8 text-xs rounded-xl bg-surface border-border-c">
+                  <SelectTrigger className="h-8 text-xs rounded-xl bg-surface border-border-c w-full">
                     <SelectValue placeholder="Choose Category Destination" />
                   </SelectTrigger>
                   <SelectContent className="text-xs">
@@ -228,7 +228,7 @@ export function UploadDocumentModal({
         )}
 
         {/* Primary Upload Input Form (Purely File-Driven: No upfront category selector!) */}
-        <form onSubmit={handleSubmit} className="space-y-4 pt-1">
+        <form onSubmit={handleSubmit} className="space-y-4 pt-1 w-full min-w-0 overflow-hidden">
           <input
             ref={fileInputRef}
             type="file"
@@ -249,7 +249,7 @@ export function UploadDocumentModal({
               onDrop={handleDrop}
               onClick={() => fileInputRef.current?.click()}
               className={cn(
-                "flex flex-col items-center justify-center rounded-2xl border-2 border-dashed p-7 text-center cursor-pointer transition-all duration-200 select-none",
+                "flex flex-col items-center justify-center rounded-2xl border-2 border-dashed p-7 text-center cursor-pointer transition-all duration-200 select-none w-full min-w-0 overflow-hidden",
                 dragActive
                   ? "border-brand bg-brand/5 scale-[0.99]"
                   : "border-border-c/90 bg-surface-alt/40 hover:border-brand/40 hover:bg-surface-alt/70",
@@ -267,14 +267,14 @@ export function UploadDocumentModal({
               </p>
             </div>
           ) : (
-            <div className="rounded-2xl border border-brand/25 bg-brand/4 p-4 space-y-3">
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex items-center gap-3 min-w-0">
+            <div className="rounded-2xl border border-brand/25 bg-brand/4 p-4 space-y-3 w-full min-w-0 overflow-hidden">
+              <div className="flex items-center justify-between gap-3 w-full min-w-0">
+                <div className="flex items-center gap-3 min-w-0 flex-1 overflow-hidden">
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand/12 text-brand border border-brand/20">
-                    <FileText className="h-5 w-5" />
+                    <FileText className="h-5 w-5 shrink-0" />
                   </div>
-                  <div className="min-w-0">
-                    <p className="text-xs font-bold text-text-primary truncate" title={selectedFile.name}>
+                  <div className="min-w-0 flex-1 overflow-hidden">
+                    <p className="text-xs font-bold text-text-primary truncate block" title={selectedFile.name}>
                       {selectedFile.name}
                     </p>
                     <p className="text-xs font-mono tabular-nums text-text-secondary mt-0.5">
@@ -288,7 +288,7 @@ export function UploadDocumentModal({
                   variant="ghost"
                   size="sm"
                   onClick={resetState}
-                  className="h-7 w-7 p-0 rounded-lg text-text-tertiary hover:text-text-primary hover:bg-surface"
+                  className="h-8 w-8 p-0 rounded-lg text-text-tertiary hover:text-text-primary hover:bg-surface shrink-0 cursor-pointer"
                 >
                   <X className="h-4 w-4" />
                   <span className="sr-only">Remove file</span>
@@ -296,7 +296,7 @@ export function UploadDocumentModal({
               </div>
 
               {/* Automatic AI Classification Notice (Zero-friction explanation) */}
-              <div className="rounded-xl border border-border-c/70 bg-surface p-3 space-y-1.5">
+              <div className="rounded-xl border border-border-c/70 bg-surface p-3 space-y-1.5 w-full min-w-0 overflow-hidden">
                 <div className="flex items-center gap-2 text-xs font-semibold text-brand">
                   <Sparkles className="h-3.5 w-3.5 shrink-0" />
                   <span>Automatic Classification</span>
@@ -310,18 +310,18 @@ export function UploadDocumentModal({
 
           {/* Validation Error Message */}
           {fileError && (
-            <div className="flex items-center gap-2 rounded-xl border border-destructive/20 bg-destructive/5 p-3 text-xs text-destructive">
+            <div className="flex items-center gap-2 rounded-xl border border-destructive/20 bg-destructive/5 p-3 text-xs text-destructive w-full min-w-0 overflow-hidden">
               <AlertCircle className="h-4 w-4 shrink-0" />
               <span>{fileError}</span>
             </div>
           )}
 
           {/* Modal Actions */}
-          <div className="flex items-center justify-between pt-2">
-            <p className="text-xs text-text-tertiary">
+          <div className="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-3 pt-2 border-t border-border-c/40 w-full min-w-0 overflow-hidden">
+            <p className="text-xs text-text-tertiary min-w-0 truncate" title="Uploads continue safely in background if closed.">
               Uploads continue safely in background if closed.
             </p>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 shrink-0 justify-end">
               <Button
                 type="button"
                 variant="outline"
@@ -337,7 +337,7 @@ export function UploadDocumentModal({
                 disabled={!selectedFile}
                 className="text-xs h-9 rounded-xl bg-brand hover:bg-brand/90 text-white shadow-xs cursor-pointer gap-2 disabled:opacity-50 font-semibold"
               >
-                <UploadCloud className="h-4 w-4" />
+                <UploadCloud className="h-4 w-4 shrink-0" />
                 <span>Upload & Classify</span>
               </Button>
             </div>

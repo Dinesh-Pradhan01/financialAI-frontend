@@ -40,7 +40,7 @@ import {
 const items = [
   { to: "/home", label: "Business 360", icon: Home },
   { to: "/spending", label: "Spending", icon: BarChart3 },
-  { to: "/industry", label: "Industry", icon: TrendingUp },
+  { to: "/industry", label: "Industry View", icon: TrendingUp },
   { to: "/developments", label: "Developments", icon: Radar },
   { to: "/spotlights", label: "Spotlights", icon: Zap },
   { to: "/documents", label: "Documents", icon: FolderLock },
