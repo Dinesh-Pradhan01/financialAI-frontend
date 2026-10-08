@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { api } from "@/shared/lib/api";
 
 // Base API URL from environment or default backend port
 const API_BASE = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
@@ -305,9 +306,9 @@ const MOCK_LLM: LLMInsights = {
 };
 
 export function useSpotlite() {
-  const [tier1, setTier1] = useState<Tier1Metrics>(MOCK_TIER1);
-  const [tier2, setTier2] = useState<Tier2Metrics>(MOCK_TIER2);
-  const [llm, setLlm] = useState<LLMInsights>(MOCK_LLM);
+  const [tier1, setTier1] = useState<Tier1Metrics | null>(null);
+  const [tier2, setTier2] = useState<Tier2Metrics | null>(null);
+  const [llm, setLlm] = useState<LLMInsights | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -316,9 +317,9 @@ export function useSpotlite() {
       try {
         setLoading(true);
         const [r1, r2, rLlm] = await Promise.allSettled([
-          fetch(`${API_BASE}/api/v1/spotlite/metrics/tier1`).then((res) => res.json()),
-          fetch(`${API_BASE}/api/v1/spotlite/metrics/tier2`).then((res) => res.json()),
-          fetch(`${API_BASE}/api/v1/spotlite/augmented/insights?use_ai=true`).then((res) => res.json()),
+          api.get<any>("/api/v1/spotlite/metrics/tier1"),
+          api.get<any>("/api/v1/spotlite/metrics/tier2"),
+          api.get<any>("/api/v1/spotlite/augmented/insights?use_ai=true"),
         ]);
 
         if (r1.status === "fulfilled" && r1.value?.success && r1.value?.data) {
@@ -333,6 +334,9 @@ export function useSpotlite() {
       } catch (e: any) {
         console.warn("Using offline Spotlite baseline state:", e);
         setError("Backend offline - viewing authoritative baseline metrics");
+        setTier1(MOCK_TIER1);
+        setTier2(MOCK_TIER2);
+        setLlm(MOCK_LLM);
       } finally {
         setLoading(false);
       }
@@ -342,12 +346,7 @@ export function useSpotlite() {
 
   const askCfo = async (query: string) => {
     try {
-      const res = await fetch(`${API_BASE}/api/v1/spotlite/augmented/ask-cfo`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query }),
-      });
-      const data = await res.json();
+      const data: any = await api.post("/api/v1/spotlite/augmented/ask-cfo", { query });
       if (data?.success && data?.data) {
         return data.data;
       }

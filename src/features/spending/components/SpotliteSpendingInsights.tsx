@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { formatINR, formatPct } from "@/shared/lib/format";
-import { useSpotlite } from "@/features/spotlights/hooks/useSpotlite";
+import { Tier1Metrics, LLMInsights } from "@/features/spotlights/hooks/useSpotlite";
 import {
   TrendingUp,
   ShieldAlert,
@@ -19,9 +19,13 @@ import { toast } from "sonner";
 import { cn } from "@/shared/lib/utils";
 import { motion, useReducedMotion } from "framer-motion";
 
-export function SpotliteSpendingInsights() {
+interface Props {
+  tier1: Tier1Metrics;
+  llm: LLMInsights;
+}
+
+export function SpotliteSpendingInsights({ tier1, llm }: Props) {
   const shouldReduceMotion = useReducedMotion();
-  const { tier1, llm } = useSpotlite();
 
   const overbill = tier1.vendor_overbilling_detector;
   const idle = tier1.idle_cash_forfeited_income;

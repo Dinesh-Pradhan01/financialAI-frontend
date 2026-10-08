@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import { formatINR } from "@/shared/lib/format";
 import { Card } from "@/shared/components/ui/card";
+import { Skeleton } from "@/shared/components/ui/skeleton";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { cn } from "@/shared/lib/utils";
 
@@ -100,6 +101,35 @@ function Spotlights() {
       transition: { duration: 0.25, ease: [0.16, 1, 0.3, 1] as const },
     },
   };
+
+  if (loading || !tier1 || !tier2 || !llm) {
+    return (
+      <div className="px-4 py-6 md:px-10 max-w-7xl mx-auto space-y-6">
+        <header className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-border/60 pb-5">
+          <div className="flex items-center gap-2.5">
+            <Skeleton className="h-9 w-9 rounded-xl" />
+            <Skeleton className="h-8 w-32" />
+          </div>
+          <div className="flex gap-1">
+            <Skeleton className="h-8 w-24 rounded-lg" />
+            <Skeleton className="h-8 w-24 rounded-lg" />
+            <Skeleton className="h-8 w-24 rounded-lg" />
+          </div>
+        </header>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <Skeleton className="h-32 rounded-2xl" />
+          <Skeleton className="h-32 rounded-2xl" />
+          <Skeleton className="h-32 rounded-2xl" />
+          <Skeleton className="h-32 rounded-2xl" />
+        </div>
+        <Skeleton className="h-16 w-full rounded-2xl" />
+        <div className="grid gap-5 md:grid-cols-2 mt-6">
+          <Skeleton className="h-64 rounded-2xl" />
+          <Skeleton className="h-64 rounded-2xl" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="px-4 py-6 md:px-10 max-w-7xl mx-auto space-y-6">

@@ -13,7 +13,8 @@ import { CompetitorsCard } from "./CompetitorsCard";
 import { cn } from "@/shared/lib/utils";
 import { useCompanyProfile, competitorsQueryOptions } from "../hooks/useCompanyAPI";
 import { useQueryClient } from "@tanstack/react-query";
-import { developmentsQueryOptions, DELOITTE_COMPANY_ID } from "@/features/developments/hooks/useDevelopments";
+import { developmentsQueryOptions } from "@/features/developments/hooks/useDevelopments";
+import { useAuth } from "@/shared/contexts/AuthContext";
 
 export const Business360Page: React.FC = () => {
   const { data: profile, isError } = useCompanyProfile();
@@ -24,9 +25,12 @@ export const Business360Page: React.FC = () => {
   // Never blocks render and never shows a global loader. When the user later navigates to
   // Developments, TanStack Query serves the pre-cached result instantly.
   const queryClient = useQueryClient();
+  const { user } = useAuth();
   useEffect(() => {
-    void queryClient.prefetchQuery(developmentsQueryOptions(DELOITTE_COMPANY_ID));
-  }, [queryClient]);
+    if (user?.business_id) {
+      void queryClient.prefetchQuery(developmentsQueryOptions(user.business_id));
+    }
+  }, [queryClient, user?.business_id]);
 
   // Downstream cards know whether profile is ready
   const hasProfile = Boolean(profile && !isError);

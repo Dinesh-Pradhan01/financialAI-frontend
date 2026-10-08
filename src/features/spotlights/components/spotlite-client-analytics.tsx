@@ -23,6 +23,7 @@ import {
   Legend,
 } from "recharts";
 
+import { api } from "@/shared/lib/api";
 const API_BASE =
   import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
 
@@ -39,11 +40,12 @@ export function SpotliteClientAnalytics() {
     async function fetchClientAnalytics() {
       try {
         setLoading(true);
-        let res = await fetch(`${API_BASE}/api/v1/analysis/clients/analytics`);
-        if (!res.ok) {
-          res = await fetch(`${API_BASE}/api/v1/spotlite/clients/analytics`);
+        let json: any;
+        try {
+          json = await api.get("/api/v1/analysis/clients/analytics");
+        } catch (err) {
+          json = await api.get("/api/v1/spotlite/clients/analytics");
         }
-        const json = await res.json();
         if (json?.success && json?.data) {
           setData(json.data);
         } else {

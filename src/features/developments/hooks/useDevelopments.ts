@@ -1,67 +1,52 @@
-import { queryOptions, useQuery } from "@tanstack/react-query";
+import { useQuery, queryOptions } from "@tanstack/react-query";
 import { useAuth } from "@/shared/contexts/AuthContext";
-import { queryKeys } from "@/shared/lib/queryKeys";
-import { fetchDevelopments } from "../api/developmentsApi";
+import { fetchDevelopments, DEFAULT_DEVELOPMENT_PARAMS } from "../api/developmentsApi";
 import { mapDevelopmentsResponse } from "../lib/mapDevelopments";
-import type { DevelopmentsViewModel } from "../types/developments";
-import { isSetupRequiredError } from "@/features/dashboard/hooks/useCompanyAPI";
-
-export { isSetupRequiredError };
+import type {
+  DevelopmentQueryParams,
+  DevelopmentsViewModel,
+  DevelopmentsError
+} from "../types/developments";
 
 /**
- * TanStack Query options for developments.
- * Cache configuration:
- * - staleTime: 30 min (developments are long-tail news, expensive to re-scrape)
- * - gcTime: 60 min
- * - refetchOnMount / WindowFocus / Reconnect: false
- * - retry: false (avoids spamming backend / upstream circuit breaker on error)
+ * Shared query options for Developments.
+ * Exposed so downstream components (e.g., Business360Page) can prefetch
+ * before the user navigates.
  */
-export const developmentsQueryOptions = (businessId?: string | null) =>
-  queryOptions({
-    queryKey: queryKeys.developments.list(businessId, { days: 30, limit: 10 }),
-    queryFn: async (): Promise<DevelopmentsViewModel> => {
-      if (!businessId) {
-        throw new Error("business_id is required to fetch developments");
-      }
-      const raw = await fetchDevelopments(businessId, { days: 30, limit: 10 });
-      return mapDevelopmentsResponse(raw);
+export function developmentsQueryOptions(
+  businessId: string,
+  params: DevelopmentQueryParams = DEFAULT_DEVELOPMENT_PARAMS
+) {
+  return queryOptions({
+    queryKey: ["developments", businessId, params],
+    queryFn: async ({ signal }): Promise<DevelopmentsViewModel> => {
+      const dto = await fetchDevelopments(businessId, params, { signal });
+      return mapDevelopmentsResponse(dto);
     },
-    enabled: Boolean(businessId),
-    staleTime: 30 * 60 * 1000,
-    gcTime: 60 * 60 * 1000,
-    refetchOnMount: false,
-    refetchOnWindowFocus: false,
-    refetchOnReconnect: false,
-    retry: false,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    retry: (failureCount, error) => {
+      // Don't retry if the company was simply not found
+      if ((error as DevelopmentsError)?.kind === "not_found") return false;
+      return failureCount < 2;
+    },
   });
+}
 
 /**
- * Pinned Deloitte company UUID for development testing:
- * Verified in live backend captures: "84840060-25b4-4550-9e3c-f840d857c697".
+ * Primary React hook for the Developments view.
  */
-export const DELOITTE_COMPANY_ID = "84840060-25b4-4550-9e3c-f840d857c697";
+export function useDevelopments() {
+  const { user } = useAuth();
+  const businessId = user?.business_id;
 
-/**
- * Hook to retrieve developments for the company.
- * Temporarily pinned to query Deloitte ("84840060-25b4-4550-9e3c-f840d857c697")
- * so real backend intelligence is always displayed in development.
- *
- * Supports an optional overrideBusinessId parameter for testing or explicit tenant scoping.
- */
-export function useDevelopments(overrideBusinessId?: string | null) {
-  // Pin specifically to Deloitte for development as requested
-  const businessId = overrideBusinessId ?? DELOITTE_COMPANY_ID;
-  const needsCompany = !businessId;
-
-  const query = useQuery(developmentsQueryOptions(businessId));
-
-  const isSetupRequired =
-    needsCompany || (Boolean(query.error) && isSetupRequiredError(query.error));
+  const query = useQuery<DevelopmentsViewModel, DevelopmentsError>(
+    businessId
+      ? developmentsQueryOptions(businessId)
+      : { queryKey: ["developments", "none"], enabled: false } as any
+  );
 
   return {
     ...query,
-    businessId,
-    needsCompany,
-    isSetupRequired,
+    needsCompany: !businessId,
   };
 }

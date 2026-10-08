@@ -21,16 +21,12 @@ import { motion, useReducedMotion } from "framer-motion";
 
 interface Props {
   metrics: Tier1Metrics;
-  tier2Metrics?: Tier2Metrics;
-  llmInsights?: LLMInsights;
+  tier2Metrics: Tier2Metrics;
+  llmInsights: LLMInsights;
 }
 
-export function SpotliteTier1Grid({ metrics, tier2Metrics, llmInsights }: Props) {
-  const { tier2: fetchedTier2, llm: fetchedLlm } = useSpotlite();
+export function SpotliteTier1Grid({ metrics, tier2Metrics: tier2, llmInsights: llm }: Props) {
   const shouldReduceMotion = useReducedMotion();
-
-  const tier2 = tier2Metrics || fetchedTier2;
-  const llm = llmInsights || fetchedLlm;
 
   const {
     room_above_break_even: be,
@@ -73,7 +69,7 @@ export function SpotliteTier1Grid({ metrics, tier2Metrics, llmInsights }: Props)
       </div>
 
       {/* ── 2. EXECUTIVE OPPORTUNITIES & RISKS ACTION CENTER ─────────────── */}
-      <SpotliteSpendingInsights />
+      <SpotliteSpendingInsights tier1={metrics} llm={llm} />
 
       {/* ── 3. CORE FINANCIAL RULES ENGINE SPOTLIGHT CARDS ────────────────── */}
       <div className="space-y-4 pt-4 border-t border-border/60">

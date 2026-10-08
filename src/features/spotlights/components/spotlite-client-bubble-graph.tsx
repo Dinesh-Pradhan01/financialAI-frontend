@@ -7,6 +7,7 @@ import { Skeleton } from "@/shared/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/shared/components/ui/dialog";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 
+import { api } from "@/shared/lib/api";
 const API_BASE =
   import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
 
@@ -66,11 +67,12 @@ export function SpotliteClientBubbleGraph() {
     async function fetchBubbleData() {
       try {
         setLoading(true);
-        let res = await fetch(`${API_BASE}/api/v1/analysis/clients/bubble`);
-        if (!res.ok) {
-          res = await fetch(`${API_BASE}/api/v1/spotlite/clients/bubble`);
+        let json: any;
+        try {
+          json = await api.get("/api/v1/analysis/clients/bubble");
+        } catch (err) {
+          json = await api.get("/api/v1/spotlite/clients/bubble");
         }
-        const json = await res.json();
         if (json?.success && json?.data) {
           setHub(json.data.center_company);
           setBubbles(json.data.client_bubbles || []);
