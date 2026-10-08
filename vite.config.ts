@@ -12,4 +12,24 @@ export default defineConfig({
     // nitro/vite builds from this
     server: { entry: "server" },
   },
+  vite: {
+    server: {
+      // Proxy /api/* to the FastAPI backend so the browser sees everything as
+      // same-origin (localhost:8080). This fixes cross-origin cookie issues —
+      // the session cookie set by /api/auth/sync will be included in all
+      // subsequent /api/* requests automatically.
+      proxy: {
+        "/api": {
+          target: "http://127.0.0.1:8000",
+          changeOrigin: true,
+          secure: false,
+        },
+        // Also proxy /docs and /redoc for convenience during development
+        "/docs": {
+          target: "http://127.0.0.1:8000",
+          changeOrigin: true,
+        },
+      },
+    },
+  },
 });

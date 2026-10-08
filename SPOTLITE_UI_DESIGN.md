@@ -56,6 +56,8 @@ Breakpoints: see [2.6](#26-grid--breakpoints).
 ## 2. Design System / Visual Language
 
 > All values below are **design tokens** — named, adjustable. Hex values are a recommended starting palette (SBI/YONO-inspired) and can be retuned to official brand assets.
+>
+> **Design System Rule**: Never use arbitrary Tailwind hex values (e.g., text-[#ccc]). You must ONLY use the semantic color tokens defined in our Tailwind theme.
 
 ### 2.1 Color tokens
 
