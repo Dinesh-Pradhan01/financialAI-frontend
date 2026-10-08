@@ -101,6 +101,8 @@ export const FinancialMetaSchema = z.object({
 
 export const CompanyFinancialsResponseSchema = z.object({
   company_id: z.number().int(),
+  company_name: z.string().nullable().optional(),
+  ticker: z.string().nullable().optional(),
   as_of: z.string().nullable(),
   latest_period: z.string().nullable(),
   unit: FinancialUnitSchema,

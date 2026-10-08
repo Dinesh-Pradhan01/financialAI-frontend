@@ -133,8 +133,8 @@ export function mapCompanyFinancials(
 
   return {
     companyId: dto.company_id,
-    companyName: metadata?.companyName ?? null,
-    ticker: metadata?.ticker ?? null,
+    companyName: dto.company_name ?? metadata?.companyName ?? null,
+    ticker: dto.ticker ?? metadata?.ticker ?? null,
     overlapLevel: metadata?.overlapLevel ?? null,
     overlapSummary: metadata?.overlapSummary ?? null,
     isFixture,

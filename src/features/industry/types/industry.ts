@@ -102,6 +102,8 @@ export interface FinancialMetaDTO {
 
 export interface CompanyFinancialsResponseDTO {
   company_id: number;
+  company_name?: string | null;
+  ticker?: string | null;
   as_of: string | null;
   latest_period: string | null;
   unit: FinancialUnit;
