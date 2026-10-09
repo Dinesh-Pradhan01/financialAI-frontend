@@ -101,12 +101,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     const promise = (async () => {
-      // Get fresh token directly from the resolved Firebase user object
-      const token = await fbUser.getIdToken();
-      const backendUser = await api.post<UserResponse>("/api/auth/sync", undefined, {
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
-        useFirebaseToken: false,
-      });
+      // fetchAPI now attaches the Firebase token automatically via getIdToken().
+      // We still call getIdToken() here so we can force-refresh before syncing,
+      // ensuring the backend always gets a fresh, valid token on login.
+      await fbUser.getIdToken(/* forceRefresh */ true);
+      const backendUser = await api.post<UserResponse>("/api/auth/sync");
       setUser(backendUser);
       setFirebaseUser(fbUser);
       currentAuthSnapshot = { user: backendUser, firebaseUser: fbUser, loading: false };

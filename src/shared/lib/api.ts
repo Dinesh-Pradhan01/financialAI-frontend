@@ -8,11 +8,16 @@ import { getIdToken } from "@/shared/firebase/auth";
 // the Vite dev-server proxy forwards /api/* to the FastAPI backend on the
 // same origin. This avoids cross-origin cookie issues in development.
 // In production, set VITE_API_BASE_URL to the absolute backend URL.
-const _rawBase = import.meta.env.VITE_API_URL ?? import.meta.env.VITE_API_BASE_URL;
-const API_BASE_URL: string =
-  _rawBase !== undefined && _rawBase !== null
-    ? _rawBase // could be "" (proxy mode) or "https://api.example.com"
-    : "http://127.0.0.1:8000"; // local fallback when env var is missing entirely
+//
+// NOTE: use || not ?? so that an empty string (proxy mode) doesn't
+// accidentally fall through to the Railway URL.
+const _rawBase =
+  (import.meta.env.VITE_API_URL || "") ||
+  (import.meta.env.VITE_API_BASE_URL || "");
+
+export const API_BASE_URL: string = _rawBase
+  ? _rawBase.replace(/\/+$/, "")  // strip trailing slash
+  : "";                            // empty → relative paths → Vite proxy
 
 // ---------------------------------------------------------------------------
 // Types
@@ -37,15 +42,18 @@ interface FetchOptions extends Omit<RequestInit, "headers"> {
  * - Throws on non-2xx responses with the server error detail
  */
 export async function fetchAPI<T = unknown>(path: string, options: FetchOptions = {}): Promise<T> {
-  const { headers: extraHeaders = {}, useFirebaseToken = false, ...init } = options;
+  const { headers: extraHeaders = {}, useFirebaseToken, ...init } = options;
 
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
     ...extraHeaders,
   };
 
-  // Only attach Firebase token when explicitly requested (e.g. for /sync)
-  if (useFirebaseToken) {
+  // Attach the Firebase token on every request unless explicitly opted out.
+  // Opting out (useFirebaseToken: false) is only needed for the logout endpoint
+  // which must fire even after the Firebase session is revoked.
+  // All other callers get the token automatically — no manual header needed.
+  if (useFirebaseToken !== false && !headers["Authorization"]) {
     const token = await getIdToken(/* forceRefresh */ false);
     if (token) {
       headers["Authorization"] = `Bearer ${token}`;
@@ -55,12 +63,11 @@ export async function fetchAPI<T = unknown>(path: string, options: FetchOptions 
   const url = `${API_BASE_URL}${path}`;
 
   const response = await fetch(url, {
-    credentials: "include", // Essential for sending/receiving session cookies
+    credentials: "include",
     ...init,
     headers,
   });
 
-  // Handle non-JSON (204 No Content, etc.)
   if (response.status === 204) {
     return undefined as T;
   }
@@ -68,18 +75,9 @@ export async function fetchAPI<T = unknown>(path: string, options: FetchOptions 
   const body = await response.json().catch(() => null);
 
   if (!response.ok) {
-    if (response.status === 401 && typeof window !== "undefined") {
-      const currentPath = window.location.pathname;
-      const isAuthPage =
-        currentPath.startsWith("/login") ||
-        currentPath.startsWith("/signup") ||
-        currentPath.startsWith("/verify-email") ||
-        currentPath.startsWith("/accept-invite") ||
-        currentPath === "/";
-      if (!isAuthPage && !path.includes("/api/auth/")) {
-        window.location.href = "/login";
-      }
-    }
+    // NOTE: Do NOT redirect on 401 here. Hard navigations bypass TanStack Router,
+    // reset all React state, and re-trigger initializeAuth() — causing redirect loops.
+    // Auth redirects are handled exclusively by _app.tsx beforeLoad / useEffect.
 
     const detail = body?.detail ?? body?.message;
     const message =
@@ -153,9 +151,14 @@ export const api = {
 
     const signal = opts?.signal ?? timeoutSignal;
 
+    const uploadHeaders: Record<string, string> = {};
+    const token = await getIdToken(false);
+    if (token) uploadHeaders["Authorization"] = `Bearer ${token}`;
+
     const response = await fetch(url, {
       method,
       credentials: "include",
+      headers: uploadHeaders,
       body: formData,
       signal,
     });
@@ -189,9 +192,13 @@ export const api = {
    */
   download: async (path: string): Promise<Blob> => {
     const url = `${API_BASE_URL}${path}`;
+    const dlHeaders: Record<string, string> = {};
+    const token = await getIdToken(false);
+    if (token) dlHeaders["Authorization"] = `Bearer ${token}`;
     const response = await fetch(url, {
       method: "GET",
       credentials: "include",
+      headers: dlHeaders,
     });
 
     if (!response.ok) {

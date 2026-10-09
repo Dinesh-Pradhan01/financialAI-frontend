@@ -14,20 +14,21 @@ export default defineConfig({
   },
   vite: {
     server: {
-      // Proxy /api/* to the FastAPI backend so the browser sees everything as
-      // same-origin (localhost:8080). This fixes cross-origin cookie issues —
-      // the session cookie set by /api/auth/sync will be included in all
-      // subsequent /api/* requests automatically.
+      // Proxy /api/* through the Vite dev-server to the Railway backend.
+      // The browser sees all requests as same-origin (localhost:8080) so
+      // there are zero CORS / preflight issues regardless of the backend's
+      // allowed-origins list. No local FastAPI instance is required.
       proxy: {
         "/api": {
-          target: "http://127.0.0.1:8000",
+          target: "https://financialai-backend-production.up.railway.app",
           changeOrigin: true,
-          secure: false,
+          secure: true,
         },
         // Also proxy /docs and /redoc for convenience during development
         "/docs": {
-          target: "http://127.0.0.1:8000",
+          target: "https://financialai-backend-production.up.railway.app",
           changeOrigin: true,
+          secure: true,
         },
       },
     },
