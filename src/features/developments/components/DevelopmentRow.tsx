@@ -137,9 +137,14 @@ export const DevelopmentRow: React.FC<DevelopmentRowProps> = React.memo(function
             </div>
 
             {item.implication ? (
-              <p className="text-sm text-text-primary leading-relaxed break-words">
-                {item.implication}
-              </p>
+              <div className="text-sm text-text-primary leading-relaxed break-words space-y-1.5">
+                {item.implication.split(/(?:^|\s+)(?:-|\u2022)\s+/).filter(Boolean).map((bullet, idx) => (
+                  <div key={idx} className="flex items-start gap-2">
+                    <span className="text-brand font-bold mt-0.5">•</span>
+                    <span>{bullet.trim()}</span>
+                  </div>
+                ))}
+              </div>
             ) : (
               <p className="text-sm text-text-tertiary italic leading-relaxed">
                 No implication was provided for this development.
