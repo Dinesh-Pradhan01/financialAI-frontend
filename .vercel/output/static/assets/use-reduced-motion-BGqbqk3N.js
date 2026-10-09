@@ -1,1 +1,0 @@
-import{h as e,l as t}from"./useRouter-DKdA_c9H.js";import{I as n,L as r,R as i}from"./index-GOiN67kA.js";var a=e(t(),1);function o(){!r.current&&n();let[e]=(0,a.useState)(i.current);return e}export{o as t};

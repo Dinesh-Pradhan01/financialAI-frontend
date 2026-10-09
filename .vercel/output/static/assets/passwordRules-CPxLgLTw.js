@@ -1,1 +1,0 @@
-var e=[{label:`At least 8 characters`,test:e=>e.length>=8},{label:`One uppercase letter`,test:e=>/[A-Z]/.test(e)},{label:`One lowercase letter`,test:e=>/[a-z]/.test(e)},{label:`One number`,test:e=>/\d/.test(e)}];export{e as t};
