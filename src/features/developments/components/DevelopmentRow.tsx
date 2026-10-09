@@ -138,10 +138,15 @@ export const DevelopmentRow: React.FC<DevelopmentRowProps> = React.memo(function
 
             {item.implication ? (
               <div className="text-sm text-text-primary leading-relaxed break-words space-y-1.5">
-                {item.implication.split(/(?:^|\s+)(?:-|\u2022)\s+/).filter(Boolean).map((bullet, idx) => (
+                {(Array.isArray(item.implication) 
+                  ? item.implication 
+                  : typeof item.implication === 'string'
+                  ? item.implication.split(/(?:^|\s+)(?:-|\u2022)\s+/)
+                  : [String(item.implication)]
+                ).filter(Boolean).map((bullet, idx) => (
                   <div key={idx} className="flex items-start gap-2">
                     <span className="text-brand font-bold mt-0.5">•</span>
-                    <span>{bullet.trim()}</span>
+                    <span>{typeof bullet === 'string' ? bullet.trim() : String(bullet).trim()}</span>
                   </div>
                 ))}
               </div>
