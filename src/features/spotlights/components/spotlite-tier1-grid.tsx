@@ -113,7 +113,7 @@ export function SpotliteTier1Grid({ metrics, tier2Metrics: tier2, llmInsights: l
                     Monthly Rupee Cushion
                   </span>
                   <span className="font-num tabular-nums text-2xl font-extrabold text-emerald-600 dark:text-emerald-400">
-                    +{formatINR(be.monthly_rupee_cushion)}
+                    {formatINR(be.monthly_rupee_cushion, { sign: true })}
                   </span>
                 </div>
 
@@ -267,7 +267,7 @@ export function SpotliteTier1Grid({ metrics, tier2Metrics: tier2, llmInsights: l
                     {overbill.vendor_name}
                   </span>
                   <span className="font-num tabular-nums text-xl font-extrabold text-rose-600 dark:text-rose-400">
-                    +{formatINR(overbill.monthly_overbill_amount)} / mo
+                    {formatINR(overbill.monthly_overbill_amount, { sign: true })} / mo
                   </span>
                 </div>
 
@@ -293,7 +293,7 @@ export function SpotliteTier1Grid({ metrics, tier2Metrics: tier2, llmInsights: l
                     Annual Recoverable Cash
                   </span>
                   <span className="font-num tabular-nums text-xl font-extrabold text-rose-600 dark:text-rose-400">
-                    +{formatINR(overbill.annualized_recoverable_cash)} / year
+                    {formatINR(overbill.annualized_recoverable_cash, { sign: true })} / year
                   </span>
                 </div>
               </div>
@@ -363,7 +363,7 @@ export function SpotliteTier1Grid({ metrics, tier2Metrics: tier2, llmInsights: l
                       Idle Surplus Cash
                     </span>
                     <span className="font-num tabular-nums text-sm font-extrabold text-teal-600 dark:text-teal-400">
-                      +{formatINR(idle.idle_cash_surplus, { compact: true })}
+                      {formatINR(idle.idle_cash_surplus, { compact: true, sign: true })}
                     </span>
                   </div>
                 </div>
@@ -373,7 +373,7 @@ export function SpotliteTier1Grid({ metrics, tier2Metrics: tier2, llmInsights: l
                     Annual Lost Yield at 6.5%
                   </span>
                   <span className="font-num tabular-nums text-lg font-extrabold text-teal-600 dark:text-teal-400">
-                    ~{formatINR(idle.annualized_unearned_interest)} / yr
+                    ~{formatINR(Math.abs(idle.annualized_unearned_interest))} / yr
                   </span>
                 </div>
               </div>

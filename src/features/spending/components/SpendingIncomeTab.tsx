@@ -177,7 +177,7 @@ export function SpendingIncomeTab({
             <DollarSign size={16} className="text-emerald-500" />
           </div>
           <div className="font-num tabular-nums text-2xl font-extrabold text-emerald-600 dark:text-emerald-400">
-            +{formatINR(totalRevenue)}
+            {formatINR(totalRevenue, { sign: true })}
           </div>
           <div className="text-[11px] text-text-secondary">
             Cumulative credit inflows recorded across statements
@@ -205,7 +205,7 @@ export function SpendingIncomeTab({
             <Briefcase size={16} className="text-blue-500" />
           </div>
           <div className="font-num tabular-nums text-2xl font-extrabold text-foreground">
-            +{formatINR(annualizedRunRate, { compact: true })}
+            {formatINR(annualizedRunRate, { compact: true, sign: true })}
           </div>
           <div className="text-[11px] text-text-secondary">
             Extrapolated 12-month revenue trajectory based on trailing average
@@ -278,7 +278,7 @@ export function SpendingIncomeTab({
                   <div className="flex items-center justify-between text-xs">
                     <span className="font-semibold text-foreground truncate">{item.category}</span>
                     <div className="font-num tabular-nums text-xs font-bold text-emerald-600 dark:text-emerald-400 shrink-0 ml-2">
-                      +{formatINR(item.amount)} <span className="text-[10px] text-text-tertiary font-normal">({formatPct(item.pct, 1)})</span>
+                      {formatINR(item.amount, { sign: true })} <span className="text-[10px] text-text-tertiary font-normal">({formatPct(item.pct, 1)})</span>
                     </div>
                   </div>
                   <div
@@ -340,7 +340,7 @@ export function SpendingIncomeTab({
                     {row.narration}
                   </td>
                   <td className="px-4 py-3 font-num tabular-nums font-bold text-emerald-600 dark:text-emerald-400 whitespace-nowrap text-right">
-                    +{formatINR(row.amount || row.credit_amount || 0)}
+                    {formatINR(row.amount || row.credit_amount || 0, { sign: true })}
                   </td>
                   <td className="px-4 py-3 text-text-secondary">{row.issue || "Missing counterparty mapping"}</td>
                   <td className="px-4 py-3">

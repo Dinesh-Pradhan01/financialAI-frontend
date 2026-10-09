@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { formatINR, formatPct } from "@/shared/lib/format";
-import { useSpotlite } from "@/features/spotlights/hooks/useSpotlite";
 import {
   TrendingUp,
   ShieldAlert,
@@ -18,24 +17,41 @@ import {
 import { toast } from "sonner";
 import { cn } from "@/shared/lib/utils";
 import { motion, useReducedMotion } from "framer-motion";
+import { Tier1Metrics, LLMInsights, useSpotlite } from "@/features/spotlights/hooks/useSpotlite";
 
-export function SpotliteSpendingInsights() {
-  const shouldReduceMotion = useReducedMotion();
-  const { tier1, llm, loading, error } = useSpotlite();
+interface Props {
+  tier1?: Tier1Metrics | null;
+  llm?: LLMInsights | null;
+}
 
-  if (loading || !tier1 || !llm) {
+export function SpotliteSpendingInsights({ tier1: propTier1, llm: propLlm }: Props) {
+  const { tier1: fetchedTier1, llm: fetchedLlm, loading } = useSpotlite();
+
+  const tier1 = propTier1 || fetchedTier1;
+  const llm = propLlm || fetchedLlm;
+
+  const isDataReady = propTier1 && propLlm ? true : !loading && tier1 && llm;
+
+  if (!isDataReady || !tier1 || !llm) {
     return null;
   }
 
-  const overbill = tier1.vendor_overbilling_detector;
-  const idle = tier1.idle_cash_forfeited_income;
-  const rigidity = tier1.cost_structure_flexibility;
-  const becAlerts = llm.capability6_payment_redirection_drift_detector;
-  const lapseScans = llm.capability5_contract_lapse_scanner;
+  return <SpotliteSpendingInsightsBase tier1={tier1} llm={llm} />;
+}
+
+function SpotliteSpendingInsightsBase({ tier1, llm }: { tier1: Tier1Metrics; llm: LLMInsights }) {
+  const shouldReduceMotion = useReducedMotion();
 
   const [disputeTriggered, setDisputeTriggered] = useState(false);
   const [becFlagged, setBecFlagged] = useState<Record<number, boolean>>({});
   const [lapseNotified, setLapseNotified] = useState<Record<number, boolean>>({});
+
+  const overbill = tier1.vendor_overbilling_detector;
+  const idle = tier1.idle_cash_forfeited_income;
+  const rigidity = tier1.cost_structure_flexibility;
+  const becAlerts = llm.capability6_payment_redirection_drift_detector || [];
+  const lapseScans = llm.capability5_contract_lapse_scanner || [];
+
 
   return (
     <section className="space-y-4 my-6" aria-labelledby="spotlite-spending-insights-heading">
@@ -93,7 +109,7 @@ export function SpotliteSpendingInsights() {
                   <DollarSign size={14} /> Recoverable Overbilled Cash
                 </span>
                 <span className="font-num tabular-nums text-xs font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded">
-                  +{formatINR(overbill.annualized_recoverable_cash)} / yr
+                  {formatINR(overbill.annualized_recoverable_cash, { sign: true })} / yr
                 </span>
               </div>
               <h4 className="text-xs font-bold text-foreground">
@@ -163,7 +179,7 @@ export function SpotliteSpendingInsights() {
                   <PiggyBank size={14} /> Idle Surplus Cash Income
                 </span>
                 <span className="font-num tabular-nums text-xs font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded">
-                  ~{formatINR(idle.annualized_unearned_interest)} / yr
+                  ~{formatINR(Math.abs(idle.annualized_unearned_interest))} / yr
                 </span>
               </div>
               <h4 className="text-xs font-bold text-foreground">

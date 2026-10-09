@@ -228,7 +228,7 @@ function Spotlights() {
               </div>
             </div>
             <div className="font-num tabular-nums text-2xl font-bold text-emerald-600 dark:text-emerald-400">
-              +{formatINR(tier1.vendor_overbilling_detector.annualized_recoverable_cash)}
+              {formatINR(tier1.vendor_overbilling_detector.annualized_recoverable_cash, { sign: true })}
             </div>
             <div className="text-[11px] text-emerald-800/80 dark:text-emerald-300/80 font-medium">
               {tier1.vendor_overbilling_detector.vendor_name} rate overbilling
@@ -249,7 +249,7 @@ function Spotlights() {
               </div>
             </div>
             <div className="font-num tabular-nums text-2xl font-bold text-cyan-700 dark:text-cyan-300">
-              +{formatINR(tier1.room_above_break_even.monthly_rupee_cushion)} / mo
+              {formatINR(tier1.room_above_break_even.monthly_rupee_cushion, { sign: true })} / mo
             </div>
             <div className="text-[11px] text-cyan-800/80 dark:text-cyan-200/80 font-medium">
               {Number(tier1.room_above_break_even.operating_margin_pct).toFixed(1)}% operating
@@ -271,7 +271,7 @@ function Spotlights() {
               </div>
             </div>
             <div className="font-num tabular-nums text-2xl font-bold text-teal-700 dark:text-teal-300">
-              +{formatINR(tier1.idle_cash_forfeited_income.idle_cash_surplus, { compact: true })}
+              {formatINR(tier1.idle_cash_forfeited_income.idle_cash_surplus, { compact: true, sign: true })}
             </div>
             <div className="text-[11px] text-teal-800/80 dark:text-teal-200/80 font-medium">
               Surplus cash above{" "}
@@ -304,7 +304,7 @@ function Spotlights() {
               </motion.div>
             </div>
             <div className="font-num tabular-nums text-2xl font-black text-rose-600 dark:text-rose-400">
-              {llm.capability6_payment_redirection_drift_detector.length} Active Alert
+              {llm.capability6_payment_redirection_drift_detector?.length || 0} Active Alert
             </div>
             <div className="text-[11px] text-rose-800/90 dark:text-rose-200/90 font-medium">
               BEC Bank IFSC Drift detected on pending transfers

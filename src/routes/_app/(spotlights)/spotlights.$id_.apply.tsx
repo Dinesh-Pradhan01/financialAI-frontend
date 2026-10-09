@@ -343,7 +343,7 @@ function B2BRemediationConsole() {
                     transition={{ duration: 0.15 }}
                     className="font-num tabular-nums text-2xl font-black text-emerald-600 dark:text-emerald-400"
                   >
-                    +{formatINR(calculatedOverbillClaim)}
+                    {formatINR(calculatedOverbillClaim, { sign: true })}
                   </motion.div>
                 </div>
                 <button
@@ -500,7 +500,7 @@ function B2BRemediationConsole() {
                     transition={{ duration: 0.15 }}
                     className="font-num tabular-nums text-2xl font-black text-emerald-600 dark:text-emerald-400"
                   >
-                    +{formatINR(calculatedRenewalSavings)} / yr
+                    {formatINR(calculatedRenewalSavings, { sign: true })} / yr
                   </motion.div>
                 </div>
                 <div className="text-right text-xs text-text-secondary">
@@ -559,7 +559,7 @@ function B2BRemediationConsole() {
                     transition={{ duration: 0.15 }}
                     className="font-num tabular-nums text-2xl font-black text-teal-600 dark:text-teal-400"
                   >
-                    +{formatINR(calculatedSweepYield)} / yr
+                    {formatINR(calculatedSweepYield, { sign: true })} / yr
                   </motion.div>
                 </div>
                 <div className="text-right text-xs text-text-secondary">

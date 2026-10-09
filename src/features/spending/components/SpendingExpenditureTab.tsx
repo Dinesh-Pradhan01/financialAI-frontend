@@ -346,7 +346,7 @@ export function SpendingExpenditureTab({
             <ShieldCheck size={16} className="text-emerald-500" />
           </div>
           <div className="font-num tabular-nums text-2xl font-bold text-emerald-600 dark:text-emerald-400">
-            +{formatINR(cashAbove3MonthBuffer)}
+            {formatINR(cashAbove3MonthBuffer, { sign: true })}
           </div>
           <div className="text-[11px] text-text-secondary">
             Liquid cash reserves available beyond 3-month safety reserve

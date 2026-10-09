@@ -255,7 +255,7 @@ export function ExecutiveSolvencyRibbon({
               </div>
               <div className="text-[11px] text-text-secondary mt-1 flex items-center gap-1 font-num tabular-nums">
                 <span className="text-emerald-600 dark:text-emerald-400 font-medium">
-                  +{formatINR(inflow, { compact: true })}
+                  {formatINR(inflow, { compact: true, sign: true })}
                 </span>
                 <span className="text-text-secondary/50">in</span>
                 <span className="text-text-secondary/50">·</span>

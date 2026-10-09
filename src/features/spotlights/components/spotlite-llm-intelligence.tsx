@@ -110,7 +110,7 @@ export function SpotliteLLMIntelligence({ insights, onSelectTab }: Props) {
               </p>
             </div>
 
-            {insights.capability6_payment_redirection_drift_detector.map((item, idx) => (
+            {(insights.capability6_payment_redirection_drift_detector || []).map((item, idx) => (
               <div key={idx} className="rounded-xl bg-surface p-4 border border-border/60 space-y-2">
                 <div className="flex justify-between items-baseline text-xs">
                   <span className="font-bold text-foreground">{item.counterparty}</span>
@@ -159,7 +159,7 @@ export function SpotliteLLMIntelligence({ insights, onSelectTab }: Props) {
               Contract Lapse & Legal Exposure Scan
             </h4>
 
-            {insights.capability5_contract_lapse_scanner.map((item, idx) => (
+            {(insights.capability5_contract_lapse_scanner || []).map((item, idx) => (
               <div key={idx} className="rounded-xl bg-surface p-3.5 border border-border/60 space-y-1.5">
                 <div className="flex justify-between items-baseline text-xs">
                   <span className="font-bold text-foreground">{item.counterparty} ({item.type})</span>
@@ -205,7 +205,7 @@ export function SpotliteLLMIntelligence({ insights, onSelectTab }: Props) {
         </div>
 
         <div className="space-y-3">
-          {insights.capability3_anomaly_materiality_triage.map((item, idx) => (
+          {(insights.capability3_anomaly_materiality_triage || []).map((item, idx) => (
             <div key={idx} className="rounded-xl bg-surface-alt p-4 border border-border/50 flex flex-col md:flex-row justify-between gap-3">
               <div className="space-y-1">
                 <div className="flex items-center gap-2 text-xs">
