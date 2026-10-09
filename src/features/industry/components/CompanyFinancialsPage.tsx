@@ -222,7 +222,7 @@ export const CompanyFinancialsPage: React.FC<CompanyFinancialsPageProps> = ({
               tabIndex={-1}
               className="font-display text-2xl sm:text-3xl font-extrabold tracking-tight text-text-primary focus:outline-none"
             >
-              {data.companyName ?? `Company #${companyId}`}
+              {data.companyName ?? matchedCompetitor?.companyName ?? `Company #${companyId}`}
               {data.ticker && (
                 <span className="ml-2 font-mono text-base sm:text-lg font-medium text-text-tertiary">
                   ({data.ticker})

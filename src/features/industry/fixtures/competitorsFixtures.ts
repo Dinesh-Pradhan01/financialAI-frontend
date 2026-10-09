@@ -51,18 +51,7 @@ export const FIXTURE_COMPETITORS_RESPONSE: CompetitorsResponseDTO = {
       has_financials: true,
       latest_period: "Q4 FY26",
     },
-    {
-      company_id: 900001,
-      company_name: "Allied Digital",
-      ticker: "ADSL",
-      overlap_level: "Very High",
-      overlap_rank: 2,
-      overlap_summary:
-        "IT infrastructure solutions, network integration, and physical security architecture services.",
-      overlap_source: "curated",
-      has_financials: false,
-      latest_period: null,
-    },
+
     {
       company_id: 2276,
       company_name: "Black Box",
