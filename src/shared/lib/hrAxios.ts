@@ -12,9 +12,10 @@
 import axios from "axios";
 import { getIdToken } from "@/shared/firebase/auth";
 import { toast } from "sonner";
+import { API_BASE_URL } from "@/shared/lib/api";
 
 export const hrApi = axios.create({
-  baseURL: "/api/v1/hr",
+  baseURL: `${API_BASE_URL}/api/v1/hr`,
   withCredentials: true,
   timeout: 30_000,
   headers: {
