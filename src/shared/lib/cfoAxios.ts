@@ -12,9 +12,10 @@
 import axios from "axios";
 import { getIdToken } from "@/shared/firebase/auth";
 import { toast } from "sonner";
+import { API_BASE_URL } from "@/shared/lib/api";
 
 export const cfoApi = axios.create({
-  baseURL: "/api/v1/cfo",
+  baseURL: `${API_BASE_URL}/api/v1/cfo`,
   withCredentials: true,
   timeout: 30_000,
   headers: {
