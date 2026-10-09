@@ -40,12 +40,11 @@ export function SpotliteClientAnalytics() {
     async function fetchClientAnalytics() {
       try {
         setLoading(true);
-        let json: any;
-        try {
-          json = await api.get("/api/v1/analysis/clients/analytics");
-        } catch (err) {
-          json = await api.get("/api/v1/spotlite/clients/analytics");
+        let res = await fetch(`${API_BASE}/api/v1/analysis/clients/analytics`);
+        if (!res.ok) {
+          res = await fetch(`${API_BASE}/api/v1/spotlite/clients/analytics`);
         }
+        const json = await res.json();
         if (json?.success && json?.data) {
           setData(json.data);
         } else {
@@ -189,62 +188,62 @@ export function SpotliteClientAnalytics() {
   const client_table =
     rawClientList.length > 0
       ? rawClientList.map((c: any) => ({
-          client_id: c.client_id || c.clientId || "CLI-001",
-          client_name: c.company_name || c.client_name || c.name || "Client Account",
-          acv:
-            c.acv || (c.avg_monthly_revenue ? c.avg_monthly_revenue * 12 : 0) || c.revenue_6mo || 0,
-          revenue_share_pct: c.revenue_share_pct ?? c.share_pct ?? 0,
-          dso_days: c.payment_drift_median_day ?? c.dso_days ?? 10,
-          status: c.status || "Active",
-          tenure_months: c.tenure_months ?? 28,
-        }))
+        client_id: c.client_id || c.clientId || "CLI-001",
+        client_name: c.company_name || c.client_name || c.name || "Client Account",
+        acv:
+          c.acv || (c.avg_monthly_revenue ? c.avg_monthly_revenue * 12 : 0) || c.revenue_6mo || 0,
+        revenue_share_pct: c.revenue_share_pct ?? c.share_pct ?? 0,
+        dso_days: c.payment_drift_median_day ?? c.dso_days ?? 10,
+        status: c.status || "Active",
+        tenure_months: c.tenure_months ?? 28,
+      }))
       : [
-          {
-            client_id: "CLT-001",
-            client_name: "Technova Solutions",
-            acv: 6240000,
-            revenue_share_pct: 20.35,
-            dso_days: 8,
-            status: "Active",
-            tenure_months: 36,
-          },
-          {
-            client_id: "CLT-002",
-            client_name: "GlobalRetail Logistics",
-            acv: 5700000,
-            revenue_share_pct: 18.59,
-            dso_days: 12,
-            status: "Active",
-            tenure_months: 24,
-          },
-          {
-            client_id: "CLT-003",
-            client_name: "Apex Financials",
-            acv: 4600000,
-            revenue_share_pct: 15.07,
-            dso_days: 10,
-            status: "Contract Expired",
-            tenure_months: 30,
-          },
-          {
-            client_id: "CLT-004",
-            client_name: "Zenith Enterprises",
-            acv: 4200000,
-            revenue_share_pct: 13.71,
-            dso_days: 15,
-            status: "Active",
-            tenure_months: 18,
-          },
-          {
-            client_id: "CLT-005",
-            client_name: "Horizon Media",
-            acv: 3700000,
-            revenue_share_pct: 12.08,
-            dso_days: 7,
-            status: "Active",
-            tenure_months: 22,
-          },
-        ];
+        {
+          client_id: "CLT-001",
+          client_name: "Technova Solutions",
+          acv: 6240000,
+          revenue_share_pct: 20.35,
+          dso_days: 8,
+          status: "Active",
+          tenure_months: 36,
+        },
+        {
+          client_id: "CLT-002",
+          client_name: "GlobalRetail Logistics",
+          acv: 5700000,
+          revenue_share_pct: 18.59,
+          dso_days: 12,
+          status: "Active",
+          tenure_months: 24,
+        },
+        {
+          client_id: "CLT-003",
+          client_name: "Apex Financials",
+          acv: 4600000,
+          revenue_share_pct: 15.07,
+          dso_days: 10,
+          status: "Contract Expired",
+          tenure_months: 30,
+        },
+        {
+          client_id: "CLT-004",
+          client_name: "Zenith Enterprises",
+          acv: 4200000,
+          revenue_share_pct: 13.71,
+          dso_days: 15,
+          status: "Active",
+          tenure_months: 18,
+        },
+        {
+          client_id: "CLT-005",
+          client_name: "Horizon Media",
+          acv: 3700000,
+          revenue_share_pct: 12.08,
+          dso_days: 7,
+          status: "Active",
+          tenure_months: 22,
+        },
+      ];
 
   const churn_risk_accounts = data?.churn_risk_accounts || [
     {
