@@ -28,7 +28,7 @@ import {
 import { SpotliteVendorBubbleGraph } from "./spotlite-vendor-bubble-graph";
 
 import { api } from "@/shared/lib/api";
-const API_BASE = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
+
 
 const COLORS_FIXED = ["#8b5cf6", "#6366f1", "#3b82f6", "#0ea5e9", "#06b6d4"];
 const COLORS_VAR = ["#f43f5e", "#fb7185", "#f97316", "#eab308"];

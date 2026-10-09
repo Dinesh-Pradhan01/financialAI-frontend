@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
 import { api } from "@/shared/lib/api";
 
-// Base API URL from environment or default backend port
-const API_BASE = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
+
 
 export interface Tier1Metrics {
   room_above_break_even: {

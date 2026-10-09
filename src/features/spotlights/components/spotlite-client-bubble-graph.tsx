@@ -8,8 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/shared/compo
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 
 import { api } from "@/shared/lib/api";
-const API_BASE =
-  import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
+
 
 export interface TransactionRecord {
   transaction_id: string;

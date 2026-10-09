@@ -25,7 +25,7 @@ import {
 
 import { api } from "@/shared/lib/api";
 const API_BASE =
-  import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
+  import.meta.env.VITE_API_BASE_URL
 
 const CLIENT_COLORS = ["#3b82f6", "#10b981", "#8b5cf6", "#f59e0b", "#ec4899", "#06b6d4", "#64748b"];
 
